@@ -139,7 +139,7 @@ For quick testing from the Login page:
 
 | Role | Email / Username | Password | Target Dashboard |
 |---|---|---|---|
-| **Administrator** | `admin@femsphere.health` | `admin` | `/admin` |
+| **Administrator** | `admin@femsphere.health` | `••••••••••••` | `/admin` |
 | **Myself (User)** | `elena.rostova@femsphere.health` | `••••••••••••` | `/dashboard` |
 | **Caregiver** | `caregiver@femsphere.health` | `••••••••••••` | `/caregiver-dashboard` |
 | **Doctor** | `dr.jenkins@femsphere.health` | `••••••••••••` | `/doctor-dashboard` |
