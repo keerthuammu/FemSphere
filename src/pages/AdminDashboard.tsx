@@ -1,14 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
   Shield, Sparkles, Users, UserCheck, Stethoscope, FileText, 
-  BarChart2, BookOpen, AlertCircle, LogOut, CheckCircle2, User, 
-  Clock, Activity, Search, Bell, Plus, Edit, Trash2, X, Lock, Check, Key
+  BookOpen, AlertCircle, LogOut, CheckCircle2, User, 
+  Clock, Activity, Search, Bell, Plus, Edit, Trash2, X, Lock, Check, Key, Sliders, ChevronDown, Printer
 } from 'lucide-react';
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('Overview');
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
+
+  // Live Time & Date
+  const [currentTime, setCurrentTime] = useState(new Date());
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   // Admin Profile State
   const [adminProfile, setAdminProfile] = useState({
@@ -58,7 +66,7 @@ export default function AdminDashboard() {
   const [showAddArticleModal, setShowAddArticleModal] = useState(false);
   const [newArticle, setNewArticle] = useState({ title: '', category: 'Wellness', desc: '', image: '' });
 
-  // Dashboard Overview Counters
+  // Counters
   const totalUsersCount = users.length;
   const totalCaregiversCount = caregivers.length;
   const totalDoctorsCount = doctors.filter(d => d.status === 'Active').length;
@@ -131,294 +139,410 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8f6fc] flex font-sans text-[#3a3135]">
+    <div className="min-h-screen bg-[#FAF7F4] flex font-inter text-[#2E2428]">
       
-      {/* Administrator Sidebar */}
-      <aside className="w-68 bg-[#1E1535] text-white hidden lg:flex flex-col flex-shrink-0 sticky top-0 h-screen">
-        <div className="p-6 border-b border-purple-900/50 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
-            <h1 className="font-serif text-2xl font-bold text-white tracking-tight">FemSphere</h1>
-            <Sparkles className="w-4 h-4 text-[#14B8A6]" />
+      {/* SIDEBAR NAVIGATION MENU */}
+      <aside className="w-72 bg-[#F4E0D1] border-r border-[#E5CDBC] hidden lg:flex flex-col flex-shrink-0 sticky top-0 h-screen font-inter print:hidden">
+        <div className="p-6 border-b border-[#E5CDBC] flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-2.5">
+            <h1 className="font-serif text-3xl font-bold text-[#7C3AED] tracking-tight">FemSphere</h1>
+            <Sparkles className="w-5 h-5 text-[#14B8A6]" />
           </Link>
-          <span className="text-[10px] font-black px-2.5 py-0.5 rounded-full bg-[#7C3AED] text-white tracking-wider uppercase">
-            ADMIN
-          </span>
         </div>
         
-        <div className="flex-1 overflow-y-auto p-4 space-y-1 scrollbar-hide">
-          <p className="text-[10px] uppercase tracking-widest text-purple-300/60 font-bold px-3 py-2 mt-2">Dashboard</p>
+        <div className="flex-1 overflow-y-auto p-4 space-y-1.5 scrollbar-hide font-inter">
+          <p className="text-xs uppercase tracking-widest text-[#8C756B] font-bold px-3 py-2">Governance</p>
           
+          {/* 1. Overview */}
           <button 
             onClick={() => setActiveTab('Overview')} 
-            className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-semibold text-sm transition-all ${
-              activeTab === 'Overview' ? 'bg-[#7C3AED] text-white shadow-md' : 'text-purple-200 hover:bg-white/10 hover:text-white'
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-base transition-all ${
+              activeTab === 'Overview' ? 'bg-white text-[#7C3AED] shadow-sm border border-[#E5CDBC]' : 'text-[#4A3B42] hover:bg-white/40 hover:text-[#2E2428]'
             }`}
           >
-            <Activity className="w-4 h-4 text-teal-300" /> Dashboard Overview
+            <Activity className="w-5 h-5 text-[#7C3AED]" /> Overview
           </button>
 
-          <p className="text-[10px] uppercase tracking-widest text-purple-300/60 font-bold px-3 py-2 mt-4">Management</p>
-
+          {/* 2. Manage Users */}
           <button 
             onClick={() => setActiveTab('Manage Users')} 
-            className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium text-sm transition-all ${
-              activeTab === 'Manage Users' ? 'bg-[#7C3AED] text-white shadow-md' : 'text-purple-200 hover:bg-white/10 hover:text-white'
+            className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl font-bold text-base transition-all ${
+              activeTab === 'Manage Users' ? 'bg-white text-[#7C3AED] shadow-sm border border-[#E5CDBC]' : 'text-[#4A3B42] hover:bg-white/40 hover:text-[#2E2428]'
             }`}
           >
-            <Users className="w-4 h-4 text-purple-300" /> Manage Users
+            <div className="flex items-center gap-3">
+              <Users className="w-5 h-5 text-[#7C3AED]" /> Users
+            </div>
+            <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-white text-[#7C3AED] border border-[#E5CDBC]">
+              {totalUsersCount}
+            </span>
           </button>
 
+          {/* 3. Manage Caregivers */}
           <button 
             onClick={() => setActiveTab('Manage Caregivers')} 
-            className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium text-sm transition-all ${
-              activeTab === 'Manage Caregivers' ? 'bg-[#7C3AED] text-white shadow-md' : 'text-purple-200 hover:bg-white/10 hover:text-white'
+            className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl font-bold text-base transition-all ${
+              activeTab === 'Manage Caregivers' ? 'bg-white text-[#7C3AED] shadow-sm border border-[#E5CDBC]' : 'text-[#4A3B42] hover:bg-white/40 hover:text-[#2E2428]'
             }`}
           >
-            <Users className="w-4 h-4 text-teal-300" /> Manage Caregivers
+            <div className="flex items-center gap-3">
+              <Users className="w-5 h-5 text-[#14B8A6]" /> Caregivers
+            </div>
+            <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-white text-[#7C3AED] border border-[#E5CDBC]">
+              {totalCaregiversCount}
+            </span>
           </button>
 
+          {/* 4. Manage Doctors & Approvals */}
           <button 
             onClick={() => setActiveTab('Manage Doctors')} 
-            className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium text-sm transition-all ${
-              activeTab === 'Manage Doctors' ? 'bg-[#7C3AED] text-white shadow-md' : 'text-purple-200 hover:bg-white/10 hover:text-white'
+            className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl font-bold text-base transition-all ${
+              activeTab === 'Manage Doctors' ? 'bg-white text-[#7C3AED] shadow-sm border border-[#E5CDBC]' : 'text-[#4A3B42] hover:bg-white/40 hover:text-[#2E2428]'
             }`}
           >
-            <Stethoscope className="w-4 h-4 text-purple-300" /> Manage Doctors
-          </button>
-
-          <button 
-            onClick={() => setActiveTab('Approve Doctor Registrations')} 
-            className={`w-full flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl font-medium text-sm transition-all ${
-              activeTab === 'Approve Doctor Registrations' ? 'bg-[#7C3AED] text-white shadow-md' : 'text-purple-200 hover:bg-white/10 hover:text-white'
-            }`}
-          >
-            <span className="flex items-center gap-3"><UserCheck className="w-4 h-4 text-amber-300" /> Approve Doctors</span>
+            <div className="flex items-center gap-3">
+              <Stethoscope className="w-5 h-5 text-[#F472B6]" /> Doctors & Approvals
+            </div>
             {pendingApprovalsCount > 0 && (
-              <span className="px-2 py-0.5 rounded-full bg-amber-400 text-slate-900 text-[10px] font-bold">
+              <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-amber-500 text-white">
                 {pendingApprovalsCount}
               </span>
             )}
           </button>
 
-          <p className="text-[10px] uppercase tracking-widest text-purple-300/60 font-bold px-3 py-2 mt-4">Content & System</p>
-
+          {/* 5. Health Articles */}
           <button 
             onClick={() => setActiveTab('Health Articles')} 
-            className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium text-sm transition-all ${
-              activeTab === 'Health Articles' ? 'bg-[#7C3AED] text-white shadow-md' : 'text-purple-200 hover:bg-white/10 hover:text-white'
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-base transition-all ${
+              activeTab === 'Health Articles' ? 'bg-white text-[#7C3AED] shadow-sm border border-[#E5CDBC]' : 'text-[#4A3B42] hover:bg-white/40 hover:text-[#2E2428]'
             }`}
           >
-            <BookOpen className="w-4 h-4 text-purple-300" /> Health Articles
+            <BookOpen className="w-5 h-5 text-[#7C3AED]" /> Health Articles
           </button>
 
+          {/* 6. System Reports */}
           <button 
             onClick={() => setActiveTab('Reports')} 
-            className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium text-sm transition-all ${
-              activeTab === 'Reports' ? 'bg-[#7C3AED] text-white shadow-md' : 'text-purple-200 hover:bg-white/10 hover:text-white'
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-base transition-all ${
+              activeTab === 'Reports' ? 'bg-white text-[#7C3AED] shadow-sm border border-[#E5CDBC]' : 'text-[#4A3B42] hover:bg-white/40 hover:text-[#2E2428]'
             }`}
           >
-            <FileText className="w-4 h-4 text-purple-300" /> System Reports
-          </button>
-
-          <button 
-            onClick={() => setActiveTab('Profile')} 
-            className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium text-sm transition-all ${
-              activeTab === 'Profile' ? 'bg-[#7C3AED] text-white shadow-md' : 'text-purple-200 hover:bg-white/10 hover:text-white'
-            }`}
-          >
-            <User className="w-4 h-4 text-purple-300" /> Admin Profile
-          </button>
-        </div>
-
-        <div className="p-4 border-t border-purple-900/50">
-          <button onClick={handleLogout} className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-purple-200 hover:text-white text-xs font-bold transition-all">
-            <LogOut className="w-4 h-4" /> Logout
+            <FileText className="w-5 h-5 text-[#14B8A6]" /> System Reports
           </button>
         </div>
       </aside>
 
-      {/* Main Area */}
-      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto">
+      {/* MAIN CONTENT AREA */}
+      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto font-inter">
         
-        {/* Top Header */}
-        <header className="bg-white border-b border-[#EDE9FE] px-6 py-4 flex items-center justify-between sticky top-0 z-20 shadow-xs">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#F5F3FF] flex items-center justify-center border border-[#EDE9FE]">
-              <Shield className="w-5 h-5 text-[#7C3AED]" />
-            </div>
-            <div>
-              <h2 className="font-bold text-[#3a3135] text-lg">Administrator Control Center</h2>
-              <p className="text-xs text-[#7a6f75]">FemSphere System Governance & Security Clearance</p>
-            </div>
+        {/* HEADER BAR */}
+        <header className="bg-[#F4E0D1]/90 backdrop-blur-md border-b border-[#E5CDBC] p-5 md:px-8 flex items-center justify-between sticky top-0 z-20 print:hidden font-inter">
+          <div>
+            <h2 className="font-bold text-[#3a3135] text-xl md:text-2xl">
+              Welcome, {adminProfile.name}!
+            </h2>
+            <p className="text-xs md:text-sm text-[#64595e] flex items-center gap-2 mt-1 font-medium">
+              <Clock className="w-4 h-4 text-[#7C3AED]" />
+              {currentTime.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} • {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+            </p>
           </div>
-
+          
           <div className="flex items-center gap-3">
-            <button onClick={handleLogout} className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-red-50 text-red-600 hover:bg-red-100 text-xs font-bold transition-colors">
-              <LogOut className="w-3.5 h-3.5" /> Logout
+            {/* Quick Action: Add User */}
+            <button 
+              onClick={() => setShowAddUserModal(true)} 
+              className="hidden sm:flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-[#7C3AED] text-white text-sm font-bold shadow-xs hover:bg-[#6D28D9] transition-colors"
+            >
+              <Plus className="w-4 h-4" /> Add User
             </button>
+
+            {/* Profile Photo Avatar Dropdown Menu */}
+            <div className="relative">
+              <button 
+                onClick={() => setShowProfileDropdown(!showProfileDropdown)} 
+                className="p-1 rounded-full border border-[#EDE9FE] bg-[#FAF8FC] hover:bg-white hover:scale-105 transition-all cursor-pointer shadow-xs focus:ring-2 focus:ring-[#7C3AED]"
+                title="Profile Menu"
+              >
+                {/* Profile Avatar Circle */}
+                <div className="w-10 h-10 rounded-full bg-[#7C3AED] text-white flex items-center justify-center font-bold text-base shadow-inner relative">
+                  {adminProfile.name.charAt(0)}
+                  <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-500 ring-2 ring-white"></span>
+                </div>
+              </button>
+
+              {/* Popover Menu */}
+              {showProfileDropdown && (
+                <>
+                  <div 
+                    className="fixed inset-0 z-30" 
+                    onClick={() => setShowProfileDropdown(false)}
+                  ></div>
+
+                  <div className="absolute right-0 mt-2 w-60 bg-white rounded-2xl border border-[#EDE9FE] shadow-xl z-40 py-2 font-inter animate-in fade-in slide-in-from-top-2 duration-200">
+                    <div className="px-4 py-3 border-b border-[#EDE9FE] bg-[#FAF8FC]">
+                      <p className="text-sm font-bold text-[#3a3135] truncate">{adminProfile.name}</p>
+                      <p className="text-xs text-[#7a6f75] truncate">{adminProfile.email}</p>
+                      <span className="inline-block mt-1 text-[10px] font-bold px-2 py-0.5 rounded-md bg-[#EDE9FE] text-[#7C3AED]">
+                        {adminProfile.securityClearance}
+                      </span>
+                    </div>
+
+                    <button 
+                      onClick={() => {
+                        setActiveTab('Profile');
+                        setShowProfileDropdown(false);
+                      }} 
+                      className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-[#3a3135] hover:bg-[#F5F3FF] hover:text-[#7C3AED] transition-colors"
+                    >
+                      <User className="w-4 h-4 text-[#7C3AED]" /> Admin Profile
+                    </button>
+
+                    <button 
+                      onClick={() => {
+                        setActiveTab('Reports');
+                        setShowProfileDropdown(false);
+                      }} 
+                      className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-[#3a3135] hover:bg-[#F5F3FF] hover:text-[#7C3AED] transition-colors"
+                    >
+                      <Sliders className="w-4 h-4 text-[#7C3AED]" /> System Governance
+                    </button>
+
+                    <div className="my-1 border-t border-[#EDE9FE]"></div>
+
+                    <button 
+                      onClick={() => {
+                        setShowProfileDropdown(false);
+                        handleLogout();
+                      }} 
+                      className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-red-600 hover:bg-red-50 transition-colors"
+                    >
+                      <LogOut className="w-4 h-4 text-red-500" /> Logout
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </header>
 
-        <div className="p-6 md:p-8 max-w-7xl mx-auto w-full space-y-8">
+        {/* CONTAINER WORKSPACE */}
+        <div className="p-4 md:p-8 max-w-7xl mx-auto w-full space-y-8 font-inter">
 
-          {/* 4 Administrator Dashboard Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            
-            <div className="bg-white p-6 rounded-3xl border border-[#EDE9FE] shadow-sm flex flex-col justify-between">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-bold text-[#7a6f75] uppercase tracking-wider">Total Users</span>
-                <div className="w-10 h-10 rounded-2xl bg-[#F5F3FF] flex items-center justify-center text-[#7C3AED]">
-                  <Users className="w-5 h-5" />
-                </div>
-              </div>
-              <h3 className="text-3xl font-bold text-[#3a3135] font-serif">{totalUsersCount}</h3>
-              <p className="text-xs text-emerald-600 font-semibold mt-2">Active accounts registered</p>
-            </div>
-
-            <div className="bg-white p-6 rounded-3xl border border-[#EDE9FE] shadow-sm flex flex-col justify-between">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-bold text-[#7a6f75] uppercase tracking-wider">Total Caregivers</span>
-                <div className="w-10 h-10 rounded-2xl bg-[#CCFBF1] flex items-center justify-center text-[#14B8A6]">
-                  <Users className="w-5 h-5" />
-                </div>
-              </div>
-              <h3 className="text-3xl font-bold text-[#3a3135] font-serif">{totalCaregiversCount}</h3>
-              <p className="text-xs text-teal-600 font-semibold mt-2">Family & professional caretakers</p>
-            </div>
-
-            <div className="bg-white p-6 rounded-3xl border border-[#EDE9FE] shadow-sm flex flex-col justify-between">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-bold text-[#7a6f75] uppercase tracking-wider">Total Doctors</span>
-                <div className="w-10 h-10 rounded-2xl bg-[#FCE7F3] flex items-center justify-center text-[#F472B6]">
-                  <Stethoscope className="w-5 h-5" />
-                </div>
-              </div>
-              <h3 className="text-3xl font-bold text-[#3a3135] font-serif">{totalDoctorsCount}</h3>
-              <p className="text-xs text-pink-600 font-semibold mt-2">Verified medical practitioners</p>
-            </div>
-
-            <div className="bg-white p-6 rounded-3xl border border-[#EDE9FE] shadow-sm flex flex-col justify-between">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-bold text-[#7a6f75] uppercase tracking-wider">Pending Doctor Approvals</span>
-                <div className="w-10 h-10 rounded-2xl bg-amber-50 flex items-center justify-center text-amber-600">
-                  <Clock className="w-5 h-5" />
-                </div>
-              </div>
-              <h3 className="text-3xl font-bold text-[#3a3135] font-serif">{pendingApprovalsCount}</h3>
-              <p className="text-xs text-amber-600 font-semibold mt-2">Requires medical license review</p>
-            </div>
-
-          </div>
-
-          {/* TAB 1: OVERVIEW */}
+          {/* 1. TAB: OVERVIEW */}
           {activeTab === 'Overview' && (
-            <div className="space-y-6">
-              <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#EDE9FE] shadow-sm">
-                <h3 className="font-serif text-2xl text-[#3a3135] mb-2">Platform Administration Quick Actions</h3>
-                <p className="text-xs text-[#7a6f75] mb-6">Manage system access, doctor approvals, and health articles across FemSphere.</p>
-                
-                <div className="grid md:grid-cols-3 gap-4">
-                  <button onClick={() => setActiveTab('Manage Users')} className="p-4 rounded-2xl border border-[#EDE9FE] hover:bg-[#F5F3FF] text-left transition-colors">
-                    <Users className="w-6 h-6 text-[#7C3AED] mb-2" />
-                    <h4 className="font-bold text-sm text-[#3a3135]">Manage Users</h4>
-                    <p className="text-xs text-[#7a6f75] mt-1">Search, activate, deactivate or edit user profiles.</p>
+            <div className="space-y-8">
+              
+              {/* TOP 4 SUMMARY STAT CARDS */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                {/* Card 1: Total Users */}
+                <div className="bg-[#7C3AED] text-white p-6 rounded-3xl shadow-md flex flex-col justify-between relative overflow-hidden">
+                  <div className="absolute right-3 top-3 opacity-10">
+                    <Users className="w-24 h-24" />
+                  </div>
+                  <div>
+                    <span className="text-xs uppercase font-bold tracking-widest text-purple-200 bg-white/10 px-3 py-1 rounded-full border border-white/20">
+                      User Accounts
+                    </span>
+                    <h3 className="text-4xl font-bold mt-3">{totalUsersCount}</h3>
+                    <p className="text-sm text-purple-100 mt-1 font-medium">Registered Female Users</p>
+                  </div>
+                  <button 
+                    onClick={() => setActiveTab('Manage Users')}
+                    className="mt-4 text-sm font-bold text-white hover:underline flex items-center gap-1"
+                  >
+                    Manage User Directory →
                   </button>
+                </div>
 
-                  <button onClick={() => setActiveTab('Approve Doctor Registrations')} className="p-4 rounded-2xl border border-[#EDE9FE] hover:bg-[#F5F3FF] text-left transition-colors">
-                    <UserCheck className="w-6 h-6 text-amber-500 mb-2" />
-                    <h4 className="font-bold text-sm text-[#3a3135]">Approve Doctors</h4>
-                    <p className="text-xs text-[#7a6f75] mt-1">{pendingApprovalsCount} doctor registration requests pending.</p>
+                {/* Card 2: Total Caregivers */}
+                <div className="bg-white p-6 rounded-3xl border border-[#EDE9FE] shadow-sm flex flex-col justify-between">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-[#7a6f75] uppercase tracking-wider">Caregivers</span>
+                    <div className="p-2.5 rounded-2xl bg-[#CCFBF1] text-[#14B8A6]">
+                      <Users className="w-6 h-6" />
+                    </div>
+                  </div>
+                  <div className="mt-2">
+                    <h3 className="text-4xl font-bold text-[#3a3135]">{totalCaregiversCount}</h3>
+                    <p className="text-sm text-[#7a6f75] font-medium mt-1">Care & Proxy Accounts</p>
+                  </div>
+                  <button 
+                    onClick={() => setActiveTab('Manage Caregivers')} 
+                    className="mt-3 text-sm font-bold text-[#7C3AED] hover:underline flex items-center gap-1"
+                  >
+                    View Caregivers →
                   </button>
+                </div>
 
-                  <button onClick={() => setActiveTab('Health Articles')} className="p-4 rounded-2xl border border-[#EDE9FE] hover:bg-[#F5F3FF] text-left transition-colors">
-                    <BookOpen className="w-6 h-6 text-[#14B8A6] mb-2" />
-                    <h4 className="font-bold text-sm text-[#3a3135]">Manage Health Articles</h4>
-                    <p className="text-xs text-[#7a6f75] mt-1">Publish and edit medical guidance articles.</p>
+                {/* Card 3: Total Doctors */}
+                <div className="bg-white p-6 rounded-3xl border border-[#EDE9FE] shadow-sm flex flex-col justify-between">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-[#7a6f75] uppercase tracking-wider">Active Doctors</span>
+                    <div className="p-2.5 rounded-2xl bg-[#FCE7F3] text-[#F472B6]">
+                      <Stethoscope className="w-6 h-6" />
+                    </div>
+                  </div>
+                  <div className="mt-2">
+                    <h3 className="text-4xl font-bold text-[#3a3135]">{totalDoctorsCount}</h3>
+                    <p className="text-sm text-[#7C3AED] font-bold mt-1">Verified Medical Specialists</p>
+                  </div>
+                  <button 
+                    onClick={() => setActiveTab('Manage Doctors')} 
+                    className="mt-3 text-sm font-bold text-[#7C3AED] hover:underline flex items-center gap-1"
+                  >
+                    Manage Doctors →
+                  </button>
+                </div>
+
+                {/* Card 4: Pending Doctor Approvals */}
+                <div className="bg-white p-6 rounded-3xl border border-[#EDE9FE] shadow-sm flex flex-col justify-between">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-[#7a6f75] uppercase tracking-wider">Pending Approvals</span>
+                    <div className="p-2.5 rounded-2xl bg-amber-50 text-amber-600">
+                      <UserCheck className="w-6 h-6" />
+                    </div>
+                  </div>
+                  <div className="mt-2">
+                    <h3 className="text-4xl font-bold text-amber-600">{pendingApprovalsCount}</h3>
+                    <p className="text-sm text-amber-700 font-bold mt-1">Licenses Awaiting Verification</p>
+                  </div>
+                  <button 
+                    onClick={() => setActiveTab('Manage Doctors')} 
+                    className="mt-3 text-sm font-bold text-[#7C3AED] hover:underline flex items-center gap-1"
+                  >
+                    Review Registrations →
                   </button>
                 </div>
               </div>
+
+              {/* RECENT AUDIT LOGS & DOCTOR VERIFICATION PREVIEW */}
+              <div className="grid md:grid-cols-2 gap-6">
+                
+                {/* Doctor Registrations Needing Approval */}
+                <div className="bg-white rounded-3xl p-6 border border-[#EDE9FE] shadow-sm space-y-4">
+                  <div className="flex items-center justify-between pb-3 border-b border-[#EDE9FE]">
+                    <h3 className="font-bold text-lg text-[#3a3135] flex items-center gap-2">
+                      <Stethoscope className="w-5 h-5 text-[#7C3AED]" /> Pending Doctor Licenses
+                    </h3>
+                    <button onClick={() => setActiveTab('Manage Doctors')} className="text-sm font-bold text-[#7C3AED] hover:underline">View All</button>
+                  </div>
+
+                  <div className="space-y-3">
+                    {doctors.filter(d => d.status === 'Pending').map((doc) => (
+                      <div key={doc.id} className="p-4 rounded-2xl border border-[#EDE9FE] bg-[#FAF8FC] flex items-center justify-between text-sm">
+                        <div>
+                          <p className="font-bold text-[#3a3135] text-base">{doc.name}</p>
+                          <p className="text-[#64595e] mt-0.5 font-medium">{doc.spec} • License: {doc.license}</p>
+                        </div>
+                        <div className="flex gap-2">
+                          <button onClick={() => approveDoctor(doc.id)} className="px-3 py-1.5 bg-emerald-600 text-white rounded-xl font-bold text-xs">
+                            Approve
+                          </button>
+                          <button onClick={() => rejectDoctor(doc.id)} className="px-3 py-1.5 bg-red-50 text-red-600 rounded-xl font-bold text-xs">
+                            Reject
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                    {doctors.filter(d => d.status === 'Pending').length === 0 && (
+                      <p className="text-sm text-[#7a6f75] italic p-4 text-center">No pending doctor approvals.</p>
+                    )}
+                  </div>
+                </div>
+
+                {/* System Activity Overview */}
+                <div className="bg-white rounded-3xl p-6 border border-[#EDE9FE] shadow-sm space-y-4">
+                  <div className="flex items-center justify-between pb-3 border-b border-[#EDE9FE]">
+                    <h3 className="font-bold text-lg text-[#3a3135] flex items-center gap-2">
+                      <Activity className="w-5 h-5 text-[#14B8A6]" /> System Security Log
+                    </h3>
+                    <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full">All Systems Operational</span>
+                  </div>
+
+                  <div className="space-y-3 text-sm">
+                    <div className="p-3.5 rounded-2xl border border-[#EDE9FE] bg-white flex items-center justify-between">
+                      <div>
+                        <p className="font-bold text-[#3a3135]">User Account Verification</p>
+                        <p className="text-xs text-[#7a6f75]">Elena Rostova authenticated via 2FA</p>
+                      </div>
+                      <span className="text-xs text-[#7a6f75]">10 mins ago</span>
+                    </div>
+                    <div className="p-3.5 rounded-2xl border border-[#EDE9FE] bg-white flex items-center justify-between">
+                      <div>
+                        <p className="font-bold text-[#3a3135]">Doctor Credentials Verified</p>
+                        <p className="text-xs text-[#7a6f75]">Dr. Sarah Jenkins license MD-892401 checked</p>
+                      </div>
+                      <span className="text-xs text-[#7a6f75]">1 hour ago</span>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
             </div>
           )}
 
-          {/* TAB 2: MANAGE USERS */}
+          {/* 2. TAB: MANAGE USERS */}
           {activeTab === 'Manage Users' && (
             <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#EDE9FE] shadow-sm space-y-6">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#EDE9FE] pb-4">
                 <div>
-                  <h3 className="font-serif text-2xl text-[#3a3135]">User Directory</h3>
-                  <p className="text-xs text-[#7a6f75] mt-1">View, search, edit, activate/deactivate, or delete platform users.</p>
+                  <h3 className="font-bold text-2xl text-[#3a3135]">Manage Registered Users</h3>
+                  <p className="text-sm text-[#64595e]">View, update, or restrict female user accounts</p>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="relative w-64">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#a89cb5]" />
+                  <div className="relative">
+                    <Search className="w-4 h-4 text-[#7a6f75] absolute left-3 top-3" />
                     <input 
                       type="text" 
-                      value={searchUser} 
-                      onChange={(e) => setSearchUser(e.target.value)}
                       placeholder="Search users..." 
-                      className="w-full pl-9 pr-4 py-2 rounded-xl border border-[#EDE9FE] bg-[#fbf9f6] text-xs outline-none focus:border-[#7C3AED]" 
+                      value={searchUser}
+                      onChange={(e) => setSearchUser(e.target.value)}
+                      className="pl-9 pr-4 py-2.5 rounded-xl border border-[#EDE9FE] text-sm focus:ring-2 focus:ring-[#7C3AED] outline-none"
                     />
                   </div>
                   <button 
-                    onClick={() => {
-                      setUserForm({ name: '', email: '', role: 'User (Female)', status: 'Active' });
-                      setShowAddUserModal(true);
-                    }} 
-                    className="flex items-center gap-1 px-3.5 py-2 rounded-xl bg-[#7C3AED] text-white text-xs font-bold hover:bg-[#6D28D9]"
+                    onClick={() => setShowAddUserModal(true)} 
+                    className="px-5 py-2.5 bg-[#7C3AED] text-white rounded-xl text-sm font-bold flex items-center gap-2"
                   >
-                    <Plus className="w-3.5 h-3.5" /> Add User
+                    <Plus className="w-4 h-4" /> Add User
                   </button>
                 </div>
               </div>
 
+              {/* Users Table */}
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
-                  <thead>
-                    <tr className="border-b border-[#EDE9FE] text-[#7a6f75] uppercase font-bold">
-                      <th className="py-3 px-4">User ID</th>
-                      <th className="py-3 px-4">Name & Email</th>
-                      <th className="py-3 px-4">Role</th>
-                      <th className="py-3 px-4">Status</th>
-                      <th className="py-3 px-4 text-right">Actions</th>
+                <table className="w-full text-left text-sm font-inter">
+                  <thead className="bg-[#FAF8FC] text-[#3a3135] uppercase text-xs font-bold border-b border-[#EDE9FE]">
+                    <tr>
+                      <th className="p-4">User ID</th>
+                      <th className="p-4">Full Name</th>
+                      <th className="p-4">Email</th>
+                      <th className="p-4">Status</th>
+                      <th className="p-4">Date Joined</th>
+                      <th className="p-4 text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#EDE9FE]">
                     {users.filter(u => u.name.toLowerCase().includes(searchUser.toLowerCase()) || u.email.toLowerCase().includes(searchUser.toLowerCase())).map(u => (
-                      <tr key={u.id} className="hover:bg-[#F5F3FF]/40">
-                        <td className="py-4 px-4 font-mono font-bold text-[#7C3AED]">{u.id}</td>
-                        <td className="py-4 px-4">
-                          <p className="font-bold text-[#3a3135]">{u.name}</p>
-                          <p className="text-[11px] text-[#7a6f75]">{u.email}</p>
-                        </td>
-                        <td className="py-4 px-4 font-medium">{u.role}</td>
-                        <td className="py-4 px-4">
-                          <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
-                            u.status === 'Active' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'
+                      <tr key={u.id} className="hover:bg-[#FAF8FC] transition-colors">
+                        <td className="p-4 font-bold text-[#7C3AED]">{u.id}</td>
+                        <td className="p-4 font-bold text-[#3a3135]">{u.name}</td>
+                        <td className="p-4 text-[#64595e]">{u.email}</td>
+                        <td className="p-4">
+                          <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                            u.status === 'Active' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'
                           }`}>
                             {u.status}
                           </span>
                         </td>
-                        <td className="py-4 px-4 text-right space-x-2">
-                          <button 
-                            onClick={() => {
-                              setEditingUser(u);
-                              setUserForm({ name: u.name, email: u.email, role: u.role, status: u.status });
-                            }}
-                            className="px-2.5 py-1 rounded-lg bg-[#EDE9FE] text-[#7C3AED] font-bold text-[11px] hover:bg-[#7C3AED] hover:text-white transition-colors"
-                          >
-                            <Edit className="w-3.5 h-3.5 inline" /> Edit
+                        <td className="p-4 text-[#7a6f75]">{u.dateJoined}</td>
+                        <td className="p-4 text-right space-x-2">
+                          <button onClick={() => toggleUserStatus(u.id)} className="px-3 py-1.5 rounded-lg border border-[#EDE9FE] text-xs font-bold text-[#3a3135] hover:bg-[#F5F3FF]">
+                            Toggle Status
                           </button>
-                          <button 
-                            onClick={() => toggleUserStatus(u.id)}
-                            className="px-2.5 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 text-[#3a3135] font-bold text-[11px]"
-                          >
-                            {u.status === 'Active' ? 'Deactivate' : 'Activate'}
-                          </button>
-                          <button 
-                            onClick={() => deleteUser(u.id)}
-                            className="px-2.5 py-1 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 font-bold text-[11px]"
-                          >
-                            <Trash2 className="w-3.5 h-3.5 inline" />
+                          <button onClick={() => deleteUser(u.id)} className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg">
+                            <Trash2 className="w-4 h-4" />
                           </button>
                         </td>
                       </tr>
@@ -429,50 +553,46 @@ export default function AdminDashboard() {
             </div>
           )}
 
-          {/* TAB 3: MANAGE CAREGIVERS */}
+          {/* 3. TAB: MANAGE CAREGIVERS */}
           {activeTab === 'Manage Caregivers' && (
             <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#EDE9FE] shadow-sm space-y-6">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#EDE9FE] pb-4">
                 <div>
-                  <h3 className="font-serif text-2xl text-[#3a3135]">Caregiver Directory</h3>
-                  <p className="text-xs text-[#7a6f75] mt-1">Manage caregiver profiles, linked dependents, and contact records.</p>
+                  <h3 className="font-bold text-2xl text-[#3a3135]">Manage Caregivers</h3>
+                  <p className="text-sm text-[#64595e]">Family members and healthcare proxies managing dependents</p>
                 </div>
-                <div className="relative w-64">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#a89cb5]" />
-                  <input 
-                    type="text" 
-                    value={searchCaregiver} 
-                    onChange={(e) => setSearchCaregiver(e.target.value)}
-                    placeholder="Search caregivers..." 
-                    className="w-full pl-9 pr-4 py-2 rounded-xl border border-[#EDE9FE] bg-[#fbf9f6] text-xs outline-none focus:border-[#7C3AED]" 
-                  />
-                </div>
+                <button 
+                  onClick={() => setShowAddCaregiverModal(true)} 
+                  className="px-5 py-2.5 bg-[#7C3AED] text-white rounded-xl text-sm font-bold flex items-center gap-2"
+                >
+                  <Plus className="w-4 h-4" /> Add Caregiver
+                </button>
               </div>
 
+              {/* Caregivers Table */}
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
-                  <thead>
-                    <tr className="border-b border-[#EDE9FE] text-[#7a6f75] uppercase font-bold">
-                      <th className="py-3 px-4">Caregiver ID</th>
-                      <th className="py-3 px-4">Name & Email</th>
-                      <th className="py-3 px-4">Relationship</th>
-                      <th className="py-3 px-4">Dependents Linked</th>
-                      <th className="py-3 px-4 text-right">Actions</th>
+                <table className="w-full text-left text-sm font-inter">
+                  <thead className="bg-[#FAF8FC] text-[#3a3135] uppercase text-xs font-bold border-b border-[#EDE9FE]">
+                    <tr>
+                      <th className="p-4">Caregiver ID</th>
+                      <th className="p-4">Name</th>
+                      <th className="p-4">Email</th>
+                      <th className="p-4">Relationship</th>
+                      <th className="p-4">Dependents</th>
+                      <th className="p-4 text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#EDE9FE]">
-                    {caregivers.filter(c => c.name.toLowerCase().includes(searchCaregiver.toLowerCase())).map(c => (
-                      <tr key={c.id} className="hover:bg-[#F5F3FF]/40">
-                        <td className="py-4 px-4 font-mono font-bold text-[#14B8A6]">{c.id}</td>
-                        <td className="py-4 px-4">
-                          <p className="font-bold text-[#3a3135]">{c.name}</p>
-                          <p className="text-[11px] text-[#7a6f75]">{c.email}</p>
-                        </td>
-                        <td className="py-4 px-4 font-medium">{c.relation}</td>
-                        <td className="py-4 px-4 font-bold">{c.dependentsCount} Dependents</td>
-                        <td className="py-4 px-4 text-right space-x-2">
-                          <button onClick={() => deleteCaregiver(c.id)} className="px-2.5 py-1 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 font-bold text-[11px]">
-                            <Trash2 className="w-3.5 h-3.5 inline" /> Delete
+                    {caregivers.map(c => (
+                      <tr key={c.id} className="hover:bg-[#FAF8FC] transition-colors">
+                        <td className="p-4 font-bold text-[#14B8A6]">{c.id}</td>
+                        <td className="p-4 font-bold text-[#3a3135]">{c.name}</td>
+                        <td className="p-4 text-[#64595e]">{c.email}</td>
+                        <td className="p-4 text-[#7a6f75]">{c.relation}</td>
+                        <td className="p-4 font-bold text-[#7C3AED]">{c.dependentsCount} Dependents</td>
+                        <td className="p-4 text-right">
+                          <button onClick={() => deleteCaregiver(c.id)} className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg">
+                            <Trash2 className="w-4 h-4" />
                           </button>
                         </td>
                       </tr>
@@ -483,62 +603,54 @@ export default function AdminDashboard() {
             </div>
           )}
 
-          {/* TAB 4: MANAGE DOCTORS & APPROVALS */}
-          {(activeTab === 'Manage Doctors' || activeTab === 'Approve Doctor Registrations') && (
+          {/* 4. TAB: MANAGE DOCTORS */}
+          {activeTab === 'Manage Doctors' && (
             <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#EDE9FE] shadow-sm space-y-6">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                  <h3 className="font-serif text-2xl text-[#3a3135]">Doctor Verification & Practice Directory</h3>
-                  <p className="text-xs text-[#7a6f75] mt-1">Approve pending registrations, suspend or manage medical licenses.</p>
-                </div>
-                <div className="relative w-64">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#a89cb5]" />
-                  <input 
-                    type="text" 
-                    value={searchDoctor} 
-                    onChange={(e) => setSearchDoctor(e.target.value)}
-                    placeholder="Search doctors..." 
-                    className="w-full pl-9 pr-4 py-2 rounded-xl border border-[#EDE9FE] bg-[#fbf9f6] text-xs outline-none focus:border-[#7C3AED]" 
-                  />
-                </div>
+              <div>
+                <h3 className="font-bold text-2xl text-[#3a3135]">Manage Doctors & Verification</h3>
+                <p className="text-sm text-[#64595e]">Review medical practitioner licenses and set active privileges</p>
               </div>
 
+              {/* Doctors Table */}
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
-                  <thead>
-                    <tr className="border-b border-[#EDE9FE] text-[#7a6f75] uppercase font-bold">
-                      <th className="py-3 px-4">Doctor Name</th>
-                      <th className="py-3 px-4">Specialization</th>
-                      <th className="py-3 px-4">License No.</th>
-                      <th className="py-3 px-4">Status</th>
-                      <th className="py-3 px-4 text-right">Actions</th>
+                <table className="w-full text-left text-sm font-inter">
+                  <thead className="bg-[#FAF8FC] text-[#3a3135] uppercase text-xs font-bold border-b border-[#EDE9FE]">
+                    <tr>
+                      <th className="p-4">Doctor ID</th>
+                      <th className="p-4">Name</th>
+                      <th className="p-4">Specialty</th>
+                      <th className="p-4">Medical License</th>
+                      <th className="p-4">Status</th>
+                      <th className="p-4 text-right">Verification Action</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#EDE9FE]">
-                    {doctors.filter(d => d.name.toLowerCase().includes(searchDoctor.toLowerCase()) || d.spec.toLowerCase().includes(searchDoctor.toLowerCase())).map(d => (
-                      <tr key={d.id} className="hover:bg-[#F5F3FF]/40">
-                        <td className="py-4 px-4 font-bold text-[#3a3135]">{d.name}</td>
-                        <td className="py-4 px-4 text-[#7C3AED] font-medium">{d.spec}</td>
-                        <td className="py-4 px-4 font-mono">{d.license}</td>
-                        <td className="py-4 px-4">
-                          <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
-                            d.status === 'Active' ? 'bg-emerald-100 text-emerald-800' : d.status === 'Pending' ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800'
+                    {doctors.map(d => (
+                      <tr key={d.id} className="hover:bg-[#FAF8FC] transition-colors">
+                        <td className="p-4 font-bold text-[#F472B6]">{d.id}</td>
+                        <td className="p-4 font-bold text-[#3a3135]">{d.name}</td>
+                        <td className="p-4 text-[#64595e]">{d.spec}</td>
+                        <td className="p-4 font-mono text-xs">{d.license}</td>
+                        <td className="p-4">
+                          <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                            d.status === 'Active' ? 'bg-emerald-100 text-emerald-700' :
+                            d.status === 'Pending' ? 'bg-amber-100 text-amber-700' : 'bg-rose-100 text-rose-700'
                           }`}>
                             {d.status}
                           </span>
                         </td>
-                        <td className="py-4 px-4 text-right space-x-2">
+                        <td className="p-4 text-right space-x-2">
                           {d.status === 'Pending' ? (
                             <>
-                              <button onClick={() => approveDoctor(d.id)} className="px-3 py-1 rounded-lg bg-emerald-600 text-white font-bold text-[11px] hover:bg-emerald-700">
+                              <button onClick={() => approveDoctor(d.id)} className="px-3 py-1.5 bg-emerald-600 text-white rounded-lg font-bold text-xs">
                                 Approve
                               </button>
-                              <button onClick={() => rejectDoctor(d.id)} className="px-3 py-1 rounded-lg bg-gray-100 text-gray-700 font-bold text-[11px] hover:bg-gray-200">
+                              <button onClick={() => rejectDoctor(d.id)} className="px-3 py-1.5 bg-red-50 text-red-600 rounded-lg font-bold text-xs">
                                 Reject
                               </button>
                             </>
                           ) : (
-                            <button onClick={() => suspendDoctor(d.id)} className="px-3 py-1 rounded-lg bg-red-50 text-red-600 font-bold text-[11px] hover:bg-red-100">
+                            <button onClick={() => suspendDoctor(d.id)} className="px-3 py-1.5 border border-[#EDE9FE] text-red-600 rounded-lg font-bold text-xs hover:bg-red-50">
                               Suspend
                             </button>
                           )}
@@ -551,39 +663,37 @@ export default function AdminDashboard() {
             </div>
           )}
 
-          {/* TAB 5: HEALTH ARTICLES */}
+          {/* 5. TAB: HEALTH ARTICLES */}
           {activeTab === 'Health Articles' && (
             <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#EDE9FE] shadow-sm space-y-6">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between border-b border-[#EDE9FE] pb-4">
                 <div>
-                  <h3 className="font-serif text-2xl text-[#3a3135]">Manage Health Articles</h3>
-                  <p className="text-xs text-[#7a6f75] mt-1">Add, edit, or publish medical and wellness guidance articles.</p>
+                  <h3 className="font-bold text-2xl text-[#3a3135]">Manage Health Content</h3>
+                  <p className="text-sm text-[#64595e]">Publish evidence-based health articles for FemSphere users</p>
                 </div>
                 <button 
                   onClick={() => setShowAddArticleModal(true)} 
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#7C3AED] text-white text-xs font-bold hover:bg-[#6D28D9] transition-colors"
+                  className="px-5 py-2.5 bg-[#7C3AED] text-white rounded-xl text-sm font-bold flex items-center gap-2"
                 >
                   <Plus className="w-4 h-4" /> Add Article
                 </button>
               </div>
 
-              <div className="grid md:grid-cols-2 gap-5">
+              <div className="grid md:grid-cols-2 gap-6">
                 {articles.map(art => (
-                  <div key={art.id} className="p-4 rounded-2xl border border-[#EDE9FE] bg-[#faf9fc] flex gap-4">
-                    <img src={art.image} alt={art.title} className="w-24 h-24 rounded-xl object-cover" />
-                    <div className="flex-1 flex flex-col justify-between">
-                      <div>
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-[#7C3AED] bg-[#EDE9FE] px-2 py-0.5 rounded-md">
-                          {art.category}
-                        </span>
-                        <h4 className="font-bold text-sm text-[#3a3135] mt-1">{art.title}</h4>
-                        <p className="text-xs text-[#7a6f75] line-clamp-2 mt-1">{art.desc}</p>
-                      </div>
-                      <div className="flex justify-end gap-2 mt-2">
-                        <button onClick={() => deleteArticle(art.id)} className="text-red-500 hover:text-red-700 text-xs font-bold">
-                          Delete
-                        </button>
-                      </div>
+                  <div key={art.id} className="p-5 rounded-3xl border border-[#EDE9FE] bg-[#FAF8FC] space-y-3 flex flex-col justify-between">
+                    <div className="space-y-2">
+                      <span className="text-xs font-bold px-3 py-1 rounded-full bg-purple-100 text-[#7C3AED] uppercase">
+                        {art.category}
+                      </span>
+                      <h4 className="text-lg font-bold text-[#3a3135]">{art.title}</h4>
+                      <p className="text-sm text-[#64595e] leading-relaxed">{art.desc}</p>
+                    </div>
+                    <div className="flex items-center justify-between pt-3 border-t border-[#EDE9FE]">
+                      <span className="text-xs font-bold text-[#7a6f75]">{art.id}</span>
+                      <button onClick={() => deleteArticle(art.id)} className="text-xs font-bold text-red-600 hover:underline">
+                        Remove Article
+                      </button>
                     </div>
                   </div>
                 ))}
@@ -591,73 +701,61 @@ export default function AdminDashboard() {
             </div>
           )}
 
-          {/* TAB 6: SYSTEM REPORTS */}
+          {/* 6. TAB: REPORTS & GOVERNANCE */}
           {activeTab === 'Reports' && (
             <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#EDE9FE] shadow-sm space-y-6">
-              <h3 className="font-serif text-2xl text-[#3a3135]">System Intelligence Reports</h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="p-4 rounded-2xl border border-[#EDE9FE] bg-[#faf9fc]">
-                  <p className="text-xs font-bold text-[#7a6f75] uppercase">Total Registered Users</p>
-                  <p className="text-2xl font-bold text-[#3a3135] mt-1">{totalUsersCount}</p>
-                </div>
-                <div className="p-4 rounded-2xl border border-[#EDE9FE] bg-[#faf9fc]">
-                  <p className="text-xs font-bold text-[#7a6f75] uppercase">Doctor Approvals</p>
-                  <p className="text-2xl font-bold text-teal-600 mt-1">{totalDoctorsCount}</p>
-                </div>
-                <div className="p-4 rounded-2xl border border-[#EDE9FE] bg-[#faf9fc]">
-                  <p className="text-xs font-bold text-[#7a6f75] uppercase">Active Users</p>
-                  <p className="text-2xl font-bold text-emerald-600 mt-1">98.4%</p>
-                </div>
-                <div className="p-4 rounded-2xl border border-[#EDE9FE] bg-[#faf9fc]">
-                  <p className="text-xs font-bold text-[#7a6f75] uppercase">Generated Reports</p>
-                  <p className="text-2xl font-bold text-[#7C3AED] mt-1">4,120</p>
+              <div>
+                <h3 className="font-bold text-2xl text-[#3a3135]">System Governance & Audit Reports</h3>
+                <p className="text-sm text-[#64595e]">Platform compliance and access logs</p>
+              </div>
+
+              <div className="p-6 rounded-3xl border border-[#EDE9FE] bg-[#FAF8FC] space-y-4">
+                <h4 className="font-bold text-base text-[#3a3135]">System Status Overview</h4>
+                <div className="grid sm:grid-cols-3 gap-4 text-sm font-bold">
+                  <div className="p-4 bg-white rounded-2xl border border-[#EDE9FE]">
+                    <span className="text-xs text-[#7a6f75] uppercase">Database Connections</span>
+                    <p className="text-xl text-emerald-600 mt-1">Healthy (Port 5001)</p>
+                  </div>
+                  <div className="p-4 bg-white rounded-2xl border border-[#EDE9FE]">
+                    <span className="text-xs text-[#7a6f75] uppercase">Security Clearance</span>
+                    <p className="text-xl text-[#7C3AED] mt-1">Level 5 Superuser</p>
+                  </div>
+                  <div className="p-4 bg-white rounded-2xl border border-[#EDE9FE]">
+                    <span className="text-xs text-[#7a6f75] uppercase">Audit Trail</span>
+                    <p className="text-xl text-[#14B8A6] mt-1">Encrypted Logs</p>
+                  </div>
                 </div>
               </div>
             </div>
           )}
 
-          {/* TAB 7: PROFILE */}
+          {/* 7. TAB: ADMIN PROFILE */}
           {activeTab === 'Profile' && (
-            <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#EDE9FE] shadow-sm space-y-6 max-w-xl mx-auto">
-              <h3 className="font-serif text-2xl text-[#3a3135]">Admin Profile Settings</h3>
-              
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">Name</label>
-                  <input 
-                    type="text" 
-                    value={adminProfile.name} 
-                    onChange={(e) => setAdminProfile({ ...adminProfile, name: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] text-sm outline-none focus:border-[#7C3AED]"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">Email</label>
-                  <input 
-                    type="email" 
-                    value={adminProfile.email} 
-                    onChange={(e) => setAdminProfile({ ...adminProfile, email: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] text-sm outline-none focus:border-[#7C3AED]"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">Security Clearance</label>
-                  <input 
-                    type="text" 
-                    readOnly
-                    value={adminProfile.securityClearance} 
-                    className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] bg-[#F5F3FF] text-[#7C3AED] text-sm font-bold"
-                  />
-                </div>
+            <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#EDE9FE] shadow-sm space-y-6 max-w-3xl mx-auto">
+              <div className="border-b border-[#EDE9FE] pb-4">
+                <h3 className="font-bold text-2xl text-[#3a3135]">Admin Account Details</h3>
+                <p className="text-sm text-[#64595e]">Manage credentials and system access permissions</p>
+              </div>
 
-                <div className="pt-4 border-t border-[#EDE9FE] flex gap-3">
-                  <button 
-                    onClick={() => setShowPasswordModal(true)} 
-                    className="px-4 py-2.5 rounded-xl border border-[#EDE9FE] hover:bg-[#F5F3FF] text-xs font-bold text-[#7C3AED]"
-                  >
-                    Change Password
-                  </button>
+              <div className="space-y-4 text-sm font-inter">
+                <div className="p-4 rounded-2xl bg-[#FAF8FC] border border-[#EDE9FE]">
+                  <span className="block font-bold text-[#7a6f75] uppercase text-xs mb-1">Administrator Name</span>
+                  <p className="font-bold text-[#3a3135] text-lg">{adminProfile.name}</p>
                 </div>
+                <div className="p-4 rounded-2xl bg-[#FAF8FC] border border-[#EDE9FE]">
+                  <span className="block font-bold text-[#7a6f75] uppercase text-xs mb-1">Email Address</span>
+                  <p className="font-bold text-[#3a3135] text-lg">{adminProfile.email}</p>
+                </div>
+                <div className="p-4 rounded-2xl bg-[#FAF8FC] border border-[#EDE9FE]">
+                  <span className="block font-bold text-[#7a6f75] uppercase text-xs mb-1">Security Privilege</span>
+                  <p className="font-bold text-[#7C3AED] text-lg">{adminProfile.securityClearance}</p>
+                </div>
+                <button 
+                  onClick={() => setShowPasswordModal(true)} 
+                  className="w-full py-3 bg-[#7C3AED] text-white rounded-2xl font-bold text-sm"
+                >
+                  Change Password
+                </button>
               </div>
             </div>
           )}
@@ -665,66 +763,74 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-        {/* Add / Edit User Modal */}
-      {(showAddUserModal || editingUser) && (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl border border-[#EDE9FE]">
+      {/* Add User Modal */}
+      {showAddUserModal && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 font-inter">
+          <div className="bg-white rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl border border-[#EDE9FE]">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-bold text-lg text-[#3a3135]">
-                {editingUser ? 'Edit User Details' : 'Add New User'}
-              </h3>
-              <button onClick={() => { setShowAddUserModal(false); setEditingUser(null); }}>
-                <X className="w-5 h-5 text-gray-400" />
-              </button>
+              <h3 className="font-bold text-xl text-[#3a3135]">Add New User</h3>
+              <button onClick={() => setShowAddUserModal(false)}><X className="w-5 h-5 text-gray-400" /></button>
             </div>
-            <form onSubmit={handleSaveUser} className="space-y-4 text-xs">
+            <form onSubmit={handleSaveUser} className="space-y-4">
               <div>
-                <label className="block font-bold text-[#4a4145] uppercase mb-1">Full Name</label>
+                <label className="block text-xs font-bold text-[#3a3135] uppercase mb-1">Full Name</label>
                 <input 
                   type="text" 
                   value={userForm.name} 
                   onChange={(e) => setUserForm({ ...userForm, name: e.target.value })}
-                  placeholder="Elena Rostova"
-                  className="w-full px-4 py-2.5 rounded-xl border border-[#EDE9FE] text-sm" 
-                  required 
+                  placeholder="Enter full name"
+                  className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] text-sm" required 
                 />
               </div>
               <div>
-                <label className="block font-bold text-[#4a4145] uppercase mb-1">Email Address</label>
+                <label className="block text-xs font-bold text-[#3a3135] uppercase mb-1">Email Address</label>
                 <input 
                   type="email" 
                   value={userForm.email} 
                   onChange={(e) => setUserForm({ ...userForm, email: e.target.value })}
-                  placeholder="user@femsphere.health"
-                  className="w-full px-4 py-2.5 rounded-xl border border-[#EDE9FE] text-sm" 
-                  required 
+                  placeholder="name@domain.com"
+                  className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] text-sm" required 
+                />
+              </div>
+              <button type="submit" className="w-full py-3 bg-[#7C3AED] text-white rounded-xl font-bold text-sm">
+                Save User
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Add Caregiver Modal */}
+      {showAddCaregiverModal && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 font-inter">
+          <div className="bg-white rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl border border-[#EDE9FE]">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-bold text-xl text-[#3a3135]">Add Caregiver</h3>
+              <button onClick={() => setShowAddCaregiverModal(false)}><X className="w-5 h-5 text-gray-400" /></button>
+            </div>
+            <form onSubmit={handleSaveCaregiver} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-[#3a3135] uppercase mb-1">Caregiver Name</label>
+                <input 
+                  type="text" 
+                  value={caregiverForm.name} 
+                  onChange={(e) => setCaregiverForm({ ...caregiverForm, name: e.target.value })}
+                  placeholder="Full name"
+                  className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] text-sm" required 
                 />
               </div>
               <div>
-                <label className="block font-bold text-[#4a4145] uppercase mb-1">Role</label>
-                <select 
-                  value={userForm.role} 
-                  onChange={(e) => setUserForm({ ...userForm, role: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-xl border border-[#EDE9FE] text-sm bg-white font-medium"
-                >
-                  <option value="User (Female)">User (Female)</option>
-                  <option value="Caregiver">Caregiver</option>
-                  <option value="Doctor">Doctor</option>
-                </select>
-              </div>
-              <div>
-                <label className="block font-bold text-[#4a4145] uppercase mb-1">Status</label>
-                <select 
-                  value={userForm.status} 
-                  onChange={(e) => setUserForm({ ...userForm, status: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-xl border border-[#EDE9FE] text-sm bg-white font-medium"
-                >
-                  <option value="Active">Active</option>
-                  <option value="Inactive">Inactive</option>
-                </select>
+                <label className="block text-xs font-bold text-[#3a3135] uppercase mb-1">Email Address</label>
+                <input 
+                  type="email" 
+                  value={caregiverForm.email} 
+                  onChange={(e) => setCaregiverForm({ ...caregiverForm, email: e.target.value })}
+                  placeholder="email@care.org"
+                  className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] text-sm" required 
+                />
               </div>
               <button type="submit" className="w-full py-3 bg-[#7C3AED] text-white rounded-xl font-bold text-sm">
-                {editingUser ? 'Save User Changes' : 'Create User Account'}
+                Save Caregiver
               </button>
             </form>
           </div>
@@ -733,51 +839,30 @@ export default function AdminDashboard() {
 
       {/* Add Article Modal */}
       {showAddArticleModal && (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-3xl p-6 max-w-lg w-full shadow-2xl border border-[#EDE9FE]">
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 font-inter">
+          <div className="bg-white rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl border border-[#EDE9FE]">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-bold text-lg text-[#3a3135]">Add New Health Article</h3>
+              <h3 className="font-bold text-xl text-[#3a3135]">Publish Health Article</h3>
               <button onClick={() => setShowAddArticleModal(false)}><X className="w-5 h-5 text-gray-400" /></button>
             </div>
             <form onSubmit={handleAddArticle} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-[#4a4145] uppercase mb-1">Title</label>
+                <label className="block text-xs font-bold text-[#3a3135] uppercase mb-1">Article Title</label>
                 <input 
                   type="text" 
                   value={newArticle.title} 
                   onChange={(e) => setNewArticle({ ...newArticle, title: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-xl border border-[#EDE9FE] text-sm" 
-                  required 
+                  placeholder="Title"
+                  className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] text-sm" required 
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-[#4a4145] uppercase mb-1">Category</label>
-                <select 
-                  value={newArticle.category} 
-                  onChange={(e) => setNewArticle({ ...newArticle, category: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-xl border border-[#EDE9FE] text-sm bg-white"
-                >
-                  <option value="Wellness">Wellness</option>
-                  <option value="Medical">Medical</option>
-                  <option value="Nutrition">Nutrition</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-[#4a4145] uppercase mb-1">Description</label>
+                <label className="block text-xs font-bold text-[#3a3135] uppercase mb-1">Description</label>
                 <textarea 
                   value={newArticle.desc} 
                   onChange={(e) => setNewArticle({ ...newArticle, desc: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-xl border border-[#EDE9FE] text-sm" rows={3}
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-[#4a4145] uppercase mb-1">Image URL</label>
-                <input 
-                  type="url" 
-                  value={newArticle.image} 
-                  onChange={(e) => setNewArticle({ ...newArticle, image: e.target.value })}
-                  placeholder="https://..."
-                  className="w-full px-4 py-2.5 rounded-xl border border-[#EDE9FE] text-sm" 
+                  placeholder="Short description"
+                  className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] text-sm" rows={3}
                 />
               </div>
               <button type="submit" className="w-full py-3 bg-[#7C3AED] text-white rounded-xl font-bold text-sm">
@@ -790,22 +875,22 @@ export default function AdminDashboard() {
 
       {/* Change Password Modal */}
       {showPasswordModal && (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 font-inter">
           <div className="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-[#EDE9FE]">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-bold text-base text-[#3a3135]">Change Admin Password</h3>
+              <h3 className="font-bold text-lg text-[#3a3135]">Change Password</h3>
               <button onClick={() => setShowPasswordModal(false)}><X className="w-5 h-5 text-gray-400" /></button>
             </div>
             <div className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-[#4a4145] uppercase mb-1">Old Password</label>
-                <input type="password" value={oldPassword} onChange={(e) => setOldPassword(e.target.value)} className="w-full px-4 py-2 rounded-xl border border-[#EDE9FE] text-sm" />
+                <label className="block text-xs font-bold text-[#3a3135] uppercase mb-1">Old Password</label>
+                <input type="password" value={oldPassword} onChange={(e) => setOldPassword(e.target.value)} className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] text-sm" />
               </div>
               <div>
-                <label className="block text-xs font-bold text-[#4a4145] uppercase mb-1">New Password</label>
-                <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="w-full px-4 py-2 rounded-xl border border-[#EDE9FE] text-sm" />
+                <label className="block text-xs font-bold text-[#3a3135] uppercase mb-1">New Password</label>
+                <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] text-sm" />
               </div>
-              <button onClick={() => setShowPasswordModal(false)} className="w-full py-2.5 bg-[#7C3AED] text-white rounded-xl font-bold text-xs">
+              <button onClick={() => setShowPasswordModal(false)} className="w-full py-3 bg-[#7C3AED] text-white rounded-xl font-bold text-sm">
                 Update Password
               </button>
             </div>

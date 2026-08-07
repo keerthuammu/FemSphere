@@ -5,8 +5,8 @@ import heroImg from '../assets/images/healthcare_hero_1785261756891.jpeg';
 
 export default function Login() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('elena.rostova@femsphere.health');
-  const [password, setPassword] = useState('••••••••••••');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [activeRole, setActiveRole] = useState('User (Female)');
 
   const navigateRoleDashboard = (targetRole: string, userEmail: string) => {

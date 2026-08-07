@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { 
   Sparkles, Check, User, Users, Stethoscope, Shield, Heart, 
   Upload, ChevronLeft, ChevronRight, Lock, Activity, Phone, 
-  Mail, MapPin, Calendar, FileText, CheckSquare, Square, FileCheck
+  Mail, MapPin, Calendar, FileText, CheckSquare, Square, FileCheck, AlertCircle
 } from 'lucide-react';
 
 export default function Register() {
@@ -16,52 +16,59 @@ export default function Register() {
     accountType: 'User (Female)', // 'User (Female)', 'Caregiver', 'Doctor'
 
     // Step 2: Personal Information
-    fullName: 'Elena Rostova',
-    dob: '1996-08-14',
-    gender: 'Female', // Female, Male, Other
-    mobileNumber: '+1 (555) 382-9102',
-    email: 'elena.rostova@femsphere.health',
-    address: '742 Evergreen Terrace, Suite 4B',
-    pincode: '94107',
-    country: 'United States',
-    state: 'California',
-    city: 'San Francisco',
+    fullName: '',
+    dob: '',
+    gender: '', // Female, Male, Other
+    mobileNumber: '',
+    email: '',
+    address: '',
+    pincode: '',
+    country: '',
+    state: '',
+    city: '',
     profilePhoto: null as File | null,
 
     // Step 3: Account Credentials
-    username: 'elena_health',
-    password: '••••••••••••',
-    confirmPassword: '••••••••••••',
+    username: '',
+    password: '',
+    confirmPassword: '',
 
     // Step 4: Role-Specific Information (User Female)
-    bloodGroup: 'A Positive (A+)',
-    heightCm: '168',
-    weightKg: '62',
-    maritalStatus: 'Single',
-    lifeStage: 'Reproductive Age',
-    wearableDevice: 'Apple Watch',
-    emergencyContactName: 'Marcus Rostova',
-    emergencyContactPhone: '+1 (555) 902-4118',
+    bloodGroup: '',
+    heightCm: '',
+    weightKg: '',
+    maritalStatus: '',
+    lifeStage: '',
+    wearableDevice: '',
+    emergencyContactName: '',
+    emergencyContactPhone: '',
 
-    // Caregiver specific fields
-    caregiverType: 'Parent',
-    dependentName: 'Sophia Rostova',
-    dependentCategory: 'Child / Infant',
+    // Caregiver & Dependent specific fields
+    caregiverType: '',
+    dependentName: '',
+    relationship: '',
+    dependentDob: '',
+    dependentGender: '',
+    dependentBloodGroup: '',
+    dependentHeightCm: '',
+    dependentWeightKg: '',
+    dependentCategory: '',
+    dependentMedicalNotes: '',
     // Caregiver Primary Scope (Multi-select array)
-    caregiverScopes: ['Medication Reminders & Vital Tracking', 'Vaccination & Appointment Scheduling'],
-    relationship: 'Parent',
+    caregiverScopes: [] as string[],
 
     // Doctor specific fields
-    licenseNumber: 'MD-892401',
-    specialization: 'Obstetrics & Gynecology',
-    hospitalClinic: 'St. Jude Women\'s Health Center',
-    yearsOfExperience: '12',
+    licenseNumber: '',
+    specialization: '',
+    hospitalClinic: '',
+    yearsOfExperience: '',
 
     // Step 5: Privacy, Rules & Role Consent
-    infoAccurate: true,
-    termsAgreed: true,
-    dataProcessingConsent: true,
-    dataControlConsent: true,
+    infoAccurate: false,
+    termsAgreed: false,
+    dataProcessingConsent: false,
+    dataControlConsent: false,
+    fullConsent: false,
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -92,22 +99,184 @@ export default function Register() {
     });
   };
 
-  const handleNext = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (step < 5) setStep(step + 1);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const validateCurrentStep = (currentStep: number): boolean => {
+    setErrorMsg(null);
+
+    // Step 1: Account Type
+    if (currentStep === 1) {
+      if (!formData.accountType) {
+        setErrorMsg('Please select an account type to proceed.');
+        return false;
+      }
+      return true;
+    }
+
+    // Step 2: Personal Information
+    if (currentStep === 2) {
+      if (!formData.fullName.trim()) {
+        setErrorMsg('Please enter your Full Name.');
+        return false;
+      }
+      if (!formData.dob.trim()) {
+        setErrorMsg('Please select your Date of Birth.');
+        return false;
+      }
+      if (!formData.gender) {
+        setErrorMsg('Please select your Gender.');
+        return false;
+      }
+      if (!formData.mobileNumber.trim()) {
+        setErrorMsg('Please enter your Mobile Number.');
+        return false;
+      }
+      if (!formData.email.trim()) {
+        setErrorMsg('Please enter your Email Address.');
+        return false;
+      }
+      if (!formData.address.trim()) {
+        setErrorMsg('Please enter your Street Address.');
+        return false;
+      }
+      if (!formData.pincode.trim()) {
+        setErrorMsg('Please enter your Pincode / Zip Code.');
+        return false;
+      }
+      if (!formData.country) {
+        setErrorMsg('Please select your Country.');
+        return false;
+      }
+      return true;
+    }
+
+    // Step 3: Account Credentials
+    if (currentStep === 3) {
+      if (!formData.username.trim()) {
+        setErrorMsg('Please enter a Username.');
+        return false;
+      }
+      if (!formData.password) {
+        setErrorMsg('Please enter a Password.');
+        return false;
+      }
+      if (!formData.confirmPassword) {
+        setErrorMsg('Please confirm your Password.');
+        return false;
+      }
+      if (formData.password !== formData.confirmPassword) {
+        setErrorMsg('Password and Confirm Password do not match.');
+        return false;
+      }
+      return true;
+    }
+
+    // Step 4: Role-Specific Information
+    if (currentStep === 4) {
+      if (formData.accountType === 'User (Female)') {
+        if (!formData.bloodGroup) {
+          setErrorMsg('Please select your Blood Group.');
+          return false;
+        }
+        if (!formData.maritalStatus) {
+          setErrorMsg('Please select your Marital Status.');
+          return false;
+        }
+        if (!formData.lifeStage) {
+          setErrorMsg('Please select your Current Life Stage.');
+          return false;
+        }
+      } else if (formData.accountType === 'Caregiver') {
+        if (!formData.caregiverType) {
+          setErrorMsg('Please select Caregiver Sub-Type / Role.');
+          return false;
+        }
+        if (!formData.dependentName.trim()) {
+          setErrorMsg('Please enter Dependent / Care Recipient Full Name.');
+          return false;
+        }
+        if (!formData.relationship) {
+          setErrorMsg('Please select Relationship to Dependent.');
+          return false;
+        }
+        if (!formData.dependentDob.trim()) {
+          setErrorMsg('Please select Dependent Date of Birth.');
+          return false;
+        }
+        if (!formData.dependentGender) {
+          setErrorMsg('Please select Dependent Gender.');
+          return false;
+        }
+        if (!formData.dependentCategory) {
+          setErrorMsg('Please select Dependent Life Stage / Category.');
+          return false;
+        }
+        if (formData.caregiverScopes.length === 0) {
+          setErrorMsg('Please select at least one Caregiver Primary Scope.');
+          return false;
+        }
+        if (!formData.emergencyContactPhone.trim()) {
+          setErrorMsg('Please enter Caregiver Emergency Contact Phone.');
+          return false;
+        }
+      } else if (formData.accountType === 'Doctor') {
+        if (!formData.licenseNumber.trim()) {
+          setErrorMsg('Please enter your Medical License Number.');
+          return false;
+        }
+        if (!formData.specialization) {
+          setErrorMsg('Please select your Medical Specialization.');
+          return false;
+        }
+        if (!formData.hospitalClinic.trim()) {
+          setErrorMsg('Please enter your Hospital / Clinic Affiliation.');
+          return false;
+        }
+        if (!formData.yearsOfExperience) {
+          setErrorMsg('Please enter Years of Clinical Experience.');
+          return false;
+        }
+      }
+      return true;
+    }
+
+    // Step 5: Rules & Consent
+    if (currentStep === 5) {
+      if (!formData.fullConsent && !(formData.infoAccurate && formData.termsAgreed && formData.dataProcessingConsent && formData.dataControlConsent)) {
+        setErrorMsg('Please read and agree to the Rules & Regulations and Consent checkbox to complete registration.');
+        return false;
+      }
+      return true;
+    }
+
+    return true;
+  };
+
+  const handleNext = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (validateCurrentStep(step)) {
+      if (step < 5) {
+        setStep(prev => prev + 1);
+        setErrorMsg(null);
+      }
+    }
   };
 
   const handlePrev = () => {
-    if (step > 1) setStep(step - 1);
+    if (step > 1) {
+      setStep(prev => prev - 1);
+      setErrorMsg(null);
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (step === 5) {
-      if (!(formData.infoAccurate && formData.termsAgreed && formData.dataProcessingConsent && formData.dataControlConsent)) {
-        alert('Please confirm and accept all conditions to complete your registration.');
-        return;
-      }
+    if (!validateCurrentStep(step)) {
+      return;
+    }
+    if (step < 5) {
+      handleNext();
+    } else {
       // Redirect based on role
       if (formData.accountType === 'Caregiver') {
         navigate('/caregiver-dashboard');
@@ -116,9 +285,63 @@ export default function Register() {
       } else {
         navigate('/dashboard');
       }
-    } else {
-      handleNext(e);
     }
+  };
+
+  const getRoleRules = () => {
+    if (formData.accountType === 'Caregiver') {
+      return [
+        { title: "Dependent Permission & Authority", content: "Caregivers must possess legal authorization or family consent before adding dependent profiles, health records, or medication schedules." },
+        { title: "Dependent Data Responsibility", content: "You are responsible for maintaining accurate growth, vital, medication, and vaccination logs for all linked care recipients." },
+        { title: "Caregiver Privacy Protocols", content: "Dependent health profiles and proxy records are stored securely and encrypted under caregiver privacy standards." },
+        { title: "AI Dependent Monitoring", content: "AI insights for dependent medication tracking and growth milestones are for informational guidance and do not replace pediatric or geriatric care." },
+        { title: "Dependent Records & Uploads", content: "Uploaded vaccination cards, prescriptions, and lab scans for dependents must be genuine and authorized by guardians." },
+        { title: "Caregiver Responsibilities", content: "Do not provide unauthorized dependent details, misrepresent care scopes, or misuse family management tools." },
+        { title: "Proxy Account Security", content: "Maintain strict confidentiality of your caregiver account credentials to protect linked family and dependent health records." },
+        { title: "Dependent Data Sharing", content: "As a proxy caregiver, you control whether dependent health summaries are shared with authorized family physicians or pediatricians." },
+        { title: "Emergency Escalation Protocol", content: "Caregiver monitoring tools assist daily care coordination but must not replace immediate emergency medical services for dependents." },
+        { title: "Caregiver Acceptance", content: "By registering as a Caregiver, you agree to comply with FemSphere Proxy Caregiver Rules, Terms & Conditions, and Privacy Policy." }
+      ];
+    }
+    
+    if (formData.accountType === 'Doctor') {
+      return [
+        { title: "Medical License Authenticity", content: "Doctors must provide valid, active medical license numbers and clinical credentials for administrator verification before consulting patients." },
+        { title: "Clinical Record Integrity", content: "You are responsible for maintaining professional accuracy in patient consultation notes, diagnoses, and digital prescriptions." },
+        { title: "Doctor-Patient Confidentiality", content: "Patient health data and shared records are strictly confidential and protected under medical privacy protocols." },
+        { title: "AI Clinical Assistance", content: "AI-generated patient risk scores and summaries serve as auxiliary decision-support tools and do not override clinical judgment." },
+        { title: "Read-Only Record Access", content: "Patient lab reports and health twin records are accessible strictly on a read-only basis upon explicit patient or proxy authorization." },
+        { title: "Professional Responsibilities", content: "Adhere to medical ethics, provide professional healthcare advice, and avoid unverified diagnostic claims." },
+        { title: "Clinical Account Security", content: "Safeguard your practitioner login credentials to prevent unauthorized access to confidential patient medical directories." },
+        { title: "Authorized Teleconsultation", content: "Conduct teleconsultation reviews and patient recommendations strictly within your licensed medical specialization." },
+        { title: "Emergency Redirection", content: "Instruct patients experiencing acute or life-threatening symptoms to seek immediate emergency medical care." },
+        { title: "Clinical Acceptance", content: "By registering as a Doctor, you agree to comply with FemSphere Clinical Governance Rules, Practitioner Terms, and Privacy Policy." }
+      ];
+    }
+
+    // Default / Myself / Female User
+    return [
+      { title: "Accurate Personal Vitals", content: "Provide accurate personal health details, cycle history, and vitals to receive reliable AI wellness monitoring and tracking." },
+      { title: "Personal Data Responsibility", content: "You are responsible for maintaining the accuracy of your profile, daily health logs, symptoms, and health records entered into FemSphere." },
+      { title: "Privacy & Confidentiality", content: "Your personal and health information is stored securely. Your data will only be shared with healthcare professionals when you explicitly grant permission." },
+      { title: "AI Health Recommendations", content: "AI-generated health insights and recommendations are provided for informational and wellness purposes only. They do not replace professional medical advice, diagnosis, or treatment." },
+      { title: "Medical Records", content: "You may upload medical reports, prescriptions, and laboratory records. Ensure that all uploaded documents are genuine and belong to you or your dependent." },
+      { title: "User Responsibilities", content: "Do not misuse the platform or provide false, misleading, or unauthorized information." },
+      { title: "Account Security", content: "Keep your login credentials confidential. You are responsible for all activities performed using your account." },
+      { title: "Data Sharing", content: "You have full control over your health data and can choose whether to share your reports with registered doctors." },
+      { title: "Platform Usage", content: "FemSphere is designed to support health monitoring and wellness management and should not be used as a replacement for emergency medical services." },
+      { title: "Acceptance", content: "By creating an account, you agree to comply with the FemSphere Terms & Conditions and Privacy Policy." }
+    ];
+  };
+
+  const getRoleConsentText = () => {
+    if (formData.accountType === 'Caregiver') {
+      return "I have read, understood, and agree to the FemSphere Caregiver Rules & Regulations, Terms & Conditions, Privacy Policy, and consent to the collection and processing of my dependent's care information.";
+    }
+    if (formData.accountType === 'Doctor') {
+      return "I have read, understood, and agree to the FemSphere Clinical Governance Rules & Regulations, Terms & Conditions, Privacy Policy, and consent to professional account verification for providing healthcare consultations.";
+    }
+    return "I have read, understood, and agree to the FemSphere Rules & Regulations, Terms & Conditions, Privacy Policy, and consent to the collection and processing of my information for providing personalized health services.";
   };
 
   const stepTitles = [
@@ -138,22 +361,22 @@ export default function Register() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#fbf9f6] flex flex-col font-sans text-[#3a3135]">
+    <div className="min-h-screen bg-[#fbf9f6] flex flex-col font-inter text-[#3a3135]">
       {/* Top Nav */}
       <div className="p-4 md:px-12 flex justify-between items-center bg-white/80 backdrop-blur-md sticky top-0 z-30 border-b border-[#EDE9FE]">
         <Link to="/" className="flex items-center gap-2">
           <h1 className="font-serif text-2xl font-bold text-[#7C3AED] tracking-tight">FemSphere</h1>
           <Sparkles className="w-4 h-4 text-[#14B8A6]" />
         </Link>
-        <p className="text-sm text-[#7a6f75]">
-          Already have an account? <Link to="/login" className="font-bold text-[#7C3AED] hover:underline ml-1">Login</Link>
+        <p className="text-sm text-[#7a6f75] font-inter">
+          Already have an account? <Link to="/login" className="font-bold text-[#7C3AED] hover:underline ml-1 font-inter">Login</Link>
         </p>
       </div>
 
-      <div className="flex-1 flex flex-col items-center py-8 px-4 md:px-8 max-w-4xl mx-auto w-full">
+      <div className="flex-1 flex flex-col items-center py-8 px-4 md:px-8 max-w-4xl mx-auto w-full font-inter">
         
         {/* Stepper Header */}
-        <div className="w-full mb-8">
+        <div className="w-full mb-8 font-inter">
           <div className="flex items-center justify-between relative mb-2">
             <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-1 bg-[#EDE9FE] -z-10 rounded-full"></div>
             <div 
@@ -165,8 +388,18 @@ export default function Register() {
               <button
                 key={num}
                 type="button"
-                onClick={() => num < step && setStep(num)}
-                className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${
+                onClick={() => {
+                  if (num < step) {
+                    setStep(num);
+                    setErrorMsg(null);
+                  } else if (num > step) {
+                    if (validateCurrentStep(step)) {
+                      setStep(num);
+                      setErrorMsg(null);
+                    }
+                  }
+                }}
+                className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 font-inter ${
                   step === num 
                     ? 'bg-[#7C3AED] text-white ring-4 ring-[#EDE9FE] shadow-md scale-110' 
                     : step > num 
@@ -178,9 +411,9 @@ export default function Register() {
               </button>
             ))}
           </div>
-          <div className="flex justify-between text-[11px] uppercase tracking-wider text-[#7a6f75] font-semibold px-1">
+          <div className="flex justify-between text-[11px] uppercase tracking-wider text-[#7a6f75] font-semibold px-1 font-inter">
             {stepTitles.map((title, i) => (
-              <span key={i} className={`text-center ${step === i + 1 ? 'text-[#7C3AED] font-bold' : ''}`}>
+              <span key={i} className={`text-center font-inter ${step === i + 1 ? 'text-[#7C3AED] font-bold' : ''}`}>
                 {title}
               </span>
             ))}
@@ -188,14 +421,14 @@ export default function Register() {
         </div>
 
         {/* Main Form Container */}
-        <div className="w-full bg-white rounded-3xl shadow-xl shadow-purple-900/5 border border-[#EDE9FE] p-6 md:p-10 relative overflow-hidden">
+        <div className="w-full bg-white rounded-3xl shadow-xl shadow-purple-900/5 border border-[#EDE9FE] p-6 md:p-10 relative overflow-hidden font-inter">
           
           <div className="flex items-center justify-between border-b border-[#EDE9FE] pb-4 mb-6">
             <div>
-              <span className="text-xs font-bold text-[#7C3AED] uppercase tracking-widest bg-[#F5F3FF] px-3 py-1 rounded-full border border-[#EDE9FE]">
+              <span className="text-xs font-bold text-[#7C3AED] uppercase tracking-widest bg-[#F5F3FF] px-3 py-1 rounded-full border border-[#EDE9FE] font-inter">
                 Step {step} of 5
               </span>
-              <h2 className="font-serif text-2xl md:text-3xl text-[#3a3135] mt-2">
+              <h2 className="font-inter font-bold text-2xl md:text-3xl text-[#3a3135] mt-2">
                 {step === 1 && "Account Type (Required)"}
                 {step === 2 && "Personal Information"}
                 {step === 3 && "Account Credentials"}
@@ -204,6 +437,14 @@ export default function Register() {
               </h2>
             </div>
           </div>
+
+          {/* Validation Error Alert Banner */}
+          {errorMsg && (
+            <div className="mb-6 p-4 rounded-2xl bg-red-50 border border-red-200 text-red-700 flex items-center gap-3 text-xs md:text-sm font-semibold shadow-xs">
+              <AlertCircle className="w-5 h-5 flex-shrink-0 text-red-500" />
+              <div className="flex-1">{errorMsg}</div>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             
@@ -313,6 +554,7 @@ export default function Register() {
                     onChange={handleChange}
                     className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm bg-white font-medium"
                   >
+                    <option value="">Select Gender</option>
                     <option value="Female">Female</option>
                     <option value="Male">Male</option>
                     <option value="Other">Other</option>
@@ -326,7 +568,7 @@ export default function Register() {
                     name="mobileNumber" 
                     value={formData.mobileNumber} 
                     onChange={handleChange}
-                    placeholder="+1 (555) 382-9102" 
+                    placeholder="e.g. +1 (555) 382-9102" 
                     className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
                     required 
                   />
@@ -339,7 +581,7 @@ export default function Register() {
                     name="email" 
                     value={formData.email} 
                     onChange={handleChange}
-                    placeholder="elena.rostova@femsphere.health" 
+                    placeholder="e.g. elena.rostova@femsphere.health" 
                     className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
                     required 
                   />
@@ -380,7 +622,7 @@ export default function Register() {
                     name="city" 
                     value={formData.city} 
                     onChange={handleChange}
-                    placeholder="San Francisco" 
+                    placeholder="e.g. San Francisco" 
                     className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
                   />
                 </div>
@@ -392,7 +634,7 @@ export default function Register() {
                     name="state" 
                     value={formData.state} 
                     onChange={handleChange}
-                    placeholder="California" 
+                    placeholder="e.g. California" 
                     className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
                   />
                 </div>
@@ -405,6 +647,7 @@ export default function Register() {
                     onChange={handleChange}
                     className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm bg-white"
                   >
+                    <option value="">Select Country</option>
                     <option value="United States">United States</option>
                     <option value="Canada">Canada</option>
                     <option value="United Kingdom">United Kingdom</option>
@@ -439,7 +682,7 @@ export default function Register() {
                     name="username" 
                     value={formData.username} 
                     onChange={handleChange}
-                    placeholder="elena_health" 
+                    placeholder="e.g. elena_health" 
                     className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
                     required 
                   />
@@ -452,7 +695,7 @@ export default function Register() {
                     name="password" 
                     value={formData.password} 
                     onChange={handleChange}
-                    placeholder="••••••••••••" 
+                    placeholder="Enter strong password" 
                     className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
                     required 
                   />
@@ -465,7 +708,7 @@ export default function Register() {
                     name="confirmPassword" 
                     value={formData.confirmPassword} 
                     onChange={handleChange}
-                    placeholder="••••••••••••" 
+                    placeholder="Confirm password" 
                     className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
                     required 
                   />
@@ -491,6 +734,7 @@ export default function Register() {
                         onChange={handleChange}
                         className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm bg-white"
                       >
+                        <option value="">Select Blood Group</option>
                         <option value="A Positive (A+)">A Positive (A+)</option>
                         <option value="A Negative (A-)">A Negative (A-)</option>
                         <option value="B Positive (B+)">B Positive (B+)</option>
@@ -510,7 +754,7 @@ export default function Register() {
                           name="heightCm" 
                           value={formData.heightCm} 
                           onChange={handleChange}
-                          placeholder="168" 
+                          placeholder="e.g. 168" 
                           className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
                         />
                       </div>
@@ -521,7 +765,7 @@ export default function Register() {
                           name="weightKg" 
                           value={formData.weightKg} 
                           onChange={handleChange}
-                          placeholder="62" 
+                          placeholder="e.g. 62" 
                           className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
                         />
                       </div>
@@ -535,6 +779,7 @@ export default function Register() {
                         onChange={handleChange}
                         className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm bg-white"
                       >
+                        <option value="">Select Marital Status</option>
                         <option value="Single">Single</option>
                         <option value="Married">Married</option>
                         <option value="Divorced">Divorced</option>
@@ -550,6 +795,7 @@ export default function Register() {
                         onChange={handleChange}
                         className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm bg-white"
                       >
+                        <option value="">Select Life Stage</option>
                         <option value="Reproductive Age">Reproductive Age</option>
                         <option value="Adolescence">Adolescence</option>
                         <option value="Pregnancy / Postpartum">Pregnancy / Postpartum</option>
@@ -566,6 +812,7 @@ export default function Register() {
                         onChange={handleChange}
                         className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm bg-white"
                       >
+                        <option value="">Select Wearable Device (Optional)</option>
                         <option value="Apple Watch">Apple Watch</option>
                         <option value="Fitbit">Fitbit</option>
                         <option value="Google Fit">Google Fit</option>
@@ -582,7 +829,7 @@ export default function Register() {
                         name="emergencyContactName" 
                         value={formData.emergencyContactName} 
                         onChange={handleChange}
-                        placeholder="Marcus Rostova" 
+                        placeholder="e.g. Marcus Rostova" 
                         className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
                       />
                     </div>
@@ -594,7 +841,7 @@ export default function Register() {
                         name="emergencyContactPhone" 
                         value={formData.emergencyContactPhone} 
                         onChange={handleChange}
-                        placeholder="+1 (555) 902-4118" 
+                        placeholder="e.g. +1 (555) 902-4118" 
                         className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
                       />
                     </div>
@@ -603,45 +850,203 @@ export default function Register() {
 
                 {/* CAREGIVER ROLE SPECIFIC QUESTIONS */}
                 {formData.accountType === 'Caregiver' && (
-                  <div className="space-y-5">
-                    <div className="grid md:grid-cols-2 gap-5">
-                      <div>
-                        <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">
-                          Caregiver Sub-Type / Role
-                        </label>
-                        <select 
-                          name="caregiverType" 
-                          value={formData.caregiverType} 
-                          onChange={handleChange}
-                          className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm bg-white font-medium"
-                        >
-                          <option value="Parent">Parent</option>
-                          <option value="Partner / Spouse">Partner / Spouse</option>
-                          <option value="Sibling">Sibling (Sister / Brother)</option>
-                          <option value="Friend">Friend</option>
-                          <option value="Nurse">Nurse / Healthcare Professional</option>
-                          <option value="Caretaker">Professional Caretaker / Home Health</option>
-                          <option value="Relative">Relative / Elder Support</option>
-                        </select>
+                  <div className="space-y-6">
+                    <div className="bg-[#FAF8FC] p-5 rounded-2xl border border-[#EDE9FE] space-y-5">
+                      <div className="flex items-center gap-2 text-[#7C3AED] pb-2 border-b border-[#EDE9FE]">
+                        <Users className="w-5 h-5 flex-shrink-0" />
+                        <h3 className="font-bold text-base text-[#3a3135] font-inter">
+                          Caregiver & Dependent Health Profile
+                        </h3>
                       </div>
 
-                      <div>
-                        <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">
-                          Dependent / Care Recipient Name
-                        </label>
-                        <input 
-                          type="text" 
-                          name="dependentName" 
-                          value={formData.dependentName} 
-                          onChange={handleChange}
-                          placeholder="Sophia Rostova" 
-                          className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
-                          required
-                        />
+                      <div className="grid md:grid-cols-2 gap-5">
+                        <div>
+                          <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">
+                            Caregiver Sub-Type / Role
+                          </label>
+                          <select 
+                            name="caregiverType" 
+                            value={formData.caregiverType} 
+                            onChange={handleChange}
+                            className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm bg-white font-medium"
+                          >
+                            <option value="">Select Caregiver Sub-Type / Role</option>
+                            <option value="Parent">Parent</option>
+                            <option value="Partner / Spouse">Partner / Spouse</option>
+                            <option value="Sibling">Sibling (Sister / Brother)</option>
+                            <option value="Friend">Friend</option>
+                            <option value="Nurse">Nurse / Healthcare Professional</option>
+                            <option value="Caretaker">Professional Caretaker / Home Health</option>
+                            <option value="Relative">Relative / Elder Support</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">
+                            Dependent / Care Recipient Full Name
+                          </label>
+                          <input 
+                            type="text" 
+                            name="dependentName" 
+                            value={formData.dependentName} 
+                            onChange={handleChange}
+                            placeholder="e.g. Sophia Rostova" 
+                            className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
+                            required
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">
+                            Relationship to Dependent
+                          </label>
+                          <select 
+                            name="relationship" 
+                            value={formData.relationship} 
+                            onChange={handleChange}
+                            className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm bg-white"
+                          >
+                            <option value="">Select Relationship</option>
+                            <option value="Daughter">Daughter</option>
+                            <option value="Son">Son</option>
+                            <option value="Mother">Mother</option>
+                            <option value="Father">Father</option>
+                            <option value="Spouse / Partner">Spouse / Partner</option>
+                            <option value="Sister">Sister</option>
+                            <option value="Brother">Brother</option>
+                            <option value="Grandparent">Grandparent</option>
+                            <option value="Other Relative">Other Relative</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">
+                            Dependent Date of Birth
+                          </label>
+                          <input 
+                            type="date" 
+                            name="dependentDob" 
+                            value={formData.dependentDob} 
+                            onChange={handleChange}
+                            className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm bg-white" 
+                            required
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">
+                            Dependent Gender
+                          </label>
+                          <select 
+                            name="dependentGender" 
+                            value={formData.dependentGender} 
+                            onChange={handleChange}
+                            className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm bg-white"
+                          >
+                            <option value="">Select Gender</option>
+                            <option value="Female">Female</option>
+                            <option value="Male">Male</option>
+                            <option value="Other">Other</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">
+                            Dependent Blood Group (Optional)
+                          </label>
+                          <select 
+                            name="dependentBloodGroup" 
+                            value={formData.dependentBloodGroup} 
+                            onChange={handleChange}
+                            className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm bg-white"
+                          >
+                            <option value="">Select Blood Group</option>
+                            <option value="A Positive (A+)">A Positive (A+)</option>
+                            <option value="A Negative (A-)">A Negative (A-)</option>
+                            <option value="B Positive (B+)">B Positive (B+)</option>
+                            <option value="B Negative (B-)">B Negative (B-)</option>
+                            <option value="O Positive (O+)">O Positive (O+)</option>
+                            <option value="O Negative (O-)">O Negative (O-)</option>
+                            <option value="AB Positive (AB+)">AB Positive (AB+)</option>
+                            <option value="AB Negative (AB-)">AB Negative (AB-)</option>
+                          </select>
+                        </div>
+
+                        <div className="flex gap-3">
+                          <div className="w-1/2">
+                            <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">Height (cm)</label>
+                            <input 
+                              type="number" 
+                              name="dependentHeightCm" 
+                              value={formData.dependentHeightCm} 
+                              onChange={handleChange}
+                              placeholder="e.g. 110" 
+                              className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
+                            />
+                          </div>
+                          <div className="w-1/2">
+                            <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">Weight (kg)</label>
+                            <input 
+                              type="number" 
+                              name="dependentWeightKg" 
+                              value={formData.dependentWeightKg} 
+                              onChange={handleChange}
+                              placeholder="e.g. 18" 
+                              className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">
+                            Dependent Category / Stage
+                          </label>
+                          <select 
+                            name="dependentCategory" 
+                            value={formData.dependentCategory} 
+                            onChange={handleChange}
+                            className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm bg-white"
+                          >
+                            <option value="">Select Category / Stage</option>
+                            <option value="Child / Infant">Child / Infant</option>
+                            <option value="Adolescent">Adolescent</option>
+                            <option value="Adult">Adult</option>
+                            <option value="Elder / Senior">Elder / Senior</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">
+                            Caregiver Emergency Contact Phone
+                          </label>
+                          <input 
+                            type="tel" 
+                            name="emergencyContactPhone" 
+                            value={formData.emergencyContactPhone} 
+                            onChange={handleChange}
+                            placeholder="e.g. +1 (555) 902-4118" 
+                            className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
+                            required
+                          />
+                        </div>
+
+                        <div className="md:col-span-2">
+                          <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">
+                            Existing Conditions / Allergies / Notes (Optional)
+                          </label>
+                          <input 
+                            type="text" 
+                            name="dependentMedicalNotes" 
+                            value={formData.dependentMedicalNotes} 
+                            onChange={handleChange}
+                            placeholder="e.g. Asthma, Penicillin Allergy, Diabetes, Daily Insulin" 
+                            className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
+                          />
+                        </div>
                       </div>
                     </div>
 
-                    {/* Step 4 Requirement: Caregiver Primary Scope (Multi-Selectable) */}
+                    {/* Caregiver Primary Scope */}
                     <div>
                       <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-2">
                         Caregiver Primary Scope (Select all options that apply)
@@ -670,40 +1075,6 @@ export default function Register() {
                         })}
                       </div>
                     </div>
-
-                    <div className="grid md:grid-cols-2 gap-5">
-                      <div>
-                        <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">
-                          Dependent Category / Stage
-                        </label>
-                        <select 
-                          name="dependentCategory" 
-                          value={formData.dependentCategory} 
-                          onChange={handleChange}
-                          className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm bg-white"
-                        >
-                          <option value="Child / Infant">Child / Infant</option>
-                          <option value="Adolescent">Adolescent</option>
-                          <option value="Adult">Adult</option>
-                          <option value="Elder / Senior">Elder / Senior</option>
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">
-                          Caregiver Emergency Contact Phone
-                        </label>
-                        <input 
-                          type="tel" 
-                          name="emergencyContactPhone" 
-                          value={formData.emergencyContactPhone} 
-                          onChange={handleChange}
-                          placeholder="+1 (555) 902-4118" 
-                          className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
-                          required
-                        />
-                      </div>
-                    </div>
                   </div>
                 )}
 
@@ -719,7 +1090,7 @@ export default function Register() {
                         name="licenseNumber" 
                         value={formData.licenseNumber} 
                         onChange={handleChange}
-                        placeholder="MD-892401"
+                        placeholder="e.g. MD-892401"
                         className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
                         required
                       />
@@ -735,6 +1106,7 @@ export default function Register() {
                         onChange={handleChange}
                         className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm bg-white"
                       >
+                        <option value="">Select Specialization</option>
                         <option value="Obstetrics & Gynecology">Obstetrics & Gynecology</option>
                         <option value="Maternal-Fetal Medicine">Maternal-Fetal Medicine</option>
                         <option value="Reproductive Endocrinology">Reproductive Endocrinology</option>
@@ -752,7 +1124,7 @@ export default function Register() {
                         name="hospitalClinic" 
                         value={formData.hospitalClinic} 
                         onChange={handleChange}
-                        placeholder="St. Jude Women's Health Center"
+                        placeholder="e.g. St. Jude Women's Health Center"
                         className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
                       />
                     </div>
@@ -766,7 +1138,7 @@ export default function Register() {
                         name="yearsOfExperience" 
                         value={formData.yearsOfExperience} 
                         onChange={handleChange}
-                        placeholder="12"
+                        placeholder="e.g. 12"
                         className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
                       />
                     </div>
@@ -777,122 +1149,74 @@ export default function Register() {
 
             {/* STEP 5: Rules & Regulations, Terms of Service, Privacy Policy & Consent */}
             {step === 5 && (
-              <div className="space-y-5 py-2">
+              <div className="space-y-6 py-2">
                 
-                {/* Rules & Regulations, Terms of Service, and Privacy Policy Text Block */}
-                <div className="bg-[#FAF8FC] p-5 rounded-2xl border border-[#EDE9FE] space-y-4 max-h-56 overflow-y-auto scrollbar-thin">
-                  <div className="flex items-center gap-2 text-[#7C3AED] pb-2 border-b border-[#EDE9FE]">
-                    <FileCheck className="w-5 h-5 flex-shrink-0" />
-                    <h3 className="font-bold text-sm uppercase tracking-wider">
-                      FemSphere Rules & Regulations, Terms of Service, & Privacy Policy ({formData.accountType === 'User (Female)' ? 'Myself' : formData.accountType})
-                    </h3>
+                {/* Rules & Regulations Text Block */}
+                <div>
+                  <div className="flex items-center justify-between pb-2 mb-3 border-b border-[#EDE9FE]">
+                    <div className="flex items-center gap-2 text-[#7C3AED]">
+                      <Shield className="w-5 h-5 flex-shrink-0" />
+                      <h3 className="font-bold text-lg text-[#3a3135] font-inter">
+                        Rules & Regulations
+                      </h3>
+                    </div>
+                    <span className="text-xs font-bold text-[#7C3AED] bg-[#F5F3FF] px-3 py-1 rounded-full border border-[#EDE9FE] font-inter">
+                      {formData.accountType === 'User (Female)' ? 'Myself' : formData.accountType} Policy
+                    </span>
                   </div>
 
-                  <div className="space-y-3 text-xs text-[#3a3135] leading-relaxed">
-                    <div>
-                      <h4 className="font-bold text-[#7C3AED] uppercase text-[11px] mb-1">1. Rules & Regulations</h4>
-                      <p className="text-[#64595e]">
-                        {formData.accountType === 'User (Female)' && "Please enter accurate personal health details to get reliable health tracking and AI advice."}
-                        {formData.accountType === 'Caregiver' && "Caregivers must have proper permission from family or legal guardians before adding dependent health details and medication reminders."}
-                        {formData.accountType === 'Doctor' && "Doctors must provide valid medical license information for approval before consulting with patients."}
-                      </p>
-                    </div>
-
-                    <div>
-                      <h4 className="font-bold text-[#7C3AED] uppercase text-[11px] mb-1">2. Terms of Service</h4>
-                      <p className="text-[#64595e]">
-                        FemSphere offers personalized health tracking and AI suggestions. These suggestions are for health guidance and do not replace emergency medical care or direct doctor consultations.
-                      </p>
-                    </div>
-
-                    <div>
-                      <h4 className="font-bold text-[#7C3AED] uppercase text-[11px] mb-1">3. Privacy & Data Protection</h4>
-                      <p className="text-[#64595e]">
-                        Your health data is kept safe and confidential. You have full control over your information and can decide whether to share your reports with your doctor.
-                      </p>
-                    </div>
+                  <div className="bg-[#FAF8FC] p-4 md:p-5 rounded-2xl border border-[#EDE9FE] space-y-3.5 max-h-96 overflow-y-auto scrollbar-thin font-inter">
+                    {getRoleRules().map((item, idx) => (
+                      <div key={idx} className="bg-white p-4 rounded-xl border border-[#EDE9FE]/90 shadow-xs hover:border-[#7C3AED]/40 transition-all">
+                        <div className="flex items-center gap-2.5 mb-1.5">
+                          <span className="text-xs font-bold px-2.5 py-0.5 rounded-md bg-[#F5F3FF] text-[#7C3AED] border border-[#EDE9FE] flex-shrink-0 font-inter">
+                            {String(idx + 1).padStart(2, '0')}
+                          </span>
+                          <h4 className="font-bold text-sm md:text-base text-[#3b0764] tracking-tight">
+                            {item.title}
+                          </h4>
+                        </div>
+                        <p className="text-sm text-[#374151] leading-relaxed font-normal pl-9">
+                          {item.content}
+                        </p>
+                      </div>
+                    ))}
                   </div>
                 </div>
 
-                {/* 4 ROLE-TAILORED CONSENT CHECKBOXES */}
-                <div className="space-y-3 pt-1">
+                {/* Consent Section */}
+                <div className="pt-2">
+                  <h3 className="font-bold text-lg text-[#3a3135] mb-3 flex items-center gap-2 text-[#7C3AED] font-inter">
+                    <FileCheck className="w-5 h-5 flex-shrink-0" />
+                    Consent
+                  </h3>
                   
-                  {/* Checkbox 1: Information Accuracy */}
-                  <label className={`flex items-start gap-3 p-3.5 rounded-xl border-2 cursor-pointer transition-all ${
-                    formData.infoAccurate ? 'border-[#7C3AED] bg-[#F5F3FF]' : 'border-[#EDE9FE] hover:bg-gray-50'
+                  {/* Primary Consent Checkbox */}
+                  <label className={`flex items-start gap-3.5 p-4 md:p-4.5 rounded-2xl border-2 cursor-pointer transition-all ${
+                    formData.fullConsent ? 'border-[#7C3AED] bg-[#F5F3FF] shadow-sm' : 'border-[#EDE9FE] hover:bg-gray-50'
                   }`}>
                     <input 
                       type="checkbox" 
-                      name="infoAccurate" 
-                      checked={formData.infoAccurate} 
-                      onChange={handleChange}
-                      className="mt-0.5 rounded border-[#EDE9FE] text-[#7C3AED] focus:ring-[#7C3AED] w-4 h-4 flex-shrink-0"
+                      name="fullConsent" 
+                      checked={formData.fullConsent} 
+                      onChange={(e) => {
+                        const checked = e.target.checked;
+                        setFormData(prev => ({
+                          ...prev,
+                          fullConsent: checked,
+                          infoAccurate: checked,
+                          termsAgreed: checked,
+                          dataProcessingConsent: checked,
+                          dataControlConsent: checked
+                        }));
+                      }}
+                      className="mt-0.5 rounded border-[#EDE9FE] text-[#7C3AED] focus:ring-[#7C3AED] w-5 h-5 flex-shrink-0 cursor-pointer"
                       required 
                     />
-                    <span className="text-xs text-[#3a3135] leading-relaxed font-semibold">
-                      {formData.accountType === 'User (Female)' && "I confirm that the personal health information provided during registration is accurate and complete to the best of my knowledge."}
-                      {formData.accountType === 'Caregiver' && "I confirm that the caregiver details and dependent information provided during registration are accurate and complete to the best of my knowledge."}
-                      {formData.accountType === 'Doctor' && "I confirm that my medical credentials, license details, and professional background provided during registration are accurate and complete to the best of my knowledge."}
+                    <span className="font-inter text-sm text-[#374151] leading-relaxed font-medium">
+                      {getRoleConsentText()}
                     </span>
                   </label>
-
-                  {/* Checkbox 2: Rules, Terms & Privacy Agreement */}
-                  <label className={`flex items-start gap-3 p-3.5 rounded-xl border-2 cursor-pointer transition-all ${
-                    formData.termsAgreed ? 'border-[#7C3AED] bg-[#F5F3FF]' : 'border-[#EDE9FE] hover:bg-gray-50'
-                  }`}>
-                    <input 
-                      type="checkbox" 
-                      name="termsAgreed" 
-                      checked={formData.termsAgreed} 
-                      onChange={handleChange}
-                      className="mt-0.5 rounded border-[#EDE9FE] text-[#7C3AED] focus:ring-[#7C3AED] w-4 h-4 flex-shrink-0"
-                      required 
-                    />
-                    <span className="text-xs text-[#3a3135] leading-relaxed font-semibold">
-                      {formData.accountType === 'User (Female)' && "I have read, understood, and agree to the FemSphere Rules & Regulations, Terms of Service, and Privacy Policy."}
-                      {formData.accountType === 'Caregiver' && "I have read, understood, and agree to the FemSphere Caregiver Rules & Regulations, Terms of Service, and Privacy Policy."}
-                      {formData.accountType === 'Doctor' && "I have read, understood, and agree to the FemSphere Clinical Rules & Regulations, Terms of Service, and Privacy Policy."}
-                    </span>
-                  </label>
-
-                  {/* Checkbox 3: Data Collection & AI Insights Consent */}
-                  <label className={`flex items-start gap-3 p-3.5 rounded-xl border-2 cursor-pointer transition-all ${
-                    formData.dataProcessingConsent ? 'border-[#7C3AED] bg-[#F5F3FF]' : 'border-[#EDE9FE] hover:bg-gray-50'
-                  }`}>
-                    <input 
-                      type="checkbox" 
-                      name="dataProcessingConsent" 
-                      checked={formData.dataProcessingConsent} 
-                      onChange={handleChange}
-                      className="mt-0.5 rounded border-[#EDE9FE] text-[#7C3AED] focus:ring-[#7C3AED] w-4 h-4 flex-shrink-0"
-                      required 
-                    />
-                    <span className="text-xs text-[#3a3135] leading-relaxed font-semibold">
-                      {formData.accountType === 'User (Female)' && "I consent to the collection, storage, and processing of my personal health information to provide personalized health monitoring, AI-generated health insights, and wellness recommendations."}
-                      {formData.accountType === 'Caregiver' && "I consent to the collection, storage, and processing of my dependent's personal and health information to provide dependent growth tracking, medication reminders, and AI health monitoring."}
-                      {formData.accountType === 'Doctor' && "I consent to the collection, storage, and processing of my professional account information to facilitate secure clinical review, patient consultation management, and report analysis."}
-                    </span>
-                  </label>
-
-                  {/* Checkbox 4: Data Control & Doctor Sharing Awareness */}
-                  <label className={`flex items-start gap-3 p-3.5 rounded-xl border-2 cursor-pointer transition-all ${
-                    formData.dataControlConsent ? 'border-[#7C3AED] bg-[#F5F3FF]' : 'border-[#EDE9FE] hover:bg-gray-50'
-                  }`}>
-                    <input 
-                      type="checkbox" 
-                      name="dataControlConsent" 
-                      checked={formData.dataControlConsent} 
-                      onChange={handleChange}
-                      className="mt-0.5 rounded border-[#EDE9FE] text-[#7C3AED] focus:ring-[#7C3AED] w-4 h-4 flex-shrink-0"
-                      required 
-                    />
-                    <span className="text-xs text-[#3a3135] leading-relaxed font-semibold">
-                      {formData.accountType === 'User (Female)' && "I understand that I have full control over my personal health data and may choose whether to share my information with authorized healthcare professionals."}
-                      {formData.accountType === 'Caregiver' && "I understand that dependent health data remains under caregiver/proxy control and I may choose whether to share dependent reports with authorized healthcare professionals."}
-                      {formData.accountType === 'Doctor' && "I understand that patient-shared medical records remain confidential and read-only, accessible strictly upon explicit patient or proxy authorization."}
-                    </span>
-                  </label>
-
                 </div>
               </div>
             )}
@@ -921,9 +1245,9 @@ export default function Register() {
               ) : (
                 <button 
                   type="submit" 
-                  disabled={!(formData.infoAccurate && formData.termsAgreed && formData.dataProcessingConsent && formData.dataControlConsent)}
+                  disabled={!(formData.fullConsent || (formData.infoAccurate && formData.termsAgreed && formData.dataProcessingConsent && formData.dataControlConsent))}
                   className={`flex-1 md:flex-none rounded-xl px-8 py-3.5 text-sm font-bold shadow-lg transition-all transform ${
-                    (formData.infoAccurate && formData.termsAgreed && formData.dataProcessingConsent && formData.dataControlConsent)
+                    (formData.fullConsent || (formData.infoAccurate && formData.termsAgreed && formData.dataProcessingConsent && formData.dataControlConsent))
                       ? 'bg-[#7C3AED] hover:bg-[#6D28D9] text-white shadow-purple-200 hover:-translate-y-0.5' 
                       : 'bg-gray-300 text-gray-500 cursor-not-allowed shadow-none'
                   }`}

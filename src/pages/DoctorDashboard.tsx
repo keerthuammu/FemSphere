@@ -73,53 +73,50 @@ export default function DoctorDashboard() {
     <div className="min-h-screen bg-[#fbf9f6] flex font-sans text-[#3a3135]">
       
       {/* Sidebar - Doctor */}
-      <aside className="w-68 bg-white border-r border-[#EDE9FE] hidden lg:flex flex-col flex-shrink-0 sticky top-0 h-screen">
-        <div className="p-6 border-b border-[#EDE9FE] flex items-center justify-between">
+      <aside className="w-72 bg-[#F4E0D1] border-r border-[#e5d0c0] hidden lg:flex flex-col flex-shrink-0 sticky top-0 h-screen font-inter">
+        <div className="p-6 border-b border-[#e5d0c0] flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
-            <h1 className="font-serif text-2xl font-bold text-[#7C3AED] tracking-tight">FemSphere</h1>
-            <Sparkles className="w-4 h-4 text-[#14B8A6]" />
+            <h1 className="font-serif text-3xl font-bold text-[#7C3AED] tracking-tight">FemSphere</h1>
+            <Sparkles className="w-5 h-5 text-[#14B8A6]" />
           </Link>
-          <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#FCE7F3] text-[#F472B6] uppercase">
-            DOCTOR
-          </span>
         </div>
         
-        <div className="flex-1 overflow-y-auto p-4 space-y-1 scrollbar-hide">
-          <p className="text-[10px] uppercase tracking-widest text-[#a89cb5] font-bold px-3 py-2 mt-2">Practice</p>
+        <div className="flex-1 overflow-y-auto p-4 space-y-1.5 scrollbar-hide">
+          <p className="text-xs uppercase tracking-widest text-[#7a6f75] font-bold px-3 py-2">Practice</p>
           
-          <button onClick={() => setActiveTab('Overview')} className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-semibold text-sm transition-all ${activeTab === 'Overview' ? 'bg-[#F5F3FF] text-[#7C3AED]' : 'text-[#7a6f75] hover:bg-[#faf9fc]'}`}>
-            <Stethoscope className="w-4 h-4 text-[#7C3AED]" /> Dashboard Overview
+          <button onClick={() => setActiveTab('Overview')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-base transition-all ${activeTab === 'Overview' ? 'bg-white/90 text-[#7C3AED] shadow-xs' : 'text-[#3a3135] hover:bg-white/50'}`}>
+            <Stethoscope className="w-5 h-5 text-[#7C3AED]" /> Dashboard Overview
           </button>
 
-          <button onClick={() => setActiveTab('Patient List')} className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium text-sm transition-all ${activeTab === 'Patient List' ? 'bg-[#F5F3FF] text-[#7C3AED]' : 'text-[#7a6f75] hover:bg-[#faf9fc]'}`}>
-            <Users className="w-4 h-4" /> Patient List
+          <button onClick={() => setActiveTab('Patient List')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-base transition-all ${activeTab === 'Patient List' ? 'bg-white/90 text-[#7C3AED] shadow-xs' : 'text-[#3a3135] hover:bg-white/50'}`}>
+            <Users className="w-5 h-5" /> Patient List
           </button>
 
-          <button onClick={() => setActiveTab('Shared Medical Records')} className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium text-sm transition-all ${activeTab === 'Shared Medical Records' ? 'bg-[#F5F3FF] text-[#7C3AED]' : 'text-[#7a6f75] hover:bg-[#faf9fc]'}`}>
-            <FileText className="w-4 h-4" /> Shared Medical Records
+          <button onClick={() => setActiveTab('Shared Medical Records')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-base transition-all ${activeTab === 'Shared Medical Records' ? 'bg-white/90 text-[#7C3AED] shadow-xs' : 'text-[#3a3135] hover:bg-white/50'}`}>
+            <FileText className="w-5 h-5" /> Shared Medical Records
           </button>
 
-          <button onClick={() => setActiveTab('View Health Reports')} className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium text-sm transition-all ${activeTab === 'View Health Reports' ? 'bg-[#F5F3FF] text-[#7C3AED]' : 'text-[#7a6f75] hover:bg-[#faf9fc]'}`}>
-            <Activity className="w-4 h-4 text-[#14B8A6]" /> View Health Reports
+          <button onClick={() => setActiveTab('View Health Reports')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-base transition-all ${activeTab === 'View Health Reports' ? 'bg-white/90 text-[#7C3AED] shadow-xs' : 'text-[#3a3135] hover:bg-white/50'}`}>
+            <Activity className="w-5 h-5 text-[#14B8A6]" /> View Health Reports
           </button>
 
-          <button onClick={() => setActiveTab('Consultation Notes')} className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium text-sm transition-all ${activeTab === 'Consultation Notes' ? 'bg-[#F5F3FF] text-[#7C3AED]' : 'text-[#7a6f75] hover:bg-[#faf9fc]'}`}>
-            <MessageSquare className="w-4 h-4" /> Consultation Notes
+          <button onClick={() => setActiveTab('Consultation Notes')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-base transition-all ${activeTab === 'Consultation Notes' ? 'bg-white/90 text-[#7C3AED] shadow-xs' : 'text-[#3a3135] hover:bg-white/50'}`}>
+            <MessageSquare className="w-5 h-5" /> Consultation Notes
           </button>
 
-          <button onClick={() => setActiveTab('Appointments')} className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium text-sm transition-all ${activeTab === 'Appointments' ? 'bg-[#F5F3FF] text-[#7C3AED]' : 'text-[#7a6f75] hover:bg-[#faf9fc]'}`}>
-            <Calendar className="w-4 h-4" /> Appointments
+          <button onClick={() => setActiveTab('Appointments')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-base transition-all ${activeTab === 'Appointments' ? 'bg-white/90 text-[#7C3AED] shadow-xs' : 'text-[#3a3135] hover:bg-white/50'}`}>
+            <Calendar className="w-5 h-5" /> Appointments
           </button>
 
-          <p className="text-[10px] uppercase tracking-widest text-[#a89cb5] font-bold px-3 py-2 mt-4">Account</p>
+          <p className="text-xs uppercase tracking-widest text-[#7a6f75] font-bold px-3 py-2 mt-4">Account</p>
 
-          <button onClick={() => setActiveTab('Profile')} className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium text-sm transition-all ${activeTab === 'Profile' ? 'bg-[#F5F3FF] text-[#7C3AED]' : 'text-[#7a6f75] hover:bg-[#faf9fc]'}`}>
-            <User className="w-4 h-4" /> Profile
+          <button onClick={() => setActiveTab('Profile')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-base transition-all ${activeTab === 'Profile' ? 'bg-white/90 text-[#7C3AED] shadow-xs' : 'text-[#3a3135] hover:bg-white/50'}`}>
+            <User className="w-5 h-5" /> Profile
           </button>
         </div>
 
-        <div className="p-4 border-t border-[#EDE9FE]">
-          <button onClick={handleLogout} className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-[#EDE9FE] hover:bg-[#F5F3FF] text-[#4a4145] font-bold text-xs">
+        <div className="p-4 border-t border-[#e5d0c0]">
+          <button onClick={handleLogout} className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-[#e5d0c0] bg-white/50 hover:bg-white text-[#3a3135] font-bold text-xs">
             <LogOut className="w-4 h-4" /> Logout
           </button>
         </div>
@@ -129,7 +126,7 @@ export default function DoctorDashboard() {
       <div className="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto">
         
         {/* Header */}
-        <header className="bg-white/80 backdrop-blur-md border-b border-[#EDE9FE] p-4 flex items-center justify-between sticky top-0 z-20">
+        <header className="bg-[#F4E0D1]/90 backdrop-blur-md border-b border-[#e5d0c0] p-5 md:px-8 flex items-center justify-between sticky top-0 z-20 font-inter">
           <div className="flex items-center gap-2">
             <h2 className="font-bold text-[#3a3135] text-lg">{profile.name} ({profile.spec})</h2>
           </div>
