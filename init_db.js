@@ -41,13 +41,19 @@ async function initPostgreSQL() {
   console.log('Successfully executed schema.sql on femsphere_db!');
 
   // Sync sequence values after explicit ID inserts
-  const tables = ['users', 'user_profiles', 'caregivers', 'dependents', 'doctors', 'medical_records', 'health_tracker', 'symptoms', 'appointments', 'health_reports', 'consultation_notes', 'health_articles', 'vaccinations', 'medications'];
+  const tables = [
+    'users', 'user_profiles', 'caregivers', 'dependents', 'doctors',
+    'life_stages', 'user_life_stages', 'health_tracker', 'symptoms',
+    'medical_records', 'appointments', 'health_reports', 'consultation_notes',
+    'health_articles', 'vaccinations', 'medications', 'relationships',
+    'consents', 'permissions', 'health_events', 'ai_insights', 'audit_logs'
+  ];
   for (const t of tables) {
     try {
       await client.query(`SELECT setval('${t}_id_seq', COALESCE((SELECT MAX(id) FROM ${t}), 1))`);
     } catch (e) {}
   }
-  console.log('PostgreSQL sequences synchronized!');
+  console.log('PostgreSQL sequences synchronized for all 22 tables!');
 
   const tablesResult = await client.query(`
     SELECT table_name 
@@ -56,7 +62,7 @@ async function initPostgreSQL() {
     ORDER BY table_name;
   `);
 
-  console.log('All 14 Tables in femsphere_db:');
+  console.log(`All ${tablesResult.rows.length} Tables in femsphere_db:`);
   tablesResult.rows.forEach(row => console.log(' - ' + row.table_name));
 
   await client.end();
