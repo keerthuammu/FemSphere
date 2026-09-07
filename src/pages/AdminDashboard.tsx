@@ -18,12 +18,29 @@ export default function AdminDashboard() {
     return () => clearInterval(timer);
   }, []);
 
-  // Admin Profile State
-  const [adminProfile, setAdminProfile] = useState({
-    name: 'Superuser Admin',
-    email: 'admin@femsphere.health',
-    role: 'System Administrator',
-    securityClearance: 'Level 5 (Full Access)',
+  // Admin Profile State - Initialized from localStorage session
+  const [adminProfile, setAdminProfile] = useState(() => {
+    const defaults = {
+      name: 'Superuser Admin',
+      email: 'admin@femsphere.health',
+      role: 'System Administrator',
+      securityClearance: 'Level 5 (Full Access)',
+    };
+    try {
+      const storedUser = localStorage.getItem('femsphere_user');
+      if (storedUser) {
+        const parsed = JSON.parse(storedUser);
+        const p = parsed.profile || {};
+        return {
+          ...defaults,
+          name: parsed.fullName || p.full_name || parsed.username || defaults.name,
+          email: parsed.email || defaults.email,
+        };
+      }
+    } catch (e) {
+      console.error('Error loading admin session', e);
+    }
+    return defaults;
   });
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [oldPassword, setOldPassword] = useState('');
@@ -31,14 +48,14 @@ export default function AdminDashboard() {
 
   // 1. Users State & CRUD
   const [users, setUsers] = useState([
-    { id: 'USR-101', name: 'Elena Rostova', email: 'elena.rostova@femsphere.health', status: 'Active', role: 'User (Female)', dateJoined: '2026-01-12' },
-    { id: 'USR-102', name: 'Amara Chen', email: 'amara.chen@gmail.com', status: 'Active', role: 'User (Female)', dateJoined: '2026-02-05' },
-    { id: 'USR-103', name: 'Sofia Davis', email: 'sofia.d@health.org', status: 'Inactive', role: 'User (Female)', dateJoined: '2026-03-14' },
+    { id: 'USR-101', name: 'Elena Rostova', email: 'elena.rostova@femsphere.health', status: 'Active', role: 'Myself', dateJoined: '2026-01-12' },
+    { id: 'USR-102', name: 'Amara Chen', email: 'amara.chen@gmail.com', status: 'Active', role: 'Myself', dateJoined: '2026-02-05' },
+    { id: 'USR-103', name: 'Sofia Davis', email: 'sofia.d@health.org', status: 'Inactive', role: 'Myself', dateJoined: '2026-03-14' },
   ]);
   const [searchUser, setSearchUser] = useState('');
   const [showAddUserModal, setShowAddUserModal] = useState(false);
   const [editingUser, setEditingUser] = useState<any>(null);
-  const [userForm, setUserForm] = useState({ name: '', email: '', role: 'User (Female)', status: 'Active' });
+  const [userForm, setUserForm] = useState({ name: '', email: '', role: 'Myself', status: 'Active' });
 
   // 2. Caregivers State & CRUD
   const [caregivers, setCaregivers] = useState([
@@ -72,8 +89,62 @@ export default function AdminDashboard() {
   const totalDoctorsCount = doctors.filter(d => d.status === 'Active').length;
   const pendingApprovalsCount = doctors.filter(d => d.status === 'Pending').length;
 
+  const [profileSaveMsg, setProfileSaveMsg] = useState<string | null>(null);
+  const [isAdminEditing, setIsAdminEditing] = useState(false);
+  const [adminEditForm, setAdminEditForm] = useState({ name: adminProfile.name, email: adminProfile.email });
+
   const handleLogout = () => {
+    localStorage.removeItem('femsphere_token');
+    localStorage.removeItem('femsphere_user');
     navigate('/login');
+  };
+
+  const handleSaveProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setProfileSaveMsg('Saving admin profile...');
+    setAdminProfile(prev => ({ ...prev, name: adminEditForm.name, email: adminEditForm.email }));
+    setIsAdminEditing(false);
+
+    // 1. Update localStorage
+    try {
+      const stored = localStorage.getItem('femsphere_user');
+      const parsed = stored ? JSON.parse(stored) : {};
+      const updatedUser = {
+        ...parsed,
+        fullName: adminEditForm.name,
+        email: adminEditForm.email,
+        profile: {
+          ...(parsed.profile || {}),
+          full_name: adminEditForm.name
+        }
+      };
+      localStorage.setItem('femsphere_user', JSON.stringify(updatedUser));
+    } catch (err) {
+      console.error('Error saving admin profile to localStorage', err);
+    }
+
+    // 2. Persist to backend database
+    try {
+      const token = localStorage.getItem('femsphere_token');
+      if (token) {
+        await fetch('/api/users/profile', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            name: adminEditForm.name,
+            email: adminEditForm.email
+          })
+        });
+      }
+    } catch (err) {
+      console.log('Database API offline, saved locally:', err);
+    }
+
+    setProfileSaveMsg('Admin profile updated successfully!');
+    setTimeout(() => setProfileSaveMsg(null), 3000);
   };
 
   // User Actions
@@ -87,7 +158,7 @@ export default function AdminDashboard() {
       setUsers([...users, { ...userForm, id: `USR-${100 + users.length + 1}`, dateJoined: '2026-07-30' }]);
       setShowAddUserModal(false);
     }
-    setUserForm({ name: '', email: '', role: 'User (Female)', status: 'Active' });
+    setUserForm({ name: '', email: '', role: 'Myself', status: 'Active' });
   };
 
   const toggleUserStatus = (id: string) => {
@@ -344,7 +415,7 @@ export default function AdminDashboard() {
                       User Accounts
                     </span>
                     <h3 className="text-4xl font-bold mt-3">{totalUsersCount}</h3>
-                    <p className="text-sm text-purple-100 mt-1 font-medium">Registered Female Users</p>
+                    <p className="text-sm text-purple-100 mt-1 font-medium">Registered Myself / User Accounts</p>
                   </div>
                   <button 
                     onClick={() => setActiveTab('Manage Users')}
@@ -488,7 +559,7 @@ export default function AdminDashboard() {
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#EDE9FE] pb-4">
                 <div>
                   <h3 className="font-bold text-2xl text-[#3a3135]">Manage Registered Users</h3>
-                  <p className="text-sm text-[#64595e]">View, update, or restrict female user accounts</p>
+                  <p className="text-sm text-[#64595e]">View, update, or restrict user accounts</p>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="relative">
@@ -732,31 +803,94 @@ export default function AdminDashboard() {
           {/* 7. TAB: ADMIN PROFILE */}
           {activeTab === 'Profile' && (
             <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#EDE9FE] shadow-sm space-y-6 max-w-3xl mx-auto">
-              <div className="border-b border-[#EDE9FE] pb-4">
-                <h3 className="font-bold text-2xl text-[#3a3135]">Admin Account Details</h3>
-                <p className="text-sm text-[#64595e]">Manage credentials and system access permissions</p>
+              <div className="flex items-center justify-between border-b border-[#EDE9FE] pb-4">
+                <div>
+                  <h3 className="font-bold text-2xl text-[#3a3135]">Admin Account Details</h3>
+                  <p className="text-sm text-[#64595e]">Manage credentials and system access permissions</p>
+                </div>
+                {!isAdminEditing ? (
+                  <button 
+                    onClick={() => { setAdminEditForm({ name: adminProfile.name, email: adminProfile.email }); setIsAdminEditing(true); }} 
+                    className="px-4 py-2 bg-[#7C3AED] text-white rounded-xl text-xs font-bold"
+                  >
+                    Edit Profile
+                  </button>
+                ) : (
+                  <button 
+                    onClick={() => setIsAdminEditing(false)} 
+                    className="px-4 py-2 border border-[#EDE9FE] text-[#7a6f75] rounded-xl text-xs font-bold"
+                  >
+                    Cancel
+                  </button>
+                )}
               </div>
 
-              <div className="space-y-4 text-sm font-inter">
-                <div className="p-4 rounded-2xl bg-[#FAF8FC] border border-[#EDE9FE]">
-                  <span className="block font-bold text-[#7a6f75] uppercase text-xs mb-1">Administrator Name</span>
-                  <p className="font-bold text-[#3a3135] text-lg">{adminProfile.name}</p>
+              {profileSaveMsg && (
+                <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold rounded-xl flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4" /> {profileSaveMsg}
                 </div>
-                <div className="p-4 rounded-2xl bg-[#FAF8FC] border border-[#EDE9FE]">
-                  <span className="block font-bold text-[#7a6f75] uppercase text-xs mb-1">Email Address</span>
-                  <p className="font-bold text-[#3a3135] text-lg">{adminProfile.email}</p>
+              )}
+
+              {!isAdminEditing ? (
+                <div className="space-y-4 text-sm font-inter">
+                  <div className="p-4 rounded-2xl bg-[#FAF8FC] border border-[#EDE9FE]">
+                    <span className="block font-bold text-[#7a6f75] uppercase text-xs mb-1">Administrator Name</span>
+                    <p className="font-bold text-[#3a3135] text-lg">{adminProfile.name}</p>
+                  </div>
+                  <div className="p-4 rounded-2xl bg-[#FAF8FC] border border-[#EDE9FE]">
+                    <span className="block font-bold text-[#7a6f75] uppercase text-xs mb-1">Email Address</span>
+                    <p className="font-bold text-[#3a3135] text-lg">{adminProfile.email}</p>
+                  </div>
+                  <div className="p-4 rounded-2xl bg-[#FAF8FC] border border-[#EDE9FE]">
+                    <span className="block font-bold text-[#7a6f75] uppercase text-xs mb-1">Security Privilege</span>
+                    <p className="font-bold text-[#7C3AED] text-lg">{adminProfile.securityClearance}</p>
+                  </div>
+                  <button 
+                    onClick={() => setShowPasswordModal(true)} 
+                    className="w-full py-3 bg-[#7C3AED] text-white rounded-2xl font-bold text-sm"
+                  >
+                    Change Password
+                  </button>
                 </div>
-                <div className="p-4 rounded-2xl bg-[#FAF8FC] border border-[#EDE9FE]">
-                  <span className="block font-bold text-[#7a6f75] uppercase text-xs mb-1">Security Privilege</span>
-                  <p className="font-bold text-[#7C3AED] text-lg">{adminProfile.securityClearance}</p>
-                </div>
-                <button 
-                  onClick={() => setShowPasswordModal(true)} 
-                  className="w-full py-3 bg-[#7C3AED] text-white rounded-2xl font-bold text-sm"
-                >
-                  Change Password
-                </button>
-              </div>
+              ) : (
+                <form onSubmit={handleSaveProfile} className="space-y-4 text-xs font-inter">
+                  <div>
+                    <label className="block font-bold uppercase text-[#7a6f75] mb-1">Administrator Name</label>
+                    <input 
+                      type="text" 
+                      value={adminEditForm.name} 
+                      onChange={(e) => setAdminEditForm({ ...adminEditForm, name: e.target.value })} 
+                      className="w-full p-3 rounded-xl border border-[#EDE9FE] text-sm" 
+                      required 
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-bold uppercase text-[#7a6f75] mb-1">Email Address</label>
+                    <input 
+                      type="email" 
+                      value={adminEditForm.email} 
+                      onChange={(e) => setAdminEditForm({ ...adminEditForm, email: e.target.value })} 
+                      className="w-full p-3 rounded-xl border border-[#EDE9FE] text-sm" 
+                      required 
+                    />
+                  </div>
+                  <div className="pt-2 flex items-center justify-between">
+                    <button 
+                      type="button" 
+                      onClick={() => setIsAdminEditing(false)} 
+                      className="px-4 py-2.5 rounded-xl border border-[#EDE9FE] font-bold text-[#7a6f75]"
+                    >
+                      Cancel
+                    </button>
+                    <button 
+                      type="submit" 
+                      className="px-6 py-2.5 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl font-bold transition-all shadow-sm"
+                    >
+                      Save Profile Changes
+                    </button>
+                  </div>
+                </form>
+              )}
             </div>
           )}
 

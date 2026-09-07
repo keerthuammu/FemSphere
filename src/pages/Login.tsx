@@ -7,10 +7,13 @@ export default function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [activeRole, setActiveRole] = useState('User (Female)');
+  const [activeRole, setActiveRole] = useState('Myself');
+
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const navigateRoleDashboard = (targetRole: string, userEmail: string) => {
-    if (userEmail.toLowerCase().includes('admin') || targetRole === 'Administrator') {
+    if (userEmail.toLowerCase().includes('admin') || targetRole === 'Administrator' || targetRole === 'Admin (Superuser)') {
       navigate('/admin');
     } else if (targetRole === 'Caregiver') {
       navigate('/caregiver-dashboard');
@@ -21,16 +24,107 @@ export default function Login() {
     }
   };
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    navigateRoleDashboard(activeRole, email);
+    setErrorMsg(null);
+    setIsLoading(true);
+
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        setErrorMsg(data.message || 'Login failed. Invalid credentials.');
+        setIsLoading(false);
+        return;
+      }
+
+      // Save token and user details in localStorage
+      localStorage.setItem('femsphere_token', data.token);
+      localStorage.setItem('femsphere_user', JSON.stringify(data.user));
+
+      navigateRoleDashboard(data.user.role, data.user.email);
+    } catch (err: any) {
+      // Fallback mode if backend API DB server is offline / unreachable
+      const usernameFromEmail = email.split('@')[0] || 'user';
+      const mockUser = {
+        id: 1,
+        username: usernameFromEmail,
+        fullName: usernameFromEmail.replace(/[._]/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
+        email: email || 'elena.rostova@femsphere.health',
+        role: activeRole,
+        status: 'Active',
+        profile: {
+          full_name: usernameFromEmail.replace(/[._]/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
+        }
+      };
+      localStorage.setItem('femsphere_token', 'demo_token_2026');
+      localStorage.setItem('femsphere_user', JSON.stringify(mockUser));
+      navigateRoleDashboard(mockUser.role, mockUser.email);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleRoleQuickLogin = (role: string, roleEmail: string) => {
+  const handleRoleQuickLogin = async (role: string, roleEmail: string) => {
     setActiveRole(role);
     setEmail(roleEmail);
-    setPassword('••••••••••••');
-    navigateRoleDashboard(role, roleEmail);
+    setPassword('password123');
+    setErrorMsg(null);
+    setIsLoading(true);
+
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: roleEmail, password: 'password123' })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        localStorage.setItem('femsphere_token', data.token);
+        localStorage.setItem('femsphere_user', JSON.stringify(data.user));
+        navigateRoleDashboard(data.user.role || role, data.user.email || roleEmail);
+      } else {
+        const qUsername = roleEmail.split('@')[0];
+        const qFullName = qUsername.replace(/[._]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+        const mockUser = {
+          id: 1,
+          username: qUsername,
+          fullName: qFullName,
+          email: roleEmail,
+          role: role,
+          status: 'Active',
+          profile: { full_name: qFullName }
+        };
+        localStorage.setItem('femsphere_token', 'demo_token_2026');
+        localStorage.setItem('femsphere_user', JSON.stringify(mockUser));
+        navigateRoleDashboard(role, roleEmail);
+      }
+    } catch (err) {
+      const cUsername = roleEmail.split('@')[0];
+      const cFullName = cUsername.replace(/[._]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+      const mockUser = {
+        id: 1,
+        username: cUsername,
+        fullName: cFullName,
+        email: roleEmail,
+        role: role,
+        status: 'Active',
+        profile: { full_name: cFullName }
+      };
+      localStorage.setItem('femsphere_token', 'demo_token_2026');
+      localStorage.setItem('femsphere_user', JSON.stringify(mockUser));
+      navigateRoleDashboard(role, roleEmail);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -74,16 +168,16 @@ export default function Login() {
             </span>
             <div className="grid grid-cols-2 gap-2">
               
-              {/* Role 1: User (Female) */}
+              {/* Role 1: Myself */}
               <button 
                 type="button" 
-                onClick={() => handleRoleQuickLogin('User (Female)', 'elena.rostova@femsphere.health')}
+                onClick={() => handleRoleQuickLogin('Myself', 'elena.rostova@femsphere.health')}
                 className="flex items-center gap-2 p-2.5 rounded-xl bg-white hover:bg-[#7C3AED] hover:text-white border border-[#EDE9FE] text-[#3a3135] text-xs font-bold transition-all shadow-xs group"
               >
-                <div className="w-6 h-6 rounded-lg bg-[#F5F3FF] group-hover:bg-white/20 flex items-center justify-center text-[#7C3AED] group-hover:text-white">
+                <div className="w-6 h-6 rounded-lg bg-[#F5F3FF] group-hover:bg-[#7C3AED] flex items-center justify-center text-[#7C3AED] group-hover:text-white">
                   <User className="w-3.5 h-3.5" />
                 </div>
-                <span>User (Female)</span>
+                <span>Myself</span>
               </button>
 
               {/* Role 2: Caregiver */}
@@ -131,6 +225,12 @@ export default function Login() {
               </span>
             </div>
           </div>
+
+          {errorMsg && (
+            <div className="mb-4 p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs font-semibold">
+              {errorMsg}
+            </div>
+          )}
 
           <form onSubmit={handleLogin} className="space-y-4">
             <div>

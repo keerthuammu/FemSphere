@@ -10,10 +10,115 @@ import {
   Utensils, Footprints, Smile, Compass, HeartPulse, Scan, FileCheck, AlertTriangle, TrendingUp, Award, Search, Camera, Image as ImageIcon
 } from 'lucide-react';
 
+import LifeStageSelector from '../components/LifeStageSelector';
+import LifeStageOnboardingModal from '../components/LifeStageOnboardingModal';
+import PersonalHealthTimeline from '../components/PersonalHealthTimeline';
+import AIHealthTwinInsights from '../components/AIHealthTwinInsights';
+
+import PubertyGrowingModule from '../components/modules/PubertyGrowingModule';
+import EarlyChildhoodModule from '../components/modules/EarlyChildhoodModule';
+import PartnerSharingModule from '../components/modules/PartnerSharingModule';
+import ReproductivePlanningModule from '../components/modules/ReproductivePlanningModule';
+import PregnancyDashboardModule from '../components/modules/PregnancyDashboardModule';
+import PostpartumDashboardModule from '../components/modules/PostpartumDashboardModule';
+import PcosEndometriosisModule from '../components/modules/PcosEndometriosisModule';
+import MidlifeMenopauseModule from '../components/modules/MidlifeMenopauseModule';
+import HealthyAgingModule from '../components/modules/HealthyAgingModule';
+import PeriodTracker from '../components/PeriodTracker';
+import FitnessTracker from '../components/FitnessTracker';
+
+function calculateAge(dobString: string): number {
+  if (!dobString) return 30;
+  const birthDate = new Date(dobString);
+  if (isNaN(birthDate.getTime())) return 30;
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const m = today.getMonth() - birthDate.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  return age >= 0 ? age : 0;
+}
+
 export default function Dashboard() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('Dashboard');
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
+
+  // Life Stage Engine State
+  const [currentStageCode, setCurrentStageCode] = useState('REPRODUCTIVE_AGE');
+  const [stageName, setStageName] = useState('Reproductive Age');
+  const [showLifeStageModal, setShowLifeStageModal] = useState(false);
+
+  useEffect(() => {
+    fetchUserLifeStage();
+    fetchUserProfile();
+  }, []);
+
+  const fetchUserProfile = async () => {
+    try {
+      const token = localStorage.getItem('femsphere_token');
+      if (!token) return;
+      const res = await fetch('/api/users/profile', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.success && data.profile) {
+        const p = data.profile;
+        const dobStr = p.dob ? (p.dob.includes('T') ? p.dob.split('T')[0] : p.dob) : '1996-08-14';
+        setUserProfile(prev => ({
+          ...prev,
+          fullName: p.full_name || data.user?.username || prev.fullName,
+          email: data.user?.email || prev.email,
+          phone: p.emergency_contact_phone || prev.phone,
+          dob: dobStr,
+          age: calculateAge(dobStr),
+          bloodGroup: p.blood_group || prev.bloodGroup,
+          height: p.height_cm ? String(p.height_cm) : prev.height,
+          weight: p.weight_kg ? String(p.weight_kg) : prev.weight,
+          address: p.address || prev.address,
+          emergencyContact: p.emergency_contact_name || prev.emergencyContact
+        }));
+      }
+    } catch (e) {
+      console.error('Error fetching user profile from database', e);
+    }
+  };
+
+  const fetchUserLifeStage = async () => {
+    try {
+      const token = localStorage.getItem('femsphere_token');
+      if (!token) return;
+      const res = await fetch('/api/life-stages/current', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.success && data.currentStage) {
+        setCurrentStageCode(data.currentStage.life_stage_code || 'REPRODUCTIVE_AGE');
+        setStageName(data.currentStage.name || 'Reproductive Age');
+      }
+    } catch (e) {
+      console.error('Error loading active life stage', e);
+    }
+  };
+
+  const handleSelectStage = async (code: string) => {
+    setCurrentStageCode(code);
+    try {
+      const token = localStorage.getItem('femsphere_token');
+      const res = await fetch('/api/life-stages/current', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ lifeStageCode: code, isManual: true })
+      });
+      const data = await res.json();
+      if (data.success && data.currentStage) {
+        setStageName(data.currentStage.name);
+      }
+    } catch (e) {
+      console.error('Error updating life stage', e);
+    }
+  };
 
   // Live Time & Date
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -39,20 +144,43 @@ export default function Dashboard() {
     return () => clearInterval(timer);
   }, []);
 
-  // 1. User Profile State (CRUD & Photo Edit)
-  const [userProfile, setUserProfile] = useState({
-    fullName: 'Elena Rostova',
-    avatarUrl: null as string | null,
-    avatarBg: '#7C3AED',
-    dob: '1996-08-14',
-    age: 30,
-    bloodGroup: 'A Positive (A+)',
-    height: '168',
-    weight: '62',
-    phone: '+1 (555) 382-9102',
-    email: 'elena.rostova@femsphere.health',
-    address: '742 Evergreen Terrace, San Francisco, CA 94107',
-    emergencyContact: 'Marcus Rostova (+1 555 902-4118)',
+  // 1. User Profile State (CRUD & Photo Edit) - Initialized directly from localStorage
+  const [userProfile, setUserProfile] = useState(() => {
+    const defaults = {
+      fullName: 'Elena Rostova',
+      avatarUrl: null as string | null,
+      avatarBg: '#7C3AED',
+      dob: '1996-08-14',
+      age: 30,
+      bloodGroup: 'A Positive (A+)',
+      height: '168',
+      weight: '62',
+      phone: '+1 (555) 382-9102',
+      email: 'elena.rostova@femsphere.health',
+      address: '742 Evergreen Terrace, San Francisco, CA 94107',
+      emergencyContact: 'Marcus Rostova (+1 555 902-4118)',
+    };
+    try {
+      const storedUser = localStorage.getItem('femsphere_user');
+      if (storedUser) {
+        const parsed = JSON.parse(storedUser);
+        const p = parsed.profile || {};
+        return {
+          ...defaults,
+          fullName: parsed.fullName || p.full_name || p.fullName || defaults.fullName,
+          email: parsed.email || p.email || defaults.email,
+          phone: p.mobile || p.mobileNumber || defaults.phone,
+          dob: p.dob || defaults.dob,
+          bloodGroup: p.blood_group || p.bloodGroup || defaults.bloodGroup,
+          height: p.height_cm ? String(p.height_cm) : (p.heightCm ? String(p.heightCm) : defaults.height),
+          weight: p.weight_kg ? String(p.weight_kg) : (p.weightKg ? String(p.weightKg) : defaults.weight),
+          address: p.address ? `${p.address}${p.city ? `, ${p.city}` : ''}` : defaults.address,
+        };
+      }
+    } catch (e) {
+      console.error('Error loading stored user session', e);
+    }
+    return defaults;
   });
 
   const [showPhotoModal, setShowPhotoModal] = useState(false);
@@ -300,28 +428,96 @@ export default function Dashboard() {
 
   // Logout Handler
   const handleLogout = () => {
+    localStorage.removeItem('femsphere_token');
+    localStorage.removeItem('femsphere_user');
     navigate('/login');
   };
 
   // --- PROFILE UPDATE HANDLERS ---
-  const handleSaveProfile = (e: React.FormEvent) => {
+  const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
-    setUserProfile({ ...editProfileForm });
+    const computedAge = calculateAge(editProfileForm.dob);
+    const updatedProfile = { ...editProfileForm, age: computedAge };
+    setUserProfile(updatedProfile);
     setIsEditingProfile(false);
+
+    // 1. Update localStorage immediately so UI & reloads reflect changes
+    try {
+      const stored = localStorage.getItem('femsphere_user');
+      const parsed = stored ? JSON.parse(stored) : {};
+      const updatedUser = {
+        ...parsed,
+        fullName: updatedProfile.fullName,
+        email: updatedProfile.email,
+        profile: {
+          ...(parsed.profile || {}),
+          full_name: updatedProfile.fullName,
+          dob: updatedProfile.dob,
+          blood_group: updatedProfile.bloodGroup,
+          height_cm: parseFloat(updatedProfile.height) || null,
+          weight_kg: parseFloat(updatedProfile.weight) || null,
+          mobile: updatedProfile.phone,
+          address: updatedProfile.address,
+          emergency_contact_name: updatedProfile.emergencyContact,
+          emergency_contact_phone: updatedProfile.phone
+        }
+      };
+      localStorage.setItem('femsphere_user', JSON.stringify(updatedUser));
+    } catch (err) {
+      console.error('Error updating localStorage user profile:', err);
+    }
+
+    // 2. Persist to backend database via API
+    try {
+      const token = localStorage.getItem('femsphere_token');
+      if (token) {
+        await fetch('/api/users/profile', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            fullName: updatedProfile.fullName,
+            email: updatedProfile.email,
+            phone: updatedProfile.phone,
+            dob: updatedProfile.dob,
+            bloodGroup: updatedProfile.bloodGroup,
+            heightCm: updatedProfile.height,
+            weightKg: updatedProfile.weight,
+            address: updatedProfile.address,
+            emergencyContact: updatedProfile.emergencyContact
+          })
+        });
+      }
+    } catch (apiErr) {
+      console.log('Database API offline or unreachable, saved locally:', apiErr);
+    }
+
     // Add Notification
     setNotifications(prev => [
-      { id: `NOTIF-${Date.now()}`, title: 'Profile Updated', message: 'Your profile details were updated successfully.', time: 'Just now', type: 'profile', read: false },
+      { id: `NOTIF-${Date.now()}`, title: 'Profile Updated', message: 'Your profile details were updated and saved successfully.', time: 'Just now', type: 'profile', read: false },
       ...prev
     ]);
   };
 
   const handleSaveProfilePhoto = (e: React.FormEvent) => {
     e.preventDefault();
-    setUserProfile(prev => ({
-      ...prev,
+    const updated = {
+      ...userProfile,
       avatarUrl: tempAvatarUrl,
       avatarBg: tempAvatarBg
-    }));
+    };
+    setUserProfile(updated);
+    try {
+      const stored = localStorage.getItem('femsphere_user');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        parsed.avatarUrl = tempAvatarUrl;
+        parsed.avatarBg = tempAvatarBg;
+        localStorage.setItem('femsphere_user', JSON.stringify(parsed));
+      }
+    } catch (e) {}
     setShowPhotoModal(false);
     setNotifications(prev => [
       { id: `NOTIF-${Date.now()}`, title: 'Profile Photo Updated', message: 'Your profile avatar photo has been updated successfully.', time: 'Just now', type: 'system', read: false },
@@ -548,27 +744,76 @@ export default function Dashboard() {
   };
 
   // --- APPOINTMENT HANDLERS ---
-  const handleBookAppointment = (e: React.FormEvent) => {
+  const handleBookAppointment = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newAppointment.date) return;
     const booked = {
       id: `APT-${Date.now().toString().slice(-3)}`,
-      ...newAppointment,
-      status: 'Scheduled'
+      doctor: newAppointment.doctor,
+      date: newAppointment.date,
+      time: newAppointment.time,
+      reason: newAppointment.reason || 'General Health Twin Review',
+      status: 'Scheduled',
+      type: (newAppointment as any).type || 'Virtual Telehealth'
     };
-    setAppointments([booked, ...appointments]);
+    
+    const updatedList = [booked, ...appointments];
+    setAppointments(updatedList);
     setShowBookModal(false);
-    setNewAppointment({ doctor: 'Dr. Sarah Jenkins (OB/GYN)', date: '', time: '10:00 AM', reason: '' });
+    
+    try {
+      localStorage.setItem('femsphere_user_appointments', JSON.stringify(updatedList));
+    } catch (e) {}
+
+    // Persist to backend database API
+    try {
+      const token = localStorage.getItem('femsphere_token');
+      if (token) {
+        await fetch('/api/appointments', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            doctorName: booked.doctor,
+            date: booked.date,
+            time: booked.time,
+            reason: booked.reason,
+            type: booked.type
+          })
+        });
+      }
+    } catch (apiErr) {
+      console.log('Database API offline or saved locally:', apiErr);
+    }
+
+    setNewAppointment({ doctor: 'Dr. Sarah Jenkins, MD (OB/GYN)', date: '', time: '10:00 AM', reason: '' });
     
     // Add Notification
     setNotifications(prev => [
-      { id: `NOTIF-${Date.now()}`, title: 'Appointment Booked', message: `Confirmed with ${booked.doctor} on ${booked.date}.`, time: 'Just now', type: 'appointment', read: false },
+      { id: `NOTIF-${Date.now()}`, title: 'Appointment Booked', message: `Confirmed consultation with ${booked.doctor} on ${booked.date} at ${booked.time}.`, time: 'Just now', type: 'appointment', read: false },
       ...prev
     ]);
   };
 
-  const handleCancelAppointment = (id: string) => {
-    setAppointments(appointments.map(a => a.id === id ? { ...a, status: 'Cancelled' } : a));
+  const handleCancelAppointment = async (id: string) => {
+    const updatedList = appointments.map(a => a.id === id ? { ...a, status: 'Cancelled' } : a);
+    setAppointments(updatedList);
+    try {
+      localStorage.setItem('femsphere_user_appointments', JSON.stringify(updatedList));
+      const token = localStorage.getItem('femsphere_token');
+      if (token) {
+        await fetch(`/api/appointments/${id}/status`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ status: 'Cancelled' })
+        });
+      }
+    } catch (e) {}
   };
 
   // --- NOTIFICATION HANDLERS ---
@@ -743,6 +988,16 @@ export default function Dashboard() {
             <Activity className="w-5 h-5 text-[#7C3AED]" /> Dashboard
           </button>
 
+          {/* 1b. Period Tracker */}
+          <button 
+            onClick={() => setActiveTab('Period Tracker')} 
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-base transition-all ${
+              activeTab === 'Period Tracker' ? 'bg-white text-rose-600 shadow-sm border border-rose-200' : 'text-[#4A3B42] hover:bg-white/40 hover:text-[#2E2428]'
+            }`}
+          >
+            <Droplet className="w-5 h-5 text-rose-500" /> Period Tracker
+          </button>
+
           {/* 2. Medical Records */}
           <button 
             onClick={() => setActiveTab('Medical Records')} 
@@ -800,7 +1055,27 @@ export default function Dashboard() {
             <Printer className="w-5 h-5 text-[#14B8A6]" /> Health Reports
           </button>
 
-          {/* 7. Notifications */}
+          {/* 7. Fitness */}
+          <button 
+            onClick={() => setActiveTab('Fitness')} 
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-base transition-all ${
+              activeTab === 'Fitness' ? 'bg-white text-emerald-700 shadow-sm border border-emerald-200' : 'text-[#4A3B42] hover:bg-white/40 hover:text-[#2E2428]'
+            }`}
+          >
+            <Activity className="w-5 h-5 text-emerald-600" /> Fitness
+          </button>
+
+          {/* 8. Partner Mode */}
+          <button 
+            onClick={() => setActiveTab('Partner Mode')} 
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-base transition-all ${
+              activeTab === 'Partner Mode' ? 'bg-white text-[#7C3AED] shadow-sm border border-[#E5CDBC]' : 'text-[#4A3B42] hover:bg-white/40 hover:text-[#2E2428]'
+            }`}
+          >
+            <Heart className="w-5 h-5 text-rose-500" /> Partner Mode
+          </button>
+
+          {/* 9. Notifications */}
           <button 
             onClick={() => setActiveTab('Notifications')} 
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-base transition-all ${
@@ -828,6 +1103,13 @@ export default function Dashboard() {
           </div>
           
           <div className="flex items-center gap-3">
+            {/* Life Stage Selector Dropdown */}
+            <LifeStageSelector
+              currentStageCode={currentStageCode}
+              stageName={stageName}
+              onSelectStage={handleSelectStage}
+            />
+
             {/* Profile Photo Avatar Dropdown Menu */}
             <div className="relative">
               <button 
@@ -1001,6 +1283,49 @@ export default function Dashboard() {
                 </div>
               </div>
 
+              {/* AI Health Twin Insights Widget */}
+              <AIHealthTwinInsights />
+
+              {/* Menstrual Period Tracker Widget */}
+              <PeriodTracker />
+
+              {/* Dynamic Active Life Stage Module Render */}
+              <div className="mt-6">
+                {currentStageCode === 'PREGNANCY' && <PregnancyDashboardModule />}
+                {currentStageCode === 'POSTPARTUM' && <PostpartumDashboardModule />}
+                {(currentStageCode === 'PERIMENOPAUSE' || currentStageCode === 'MENOPAUSE') && <MidlifeMenopauseModule />}
+                {currentStageCode === 'OLDER_ADULT' && <HealthyAgingModule />}
+                {(currentStageCode === 'PUBERTY' || currentStageCode === 'PRE_PUBERTY') && <PubertyGrowingModule />}
+                {currentStageCode === 'EARLY_CHILDHOOD' && <EarlyChildhoodModule />}
+                {(currentStageCode === 'REPRODUCTIVE_AGE' || currentStageCode === 'YOUNG_ADULT' || currentStageCode === 'MENSTRUATING_ADOLESCENT') && (
+                  <div className="space-y-6">
+                    <ReproductivePlanningModule />
+                    <PcosEndometriosisModule />
+                  </div>
+                )}
+              </div>
+
+            </div>
+          )}
+
+          {/* TAB: PERIOD TRACKER */}
+          {activeTab === 'Period Tracker' && (
+            <div className="max-w-5xl mx-auto">
+              <PeriodTracker />
+            </div>
+          )}
+
+          {/* TAB: FITNESS & MOVEMENT (YOGA, ZUMBA, EXERCISE) */}
+          {activeTab === 'Fitness' && (
+            <div className="max-w-5xl mx-auto">
+              <FitnessTracker />
+            </div>
+          )}
+
+          {/* TAB: PARTNER MODE */}
+          {activeTab === 'Partner Mode' && (
+            <div className="max-w-4xl mx-auto">
+              <PartnerSharingModule />
             </div>
           )}
 
@@ -1014,7 +1339,7 @@ export default function Dashboard() {
                 </div>
                 {!isEditingProfile ? (
                   <button 
-                    onClick={() => setIsEditingProfile(true)} 
+                    onClick={() => { setEditProfileForm({ ...userProfile }); setIsEditingProfile(true); }} 
                     className="flex items-center gap-2 px-4 py-2 bg-[#7C3AED] text-white rounded-xl text-xs font-bold cursor-pointer"
                   >
                     <Edit3 className="w-4 h-4" /> Edit Profile
@@ -1091,7 +1416,7 @@ export default function Dashboard() {
 
                     <div className="p-4 rounded-2xl bg-[#FAF8FC] border border-[#EDE9FE]">
                       <span className="block font-bold text-[#7a6f75] uppercase text-[10px] mb-1">Date of Birth & Age</span>
-                      <p className="font-bold text-[#3a3135] text-base">{userProfile.dob} ({userProfile.age} yrs)</p>
+                      <p className="font-bold text-[#3a3135] text-base">{userProfile.dob} ({calculateAge(userProfile.dob)} yrs)</p>
                     </div>
 
                     <div className="p-4 rounded-2xl bg-[#FAF8FC] border border-[#EDE9FE]">
@@ -2836,6 +3161,216 @@ export default function Dashboard() {
           </div>
         </div>
       )}
+
+      {/* BOOK APPOINTMENT MODAL */}
+      {showBookModal && (() => {
+        // Read live doctor schedule
+        let docSchedule = {
+          availableDays: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+          workingHours: '09:00 AM - 07:00 PM',
+          shifts: [
+            {
+              id: 'SHIFT-01',
+              name: 'Morning Clinical Session',
+              fromTime: '09:00 AM',
+              toTime: '12:00 PM',
+              maxPatients: 6,
+              days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+              mode: 'Both'
+            },
+            {
+              id: 'SHIFT-02',
+              name: 'Evening Telehealth Session',
+              fromTime: '05:00 PM',
+              toTime: '07:00 PM',
+              maxPatients: 4,
+              days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+              mode: 'Virtual Telehealth'
+            }
+          ],
+          availableSlots: ['09:00 AM', '09:30 AM', '10:00 AM', '10:30 AM', '11:00 AM', '11:30 AM', '05:00 PM', '05:30 PM', '06:00 PM', '06:30 PM'],
+          teleconsultFee: 75
+        };
+        try {
+          const stored = localStorage.getItem('femsphere_doctor_schedule');
+          if (stored) {
+            const parsed = JSON.parse(stored);
+            docSchedule = {
+              ...docSchedule,
+              ...parsed,
+              shifts: parsed.shifts && parsed.shifts.length > 0 ? parsed.shifts : docSchedule.shifts
+            };
+          }
+        } catch (e) {}
+
+        const selectedDate = newAppointment.date || new Date().toISOString().split('T')[0];
+
+        return (
+          <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 z-50 font-inter animate-in fade-in duration-200">
+            <div className="bg-white rounded-3xl p-6 md:p-8 max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-[#EDE9FE] space-y-6">
+              <div className="flex items-center justify-between border-b border-[#EDE9FE] pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-[#F5F3FF] text-[#7C3AED] flex items-center justify-center border border-[#EDE9FE]">
+                    <Calendar className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-xl text-[#3a3135]">Book Doctor Consultation</h3>
+                    <p className="text-xs text-[#7a6f75]">Select consultation shift, view available capacity & schedule</p>
+                  </div>
+                </div>
+                <button onClick={() => setShowBookModal(false)} className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 cursor-pointer">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <form onSubmit={handleBookAppointment} className="space-y-4 text-xs">
+                <div>
+                  <label className="block font-bold text-[#3a3135] uppercase text-[10px] mb-1">Select Healthcare Specialist</label>
+                  <select 
+                    value={newAppointment.doctor} 
+                    onChange={(e) => setNewAppointment({ ...newAppointment, doctor: e.target.value })} 
+                    className="w-full p-3 rounded-xl border border-[#EDE9FE] bg-white font-bold text-[#3a3135] text-xs"
+                  >
+                    <option value="Dr. Sarah Jenkins, MD (OB/GYN & Women Health)">Dr. Sarah Jenkins, MD (OB/GYN & Women Health)</option>
+                    <option value="Dr. Priya Sharma (Maternal-Fetal & Fertility)">Dr. Priya Sharma (Maternal-Fetal & Fertility)</option>
+                    <option value="Dr. Alan Vance (Endocrinologist & Hormonal Health)">Dr. Alan Vance (Endocrinologist & Hormonal Health)</option>
+                    <option value="Dr. Emily Watson (Pediatrics & Family Care)">Dr. Emily Watson (Pediatrics & Family Care)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block font-bold text-[#3a3135] uppercase text-[10px] mb-1">Preferred Consultation Date</label>
+                  <input 
+                    type="date" 
+                    value={newAppointment.date} 
+                    onChange={(e) => setNewAppointment({ ...newAppointment, date: e.target.value })} 
+                    min={new Date().toISOString().split('T')[0]}
+                    className="w-full p-3 rounded-xl border border-[#EDE9FE] text-xs font-bold text-[#3a3135]" 
+                    required 
+                  />
+                </div>
+
+                {/* Real-time Consultation Shifts & Patient Capacity Quota */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="block font-bold text-[#3a3135] uppercase text-[10px]">
+                      Doctor's Consultation Shifts & Capacity for {selectedDate}
+                    </label>
+                    <span className="text-[10px] font-bold text-[#7C3AED]">${docSchedule.teleconsultFee} / Session</span>
+                  </div>
+
+                  <div className="space-y-2">
+                    {docSchedule.shifts.map((shift: any) => {
+                      // Calculate appointments booked in this shift on the selected date
+                      const bookedInShift = appointments.filter(a => 
+                        a.date === selectedDate && 
+                        a.status !== 'Cancelled' && 
+                        ((a as any).shiftId === shift.id || (a.time && a.time >= shift.fromTime && a.time <= shift.toTime))
+                      ).length;
+                      const remaining = Math.max(0, shift.maxPatients - bookedInShift);
+                      const isFull = remaining <= 0;
+                      const isSelected = (newAppointment as any).shiftId === shift.id || (!((newAppointment as any).shiftId) && newAppointment.time >= shift.fromTime && newAppointment.time <= shift.toTime);
+
+                      return (
+                        <div
+                          key={shift.id}
+                          onClick={() => {
+                            if (!isFull) {
+                              setNewAppointment({
+                                ...newAppointment,
+                                time: shift.fromTime,
+                                ...({ shiftId: shift.id, shiftName: shift.name } as any)
+                              });
+                            }
+                          }}
+                          className={`p-3.5 rounded-2xl border transition-all cursor-pointer ${
+                            isFull 
+                              ? 'bg-red-50/60 border-red-200 opacity-70 cursor-not-allowed' 
+                              : isSelected 
+                                ? 'bg-purple-50 border-[#7C3AED] ring-2 ring-[#7C3AED]/20 shadow-xs' 
+                                : 'bg-[#FAF8FC] border-[#EDE9FE] hover:border-[#7C3AED]/40'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="space-y-0.5">
+                              <div className="flex items-center gap-2">
+                                <span className="font-bold text-xs text-[#3a3135]">{shift.name}</span>
+                                <span className="text-[10px] font-bold text-[#7C3AED] bg-purple-100/70 px-2 py-0.5 rounded-full">
+                                  {shift.fromTime} - {shift.toTime}
+                                </span>
+                              </div>
+                              <p className="text-[10px] text-[#7a6f75]">Mode: {shift.mode || 'Virtual & In-Clinic'}</p>
+                            </div>
+
+                            <div className="text-right">
+                              {isFull ? (
+                                <span className="px-2.5 py-1 rounded-full bg-red-100 text-red-700 font-bold text-[10px] inline-block">
+                                  🔴 FULL ({shift.maxPatients}/{shift.maxPatients})
+                                </span>
+                              ) : (
+                                <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px] inline-block">
+                                  🟢 {remaining} of {shift.maxPatients} Left ({bookedInShift} Booked)
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block font-bold text-[#3a3135] uppercase text-[10px] mb-1">Consultation Mode</label>
+                  <select 
+                    value={(newAppointment as any).type || 'Virtual Telehealth'} 
+                    onChange={(e) => setNewAppointment({ ...newAppointment, type: e.target.value } as any)} 
+                    className="w-full p-3 rounded-xl border border-[#EDE9FE] bg-white text-xs font-bold text-[#7C3AED]"
+                  >
+                    <option value="Virtual Telehealth">Virtual Telehealth (Encrypted Video Call)</option>
+                    <option value="In-Clinic">In-Clinic Hospital Visit</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block font-bold text-[#3a3135] uppercase text-[10px] mb-1">Reason for Visit / Symptoms</label>
+                  <input 
+                    type="text" 
+                    value={newAppointment.reason} 
+                    onChange={(e) => setNewAppointment({ ...newAppointment, reason: e.target.value })} 
+                    placeholder="e.g., Annual reproductive checkup, hormone panel review, cramps"
+                    className="w-full p-3 rounded-xl border border-[#EDE9FE] text-xs" 
+                    required 
+                  />
+                </div>
+
+                <div className="flex gap-3 pt-3 border-t border-[#EDE9FE]">
+                  <button 
+                    type="button" 
+                    onClick={() => setShowBookModal(false)} 
+                    className="flex-1 py-3 border border-[#EDE9FE] rounded-xl font-bold text-xs hover:bg-gray-50 cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    type="submit" 
+                    className="flex-1 py-3 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl text-xs font-bold shadow-md transition-all cursor-pointer"
+                  >
+                    Confirm & Schedule
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* Life Stage Onboarding Modal */}
+      <LifeStageOnboardingModal
+        isOpen={showLifeStageModal}
+        onClose={() => setShowLifeStageModal(false)}
+        onSaveStage={(code) => handleSelectStage(code)}
+      />
 
     </div>
   );

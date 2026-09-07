@@ -9,7 +9,7 @@
 **FemSphere** is a modern, privacy-first Digital Health Twin platform designed to monitor health vitals, track cycles and symptoms, coordinate caregiver responsibilities, and facilitate seamless teleconsultation sharing between patients and medical practitioners.
 
 The platform provides **Role-Based Access Control (RBAC)** across four specialized workspaces:
-- 🌸 **Myself (User - Female)**: Personal Digital Twin, daily vitals, symptom history, AI recommendations, and medical vault.
+- 🌸 **Myself**: Personal Digital Twin, daily vitals, symptom history, AI recommendations, and medical vault.
 - 🤝 **Caregiver**: Family care management, multi-dependent scheduling, vaccination trackers, and medication reminders.
 - 🩺 **Doctor**: Clinical patient list, patient-shared medical records (read-only), consultation notes, and appointment scheduling.
 - 🛡️ **Administrator**: System governance, user & doctor verification/approvals, health article publishing, and analytics.

@@ -6,3 +6,20 @@ coverage/
 *.log
 .env*
 !.env.example
+
+# Flutter / Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+.metadata
+
+# IDE & Editor files
+.idea/
+*.iml
+
+# Local database files
+*.db
+*.sqlite

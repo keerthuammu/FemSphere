@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
-  Users, Sparkles, Heart, Bell, Calendar, FileText, 
-  CheckCircle2, AlertCircle, Syringe, Clock, User, LogOut, Search, Plus, Trash2, Edit, Upload, Download, X, ChevronDown, Printer, FileCheck, Stethoscope,
+  Users, Sparkles, Heart, Bell, Calendar, FileText, Pill,
+  CheckCircle2, AlertCircle, Syringe, Clock, User, LogOut, Search, Plus, Trash2, Edit, Upload, Download, X, Check, ChevronDown, Printer, FileCheck, Stethoscope,
   Droplet, Moon, Flame, Footprints, Activity, Utensils, Smile, Watch, Bluetooth, Wifi, RefreshCw, Cpu, Zap, Battery
 } from 'lucide-react';
 
@@ -11,12 +11,30 @@ export default function CaregiverDashboard() {
   const [activeTab, setActiveTab] = useState('Overview');
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
 
-  // Caregiver Profile
-  const [profile, setProfile] = useState({
-    name: 'Marcus Vance',
-    email: 'marcus.v@caregiver.org',
-    relationship: 'Parent / Primary Caregiver',
-    contact: '+1 (555) 382-9011',
+  // Caregiver Profile - Initialized from localStorage session
+  const [profile, setProfile] = useState(() => {
+    const defaults = {
+      name: 'Marcus Vance',
+      email: 'marcus.v@caregiver.org',
+      relationship: 'Parent / Primary Caregiver',
+      contact: '+1 (555) 382-9011',
+    };
+    try {
+      const storedUser = localStorage.getItem('femsphere_user');
+      if (storedUser) {
+        const parsed = JSON.parse(storedUser);
+        const p = parsed.profile || {};
+        return {
+          ...defaults,
+          name: parsed.fullName || p.full_name || parsed.username || defaults.name,
+          email: parsed.email || defaults.email,
+          contact: p.mobile || p.mobileNumber || defaults.contact,
+        };
+      }
+    } catch (e) {
+      console.error('Error loading caregiver session', e);
+    }
+    return defaults;
   });
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [oldPassword, setOldPassword] = useState('');
@@ -143,7 +161,65 @@ export default function CaregiverDashboard() {
   ];
 
   const handleLogout = () => {
+    localStorage.removeItem('femsphere_token');
+    localStorage.removeItem('femsphere_user');
     navigate('/login');
+  };
+
+  const [profileSaveMsg, setProfileSaveMsg] = useState<string | null>(null);
+
+  const handleSaveProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setProfileSaveMsg('Saving caregiver profile...');
+
+    // 1. Update localStorage
+    try {
+      const stored = localStorage.getItem('femsphere_user');
+      const parsed = stored ? JSON.parse(stored) : {};
+      const updatedUser = {
+        ...parsed,
+        fullName: profile.name,
+        email: profile.email,
+        profile: {
+          ...(parsed.profile || {}),
+          full_name: profile.name,
+          mobile: profile.contact
+        },
+        caregiver: {
+          ...(parsed.caregiver || {}),
+          relationship: profile.relationship,
+          emergency_phone: profile.contact
+        }
+      };
+      localStorage.setItem('femsphere_user', JSON.stringify(updatedUser));
+    } catch (err) {
+      console.error('Error saving caregiver profile to localStorage', err);
+    }
+
+    // 2. Persist to backend database
+    try {
+      const token = localStorage.getItem('femsphere_token');
+      if (token) {
+        await fetch('/api/users/profile', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            name: profile.name,
+            email: profile.email,
+            phone: profile.contact,
+            relationship: profile.relationship
+          })
+        });
+      }
+    } catch (err) {
+      console.log('Database API offline, saved locally:', err);
+    }
+
+    setProfileSaveMsg('Caregiver profile saved successfully!');
+    setTimeout(() => setProfileSaveMsg(null), 3000);
   };
 
   // Dependents Actions
@@ -203,7 +279,7 @@ export default function CaregiverDashboard() {
   };
 
   // Appointment Actions
-  const handleBookApt = (e: React.FormEvent) => {
+  const handleBookApt = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newAptForm.date) return;
     const booked = {
@@ -215,13 +291,40 @@ export default function CaregiverDashboard() {
       reason: newAptForm.reason || 'Routine Health Consultation',
       status: 'Scheduled'
     };
-    setAppointments([booked, ...appointments]);
+    const updated = [booked, ...appointments];
+    setAppointments(updated);
+    try {
+      localStorage.setItem('femsphere_caregiver_appointments', JSON.stringify(updated));
+      const token = localStorage.getItem('femsphere_token');
+      if (token) {
+        await fetch('/api/appointments', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            doctorName: booked.doctor,
+            patientName: booked.dependent,
+            date: booked.date,
+            time: booked.time,
+            reason: `${booked.dependent}: ${booked.reason}`,
+            type: 'In-Clinic'
+          })
+        });
+      }
+    } catch (err) {}
+
     setNewAptForm({ dependent: 'Sophia Rostova', doctor: 'Dr. Sarah Jenkins (Pediatrics)', date: '2026-08-25', time: '10:00 AM', reason: '' });
     setShowAddAptModal(false);
   };
 
-  const cancelApt = (id: string) => {
-    setAppointments(appointments.map(a => a.id === id ? { ...a, status: 'Cancelled' } : a));
+  const cancelApt = async (id: string) => {
+    const updated = appointments.map(a => a.id === id ? { ...a, status: 'Cancelled' } : a);
+    setAppointments(updated);
+    try {
+      localStorage.setItem('femsphere_caregiver_appointments', JSON.stringify(updated));
+    } catch (e) {}
   };
 
   // Bluetooth Handlers for Caregiver & Dependents
@@ -538,23 +641,64 @@ export default function CaregiverDashboard() {
           {/* TAB 3: MEDICATION REMINDERS */}
           {activeTab === 'Medication Reminder' && (
             <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#EDE9FE] shadow-sm space-y-6">
-              <div className="flex items-center justify-between">
-                <h3 className="font-serif text-2xl text-[#3a3135]">Medication Reminders</h3>
-                <button onClick={() => setShowAddMedModal(true)} className="px-4 py-2 bg-[#F472B6] text-white rounded-xl text-xs font-bold flex items-center gap-1.5">
-                  <Plus className="w-4 h-4" /> Add Medicine
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#EDE9FE] pb-5">
+                <div>
+                  <h3 className="font-serif text-2xl text-[#3a3135]">Dependent Medication Reminders</h3>
+                  <p className="text-xs text-[#7a6f75] mt-1">Track and schedule active prescription dosages and timely reminders for each linked dependent.</p>
+                </div>
+                <button 
+                  onClick={() => setShowAddMedModal(true)} 
+                  className="px-4 py-2.5 bg-[#F472B6] hover:bg-[#E85D9E] text-white rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer shadow-xs transition-all"
+                >
+                  <Plus className="w-4 h-4" /> Add Medication Reminder
                 </button>
               </div>
 
-              <div className="space-y-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {medications.map(m => (
-                  <div key={m.id} className="p-4 rounded-2xl border border-[#EDE9FE] bg-[#faf9fc] flex items-center justify-between text-xs">
-                    <div>
-                      <p className="font-bold text-[#3a3135] text-sm">{m.medicineName} - {m.dosage} ({m.dependent})</p>
-                      <p className="text-[#7a6f75]">Scheduled Time: <span className="font-bold text-pink-600">{m.time}</span></p>
+                  <div 
+                    key={m.id} 
+                    className="p-5 rounded-2xl border border-[#EDE9FE] bg-[#FAF8FC] hover:border-[#F472B6]/40 hover:bg-white transition-all space-y-3.5 shadow-2xs"
+                  >
+                    {/* Dependent Name & ID Ribbon */}
+                    <div className="flex items-center justify-between border-b border-[#EDE9FE] pb-2.5">
+                      <div className="flex items-center gap-2">
+                        <div className="w-7 h-7 rounded-lg bg-pink-100 text-pink-700 flex items-center justify-center font-bold text-xs">
+                          {m.dependent.charAt(0)}
+                        </div>
+                        <div>
+                          <span className="text-[10px] font-bold text-[#7a6f75] uppercase block">Dependent Profile</span>
+                          <span className="font-bold text-xs text-[#3a3135]">{m.dependent}</span>
+                        </div>
+                      </div>
+                      <span className="px-2.5 py-0.5 rounded-full bg-purple-100 text-[#7C3AED] font-mono font-bold text-[10px]">
+                        {m.id}
+                      </span>
                     </div>
-                    <button onClick={() => deleteMedication(m.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+
+                    {/* Medicine Details */}
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <Pill className="w-4 h-4 text-pink-600" />
+                          <h4 className="font-bold text-sm text-[#3a3135]">{m.medicineName}</h4>
+                          <span className="px-2 py-0.5 rounded-md bg-pink-50 text-pink-700 border border-pink-200 font-bold text-[11px]">
+                            {m.dosage}
+                          </span>
+                        </div>
+                        <p className="text-xs text-[#7a6f75] flex items-center gap-1.5 pt-1">
+                          <Clock className="w-3.5 h-3.5 text-[#7C3AED]" /> Scheduled Time: <b className="text-pink-600 font-bold">{m.time}</b>
+                        </p>
+                      </div>
+
+                      <button 
+                        onClick={() => deleteMedication(m.id)} 
+                        className="p-2 text-red-500 hover:bg-red-50 rounded-xl transition-colors cursor-pointer"
+                        title="Remove Reminder"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -1076,12 +1220,21 @@ export default function CaregiverDashboard() {
           {activeTab === 'My Profile' && (
             <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#EDE9FE] shadow-sm max-w-xl mx-auto space-y-6">
               <h3 className="font-serif text-2xl text-[#3a3135]">Caregiver Profile</h3>
-              <div className="space-y-4 text-xs">
-                <div><label className="block font-bold uppercase text-[#7a6f75] mb-1">Name</label><input type="text" value={profile.name} onChange={(e) => setProfile({...profile, name: e.target.value})} className="w-full p-3 rounded-xl border border-[#EDE9FE]" /></div>
-                <div><label className="block font-bold uppercase text-[#7a6f75] mb-1">Email</label><input type="email" value={profile.email} onChange={(e) => setProfile({...profile, email: e.target.value})} className="w-full p-3 rounded-xl border border-[#EDE9FE]" /></div>
-                <div><label className="block font-bold uppercase text-[#7a6f75] mb-1">Relationship</label><input type="text" value={profile.relationship} onChange={(e) => setProfile({...profile, relationship: e.target.value})} className="w-full p-3 rounded-xl border border-[#EDE9FE]" /></div>
-                <button onClick={() => setShowPasswordModal(true)} className="px-4 py-2 rounded-xl border border-[#EDE9FE] font-bold text-[#7C3AED]">Change Password</button>
-              </div>
+              {profileSaveMsg && (
+                <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold rounded-xl flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4" /> {profileSaveMsg}
+                </div>
+              )}
+              <form onSubmit={handleSaveProfile} className="space-y-4 text-xs">
+                <div><label className="block font-bold uppercase text-[#7a6f75] mb-1">Name</label><input type="text" value={profile.name} onChange={(e) => setProfile({...profile, name: e.target.value})} className="w-full p-3 rounded-xl border border-[#EDE9FE]" required /></div>
+                <div><label className="block font-bold uppercase text-[#7a6f75] mb-1">Email</label><input type="email" value={profile.email} onChange={(e) => setProfile({...profile, email: e.target.value})} className="w-full p-3 rounded-xl border border-[#EDE9FE]" required /></div>
+                <div><label className="block font-bold uppercase text-[#7a6f75] mb-1">Relationship / Role</label><input type="text" value={profile.relationship} onChange={(e) => setProfile({...profile, relationship: e.target.value})} className="w-full p-3 rounded-xl border border-[#EDE9FE]" required /></div>
+                <div><label className="block font-bold uppercase text-[#7a6f75] mb-1">Contact Phone</label><input type="text" value={profile.contact} onChange={(e) => setProfile({...profile, contact: e.target.value})} className="w-full p-3 rounded-xl border border-[#EDE9FE]" /></div>
+                <div className="pt-2 flex items-center justify-between">
+                  <button type="button" onClick={() => setShowPasswordModal(true)} className="px-4 py-2.5 rounded-xl border border-[#EDE9FE] font-bold text-[#7C3AED]">Change Password</button>
+                  <button type="submit" className="px-6 py-2.5 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl font-bold transition-all shadow-sm">Save Profile Changes</button>
+                </div>
+              </form>
             </div>
           )}
 
@@ -1253,14 +1406,93 @@ export default function CaregiverDashboard() {
 
       {/* Add Medicine Modal */}
       {showAddMedModal && (
-        <div className="fixed inset-0 bg-slate-900/40 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-3xl p-6 max-w-md w-full border border-[#EDE9FE]">
-            <h3 className="font-bold text-base text-[#3a3135] mb-4">Add Medication Reminder</h3>
-            <form onSubmit={handleAddMedication} className="space-y-3 text-xs">
-              <div><label className="block font-bold mb-1">Medicine Name</label><input type="text" value={newMed.medicineName} onChange={(e) => setNewMed({...newMed, medicineName: e.target.value})} className="w-full p-2.5 rounded-xl border" required /></div>
-              <div><label className="block font-bold mb-1">Dosage</label><input type="text" value={newMed.dosage} onChange={(e) => setNewMed({...newMed, dosage: e.target.value})} placeholder="e.g. 500mg" className="w-full p-2.5 rounded-xl border" required /></div>
-              <div><label className="block font-bold mb-1">Time</label><input type="text" value={newMed.time} onChange={(e) => setNewMed({...newMed, time: e.target.value})} placeholder="e.g. 09:00 AM" className="w-full p-2.5 rounded-xl border" required /></div>
-              <div className="flex gap-2 pt-2"><button type="submit" className="flex-1 py-2.5 bg-[#F472B6] text-white font-bold rounded-xl">Save Reminder</button><button type="button" onClick={() => setShowAddMedModal(false)} className="py-2.5 px-4 border rounded-xl font-bold">Cancel</button></div>
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 font-inter">
+          <div className="bg-white rounded-3xl p-6 md:p-8 max-w-md w-full border border-[#EDE9FE] shadow-2xl space-y-5">
+            <div className="flex items-center justify-between border-b border-[#EDE9FE] pb-3.5">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-pink-100 text-[#F472B6] flex items-center justify-center font-bold">
+                  <Pill className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg text-[#3a3135]">Add Medication Reminder</h3>
+                  <p className="text-xs text-[#7a6f75]">Set dosage schedule for your dependent</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setShowAddMedModal(false)}
+                className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleAddMedication} className="space-y-4 text-xs">
+              <div>
+                <label className="block font-bold text-[#3a3135] uppercase text-[10px] mb-1">Select Dependent</label>
+                <select 
+                  value={newMed.dependent} 
+                  onChange={(e) => setNewMed({ ...newMed, dependent: e.target.value })} 
+                  className="w-full p-3 rounded-xl border border-[#EDE9FE] bg-white font-bold text-[#3a3135] text-xs"
+                >
+                  {dependents.map(d => (
+                    <option key={d.id} value={d.name}>{d.name} ({d.relation})</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block font-bold text-[#3a3135] uppercase text-[10px] mb-1">Medicine Name</label>
+                <input 
+                  type="text" 
+                  value={newMed.medicineName} 
+                  onChange={(e) => setNewMed({ ...newMed, medicineName: e.target.value })} 
+                  placeholder="e.g. Calcium Carbonate, Metformin, Multivitamin"
+                  className="w-full p-3 rounded-xl border border-[#EDE9FE] text-xs font-medium" 
+                  required 
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-bold text-[#3a3135] uppercase text-[10px] mb-1">Dosage</label>
+                  <input 
+                    type="text" 
+                    value={newMed.dosage} 
+                    onChange={(e) => setNewMed({ ...newMed, dosage: e.target.value })} 
+                    placeholder="e.g. 500mg, 1 Tablet" 
+                    className="w-full p-3 rounded-xl border border-[#EDE9FE] text-xs" 
+                    required 
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-bold text-[#3a3135] uppercase text-[10px] mb-1">Scheduled Time</label>
+                  <input 
+                    type="text" 
+                    value={newMed.time} 
+                    onChange={(e) => setNewMed({ ...newMed, time: e.target.value })} 
+                    placeholder="e.g. 09:00 AM" 
+                    className="w-full p-3 rounded-xl border border-[#EDE9FE] text-xs font-bold text-[#7C3AED]" 
+                    required 
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-3 border-t border-[#EDE9FE]">
+                <button 
+                  type="button" 
+                  onClick={() => setShowAddMedModal(false)} 
+                  className="flex-1 py-3 border border-[#EDE9FE] rounded-xl font-bold text-xs hover:bg-gray-50 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit" 
+                  className="flex-1 py-3 bg-[#F472B6] hover:bg-[#E85D9E] text-white font-bold text-xs rounded-xl shadow-md transition-all cursor-pointer"
+                >
+                  Save Reminder
+                </button>
+              </div>
             </form>
           </div>
         </div>
@@ -1397,6 +1629,203 @@ export default function CaregiverDashboard() {
           </div>
         </div>
       )}
+
+      {/* BOOK APPOINTMENT MODAL FOR CAREGIVERS */}
+      {showAddAptModal && (() => {
+        let docSchedule = {
+          availableDays: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+          workingHours: '09:00 AM - 07:00 PM',
+          shifts: [
+            {
+              id: 'SHIFT-01',
+              name: 'Morning Clinical Session',
+              fromTime: '09:00 AM',
+              toTime: '12:00 PM',
+              maxPatients: 6,
+              days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+              mode: 'Both'
+            },
+            {
+              id: 'SHIFT-02',
+              name: 'Evening Telehealth Session',
+              fromTime: '05:00 PM',
+              toTime: '07:00 PM',
+              maxPatients: 4,
+              days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+              mode: 'Virtual Telehealth'
+            }
+          ],
+          availableSlots: ['09:00 AM', '09:30 AM', '10:00 AM', '10:30 AM', '11:00 AM', '11:30 AM', '05:00 PM', '05:30 PM', '06:00 PM', '06:30 PM'],
+          teleconsultFee: 75
+        };
+        try {
+          const stored = localStorage.getItem('femsphere_doctor_schedule');
+          if (stored) {
+            const parsed = JSON.parse(stored);
+            docSchedule = {
+              ...docSchedule,
+              ...parsed,
+              shifts: parsed.shifts && parsed.shifts.length > 0 ? parsed.shifts : docSchedule.shifts
+            };
+          }
+        } catch (e) {}
+
+        const selectedDate = newAptForm.date || new Date().toISOString().split('T')[0];
+
+        return (
+          <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 z-50 font-inter animate-in fade-in duration-200">
+            <div className="bg-white rounded-3xl p-6 md:p-8 max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-[#EDE9FE] space-y-6">
+              <div className="flex items-center justify-between border-b border-[#EDE9FE] pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-[#F5F3FF] text-[#7C3AED] flex items-center justify-center border border-[#EDE9FE]">
+                    <Calendar className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-xl text-[#3a3135]">Book Doctor Consultation</h3>
+                    <p className="text-xs text-[#7a6f75]">Schedule clinical care for your dependent based on shift capacity</p>
+                  </div>
+                </div>
+                <button onClick={() => setShowAddAptModal(false)} className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 cursor-pointer">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <form onSubmit={handleBookApt} className="space-y-4 text-xs">
+                <div>
+                  <label className="block font-bold text-[#3a3135] uppercase text-[10px] mb-1">Select Dependent</label>
+                  <select 
+                    value={newAptForm.dependent} 
+                    onChange={(e) => setNewAptForm({ ...newAptForm, dependent: e.target.value })} 
+                    className="w-full p-3 rounded-xl border border-[#EDE9FE] bg-white font-bold text-[#3a3135] text-xs"
+                  >
+                    {dependents.map(d => (
+                      <option key={d.id} value={d.name}>{d.name} ({d.relation})</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block font-bold text-[#3a3135] uppercase text-[10px] mb-1">Healthcare Specialist</label>
+                  <select 
+                    value={newAptForm.doctor} 
+                    onChange={(e) => setNewAptForm({ ...newAptForm, doctor: e.target.value })} 
+                    className="w-full p-3 rounded-xl border border-[#EDE9FE] bg-white font-bold text-[#3a3135] text-xs"
+                  >
+                    <option value="Dr. Sarah Jenkins (Pediatrics & Maternal Care)">Dr. Sarah Jenkins (Pediatrics & Maternal Care)</option>
+                    <option value="Dr. Alan Vance (Geriatrics & Chronic Wellness)">Dr. Alan Vance (Geriatrics & Chronic Wellness)</option>
+                    <option value="Dr. Emily Watson (Dermatology & Allergy Care)">Dr. Emily Watson (Dermatology & Allergy Care)</option>
+                    <option value="Dr. Robert Miller (Cardiovascular & Vitals)">Dr. Robert Miller (Cardiovascular & Vitals)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block font-bold text-[#3a3135] uppercase text-[10px] mb-1">Date</label>
+                  <input 
+                    type="date" 
+                    value={newAptForm.date} 
+                    onChange={(e) => setNewAptForm({ ...newAptForm, date: e.target.value })} 
+                    min={new Date().toISOString().split('T')[0]}
+                    className="w-full p-3 rounded-xl border border-[#EDE9FE] text-xs font-bold text-[#3a3135]" 
+                    required 
+                  />
+                </div>
+
+                {/* Real-time Consultation Shifts & Capacity */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="block font-bold text-[#3a3135] uppercase text-[10px]">
+                      Doctor's Consultation Shifts & Capacity ({selectedDate})
+                    </label>
+                    <span className="text-[10px] font-bold text-[#7C3AED]">${docSchedule.teleconsultFee} / Session</span>
+                  </div>
+
+                  <div className="space-y-2">
+                    {docSchedule.shifts.map((shift: any) => {
+                      const bookedInShift = appointments.filter(a => 
+                        a.date === selectedDate && 
+                        a.status !== 'Cancelled' && 
+                        (a.time && a.time >= shift.fromTime && a.time <= shift.toTime)
+                      ).length;
+                      const remaining = Math.max(0, shift.maxPatients - bookedInShift);
+                      const isFull = remaining <= 0;
+                      const isSelected = newAptForm.time >= shift.fromTime && newAptForm.time <= shift.toTime;
+
+                      return (
+                        <div
+                          key={shift.id}
+                          onClick={() => {
+                            if (!isFull) {
+                              setNewAptForm({ ...newAptForm, time: shift.fromTime });
+                            }
+                          }}
+                          className={`p-3 rounded-2xl border transition-all cursor-pointer ${
+                            isFull 
+                              ? 'bg-red-50/60 border-red-200 opacity-70 cursor-not-allowed' 
+                              : isSelected 
+                                ? 'bg-purple-50 border-[#7C3AED] ring-2 ring-[#7C3AED]/20 shadow-xs' 
+                                : 'bg-[#FAF8FC] border-[#EDE9FE] hover:border-[#7C3AED]/40'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <span className="font-bold text-xs text-[#3a3135]">{shift.name}</span>
+                                <span className="text-[10px] font-bold text-[#7C3AED] bg-purple-100/70 px-2 py-0.5 rounded-full">
+                                  {shift.fromTime} - {shift.toTime}
+                                </span>
+                              </div>
+                            </div>
+
+                            <div>
+                              {isFull ? (
+                                <span className="px-2 py-0.5 rounded-full bg-red-100 text-red-700 font-bold text-[10px]">
+                                  🔴 FULL ({shift.maxPatients}/{shift.maxPatients})
+                                </span>
+                              ) : (
+                                <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px]">
+                                  🟢 {remaining} of {shift.maxPatients} Left ({bookedInShift} Booked)
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block font-bold text-[#3a3135] uppercase text-[10px] mb-1">Reason for Visit / Symptoms</label>
+                  <input 
+                    type="text" 
+                    value={newAptForm.reason} 
+                    onChange={(e) => setNewAptForm({ ...newAptForm, reason: e.target.value })} 
+                    placeholder="e.g., Annual booster checkup, joint pain review, medication review"
+                    className="w-full p-3 rounded-xl border border-[#EDE9FE] text-xs" 
+                    required 
+                  />
+                </div>
+
+                <div className="flex gap-3 pt-3 border-t border-[#EDE9FE]">
+                  <button 
+                    type="button" 
+                    onClick={() => setShowAddAptModal(false)} 
+                    className="flex-1 py-3 border border-[#EDE9FE] rounded-xl font-bold text-xs hover:bg-gray-50 cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    type="submit" 
+                    className="flex-1 py-3 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl text-xs font-bold shadow-md transition-all cursor-pointer"
+                  >
+                    Schedule Appointment
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        );
+      })()}
 
     </div>
   );

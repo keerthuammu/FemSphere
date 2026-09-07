@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS users (
     username VARCHAR(100) UNIQUE NOT NULL,
     email VARCHAR(150) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
-    role VARCHAR(50) NOT NULL CHECK (role IN ('User (Female)', 'Caregiver', 'Doctor', 'Admin (Superuser)')),
+    role VARCHAR(50) NOT NULL CHECK (role IN ('Myself', 'User (Female)', 'Caregiver', 'Doctor', 'Admin (Superuser)')),
     status VARCHAR(30) DEFAULT 'Active' CHECK (status IN ('Active', 'Inactive', 'Suspended', 'Pending Verification')),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -172,7 +172,7 @@ CREATE TABLE IF NOT EXISTS medications (
 -- ============================================================
 INSERT INTO users (id, username, email, password_hash, role, status) VALUES
 (1, 'admin', 'admin@femsphere.health', 'admin_hash_2026', 'Admin (Superuser)', 'Active'),
-(2, 'elena_health', 'elena.rostova@femsphere.health', 'user_hash_2026', 'User (Female)', 'Active'),
+(2, 'elena_health', 'elena.rostova@femsphere.health', 'user_hash_2026', 'Myself', 'Active'),
 (3, 'marcus_cg', 'caregiver@femsphere.health', 'caregiver_hash_2026', 'Caregiver', 'Active'),
 (4, 'dr_jenkins', 'dr.jenkins@femsphere.health', 'doctor_hash_2026', 'Doctor', 'Active')
 ON CONFLICT DO NOTHING;

@@ -1,4 +1,5 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -7,6 +8,13 @@ import AdminDashboard from './pages/AdminDashboard';
 import CaregiverDashboard from './pages/CaregiverDashboard';
 import DoctorDashboard from './pages/DoctorDashboard';
 
+// Guard: redirect to /login if not authenticated
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const token = localStorage.getItem('femsphere_token');
+  if (!token) return <Navigate to="/login" replace />;
+  return <>{children}</>;
+}
+
 export default function App() {
   return (
     <Router>
@@ -14,10 +22,10 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/caregiver-dashboard" element={<CaregiverDashboard />} />
-        <Route path="/doctor-dashboard" element={<DoctorDashboard />} />
+        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+        <Route path="/caregiver-dashboard" element={<ProtectedRoute><CaregiverDashboard /></ProtectedRoute>} />
+        <Route path="/doctor-dashboard" element={<ProtectedRoute><DoctorDashboard /></ProtectedRoute>} />
       </Routes>
     </Router>
   );
