@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sparkles, Heart, Dna, Brain, Calendar, Shield, Apple, Moon, User, Users, Stethoscope } from 'lucide-react';
+import { Sparkles, Heart, Dna, Brain, Moon } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import heroImg from '../assets/images/healthcare_hero_1785261756891.jpeg';
 
@@ -7,7 +7,6 @@ export default function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [activeRole, setActiveRole] = useState('Myself');
 
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -52,12 +51,17 @@ export default function Login() {
     } catch (err: any) {
       // Fallback mode if backend API DB server is offline / unreachable
       const usernameFromEmail = email.split('@')[0] || 'user';
+      let detectedRole = 'User (Female)';
+      if (email.toLowerCase().includes('admin')) detectedRole = 'Admin (Superuser)';
+      else if (email.toLowerCase().includes('doctor') || email.toLowerCase().includes('dr.')) detectedRole = 'Doctor';
+      else if (email.toLowerCase().includes('caregiver')) detectedRole = 'Caregiver';
+
       const mockUser = {
         id: 1,
         username: usernameFromEmail,
         fullName: usernameFromEmail.replace(/[._]/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
-        email: email || 'elena.rostova@femsphere.health',
-        role: activeRole,
+        email: email || 'user@femsphere.health',
+        role: detectedRole,
         status: 'Active',
         profile: {
           full_name: usernameFromEmail.replace(/[._]/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
@@ -66,62 +70,6 @@ export default function Login() {
       localStorage.setItem('femsphere_token', 'demo_token_2026');
       localStorage.setItem('femsphere_user', JSON.stringify(mockUser));
       navigateRoleDashboard(mockUser.role, mockUser.email);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleRoleQuickLogin = async (role: string, roleEmail: string) => {
-    setActiveRole(role);
-    setEmail(roleEmail);
-    setPassword('password123');
-    setErrorMsg(null);
-    setIsLoading(true);
-
-    try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: roleEmail, password: 'password123' })
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        localStorage.setItem('femsphere_token', data.token);
-        localStorage.setItem('femsphere_user', JSON.stringify(data.user));
-        navigateRoleDashboard(data.user.role || role, data.user.email || roleEmail);
-      } else {
-        const qUsername = roleEmail.split('@')[0];
-        const qFullName = qUsername.replace(/[._]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-        const mockUser = {
-          id: 1,
-          username: qUsername,
-          fullName: qFullName,
-          email: roleEmail,
-          role: role,
-          status: 'Active',
-          profile: { full_name: qFullName }
-        };
-        localStorage.setItem('femsphere_token', 'demo_token_2026');
-        localStorage.setItem('femsphere_user', JSON.stringify(mockUser));
-        navigateRoleDashboard(role, roleEmail);
-      }
-    } catch (err) {
-      const cUsername = roleEmail.split('@')[0];
-      const cFullName = cUsername.replace(/[._]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-      const mockUser = {
-        id: 1,
-        username: cUsername,
-        fullName: cFullName,
-        email: roleEmail,
-        role: role,
-        status: 'Active',
-        profile: { full_name: cFullName }
-      };
-      localStorage.setItem('femsphere_token', 'demo_token_2026');
-      localStorage.setItem('femsphere_user', JSON.stringify(mockUser));
-      navigateRoleDashboard(role, roleEmail);
     } finally {
       setIsLoading(false);
     }
@@ -158,72 +106,7 @@ export default function Login() {
 
           <div className="mb-6">
             <h3 className="text-2xl font-bold text-[#3a3135]">Log in to your account</h3>
-            <p className="text-xs text-[#7a6f75] mt-1">Enter credentials or select a role for quick demo access.</p>
-          </div>
-
-          {/* Quick Demo Login by Role Section */}
-          <div className="mb-6 bg-[#F5F3FF] p-4 rounded-2xl border border-[#EDE9FE]">
-            <span className="text-[11px] font-bold text-[#7C3AED] uppercase tracking-wider block mb-2.5">
-              Quick Demo Login by Role:
-            </span>
-            <div className="grid grid-cols-2 gap-2">
-              
-              {/* Role 1: Myself */}
-              <button 
-                type="button" 
-                onClick={() => handleRoleQuickLogin('Myself', 'elena.rostova@femsphere.health')}
-                className="flex items-center gap-2 p-2.5 rounded-xl bg-white hover:bg-[#7C3AED] hover:text-white border border-[#EDE9FE] text-[#3a3135] text-xs font-bold transition-all shadow-xs group"
-              >
-                <div className="w-6 h-6 rounded-lg bg-[#F5F3FF] group-hover:bg-[#7C3AED] flex items-center justify-center text-[#7C3AED] group-hover:text-white">
-                  <User className="w-3.5 h-3.5" />
-                </div>
-                <span>Myself</span>
-              </button>
-
-              {/* Role 2: Caregiver */}
-              <button 
-                type="button" 
-                onClick={() => handleRoleQuickLogin('Caregiver', 'caregiver@femsphere.health')}
-                className="flex items-center gap-2 p-2.5 rounded-xl bg-white hover:bg-[#7C3AED] hover:text-white border border-[#EDE9FE] text-[#3a3135] text-xs font-bold transition-all shadow-xs group"
-              >
-                <div className="w-6 h-6 rounded-lg bg-[#F5F3FF] group-hover:bg-white/20 flex items-center justify-center text-[#7C3AED] group-hover:text-white">
-                  <Users className="w-3.5 h-3.5" />
-                </div>
-                <span>Caregiver</span>
-              </button>
-
-              {/* Role 3: Doctor */}
-              <button 
-                type="button" 
-                onClick={() => handleRoleQuickLogin('Doctor', 'dr.jenkins@femsphere.health')}
-                className="flex items-center gap-2 p-2.5 rounded-xl bg-white hover:bg-[#7C3AED] hover:text-white border border-[#EDE9FE] text-[#3a3135] text-xs font-bold transition-all shadow-xs group"
-              >
-                <div className="w-6 h-6 rounded-lg bg-[#F5F3FF] group-hover:bg-white/20 flex items-center justify-center text-[#7C3AED] group-hover:text-white">
-                  <Stethoscope className="w-3.5 h-3.5" />
-                </div>
-                <span>Doctor</span>
-              </button>
-
-              {/* Role 4: Administrator */}
-              <button 
-                type="button" 
-                onClick={() => handleRoleQuickLogin('Administrator', 'admin@femsphere.health')}
-                className="flex items-center gap-2 p-2.5 rounded-xl bg-[#7C3AED] text-white hover:bg-[#6D28D9] text-xs font-bold transition-all shadow-sm group"
-              >
-                <div className="w-6 h-6 rounded-lg bg-white/20 flex items-center justify-center text-white">
-                  <Shield className="w-3.5 h-3.5" />
-                </div>
-                <span>Administrator</span>
-              </button>
-
-            </div>
-
-            <div className="mt-3 pt-2.5 border-t border-[#EDE9FE] flex items-center justify-between text-[11px] text-[#7a6f75]">
-              <span className="font-semibold text-[#7C3AED]">Demo Credentials:</span>
-              <span className="font-mono bg-white px-2 py-0.5 rounded border border-[#EDE9FE] text-[#3a3135]">
-                {activeRole === 'Administrator' ? 'admin@femsphere.health / admin' : `${email} / ••••••••`}
-              </span>
-            </div>
+            <p className="text-xs text-[#7a6f75] mt-1">Enter your credentials to access your account.</p>
           </div>
 
           {errorMsg && (
@@ -264,8 +147,12 @@ export default function Login() {
               <a href="#" className="text-xs font-medium text-[#7C3AED] hover:underline">Forgot password?</a>
             </div>
 
-            <button type="submit" className="w-full bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl py-3.5 text-sm font-bold shadow-md shadow-purple-200 transition-colors">
-              Log In as {activeRole}
+            <button 
+              type="submit" 
+              disabled={isLoading}
+              className="w-full bg-[#7C3AED] hover:bg-[#6D28D9] disabled:opacity-50 text-white rounded-xl py-3.5 text-sm font-bold shadow-md shadow-purple-200 transition-colors"
+            >
+              {isLoading ? 'Logging In...' : 'Log In'}
             </button>
           </form>
 
