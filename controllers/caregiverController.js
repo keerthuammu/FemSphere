@@ -9,7 +9,7 @@ export const getCaregiverProfile = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Caregiver profile not found.' });
     }
 
-    const dependents = await pool.query('SELECT * FROM dependents WHERE caregiver_id = $1', [cg.rows[0].id]);
+    const dependents = await pool.query('SELECT * FROM dependents WHERE caregiver_id = $1 ORDER BY id ASC', [cg.rows[0].id]);
 
     res.json({
       success: true,
@@ -24,7 +24,15 @@ export const getCaregiverProfile = async (req, res) => {
 export const addDependent = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { fullName, dob, relationship, bloodGroup, medicalNotes } = req.body;
+    const fullName = req.body.fullName || req.body.name;
+    const dob = req.body.dob || '2020-01-01';
+    const relationship = req.body.relationship || req.body.relation || 'Child';
+    const bloodGroup = req.body.bloodGroup || req.body.blood_group || 'A+';
+    const medicalNotes = req.body.medicalNotes || '';
+
+    if (!fullName) {
+      return res.status(400).json({ success: false, message: 'Dependent full name is required.' });
+    }
 
     let cg = await pool.query('SELECT id FROM caregivers WHERE user_id = $1', [userId]);
     let caregiverId;
@@ -41,11 +49,21 @@ export const addDependent = async (req, res) => {
 
     const dep = await pool.query(
       `INSERT INTO dependents (caregiver_id, full_name, dob, relationship, blood_group, medical_notes)
-       VALUES ($1, $2, COALESCE($3, '2020-01-01'), $4, $5, $6) RETURNING *`,
-      [caregiverId, fullName, dob, relationship || 'Child', bloodGroup || 'A+', medicalNotes || '']
+       VALUES ($1, $2, COALESCE($3::date, '2020-01-01'::date), $4, $5, $6) RETURNING *`,
+      [caregiverId, fullName, dob || '2020-01-01', relationship, bloodGroup, medicalNotes]
     );
 
     res.status(201).json({ success: true, dependent: dep.rows[0] });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+export const deleteDependent = async (req, res) => {
+  try {
+    const dependentId = req.params.dependentId;
+    await pool.query('DELETE FROM dependents WHERE id = $1', [dependentId]);
+    res.json({ success: true, message: 'Dependent deleted successfully.' });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }

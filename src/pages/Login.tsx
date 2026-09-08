@@ -49,27 +49,7 @@ export default function Login() {
 
       navigateRoleDashboard(data.user.role, data.user.email);
     } catch (err: any) {
-      // Fallback mode if backend API DB server is offline / unreachable
-      const usernameFromEmail = email.split('@')[0] || 'user';
-      let detectedRole = 'User (Female)';
-      if (email.toLowerCase().includes('admin')) detectedRole = 'Admin (Superuser)';
-      else if (email.toLowerCase().includes('doctor') || email.toLowerCase().includes('dr.')) detectedRole = 'Doctor';
-      else if (email.toLowerCase().includes('caregiver')) detectedRole = 'Caregiver';
-
-      const mockUser = {
-        id: 1,
-        username: usernameFromEmail,
-        fullName: usernameFromEmail.replace(/[._]/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
-        email: email || 'user@femsphere.health',
-        role: detectedRole,
-        status: 'Active',
-        profile: {
-          full_name: usernameFromEmail.replace(/[._]/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
-        }
-      };
-      localStorage.setItem('femsphere_token', 'demo_token_2026');
-      localStorage.setItem('femsphere_user', JSON.stringify(mockUser));
-      navigateRoleDashboard(mockUser.role, mockUser.email);
+      setErrorMsg('Unable to reach the server. Please check your connection and try again.');
     } finally {
       setIsLoading(false);
     }

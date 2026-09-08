@@ -52,6 +52,7 @@ app.get('/api/health', async (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/caregivers', caregiverRoutes);
+app.use('/api/caregiver', caregiverRoutes);
 app.use('/api/doctors', doctorRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/health-tracker', healthTrackerRoutes);

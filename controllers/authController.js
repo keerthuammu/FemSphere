@@ -127,6 +127,7 @@ export const register = async (req, res) => {
           ]
         );
         roleDetails.dependent = depResult.rows[0];
+        roleDetails.dependents = [depResult.rows[0]];
       }
     } else if (role === 'Doctor') {
       const docResult = await client.query(
@@ -175,75 +176,41 @@ export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    if (!email) {
-      return res.status(400).json({ success: false, message: 'Please provide email or username.' });
+    // --- Input validation ---
+    if (!email || !email.toString().trim()) {
+      return res.status(400).json({ success: false, message: 'Email or username is required.' });
+    }
+    if (!password || !password.toString().trim()) {
+      return res.status(400).json({ success: false, message: 'Password is required.' });
     }
 
+    // --- Look up registered user only ---
     const userQuery = await pool.query(
       `SELECT * FROM users WHERE LOWER(email) = LOWER($1) OR LOWER(username) = LOWER($2)`,
-      [email, email]
+      [email.trim(), email.trim()]
     );
 
-    let user;
     if (userQuery.rows.length === 0) {
-      // Auto-create user account on the fly for seamless demo & new user login
-      let role = 'User (Female)';
-      const lowerEmail = email.toLowerCase();
-      if (lowerEmail.includes('admin')) role = 'Admin (Superuser)';
-      else if (lowerEmail.includes('doctor') || lowerEmail.includes('dr.')) role = 'Doctor';
-      else if (lowerEmail.includes('caregiver')) role = 'Caregiver';
+      return res.status(401).json({
+        success: false,
+        message: 'No account found with that email or username. Please register first.'
+      });
+    }
 
-      const username = email.includes('@') ? email.split('@')[0] : email;
-      const userEmail = email.includes('@') ? email : `${username}@femsphere.health`;
-      const passwordHash = await bcrypt.hash(password || 'password123', 10);
+    const user = userQuery.rows[0];
 
-      const newUserRes = await pool.query(
-        `INSERT INTO users (username, email, password_hash, role, status)
-         VALUES ($1, $2, $3, $4, 'Active')
-         RETURNING id, username, email, role, status, created_at`,
-        [username, userEmail, passwordHash, role]
-      );
-      user = newUserRes.rows[0];
+    // --- Account status check ---
+    if (user.status && user.status.toLowerCase() !== 'active') {
+      return res.status(403).json({
+        success: false,
+        message: `Your account is ${user.status}. Please contact support.`
+      });
+    }
 
-      const fullName = username.replace(/[._]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
-      await pool.query(
-        `INSERT INTO user_profiles (user_id, full_name, dob, gender, blood_group, height_cm, weight_kg, marital_status, life_stage, wearable_device)
-         VALUES ($1, $2, '1995-01-01', 'Female', 'A+', 165, 60, 'Single', 'Reproductive Age', 'Apple Watch')`,
-        [user.id, fullName]
-      );
-
-      if (role === 'Caregiver') {
-        await pool.query(
-          `INSERT INTO caregivers (user_id, caregiver_type, organization_name, emergency_phone)
-           VALUES ($1, 'Parent', 'Family Care', '555-0199')`,
-          [user.id]
-        );
-      } else if (role === 'Doctor') {
-        await pool.query(
-          `INSERT INTO doctors (user_id, license_number, specialization, hospital_clinic, years_experience, approval_status)
-           VALUES ($1, $2, 'General Healthcare', 'FemSphere Clinic', 5, 'Approved')`,
-          [user.id, `MD-${Date.now()}`]
-        );
-      }
-    } else {
-      user = userQuery.rows[0];
-
-      // Password validation (supports bcrypt hash or demo bypass)
-      let isMatch = false;
-      if (
-        password === '••••••••••••' ||
-        password === 'admin123' ||
-        password === 'password123' ||
-        password === user.password_hash
-      ) {
-        isMatch = true;
-      } else {
-        isMatch = await bcrypt.compare(password, user.password_hash).catch(() => false);
-      }
-
-      if (!isMatch) {
-        return res.status(401).json({ success: false, message: 'Invalid password credentials.' });
-      }
+    // --- Strict bcrypt password validation ---
+    const isMatch = await bcrypt.compare(password, user.password_hash).catch(() => false);
+    if (!isMatch) {
+      return res.status(401).json({ success: false, message: 'Incorrect password. Please try again.' });
     }
 
     // Fetch user profile

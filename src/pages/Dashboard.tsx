@@ -37,18 +37,56 @@ function calculateAge(dobString: string): number {
   return age >= 0 ? age : 0;
 }
 
+/**
+ * Automatically determine the correct Life Stage based on the user's age.
+ * This ensures the dashboard only shows health content relevant to the
+ * logged-in user's actual life stage.
+ */
+function getStageFromAge(age: number): { code: string; name: string } {
+  if (age < 2)  return { code: 'EARLY_CHILDHOOD',        name: 'Early Childhood' };
+  if (age < 9)  return { code: 'PRE_PUBERTY',            name: 'Pre-Puberty (Childhood)' };
+  if (age < 13) return { code: 'PUBERTY',                name: 'Puberty & Adolescence' };
+  if (age < 18) return { code: 'MENSTRUATING_ADOLESCENT', name: 'Adolescent (Teen)' };
+  if (age < 25) return { code: 'YOUNG_ADULT',            name: 'Young Adult (18–24)' };
+  if (age < 45) return { code: 'REPRODUCTIVE_AGE',       name: 'Reproductive Age' };
+  if (age < 52) return { code: 'PERIMENOPAUSE',          name: 'Perimenopause' };
+  if (age < 60) return { code: 'MENOPAUSE',              name: 'Menopause' };
+  return         { code: 'OLDER_ADULT',               name: 'Healthy Aging (60+)' };
+}
+
 export default function Dashboard() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('Dashboard');
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
 
-  // Life Stage Engine State
-  const [currentStageCode, setCurrentStageCode] = useState('REPRODUCTIVE_AGE');
-  const [stageName, setStageName] = useState('Reproductive Age');
+  // Life Stage Engine State — auto-computed from logged-in user's age (DOB)
+  const [currentStageCode, setCurrentStageCode] = useState(() => {
+    try {
+      const storedUser = localStorage.getItem('femsphere_user');
+      if (storedUser) {
+        const parsed = JSON.parse(storedUser);
+        const dob = parsed.profile?.dob || parsed.dob || '1996-08-14';
+        return getStageFromAge(calculateAge(dob)).code;
+      }
+    } catch { /* fallthrough */ }
+    return 'REPRODUCTIVE_AGE';
+  });
+  const [stageName, setStageName] = useState(() => {
+    try {
+      const storedUser = localStorage.getItem('femsphere_user');
+      if (storedUser) {
+        const parsed = JSON.parse(storedUser);
+        const dob = parsed.profile?.dob || parsed.dob || '1996-08-14';
+        return getStageFromAge(calculateAge(dob)).name;
+      }
+    } catch { /* fallthrough */ }
+    return 'Reproductive Age';
+  });
   const [showLifeStageModal, setShowLifeStageModal] = useState(false);
 
   useEffect(() => {
-    fetchUserLifeStage();
+    // fetchUserProfile sets the life stage automatically from the user's DOB/age.
+    // fetchUserLifeStage is only called as a fallback if profile fetch fails.
     fetchUserProfile();
   }, []);
 
@@ -63,13 +101,20 @@ export default function Dashboard() {
       if (data.success && data.profile) {
         const p = data.profile;
         const dobStr = p.dob ? (p.dob.includes('T') ? p.dob.split('T')[0] : p.dob) : '1996-08-14';
+        const userAge = calculateAge(dobStr);
+
+        // Auto-determine life stage from the logged-in user's actual age
+        const autoStage = getStageFromAge(userAge);
+        setCurrentStageCode(autoStage.code);
+        setStageName(autoStage.name);
+
         setUserProfile(prev => ({
           ...prev,
           fullName: p.full_name || data.user?.username || prev.fullName,
           email: data.user?.email || prev.email,
           phone: p.emergency_contact_phone || prev.phone,
           dob: dobStr,
-          age: calculateAge(dobStr),
+          age: userAge,
           bloodGroup: p.blood_group || prev.bloodGroup,
           height: p.height_cm ? String(p.height_cm) : prev.height,
           weight: p.weight_kg ? String(p.weight_kg) : prev.weight,
@@ -144,18 +189,18 @@ export default function Dashboard() {
   // 1. User Profile State (CRUD & Photo Edit) - Initialized directly from localStorage
   const [userProfile, setUserProfile] = useState(() => {
     const defaults = {
-      fullName: 'Elena Rostova',
+      fullName: '',
       avatarUrl: null as string | null,
       avatarBg: '#7C3AED',
-      dob: '1996-08-14',
-      age: 30,
-      bloodGroup: 'A Positive (A+)',
-      height: '168',
-      weight: '62',
-      phone: '+1 (555) 382-9102',
-      email: 'elena.rostova@femsphere.health',
-      address: '742 Evergreen Terrace, San Francisco, CA 94107',
-      emergencyContact: 'Marcus Rostova (+1 555 902-4118)',
+      dob: '',
+      age: 0,
+      bloodGroup: '',
+      height: '',
+      weight: '',
+      phone: '',
+      email: '',
+      address: '',
+      emergencyContact: '',
     };
     try {
       const storedUser = localStorage.getItem('femsphere_user');
@@ -197,184 +242,29 @@ export default function Dashboard() {
   const [scanningRecordTitle, setScanningRecordTitle] = useState('');
   const [viewingScanRecordModal, setViewingScanRecordModal] = useState<any | null>(null);
 
-  const [records, setRecords] = useState([
-    { 
-      id: 'REC-101', 
-      title: 'Comprehensive Blood & Hormone Panel', 
-      type: 'PDF', 
-      date: '2026-08-04', 
-      month: 'August 2026',
-      description: 'Complete blood count, lipid profile & serum hormone levels', 
-      size: '2.8 MB',
-      category: 'Lab Results',
-      isScanned: true,
-      scanResults: {
-        doctorName: 'Dr. Sarah Jenkins, MD',
-        labName: 'Quest Diagnostics Clinical Lab',
-        keyBiomarkers: [
-          { name: 'Hemoglobin', value: '13.8 g/dL', status: 'Normal', range: '12.0 - 15.5 g/dL' },
-          { name: 'HbA1c (Blood Sugar)', value: '5.2%', status: 'Optimal', range: '< 5.7%' },
-          { name: 'Vitamin D3 (25-OH)', value: '34 ng/mL', status: 'Optimal', range: '30 - 100 ng/mL' },
-          { name: 'Estradiol (E2)', value: '145 pg/mL', status: 'Normal', range: '30 - 400 pg/mL' },
-          { name: 'Thyroid TSH', value: '2.1 mIU/L', status: 'Normal', range: '0.4 - 4.0 mIU/L' }
-        ],
-        aiSummary: 'Metabolic & hormonal markers are balanced. Serum Vitamin D levels are restored to healthy optimal status.',
-        riskLevel: 'Optimal',
-        recommendations: 'Continue daily multivitamin and balanced Mediterranean diet.'
-      }
-    },
-    { 
-      id: 'REC-102', 
-      title: 'Pelvic & Ovarian Ultrasound Scan', 
-      type: 'PNG', 
-      date: '2026-07-18', 
-      month: 'July 2026',
-      description: 'Pelvic imaging and uterine follicular mapping assessment', 
-      size: '4.2 MB',
-      category: 'Radiology',
-      isScanned: true,
-      scanResults: {
-        doctorName: 'Dr. Amanda Vance, OB-GYN',
-        labName: 'Pacific Women Imaging Center',
-        keyBiomarkers: [
-          { name: 'Endometrial Thickness', value: '7.8 mm', status: 'Normal', range: '4.0 - 12.0 mm' },
-          { name: 'Ovarian Volume (Right)', value: '6.4 mL', status: 'Normal', range: '3.0 - 10.0 mL' },
-          { name: 'Ovarian Volume (Left)', value: '5.9 mL', status: 'Normal', range: '3.0 - 10.0 mL' }
-        ],
-        aiSummary: 'Pelvic imaging shows normal endometrial thickness and uterine structure with clear follicular activity.',
-        riskLevel: 'Optimal',
-        recommendations: 'Routine annual gynecological scan scheduled.'
-      }
-    },
-    { 
-      id: 'REC-103', 
-      title: 'Vitamin D3 & Micronutrient Scan', 
-      type: 'PDF', 
-      date: '2026-06-10', 
-      month: 'June 2026',
-      description: 'Serum iron, Ferritin, B12 and Vitamin D deficiency test', 
-      size: '1.6 MB',
-      category: 'Nutritional Panel',
-      isScanned: true,
-      scanResults: {
-        doctorName: 'Dr. Robert Chen, MD',
-        labName: 'BioReference Laboratories',
-        keyBiomarkers: [
-          { name: 'Vitamin D3 (25-OH)', value: '21 ng/mL', status: 'Watch', range: '30 - 100 ng/mL' },
-          { name: 'Serum Ferritin', value: '28 ng/mL', status: 'Normal', range: '15 - 150 ng/mL' },
-          { name: 'Vitamin B12', value: '480 pg/mL', status: 'Optimal', range: '200 - 900 pg/mL' }
-        ],
-        aiSummary: 'Mild Vitamin D3 deficiency identified (21 ng/mL). Iron stores and Vitamin B12 are within healthy limits.',
-        riskLevel: 'Low Monitoring',
-        recommendations: 'Prescribed 2,000 IU daily Vitamin D3 supplementation for 60 days.'
-      }
-    },
-    { 
-      id: 'REC-104', 
-      title: 'Lipid & Fasting Glucose Screening', 
-      type: 'PDF', 
-      date: '2026-05-02', 
-      month: 'May 2026',
-      description: 'Cardiovascular lipid profile and fasting plasma blood sugar', 
-      size: '1.9 MB',
-      category: 'Cardiovascular',
-      isScanned: true,
-      scanResults: {
-        doctorName: 'Dr. Sarah Jenkins, MD',
-        labName: 'Quest Diagnostics',
-        keyBiomarkers: [
-          { name: 'Fasting Glucose', value: '88 mg/dL', status: 'Optimal', range: '70 - 99 mg/dL' },
-          { name: 'Total Cholesterol', value: '172 mg/dL', status: 'Normal', range: '< 200 mg/dL' },
-          { name: 'HDL Cholesterol', value: '62 mg/dL', status: 'Optimal', range: '> 50 mg/dL' },
-          { name: 'Triglycerides', value: '95 mg/dL', status: 'Optimal', range: '< 150 mg/dL' }
-        ],
-        aiSummary: 'Cardiovascular lipids and glycemic indices demonstrate excellent heart health and insulin sensitivity.',
-        riskLevel: 'Optimal',
-        recommendations: 'Maintain current aerobic exercise routine.'
-      }
-    }
-  ]);
+  // Medical records — starts empty; user uploads their own real records
+  const [records, setRecords] = useState<any[]>([]);
 
   const [newRecord, setNewRecord] = useState({ title: '', type: 'PDF', description: '', category: 'Lab Results', fileName: '' });
   const [showUploadModal, setShowUploadModal] = useState(false);
 
   // 3. Health Tracker State (CRUD - Manual Food, Exercise, Steps, Symptoms & Vitals Log)
-  const [trackerLogs, setTrackerLogs] = useState([
-    { 
-      id: 'HT-01', 
-      date: '2026-08-06', 
-      weight: '62', 
-      water: '2.5', 
-      sleep: '8.0', 
-      exerciseType: 'Yoga & Morning Jog',
-      exercise: '35', 
-      caloriesBurned: '280',
-      steps: '8420',
-      distanceKm: '5.6',
-      foodMeals: 'Avocado Toast & Tea (Breakfast), Quinoa Bowl (Lunch), Salmon Salad (Dinner)',
-      caloriesIntake: '1850',
-      bloodPressure: '118/76', 
-      heartRate: '72', 
-      mood: 'Energetic',
-      symptomName: 'Mild Fatigue',
-      symptomSeverity: 'Low',
-      notes: 'Hydration goal achieved. Great energy during morning jog.' 
-    },
-    { 
-      id: 'HT-02', 
-      date: '2026-08-05', 
-      weight: '62.2', 
-      water: '2.0', 
-      sleep: '7.5', 
-      exerciseType: 'Pilates Workout',
-      exercise: '25', 
-      caloriesBurned: '190',
-      steps: '6800',
-      distanceKm: '4.2',
-      foodMeals: 'Oatmeal (Breakfast), Grilled Chicken (Lunch), Veggie Soup (Dinner)',
-      caloriesIntake: '1720',
-      bloodPressure: '120/78', 
-      heartRate: '75', 
-      mood: 'Good',
-      symptomName: 'Headache',
-      symptomSeverity: 'Medium',
-      notes: 'Evening pilates session completed.' 
-    },
-    { 
-      id: 'HT-03', 
-      date: '2026-08-04', 
-      weight: '62.5', 
-      water: '1.8', 
-      sleep: '7.0', 
-      exerciseType: 'Brisk Walk',
-      exercise: '20', 
-      caloriesBurned: '120',
-      steps: '5100',
-      distanceKm: '3.4',
-      foodMeals: 'Smoothie (Breakfast), Pasta (Lunch), Fruit Bowl (Dinner)',
-      caloriesIntake: '1900',
-      bloodPressure: '122/80', 
-      heartRate: '78', 
-      mood: 'Normal',
-      symptomName: 'Abdominal Cramping',
-      symptomSeverity: 'High',
-      notes: 'Phase 3 cycle mild tiredness.' 
-    },
-  ]);
+  // Health tracker logs — starts empty; user logs their own real data
+  const [trackerLogs, setTrackerLogs] = useState<any[]>([]);
 
   const [trackerInput, setTrackerInput] = useState({
-    weight: '62',
-    water: '2.5',
-    sleep: '8.0',
-    exerciseType: 'Running & Cardio',
-    exercise: '30',
-    caloriesBurned: '250',
-    steps: '7500',
-    distanceKm: '5.0',
+    weight: '',
+    water: '',
+    sleep: '',
+    exerciseType: '',
+    exercise: '',
+    caloriesBurned: '',
+    steps: '',
+    distanceKm: '',
     foodMeals: '',
-    caloriesIntake: '1800',
-    bloodPressure: '120/78',
-    heartRate: '72',
+    caloriesIntake: '',
+    bloodPressure: '',
+    heartRate: '',
     mood: 'Good',
     symptomName: '',
     symptomSeverity: 'Low',
@@ -383,11 +273,8 @@ export default function Dashboard() {
   const [editingTrackerId, setEditingTrackerId] = useState<string | null>(null);
 
   // 4. Symptom Tracker State (CRUD)
-  const [symptomLogs, setSymptomLogs] = useState([
-    { id: 'SYM-101', symptomName: 'Mild Fatigue', severity: 'Low', date: '2026-08-06', description: 'Mid-afternoon drowsiness after walking' },
-    { id: 'SYM-102', symptomName: 'Migraine / Headache', severity: 'Medium', date: '2026-08-03', description: 'Dehydration related pressure in temple region' },
-    { id: 'SYM-103', symptomName: 'Abdominal Cramping', severity: 'High', date: '2026-07-25', description: 'Lower abdominal cramps during day 1 cycle' },
-  ]);
+  // Symptom logs — starts empty; user logs their own real symptoms
+  const [symptomLogs, setSymptomLogs] = useState<any[]>([]);
 
   const [symptomInput, setSymptomInput] = useState({
     symptomName: '', severity: 'Low', date: new Date().toISOString().split('T')[0], description: ''
@@ -395,22 +282,17 @@ export default function Dashboard() {
   const [editingSymptomId, setEditingSymptomId] = useState<string | null>(null);
 
   // 5. Appointments State (CRUD)
-  const [appointments, setAppointments] = useState([
-    { id: 'APT-201', doctor: 'Dr. Sarah Jenkins (OB/GYN)', date: '2026-08-12', time: '10:30 AM', reason: 'Annual Reproductive Wellness Review', status: 'Scheduled' },
-    { id: 'APT-202', doctor: 'Dr. Priya Sharma (Maternal-Fetal)', date: '2026-07-15', time: '02:00 PM', reason: 'Hormonal & Thyroid Consultation', status: 'Completed' },
-  ]);
+  // Appointments — starts empty; user books their own real appointments
+  const [appointments, setAppointments] = useState<any[]>([]);
 
   const [newAppointment, setNewAppointment] = useState({
-    doctor: 'Dr. Sarah Jenkins (OB/GYN)', date: '', time: '10:00 AM', reason: ''
+    doctor: '', date: '', time: '', reason: ''
   });
   const [showBookModal, setShowBookModal] = useState(false);
 
   // 6. Notifications State (CRUD)
-  const [notifications, setNotifications] = useState([
-    { id: 'NOTIF-01', title: 'Appointment Reminder', message: 'Upcoming consultation with Dr. Sarah Jenkins on Aug 12, 10:30 AM.', time: '10 mins ago', type: 'appointment', read: false },
-    { id: 'NOTIF-02', title: 'Medical Record Uploaded', message: 'Q3 Comprehensive Blood Panel has been uploaded to your vault.', time: '2 hours ago', type: 'record', read: false },
-    { id: 'NOTIF-03', title: 'Health Report Generated', message: 'Your August Longitudinal Health Report is ready to download.', time: '1 day ago', type: 'report', read: true },
-  ]);
+  // Notifications — starts empty; populated from real user activity
+  const [notifications, setNotifications] = useState<any[]>([]);
 
   // 7. Settings State
   const [settings, setSettings] = useState({
