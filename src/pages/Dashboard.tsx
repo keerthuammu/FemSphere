@@ -18,13 +18,10 @@ import AIHealthTwinInsights from '../components/AIHealthTwinInsights';
 import PubertyGrowingModule from '../components/modules/PubertyGrowingModule';
 import EarlyChildhoodModule from '../components/modules/EarlyChildhoodModule';
 import PartnerSharingModule from '../components/modules/PartnerSharingModule';
-import ReproductivePlanningModule from '../components/modules/ReproductivePlanningModule';
 import PregnancyDashboardModule from '../components/modules/PregnancyDashboardModule';
 import PostpartumDashboardModule from '../components/modules/PostpartumDashboardModule';
-import PcosEndometriosisModule from '../components/modules/PcosEndometriosisModule';
 import MidlifeMenopauseModule from '../components/modules/MidlifeMenopauseModule';
 import HealthyAgingModule from '../components/modules/HealthyAgingModule';
-import PeriodTracker from '../components/PeriodTracker';
 import FitnessTracker from '../components/FitnessTracker';
 
 function calculateAge(dobString: string): number {
@@ -988,15 +985,6 @@ export default function Dashboard() {
             <Activity className="w-5 h-5 text-[#7C3AED]" /> Dashboard
           </button>
 
-          {/* 1b. Period Tracker */}
-          <button 
-            onClick={() => setActiveTab('Period Tracker')} 
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-base transition-all ${
-              activeTab === 'Period Tracker' ? 'bg-white text-rose-600 shadow-sm border border-rose-200' : 'text-[#4A3B42] hover:bg-white/40 hover:text-[#2E2428]'
-            }`}
-          >
-            <Droplet className="w-5 h-5 text-rose-500" /> Period Tracker
-          </button>
 
           {/* 2. Medical Records */}
           <button 
@@ -1286,32 +1274,18 @@ export default function Dashboard() {
               {/* AI Health Twin Insights Widget */}
               <AIHealthTwinInsights />
 
-              {/* Menstrual Period Tracker Widget */}
-              <PeriodTracker />
+              {/* Dynamic Active Life Stage Module Render (Optional for specific stages) */}
+              {(currentStageCode && currentStageCode !== 'REPRODUCTIVE_AGE' && currentStageCode !== 'YOUNG_ADULT' && currentStageCode !== 'MENSTRUATING_ADOLESCENT') && (
+                <div className="mt-6">
+                  {currentStageCode === 'PREGNANCY' && <PregnancyDashboardModule />}
+                  {currentStageCode === 'POSTPARTUM' && <PostpartumDashboardModule />}
+                  {(currentStageCode === 'PERIMENOPAUSE' || currentStageCode === 'MENOPAUSE') && <MidlifeMenopauseModule />}
+                  {currentStageCode === 'OLDER_ADULT' && <HealthyAgingModule />}
+                  {(currentStageCode === 'PUBERTY' || currentStageCode === 'PRE_PUBERTY') && <PubertyGrowingModule />}
+                  {currentStageCode === 'EARLY_CHILDHOOD' && <EarlyChildhoodModule />}
+                </div>
+              )}
 
-              {/* Dynamic Active Life Stage Module Render */}
-              <div className="mt-6">
-                {currentStageCode === 'PREGNANCY' && <PregnancyDashboardModule />}
-                {currentStageCode === 'POSTPARTUM' && <PostpartumDashboardModule />}
-                {(currentStageCode === 'PERIMENOPAUSE' || currentStageCode === 'MENOPAUSE') && <MidlifeMenopauseModule />}
-                {currentStageCode === 'OLDER_ADULT' && <HealthyAgingModule />}
-                {(currentStageCode === 'PUBERTY' || currentStageCode === 'PRE_PUBERTY') && <PubertyGrowingModule />}
-                {currentStageCode === 'EARLY_CHILDHOOD' && <EarlyChildhoodModule />}
-                {(currentStageCode === 'REPRODUCTIVE_AGE' || currentStageCode === 'YOUNG_ADULT' || currentStageCode === 'MENSTRUATING_ADOLESCENT') && (
-                  <div className="space-y-6">
-                    <ReproductivePlanningModule />
-                    <PcosEndometriosisModule />
-                  </div>
-                )}
-              </div>
-
-            </div>
-          )}
-
-          {/* TAB: PERIOD TRACKER */}
-          {activeTab === 'Period Tracker' && (
-            <div className="max-w-5xl mx-auto">
-              <PeriodTracker />
             </div>
           )}
 
