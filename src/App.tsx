@@ -7,6 +7,17 @@ import Dashboard from './pages/Dashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import CaregiverDashboard from './pages/CaregiverDashboard';
 
+// Admin Sub-Pages & Layout
+import { AdminProvider } from './context/AdminContext';
+import AdminLayout from './pages/admin/AdminLayout';
+import AdminOverview from './pages/admin/AdminOverview';
+import AdminUsers from './pages/admin/AdminUsers';
+import AdminCaregivers from './pages/admin/AdminCaregivers';
+import AdminDoctors from './pages/admin/AdminDoctors';
+import AdminArticles from './pages/admin/AdminArticles';
+import AdminReports from './pages/admin/AdminReports';
+import AdminProfilePage from './pages/admin/AdminProfilePage';
+
 // Caregiver Sub-Pages & Layout
 import { CaregiverProvider } from './context/CaregiverContext';
 import CaregiverLayout from './pages/caregiver/CaregiverLayout';
@@ -114,15 +125,25 @@ export default function App() {
           }
         />
 
-        {/* Admin dashboard */}
+        {/* Admin dashboard with nested modular sub-routes */}
         <Route
           path="/admin"
           element={
             <RoleProtectedRoute allowedRoles={['Admin (Superuser)', 'Administrator']}>
-              <AdminDashboard />
+              <AdminProvider>
+                <AdminLayout />
+              </AdminProvider>
             </RoleProtectedRoute>
           }
-        />
+        >
+          <Route index element={<AdminOverview />} />
+          <Route path="users" element={<AdminUsers />} />
+          <Route path="caregivers" element={<AdminCaregivers />} />
+          <Route path="doctors" element={<AdminDoctors />} />
+          <Route path="articles" element={<AdminArticles />} />
+          <Route path="reports" element={<AdminReports />} />
+          <Route path="profile" element={<AdminProfilePage />} />
+        </Route>
 
         {/* Caregiver dashboard with nested modular sub-routes */}
         <Route
