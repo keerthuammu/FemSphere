@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Sparkles, RefreshCw, FileText, CheckCircle2, Shield, Stethoscope, AlertCircle } from 'lucide-react';
+import { Sparkles, RefreshCw } from 'lucide-react';
 
 interface InsightItem {
   id?: number;
@@ -12,7 +12,6 @@ interface InsightItem {
 export default function AIHealthTwinInsights() {
   const [insights, setInsights] = useState<InsightItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [copiedDocPrep, setCopiedDocPrep] = useState(false);
 
   useEffect(() => {
     fetchInsights();
@@ -52,16 +51,6 @@ export default function AIHealthTwinInsights() {
       console.error('Error generating AI insights', e);
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const docPrepInsight = insights.find(i => i.insight_type === 'DOCTOR_PREP');
-
-  const copyDocPrep = () => {
-    if (docPrepInsight) {
-      navigator.clipboard.writeText(docPrepInsight.content);
-      setCopiedDocPrep(true);
-      setTimeout(() => setCopiedDocPrep(false), 3000);
     }
   };
 
@@ -106,37 +95,9 @@ export default function AIHealthTwinInsights() {
               <p className="text-xs text-[#64595e] leading-relaxed">{item.content}</p>
             </div>
           ))}
-
-          {/* Doctor Appointment Preparation Widget */}
-          {docPrepInsight && (
-            <div className="md:col-span-2 bg-[#FAF8FC] p-5 rounded-2xl border border-[#EDE9FE] space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-[#7C3AED]">
-                  <Stethoscope className="w-4 h-4" />
-                  <h4 className="font-bold text-xs uppercase tracking-wider">Doctor Appointment Preparation Export</h4>
-                </div>
-
-                <button
-                  onClick={copyDocPrep}
-                  className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-[#7C3AED] text-white text-xs font-bold hover:bg-[#6D28D9] transition-all shadow-xs"
-                >
-                  <FileText className="w-3.5 h-3.5" />
-                  <span>{copiedDocPrep ? 'Copied to Clipboard!' : 'Copy Summary for Doctor'}</span>
-                </button>
-              </div>
-
-              <pre className="text-xs text-[#3a3135] font-mono bg-white p-3 rounded-xl border border-[#EDE9FE] whitespace-pre-wrap leading-relaxed">
-                {docPrepInsight.content}
-              </pre>
-
-              <div className="flex items-center gap-2 text-[11px] text-[#7a6f75]">
-                <Shield className="w-3.5 h-3.5 text-[#14B8A6]" />
-                <span>Patterns are correlational. Consider sharing this log with a qualified healthcare professional.</span>
-              </div>
-            </div>
-          )}
         </div>
       )}
     </div>
   );
 }
+
