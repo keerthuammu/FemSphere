@@ -305,7 +305,11 @@ export default function Register() {
         if (formData.accountType === 'Caregiver') {
           navigate('/caregiver-dashboard');
         } else if (formData.accountType === 'Doctor') {
-          navigate('/doctor-dashboard');
+          if (data.user?.doctor?.approval_status !== 'Approved') {
+            navigate('/doctor-pending');
+          } else {
+            navigate('/doctor-dashboard');
+          }
         } else {
           navigate('/dashboard');
         }
@@ -337,6 +341,7 @@ export default function Register() {
             specialization: formData.specialization,
             license_number: formData.licenseNumber,
             hospital_clinic: formData.hospitalClinic,
+            approval_status: 'Pending',
           } : undefined,
         };
         localStorage.setItem('femsphere_token', 'demo_token_2026');
@@ -345,7 +350,7 @@ export default function Register() {
         if (normalizedRole === 'Caregiver') {
           navigate('/caregiver-dashboard');
         } else if (normalizedRole === 'Doctor') {
-          navigate('/doctor-dashboard');
+          navigate('/doctor-pending');
         } else if (normalizedRole === 'Admin (Superuser)') {
           navigate('/admin');
         } else {

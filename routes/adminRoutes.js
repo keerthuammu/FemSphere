@@ -4,8 +4,8 @@ import { authenticateToken, authorizeRoles } from '../middleware/auth.js';
 
 const router = express.Router();
 
-router.get('/stats', authenticateToken, authorizeRoles('Admin (Superuser)'), getSystemStats);
-router.put('/doctors/:id/approve', authenticateToken, authorizeRoles('Admin (Superuser)'), approveDoctor);
-router.put('/users/:id/status', authenticateToken, authorizeRoles('Admin (Superuser)'), updateUserStatus);
+router.get('/stats', authenticateToken, authorizeRoles('Admin (Superuser)', 'Administrator'), getSystemStats);
+router.put('/doctors/:id/approve', authenticateToken, authorizeRoles('Admin (Superuser)', 'Administrator'), approveDoctor);
+router.put('/users/:id/status', authenticateToken, authorizeRoles('Admin (Superuser)', 'Administrator'), updateUserStatus);
 
 export default router;

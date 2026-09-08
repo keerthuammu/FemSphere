@@ -159,10 +159,16 @@ export default function DoctorLayout() {
 
             <button
               onClick={() => {
+                if (patients.length === 0) {
+                  alert('No registered patients found in database yet. Telehealth rooms activate when connected patients exist.');
+                  return;
+                }
+                const targetPatient = patients[0];
                 setActiveTelehealthSession({
-                  id: 'LIVE-EMERGENCY',
-                  patient: 'Elena Rostova',
-                  patientId: 'PAT-101',
+                  id: `LIVE-${Date.now().toString().slice(-4)}`,
+                  numericId: targetPatient.numericId,
+                  patient: targetPatient.name,
+                  patientId: targetPatient.id,
                   date: new Date().toISOString().split('T')[0],
                   time: 'Live',
                   reason: 'Immediate Telehealth Consultation Room',
@@ -433,7 +439,7 @@ export default function DoctorLayout() {
                     value={newConsultationForm.patient}
                     onChange={(e) => {
                       const sel = patients.find(p => p.name === e.target.value);
-                      setNewConsultationForm({ ...newConsultationForm, patient: e.target.value, patientId: sel ? sel.id : 'PAT-101' });
+                      setNewConsultationForm({ ...newConsultationForm, patient: e.target.value, patientId: sel ? sel.id : (patients[0]?.id || '') });
                     }}
                     className="w-full p-3 rounded-xl border border-[#EDE9FE] bg-white font-bold text-[#3a3135]"
                   >
@@ -798,7 +804,7 @@ export default function DoctorLayout() {
                   value={newAppointmentForm.patient}
                   onChange={(e) => {
                     const sel = patients.find(p => p.name === e.target.value);
-                    setNewAppointmentForm({ ...newAppointmentForm, patient: e.target.value, patientId: sel ? sel.id : 'PAT-101' });
+                    setNewAppointmentForm({ ...newAppointmentForm, patient: e.target.value, patientId: sel ? sel.id : (patients[0]?.id || '') });
                   }}
                   className="w-full p-3 rounded-xl border border-[#EDE9FE] bg-white font-bold"
                 >

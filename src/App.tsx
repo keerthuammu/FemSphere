@@ -30,6 +30,7 @@ import DoctorConsultations from './pages/doctor/DoctorConsultations';
 import DoctorAppointments from './pages/doctor/DoctorAppointments';
 import DoctorAvailability from './pages/doctor/DoctorAvailability';
 import DoctorProfilePage from './pages/doctor/DoctorProfilePage';
+import DoctorPendingApproval from './pages/DoctorPendingApproval';
 
 // Guard: redirect to /login if not authenticated
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -55,15 +56,44 @@ function RoleProtectedRoute({
     if (!allowedRoles.includes(role)) {
       // Redirect to the appropriate dashboard based on actual role
       if (role === 'Admin (Superuser)' || role === 'Administrator') return <Navigate to="/admin" replace />;
-      if (role === 'Doctor') return <Navigate to="/doctor-dashboard" replace />;
+      if (role === 'Doctor') {
+        if (user.doctor?.approval_status !== 'Approved') return <Navigate to="/doctor-pending" replace />;
+        return <Navigate to="/doctor-dashboard" replace />;
+      }
       if (role === 'Caregiver') return <Navigate to="/caregiver-dashboard" replace />;
       return <Navigate to="/dashboard" replace />;
+    }
+
+    // Ensure pending doctors cannot access doctor routes even if allowedRoles includes 'Doctor'
+    if (role === 'Doctor' && user.doctor?.approval_status !== 'Approved') {
+      return <Navigate to="/doctor-pending" replace />;
     }
   } catch {
     return <Navigate to="/login" replace />;
   }
 
   return <>{children}</>;
+}
+
+// Guard for the Doctor Pending Approval page
+function DoctorPendingRoute() {
+  const token = localStorage.getItem('femsphere_token');
+  if (!token) return <Navigate to="/login" replace />;
+
+  try {
+    const user = JSON.parse(localStorage.getItem('femsphere_user') || '{}');
+    if (user.role !== 'Doctor') {
+      return <Navigate to="/dashboard" replace />;
+    }
+    // If doctor has been approved by admin, send directly to dashboard
+    if (user.doctor?.approval_status === 'Approved') {
+      return <Navigate to="/doctor-dashboard" replace />;
+    }
+  } catch {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <DoctorPendingApproval />;
 }
 
 export default function App() {
@@ -135,6 +165,9 @@ export default function App() {
           <Route path="availability" element={<DoctorAvailability />} />
           <Route path="profile" element={<DoctorProfilePage />} />
         </Route>
+
+        {/* Doctor pending approval waiting page */}
+        <Route path="/doctor-pending" element={<DoctorPendingRoute />} />
       </Routes>
     </Router>
   );

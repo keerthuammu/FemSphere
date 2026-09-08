@@ -29,7 +29,7 @@ export const approveDoctor = async (req, res) => {
     const { status } = req.body; // 'Approved', 'Rejected', 'Suspended'
 
     const result = await pool.query(
-      'UPDATE doctors SET approval_status = $1 WHERE id = $2 RETURNING *',
+      'UPDATE doctors SET approval_status = $1 WHERE id = $2 OR user_id = $2 RETURNING *',
       [status || 'Approved', id]
     );
 

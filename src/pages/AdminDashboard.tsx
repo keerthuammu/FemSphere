@@ -186,15 +186,82 @@ export default function AdminDashboard() {
     setCaregivers(caregivers.filter(c => c.id !== id));
   };
 
+  // Fetch doctors from database on mount
+  useEffect(() => {
+    const fetchDoctorsFromDb = async () => {
+      try {
+        const res = await fetch('/api/doctors');
+        if (res.ok) {
+          const dbDocs = await res.json();
+          if (Array.isArray(dbDocs) && dbDocs.length > 0) {
+            const mapped = dbDocs.map((d: any) => ({
+              id: d.id,
+              userId: d.user_id,
+              name: d.full_name ? `Dr. ${d.full_name}` : (d.username ? `Dr. ${d.username}` : 'Dr. Medical Practitioner'),
+              email: d.email || 'doctor@femsphere.health',
+              spec: d.specialization || 'General Healthcare',
+              license: d.license_number || 'MD-N/A',
+              status: d.approval_status === 'Approved' ? 'Active' : (d.approval_status || 'Pending'),
+              rawApprovalStatus: d.approval_status
+            }));
+            setDoctors(mapped);
+          }
+        }
+      } catch (err) {
+        console.error('Error loading doctors in Admin Dashboard:', err);
+      }
+    };
+    fetchDoctorsFromDb();
+  }, []);
+
   // Doctor Actions
-  const approveDoctor = (id: string) => {
-    setDoctors(doctors.map(d => d.id === id ? { ...d, status: 'Active' } : d));
+  const approveDoctor = async (id: string | number) => {
+    setDoctors(prev => prev.map(d => String(d.id) === String(id) ? { ...d, status: 'Active', rawApprovalStatus: 'Approved' } : d));
+    try {
+      const token = localStorage.getItem('femsphere_token');
+      await fetch(`/api/admin/doctors/${id}/approve`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify({ status: 'Approved' })
+      });
+    } catch (err) {
+      console.error('Error approving doctor in database:', err);
+    }
   };
-  const rejectDoctor = (id: string) => {
-    setDoctors(doctors.filter(d => d.id !== id));
+  const rejectDoctor = async (id: string | number) => {
+    setDoctors(prev => prev.filter(d => String(d.id) !== String(id)));
+    try {
+      const token = localStorage.getItem('femsphere_token');
+      await fetch(`/api/admin/doctors/${id}/approve`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify({ status: 'Rejected' })
+      });
+    } catch (err) {
+      console.error('Error rejecting doctor:', err);
+    }
   };
-  const suspendDoctor = (id: string) => {
-    setDoctors(doctors.map(d => d.id === id ? { ...d, status: 'Suspended' } : d));
+  const suspendDoctor = async (id: string | number) => {
+    setDoctors(prev => prev.map(d => String(d.id) === String(id) ? { ...d, status: 'Suspended', rawApprovalStatus: 'Suspended' } : d));
+    try {
+      const token = localStorage.getItem('femsphere_token');
+      await fetch(`/api/admin/doctors/${id}/approve`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify({ status: 'Suspended' })
+      });
+    } catch (err) {
+      console.error('Error suspending doctor:', err);
+    }
   };
 
   // Article Actions

@@ -139,7 +139,7 @@ export const register = async (req, res) => {
           specialization || 'General Healthcare',
           hospitalClinic || 'FemSphere Clinic',
           yearsOfExperience ? parseInt(yearsOfExperience) : 5,
-          'Approved'
+          'Pending'
         ]
       );
       roleDetails.doctor = docResult.rows[0];
@@ -267,12 +267,34 @@ export const getMe = async (req, res) => {
     }
     const user = userQuery.rows[0];
     const profileQuery = await pool.query(`SELECT * FROM user_profiles WHERE user_id = $1`, [user.id]);
+    const profile = profileQuery.rows[0] || {};
+
+    let roleDetails = {};
+    if (user.role === 'Caregiver') {
+      const cg = await pool.query(`SELECT * FROM caregivers WHERE user_id = $1`, [user.id]);
+      if (cg.rows.length > 0) {
+        roleDetails.caregiver = cg.rows[0];
+        const deps = await pool.query(`SELECT * FROM dependents WHERE caregiver_id = $1`, [cg.rows[0].id]);
+        roleDetails.dependents = deps.rows;
+      }
+    } else if (user.role === 'Doctor') {
+      const doc = await pool.query(`SELECT * FROM doctors WHERE user_id = $1`, [user.id]);
+      if (doc.rows.length > 0) {
+        roleDetails.doctor = doc.rows[0];
+      }
+    }
 
     res.json({
       success: true,
       user: {
-        ...user,
-        profile: profileQuery.rows[0] || {}
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        fullName: profile.full_name || user.username,
+        role: user.role,
+        status: user.status,
+        profile,
+        ...roleDetails
       }
     });
   } catch (err) {

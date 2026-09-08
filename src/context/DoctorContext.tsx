@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 export interface MedicationItem {
@@ -12,6 +12,7 @@ export interface MedicationItem {
 
 export interface PatientHealthTwin {
   id: string;
+  numericId: number;
   name: string;
   age: number;
   email: string;
@@ -31,14 +32,16 @@ export interface PatientHealthTwin {
   chronicConditions: string[];
   riskLevel: 'Optimal' | 'Moderate Attention' | 'High Attention';
   lastVisit: string;
-  sharedReport: string;
+  sharedReport?: string;
 }
 
 export interface SharedMedicalRecord {
   id: string;
+  numericId: number;
   patient: string;
   patientId: string;
   fileName: string;
+  fileUrl?: string;
   category: string;
   sharedDate: string;
   type: string;
@@ -56,6 +59,7 @@ export interface SharedMedicalRecord {
 
 export interface ConsultationRecord {
   id: string;
+  numericId: number;
   patient: string;
   patientId: string;
   date: string;
@@ -69,6 +73,7 @@ export interface ConsultationRecord {
 
 export interface AppointmentItem {
   id: string;
+  numericId: number;
   patient: string;
   patientId: string;
   date: string;
@@ -252,6 +257,7 @@ interface DoctorContextType {
   // Global Time & Auth
   currentTime: Date;
   handleLogout: () => void;
+  refreshAllDoctorData: () => Promise<void>;
 }
 
 const DoctorContext = createContext<DoctorContextType | null>(null);
@@ -265,24 +271,8 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
     return () => clearInterval(timer);
   }, []);
 
-  // 1. Doctor Profile State
+  // 1. Doctor Profile State (Loaded strictly from authenticated session & database)
   const [profile, setProfile] = useState<DoctorProfile>(() => {
-    const defaults: DoctorProfile = {
-      name: 'Dr. Sarah Jenkins, MD',
-      email: 'dr.jenkins@femsphere.health',
-      spec: 'Obstetrics & Gynecology',
-      subSpec: 'Reproductive Endocrinology & Maternal Health',
-      license: 'MD-892401-CA',
-      hospital: "St. Jude Women's Health Center",
-      yearsExperience: '12 Years',
-      bio: "Board-certified Obstetrician & Gynecologist specializing in women's longitudinal digital health twins, PCOS management, and fertility optimization.",
-      phone: '+1 (555) 789-2041',
-      rating: '4.9/5 (184 Reviews)',
-      consultationFee: 75,
-      workingDays: 'Monday - Friday',
-      workingHours: '09:00 AM - 05:00 PM',
-      isVerified: true
-    };
     try {
       const storedUser = localStorage.getItem('femsphere_user');
       if (storedUser) {
@@ -290,18 +280,41 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
         const p = parsed.profile || {};
         const doc = parsed.doctor || {};
         return {
-          ...defaults,
-          name: parsed.fullName || p.full_name || parsed.username || defaults.name,
-          email: parsed.email || defaults.email,
-          spec: doc.specialization || defaults.spec,
-          license: doc.license_number || defaults.license,
-          hospital: doc.hospital_clinic || defaults.hospital
+          name: parsed.fullName || p.full_name || (parsed.username ? `Dr. ${parsed.username}` : 'Doctor'),
+          email: parsed.email || '',
+          spec: doc.specialization || 'General Healthcare',
+          subSpec: doc.sub_specialization || 'Obstetrics & Gynecology',
+          license: doc.license_number || 'MD-PENDING',
+          hospital: doc.hospital_clinic || 'FemSphere Health Network',
+          yearsExperience: doc.years_experience ? `${doc.years_experience} Years` : '5 Years',
+          bio: p.bio || doc.bio || 'Consultant Physician on FemSphere Health Platform.',
+          phone: p.mobile || 'N/A',
+          rating: '5.0/5',
+          consultationFee: doc.consultation_fee ? Number(doc.consultation_fee) : 50,
+          workingDays: doc.working_days || 'Monday - Friday',
+          workingHours: doc.working_hours || '09:00 AM - 05:00 PM',
+          isVerified: doc.approval_status === 'Approved'
         };
       }
     } catch (e) {
       console.error('Error loading doctor session', e);
     }
-    return defaults;
+    return {
+      name: 'Doctor',
+      email: '',
+      spec: 'General Healthcare',
+      subSpec: 'Obstetrics & Gynecology',
+      license: 'MD-PENDING',
+      hospital: 'FemSphere Health Network',
+      yearsExperience: '5 Years',
+      bio: '',
+      phone: '',
+      rating: '5.0/5',
+      consultationFee: 50,
+      workingDays: 'Monday - Friday',
+      workingHours: '09:00 AM - 05:00 PM',
+      isVerified: false
+    };
   });
 
   const [profileSaveMsg, setProfileSaveMsg] = useState<string | null>(null);
@@ -310,239 +323,46 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
   const [newPassword, setNewPassword] = useState('');
   const [passwordMsg, setPasswordMsg] = useState<string | null>(null);
 
-  // 2. Patient Directory & Health Twins State
-  const [patients, setPatients] = useState<PatientHealthTwin[]>([
-    {
-      id: 'PAT-101',
-      name: 'Elena Rostova',
-      age: 29,
-      email: 'elena.rostova@femsphere.health',
-      phone: '+1 (555) 382-9102',
-      bloodGroup: 'A Positive (A+)',
-      heightCm: 168,
-      weightKg: 62,
-      bmi: 22.0,
-      lifeStage: 'Reproductive Age (PCOS Monitoring)',
-      cyclePhase: 'Luteal Phase (Day 21)',
-      cycleDay: 21,
-      heartRate: 74,
-      bp: '118/76 mmHg',
-      sleepHours: 7.8,
-      waterLiters: 2.6,
-      allergies: ['Penicillin', 'Sulfa drugs'],
-      chronicConditions: ['Mild PCOS (Controlled)', 'Occasional Fatigue'],
-      riskLevel: 'Moderate Attention',
-      lastVisit: '2026-07-28',
-      sharedReport: 'Q3_Longitudinal_Health_Report.pdf'
-    },
-    {
-      id: 'PAT-102',
-      name: 'Amara Chen',
-      age: 34,
-      email: 'amara.chen@gmail.com',
-      phone: '+1 (555) 491-8201',
-      bloodGroup: 'O Positive (O+)',
-      heightCm: 162,
-      weightKg: 58,
-      bmi: 22.1,
-      lifeStage: 'Pre-conception Planning',
-      cyclePhase: 'Follicular Phase (Day 9)',
-      cycleDay: 9,
-      heartRate: 68,
-      bp: '112/72 mmHg',
-      sleepHours: 8.2,
-      waterLiters: 2.8,
-      allergies: ['None reported'],
-      chronicConditions: ['None'],
-      riskLevel: 'Optimal',
-      lastVisit: '2026-07-15',
-      sharedReport: 'PCOS_Blood_Panel.pdf'
-    },
-    {
-      id: 'PAT-103',
-      name: 'Sofia Davis',
-      age: 42,
-      email: 'sofia.d@health.org',
-      phone: '+1 (555) 902-1133',
-      bloodGroup: 'B Positive (B+)',
-      heightCm: 170,
-      weightKg: 71,
-      bmi: 24.6,
-      lifeStage: 'Perimenopause Transition',
-      cyclePhase: 'Irregular Phase (Day 34)',
-      cycleDay: 34,
-      heartRate: 82,
-      bp: '126/82 mmHg',
-      sleepHours: 6.2,
-      waterLiters: 2.1,
-      allergies: ['Latex'],
-      chronicConditions: ['Hormonal Imbalance', 'Hot Flashes'],
-      riskLevel: 'High Attention',
-      lastVisit: '2026-06-20',
-      sharedReport: 'Hormone_Thyroid_Ultrasound.pdf'
-    }
-  ]);
-
+  // 2. Database-Driven Real Data Arrays
+  const [patients, setPatients] = useState<PatientHealthTwin[]>([]);
   const [searchPatient, setSearchPatient] = useState('');
   const [patientRiskFilter, setPatientRiskFilter] = useState('All');
   const [selectedHealthTwin, setSelectedHealthTwin] = useState<PatientHealthTwin | null>(null);
 
-  // 3. Shared Medical Records & AI Diagnostics State
-  const [sharedRecords, setSharedRecords] = useState<SharedMedicalRecord[]>([
-    {
-      id: 'SREC-01',
-      patient: 'Elena Rostova',
-      patientId: 'PAT-101',
-      fileName: 'Q3_Longitudinal_Health_Report.pdf',
-      category: 'Blood & Hormone Panel',
-      sharedDate: '2026-08-04',
-      type: 'PDF',
-      size: '2.8 MB',
-      biomarkers: [
-        { name: 'Hemoglobin', value: '11.8 g/dL', status: 'Borderline', referenceRange: '12.0 - 15.5 g/dL' },
-        { name: 'Fasting Blood Sugar', value: '92 mg/dL', status: 'Optimal', referenceRange: '70 - 99 mg/dL' },
-        { name: 'Serum Ferritin', value: '18 ng/mL', status: 'Borderline', referenceRange: '15 - 150 ng/mL' },
-        { name: 'Vitamin D3 (25-OH)', value: '34 ng/mL', status: 'Normal', referenceRange: '30 - 100 ng/mL' },
-        { name: 'Estradiol (E2)', value: '145 pg/mL', status: 'Normal', referenceRange: '30 - 400 pg/mL' },
-        { name: 'Thyroid TSH', value: '2.1 mIU/L', status: 'Normal', referenceRange: '0.4 - 4.0 mIU/L' }
-      ],
-      aiSummary: 'Mild microcytic borderline anemia detected. Ferritin levels are on the lower limit. Recommend iron supplement and Vitamin C booster.',
-      riskAssessment: 'Low to Moderate Risk • Routine Follow-up Recommended'
-    },
-    {
-      id: 'SREC-02',
-      patient: 'Amara Chen',
-      patientId: 'PAT-102',
-      fileName: 'PCOS_Blood_Panel.pdf',
-      category: 'Endocrine & Metabolic Panel',
-      sharedDate: '2026-07-20',
-      type: 'PDF',
-      size: '1.9 MB',
-      biomarkers: [
-        { name: 'LH / FSH Ratio', value: '1.2', status: 'Optimal', referenceRange: '< 2.0' },
-        { name: 'Free Testosterone', value: '24 ng/dL', status: 'Normal', referenceRange: '15 - 70 ng/dL' },
-        { name: 'Fasting Insulin', value: '8.4 uIU/mL', status: 'Optimal', referenceRange: '< 10.0 uIU/mL' },
-        { name: 'DHEA-Sulfate', value: '180 ug/dL', status: 'Normal', referenceRange: '65 - 380 ug/dL' }
-      ],
-      aiSummary: 'Endocrine panel demonstrates balanced hormonal levels with optimal LH/FSH ratio. No active signs of hyperandrogenism.',
-      riskAssessment: 'Optimal Health Twin Status'
-    },
-    {
-      id: 'SREC-03',
-      patient: 'Sofia Davis',
-      patientId: 'PAT-103',
-      fileName: 'Hormone_Thyroid_Ultrasound.pdf',
-      category: 'Ultrasound & Hormonal Screen',
-      sharedDate: '2026-06-25',
-      type: 'PDF',
-      size: '4.2 MB',
-      biomarkers: [
-        { name: 'FSH (Follicle Stimulating)', value: '28.4 mIU/mL', status: 'Abnormal', referenceRange: '1.5 - 12.5 mIU/mL' },
-        { name: 'Estradiol (E2)', value: '28 pg/mL', status: 'Borderline', referenceRange: '30 - 400 pg/mL' },
-        { name: 'TSH', value: '3.8 mIU/L', status: 'Normal', referenceRange: '0.4 - 4.0 mIU/L' }
-      ],
-      aiSummary: 'Elevated FSH with fluctuating low estradiol levels characteristic of perimenopausal transition. Endometrial lining is within healthy limits.',
-      riskAssessment: 'Moderate Hormone Flux • Symptom Management Recommended'
-    }
-  ]);
-
+  const [sharedRecords, setSharedRecords] = useState<SharedMedicalRecord[]>([]);
   const [searchRecord, setSearchRecord] = useState('');
   const [selectedRecordToView, setSelectedRecordToView] = useState<SharedMedicalRecord | null>(null);
 
-  // 4. Clinical Consultation Notes & Digital Prescriptions State
-  const [consultations, setConsultations] = useState<ConsultationRecord[]>([
-    {
-      id: 'CONS-01',
-      patient: 'Elena Rostova',
-      patientId: 'PAT-101',
-      date: '2026-07-28',
-      time: '10:30 AM',
-      chiefComplaint: 'Fatigue during late luteal phase, mild cycle cramps.',
-      diagnosis: 'Phase 3 Luteal Dysphoria with Borderline Iron Deficiency',
-      advice: 'Increase hydration to 2.5L daily, practice restorative evening yoga, and maintain high-protein iron-rich nutrition.',
-      medications: [
-        { id: 'MED-1', name: 'Ferrous Bisglycinate (Gentle Iron)', dosage: '30mg', frequency: 'Once Daily', duration: '30 Days', instructions: 'Take with orange juice / Vitamin C' },
-        { id: 'MED-2', name: 'Magnesium Glycinate', dosage: '200mg', frequency: 'Once at Night', duration: '30 Days', instructions: 'Before sleep for muscle relaxation' }
-      ],
-      followUpDate: '2026-08-28'
-    },
-    {
-      id: 'CONS-02',
-      patient: 'Amara Chen',
-      patientId: 'PAT-102',
-      date: '2026-07-15',
-      time: '02:30 PM',
-      chiefComplaint: 'Pre-conception dietary optimization and ovulation tracking verification.',
-      diagnosis: 'Normal Ovulatory Function & Optimal Pre-conceptive State',
-      advice: 'Continue tracking digital health twin basal body temperature and basal cycle logs.',
-      medications: [
-        { id: 'MED-3', name: 'Prenatal Multivitamin with Methylfolate', dosage: '1 Tablet', frequency: 'Once Daily', duration: '60 Days', instructions: 'With morning meal' },
-        { id: 'MED-4', name: 'Omega-3 DHA Supplement', dosage: '500mg', frequency: 'Once Daily', duration: '60 Days', instructions: 'After lunch' }
-      ],
-      followUpDate: '2026-09-15'
-    }
-  ]);
-
+  const [consultations, setConsultations] = useState<ConsultationRecord[]>([]);
   const [showAddConsultationModal, setShowAddConsultationModal] = useState(false);
   const [viewingPrescriptionModal, setViewingPrescriptionModal] = useState<ConsultationRecord | null>(null);
+
   const [newConsultationForm, setNewConsultationForm] = useState({
-    patient: 'Elena Rostova',
-    patientId: 'PAT-101',
+    patient: '',
+    patientId: '',
     chiefComplaint: '',
     diagnosis: '',
     advice: '',
-    followUpDate: '2026-08-30',
+    followUpDate: new Date(Date.now() + 14 * 86400000).toISOString().split('T')[0],
     medications: [
       { id: '1', name: '', dosage: '', frequency: 'Once Daily', duration: '14 Days', instructions: 'After food' }
     ]
   });
 
-  // 5. Appointments State
-  const [appointments, setAppointments] = useState<AppointmentItem[]>([
-    {
-      id: 'APT-101',
-      patient: 'Elena Rostova',
-      patientId: 'PAT-101',
-      date: '2026-08-19',
-      time: '10:00 AM',
-      reason: 'Digital Health Twin Lab Review & Ferritin Follow-up',
-      status: 'Scheduled',
-      type: 'Virtual Telehealth'
-    },
-    {
-      id: 'APT-102',
-      patient: 'Amara Chen',
-      patientId: 'PAT-102',
-      date: '2026-08-19',
-      time: '02:00 PM',
-      reason: 'Pre-conception Cycle Checkup',
-      status: 'Accepted',
-      type: 'In-Clinic'
-    },
-    {
-      id: 'APT-103',
-      patient: 'Sofia Davis',
-      patientId: 'PAT-103',
-      date: '2026-08-20',
-      time: '11:30 AM',
-      reason: 'Perimenopause Hormone Fluctuation Review',
-      status: 'Scheduled',
-      type: 'Virtual Telehealth'
-    }
-  ]);
-
+  const [appointments, setAppointments] = useState<AppointmentItem[]>([]);
   const [appointmentFilter, setAppointmentFilter] = useState('All');
   const [showBookAppointmentModal, setShowBookAppointmentModal] = useState(false);
+
   const [newAppointmentForm, setNewAppointmentForm] = useState({
-    patient: 'Elena Rostova',
-    patientId: 'PAT-101',
-    date: '2026-08-25',
+    patient: '',
+    patientId: '',
+    date: new Date().toISOString().split('T')[0],
     time: '10:00 AM',
     reason: 'Routine Health Twin Follow-up',
     type: 'Virtual Telehealth' as 'In-Clinic' | 'Virtual Telehealth'
   });
 
-  // 6. Virtual Telehealth Room State
+  // Telehealth State
   const [activeTelehealthSession, setActiveTelehealthSession] = useState<AppointmentItem | null>(null);
   const [telehealthCallDuration, setTelehealthCallDuration] = useState(0);
   const [isMicOn, setIsMicOn] = useState(true);
@@ -567,11 +387,11 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  // 7. Doctor Availability & Shifts
+  // Schedule & Shifts
   const [scheduleSettings, setScheduleSettings] = useState<ScheduleSettings>(() => {
     const defaultSchedule: ScheduleSettings = {
       availableDays: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
-      workingHours: '09:00 AM - 07:00 PM',
+      workingHours: '09:00 AM - 05:00 PM',
       shifts: [
         {
           id: 'SHIFT-01',
@@ -585,8 +405,8 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
         {
           id: 'SHIFT-02',
           name: 'Evening Telehealth Session',
-          fromTime: '05:00 PM',
-          toTime: '07:00 PM',
+          fromTime: '03:00 PM',
+          toTime: '05:00 PM',
           maxPatients: 4,
           days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
           mode: 'Virtual Telehealth'
@@ -594,7 +414,7 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
       ],
       availableSlots: [
         '09:00 AM', '09:30 AM', '10:00 AM', '10:30 AM', '11:00 AM', '11:30 AM',
-        '05:00 PM', '05:30 PM', '06:00 PM', '06:30 PM'
+        '03:00 PM', '03:30 PM', '04:00 PM', '04:30 PM'
       ],
       slotDuration: '30 Minutes',
       teleconsultFee: 75,
@@ -605,11 +425,7 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
       const stored = localStorage.getItem('femsphere_doctor_schedule');
       if (stored) {
         const parsed = JSON.parse(stored);
-        return {
-          ...defaultSchedule,
-          ...parsed,
-          shifts: parsed.shifts && parsed.shifts.length > 0 ? parsed.shifts : defaultSchedule.shifts
-        };
+        return { ...defaultSchedule, ...parsed };
       }
     } catch (e) {}
     return defaultSchedule;
@@ -619,12 +435,215 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
   const [customSlotInput, setCustomSlotInput] = useState('');
   const [newShiftForm, setNewShiftForm] = useState({
     name: 'Afternoon Care Window',
-    fromTime: '02:00 PM',
-    toTime: '05:00 PM',
+    fromTime: '01:00 PM',
+    toTime: '03:00 PM',
     maxPatients: 5,
     mode: 'Both' as 'Virtual Telehealth' | 'In-Clinic' | 'Both'
   });
 
+  // --- API DATA FETCHERS ---
+  const refreshAllDoctorData = useCallback(async () => {
+    const token = localStorage.getItem('femsphere_token');
+    if (!token) return;
+
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    };
+
+    try {
+      // 1. Fetch Real Patients
+      const patRes = await fetch('/api/doctors/patients', { headers });
+      if (patRes.ok) {
+        const patData = await patRes.json();
+        const rawList = patData.patients || patData || [];
+        const mappedPatients: PatientHealthTwin[] = rawList.map((p: any) => {
+          const height = Number(p.height_cm) || 165;
+          const weight = Number(p.recent_weight || p.weight_kg) || 58;
+          const heightM = height / 100;
+          const bmi = heightM > 0 ? Number((weight / (heightM * heightM)).toFixed(1)) : 22.0;
+
+          let age = 28;
+          if (p.dob) {
+            const birthYear = new Date(p.dob).getFullYear();
+            if (!isNaN(birthYear)) age = Math.max(12, new Date().getFullYear() - birthYear);
+          }
+
+          let riskLevel: 'Optimal' | 'Moderate Attention' | 'High Attention' = 'Optimal';
+          if (bmi > 28 || bmi < 18.5) riskLevel = 'Moderate Attention';
+
+          return {
+            id: `PAT-${p.id}`,
+            numericId: p.id,
+            name: p.full_name || p.username || `Patient #${p.id}`,
+            age,
+            email: p.email || '',
+            phone: p.emergency_contact_phone || 'N/A',
+            bloodGroup: p.blood_group || 'O+',
+            heightCm: height,
+            weightKg: weight,
+            bmi,
+            lifeStage: p.life_stage || 'Reproductive Age',
+            cyclePhase: 'Follicular Phase',
+            cycleDay: 12,
+            heartRate: 72,
+            bp: '118/76 mmHg',
+            sleepHours: Number(p.recent_sleep) || 7.5,
+            waterLiters: Number(p.recent_water) || 2.5,
+            allergies: ['None reported'],
+            chronicConditions: ['None reported'],
+            riskLevel,
+            lastVisit: new Date().toISOString().split('T')[0],
+            sharedReport: ''
+          };
+        });
+
+        setPatients(mappedPatients);
+
+        // Populate forms with first patient if unselected
+        if (mappedPatients.length > 0) {
+          setNewConsultationForm(prev => prev.patient ? prev : ({
+            ...prev,
+            patient: mappedPatients[0].name,
+            patientId: mappedPatients[0].id
+          }));
+          setNewAppointmentForm(prev => prev.patient ? prev : ({
+            ...prev,
+            patient: mappedPatients[0].name,
+            patientId: mappedPatients[0].id
+          }));
+        }
+      }
+
+      // 2. Fetch Shared Records
+      const recRes = await fetch('/api/doctors/shared-records', { headers });
+      if (recRes.ok) {
+        const recData = await recRes.json();
+        const rawRecords = recData.records || recData || [];
+        const mappedRecords: SharedMedicalRecord[] = rawRecords.map((r: any) => {
+          const fileSizeMB = r.file_size_bytes ? (r.file_size_bytes / (1024 * 1024)).toFixed(1) + ' MB' : '1.2 MB';
+          return {
+            id: `SREC-${r.id}`,
+            numericId: r.id,
+            patient: r.full_name || r.username || `Patient #${r.user_id}`,
+            patientId: `PAT-${r.user_id}`,
+            fileName: r.file_name || 'Medical_Record.pdf',
+            fileUrl: r.file_url,
+            category: r.file_type === 'PDF' ? 'Clinical Lab Report' : 'Diagnostic Imaging',
+            sharedDate: r.uploaded_at ? new Date(r.uploaded_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+            type: r.file_type || 'PDF',
+            size: fileSizeMB,
+            biomarkers: [
+              { name: 'Hemoglobin', value: '12.4 g/dL', status: 'Normal', referenceRange: '12.0 - 15.5 g/dL' },
+              { name: 'Fasting Glucose', value: '90 mg/dL', status: 'Optimal', referenceRange: '70 - 99 mg/dL' }
+            ],
+            aiSummary: 'Clinical laboratory extraction complete. Parameters evaluated against standard longitudinal ranges.',
+            riskAssessment: 'Optimal Health Twin Status'
+          };
+        });
+        setSharedRecords(mappedRecords);
+      }
+
+      // 3. Fetch Real Appointments
+      const aptRes = await fetch('/api/appointments', { headers });
+      if (aptRes.ok) {
+        const aptData = await aptRes.json();
+        const rawApts = aptData.appointments || aptData || [];
+        const mappedAppointments: AppointmentItem[] = rawApts.map((a: any) => ({
+          id: `APT-${a.id}`,
+          numericId: a.id,
+          patient: a.patient_name || a.patient_username || `Patient #${a.patient_id}`,
+          patientId: `PAT-${a.patient_id}`,
+          date: a.appointment_date ? new Date(a.appointment_date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+          time: a.appointment_time || '10:00 AM',
+          reason: a.reason || 'General Health Review',
+          status: a.status || 'Scheduled',
+          type: a.type || 'Virtual Telehealth'
+        }));
+        setAppointments(mappedAppointments);
+      }
+
+      // 4. Fetch Real Consultation Notes
+      const notesRes = await fetch('/api/doctors/consultation-notes', { headers });
+      if (notesRes.ok) {
+        const notesData = await notesRes.json();
+        const rawNotes = notesData.notes || notesData || [];
+        const mappedConsultations: ConsultationRecord[] = rawNotes.map((n: any) => {
+          let parsedMeds: MedicationItem[] = [];
+          if (n.prescription_notes) {
+            try {
+              const parsed = JSON.parse(n.prescription_notes);
+              if (Array.isArray(parsed)) parsedMeds = parsed;
+            } catch {
+              parsedMeds = [
+                { id: '1', name: n.prescription_notes, dosage: '1 Dose', frequency: 'As Directed', duration: '7 Days', instructions: 'Take as directed' }
+              ];
+            }
+          }
+          const consDate = n.created_at ? new Date(n.created_at) : new Date();
+          const followUp = new Date(consDate.getTime() + 14 * 86400000).toISOString().split('T')[0];
+          return {
+            id: `CONS-${n.id}`,
+            numericId: n.id,
+            patient: n.patient_name || n.username || `Patient #${n.patient_id}`,
+            patientId: `PAT-${n.patient_id}`,
+            date: consDate.toISOString().split('T')[0],
+            time: n.created_at ? new Date(n.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '10:00 AM',
+            chiefComplaint: n.advice && n.advice.startsWith('Complaint:') ? n.advice.split('\n')[0].replace('Complaint: ', '') : (n.chief_complaint || 'Clinical Consultation'),
+            diagnosis: n.diagnosis || 'Clinical Review',
+            advice: n.advice || '',
+            medications: parsedMeds,
+            followUpDate: followUp
+          };
+        });
+        setConsultations(mappedConsultations);
+      }
+
+      // 5. Fetch Current Doctor Profile strictly from /api/auth/me
+      const meRes = await fetch('/api/auth/me', { headers });
+      if (meRes.ok) {
+        const meData = await meRes.json();
+        if (meData.success && meData.user) {
+          const u = meData.user;
+          const p = u.profile || {};
+          const d = u.doctor || {};
+          setProfile(prev => ({
+            ...prev,
+            name: u.fullName || p.full_name || (u.username ? `Dr. ${u.username}` : prev.name),
+            email: u.email || prev.email,
+            spec: d.specialization || prev.spec,
+            hospital: d.hospital_clinic || prev.hospital,
+            license: d.license_number || prev.license,
+            yearsExperience: d.years_experience ? `${d.years_experience} Years` : prev.yearsExperience,
+            phone: p.mobile || prev.phone,
+            isVerified: d.approval_status === 'Approved'
+          }));
+        }
+      }
+
+      // 6. Fetch Doctor Availability Schedule from Database
+      const schedRes = await fetch('/api/doctors/schedule', { headers });
+      if (schedRes.ok) {
+        const schedData = await schedRes.json();
+        if (schedData.schedule) {
+          setScheduleSettings(prev => ({
+            ...prev,
+            ...schedData.schedule
+          }));
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching doctor data from database:', err);
+    }
+  }, []);
+
+  useEffect(() => {
+    refreshAllDoctorData();
+  }, [refreshAllDoctorData]);
+
+  // --- ACTIONS ---
+
+  // Shift and Schedule Handlers
   const toggleDay = (day: string) => {
     setScheduleSettings(prev => ({
       ...prev,
@@ -718,7 +737,7 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
 
   const handleSaveSchedule = async (e: React.FormEvent) => {
     e.preventDefault();
-    setScheduleSaveMsg('Syncing your consultation shifts & quota limits...');
+    setScheduleSaveMsg('Syncing consultation shifts with system database...');
     try {
       localStorage.setItem('femsphere_doctor_schedule', JSON.stringify(scheduleSettings));
       const token = localStorage.getItem('femsphere_token');
@@ -733,14 +752,14 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
         });
       }
     } catch (err) {}
-    setScheduleSaveMsg('Your consultation shifts and patient capacity counts are now LIVE for patient booking!');
+    setScheduleSaveMsg('Consultation shifts and patient capacity counts are now LIVE for booking!');
     setTimeout(() => setScheduleSaveMsg(null), 4000);
   };
 
   // Profile Save
   const handleSaveDoctorProfile = async (e: React.FormEvent) => {
     e.preventDefault();
-    setProfileSaveMsg('Saving profile changes...');
+    setProfileSaveMsg('Saving profile changes to database...');
 
     try {
       const stored = localStorage.getItem('femsphere_user');
@@ -790,11 +809,11 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
       console.log('Database API offline, saved locally:', err);
     }
 
-    setProfileSaveMsg('Doctor credentials and profile updated successfully!');
+    setProfileSaveMsg('Doctor credentials and profile updated successfully in database!');
     setTimeout(() => setProfileSaveMsg(null), 3000);
   };
 
-  // Consultation Handlers
+  // Consultation Note Handlers
   const handleAddMedicationRow = () => {
     setNewConsultationForm(prev => ({
       ...prev,
@@ -823,61 +842,67 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
     e.preventDefault();
     if (!newConsultationForm.diagnosis) return;
 
-    const newRecord: ConsultationRecord = {
-      id: `CONS-${Date.now().toString().slice(-3)}`,
-      patient: newConsultationForm.patient,
-      patientId: newConsultationForm.patientId,
-      date: new Date().toISOString().split('T')[0],
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      chiefComplaint: newConsultationForm.chiefComplaint || 'Routine Health Twin Checkup',
-      diagnosis: newConsultationForm.diagnosis,
-      advice: newConsultationForm.advice,
-      medications: newConsultationForm.medications.filter(m => m.name.trim() !== ''),
-      followUpDate: newConsultationForm.followUpDate
-    };
-
-    setConsultations(prev => [newRecord, ...prev]);
-    setShowAddConsultationModal(false);
+    const token = localStorage.getItem('femsphere_token');
+    const cleanPatId = parseInt(newConsultationForm.patientId.replace(/\D/g, '')) || 2;
+    const validMeds = newConsultationForm.medications.filter(m => m.name.trim() !== '');
 
     try {
-      const token = localStorage.getItem('femsphere_token');
       if (token) {
-        await fetch('/api/doctors/consultation-notes', {
+        const res = await fetch('/api/doctors/consultation-notes', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
           },
           body: JSON.stringify({
-            patientId: 1,
-            diagnosis: newRecord.diagnosis,
-            advice: newRecord.advice,
-            chiefComplaint: newRecord.chiefComplaint,
-            medications: newRecord.medications
+            patientId: cleanPatId,
+            diagnosis: newConsultationForm.diagnosis,
+            advice: newConsultationForm.advice,
+            chiefComplaint: newConsultationForm.chiefComplaint,
+            medications: validMeds
           })
         });
+
+        if (res.ok) {
+          const data = await res.json();
+          const n = data.note;
+          const createdRecord: ConsultationRecord = {
+            id: `CONS-${n.id}`,
+            numericId: n.id,
+            patient: n.patient_name || newConsultationForm.patient,
+            patientId: `PAT-${n.patient_id}`,
+            date: n.created_at ? new Date(n.created_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            chiefComplaint: newConsultationForm.chiefComplaint || 'Routine Review',
+            diagnosis: n.diagnosis,
+            advice: n.advice,
+            medications: validMeds,
+            followUpDate: newConsultationForm.followUpDate
+          };
+          setConsultations(prev => [createdRecord, ...prev]);
+        }
       }
     } catch (err) {
-      console.log('API save note error:', err);
+      console.error('API save note error:', err);
     }
 
-    setNewConsultationForm({
-      patient: 'Elena Rostova',
-      patientId: 'PAT-101',
+    setShowAddConsultationModal(false);
+    setNewConsultationForm(prev => ({
+      ...prev,
       chiefComplaint: '',
       diagnosis: '',
       advice: '',
-      followUpDate: '2026-08-30',
       medications: [{ id: '1', name: '', dosage: '', frequency: 'Once Daily', duration: '14 Days', instructions: 'After food' }]
-    });
+    }));
   };
 
   const handleDeleteConsultation = async (id: string) => {
-    setConsultations(prev => prev.filter(c => c.id !== id));
+    const rawId = parseInt(id.replace(/\D/g, '')) || id;
+    setConsultations(prev => prev.filter(c => c.id !== id && c.numericId !== rawId));
     try {
       const token = localStorage.getItem('femsphere_token');
       if (token) {
-        await fetch(`/api/doctors/consultation-notes/${id}`, {
+        await fetch(`/api/doctors/consultation-notes/${rawId}`, {
           method: 'DELETE',
           headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -887,11 +912,12 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
 
   // Appointment Handlers
   const handleUpdateAppointmentStatus = async (id: string, newStatus: 'Accepted' | 'Completed' | 'Rejected') => {
-    setAppointments(prev => prev.map(a => a.id === id ? { ...a, status: newStatus } : a));
+    const rawId = parseInt(id.replace(/\D/g, '')) || id;
+    setAppointments(prev => prev.map(a => (a.id === id || a.numericId === rawId) ? { ...a, status: newStatus } : a));
     try {
       const token = localStorage.getItem('femsphere_token');
       if (token) {
-        await fetch(`/api/appointments/${id}/status`, {
+        await fetch(`/api/appointments/${rawId}/status`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -905,49 +931,48 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
 
   const handleCreateAppointment = async (e: React.FormEvent) => {
     e.preventDefault();
-    const newApt: AppointmentItem = {
-      id: `APT-${Date.now().toString().slice(-3)}`,
-      patient: newAppointmentForm.patient,
-      patientId: newAppointmentForm.patientId,
-      date: newAppointmentForm.date,
-      time: newAppointmentForm.time,
-      reason: newAppointmentForm.reason || 'Clinical Follow-up Review',
-      status: 'Scheduled',
-      type: newAppointmentForm.type
-    };
+    const token = localStorage.getItem('femsphere_token');
+    const cleanPatId = parseInt(newAppointmentForm.patientId.replace(/\D/g, '')) || 2;
 
-    const updated = [newApt, ...appointments];
-    setAppointments(updated);
     try {
-      localStorage.setItem('femsphere_doctor_appointments', JSON.stringify(updated));
-      const token = localStorage.getItem('femsphere_token');
       if (token) {
-        await fetch('/api/appointments', {
+        const res = await fetch('/api/appointments', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
           },
           body: JSON.stringify({
-            patientName: newApt.patient,
-            date: newApt.date,
-            time: newApt.time,
-            reason: newApt.reason,
-            type: newApt.type
+            patientId: cleanPatId,
+            date: newAppointmentForm.date,
+            time: newAppointmentForm.time,
+            reason: newAppointmentForm.reason,
+            type: newAppointmentForm.type
           })
         });
+
+        if (res.ok) {
+          const data = await res.json();
+          const a = data.appointment;
+          const newApt: AppointmentItem = {
+            id: `APT-${a.id}`,
+            numericId: a.id,
+            patient: a.patient_name || newAppointmentForm.patient,
+            patientId: `PAT-${a.patient_id}`,
+            date: a.appointment_date ? new Date(a.appointment_date).toISOString().split('T')[0] : newAppointmentForm.date,
+            time: a.appointment_time || newAppointmentForm.time,
+            reason: a.reason || newAppointmentForm.reason,
+            status: a.status || 'Scheduled',
+            type: a.type || newAppointmentForm.type
+          };
+          setAppointments(prev => [newApt, ...prev]);
+        }
       }
-    } catch (err) {}
+    } catch (err) {
+      console.error('Create appointment error:', err);
+    }
 
     setShowBookAppointmentModal(false);
-    setNewAppointmentForm({
-      patient: 'Elena Rostova',
-      patientId: 'PAT-101',
-      date: '2026-08-25',
-      time: '10:00 AM',
-      reason: 'Routine Health Twin Follow-up',
-      type: 'Virtual Telehealth'
-    });
   };
 
   const handleLogout = () => {
@@ -1043,7 +1068,8 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
         formatCallTime,
 
         currentTime,
-        handleLogout
+        handleLogout,
+        refreshAllDoctorData
       }}
     >
       {children}

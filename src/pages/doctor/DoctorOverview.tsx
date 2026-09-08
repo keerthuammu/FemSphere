@@ -11,12 +11,13 @@ export default function DoctorOverview() {
     patients,
     appointments,
     sharedRecords,
+    profile,
     setSelectedHealthTwin,
     setActiveTelehealthSession,
     setShowAddConsultationModal
   } = useDoctor();
 
-  const todayStr = '2026-08-19';
+  const todayStr = new Date().toISOString().split('T')[0];
   const todayAppointments = appointments.filter(a => a.date === todayStr || a.status === 'Scheduled');
   const highRiskPatients = patients.filter(p => p.riskLevel === 'High Attention' || p.riskLevel === 'Moderate Attention');
 
@@ -95,7 +96,7 @@ export default function DoctorOverview() {
               <Award className="w-4 h-4" />
             </div>
           </div>
-          <h3 className="text-3xl font-serif font-bold text-[#3a3135] mt-3">4.9 / 5.0</h3>
+          <h3 className="text-3xl font-serif font-bold text-[#3a3135] mt-3">{profile.rating || '5.0 / 5.0'}</h3>
           <p className="text-xs text-emerald-600 font-bold mt-1">Top rated clinical care</p>
         </div>
       </div>
@@ -157,31 +158,37 @@ export default function DoctorOverview() {
             </Link>
           </div>
 
-          <div className="space-y-3">
-            {highRiskPatients.map((p) => (
-              <div key={p.id} className="p-4 rounded-2xl border border-[#EDE9FE] bg-[#FAF8FC] flex items-center justify-between gap-3 text-xs">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <h4 className="font-bold text-sm text-[#3a3135]">{p.name}</h4>
-                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                      p.riskLevel === 'High Attention' ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800'
-                    }`}>
-                      {p.riskLevel}
-                    </span>
+          {highRiskPatients.length === 0 ? (
+            <div className="p-8 text-center bg-[#FAF8FC] rounded-2xl border border-dashed border-[#EDE9FE]">
+              <p className="text-xs text-emerald-700 font-semibold">All connected patient health twins are within optimal parameters.</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {highRiskPatients.map((p) => (
+                <div key={p.id} className="p-4 rounded-2xl border border-[#EDE9FE] bg-[#FAF8FC] flex items-center justify-between gap-3 text-xs">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-bold text-sm text-[#3a3135]">{p.name}</h4>
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                        p.riskLevel === 'High Attention' ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800'
+                      }`}>
+                        {p.riskLevel}
+                      </span>
+                    </div>
+                    <p className="text-[#7a6f75]">{p.lifeStage} • BP: {p.bp}</p>
+                    <p className="text-[11px] text-purple-600 font-medium">Cycle: {p.cyclePhase}</p>
                   </div>
-                  <p className="text-[#7a6f75]">{p.lifeStage} • BP: {p.bp}</p>
-                  <p className="text-[11px] text-purple-600 font-medium">Cycle: {p.cyclePhase}</p>
-                </div>
 
-                <button
-                  onClick={() => setSelectedHealthTwin(p)}
-                  className="px-3 py-1.5 bg-white border border-[#EDE9FE] hover:bg-purple-50 text-[#7C3AED] font-bold rounded-xl flex items-center gap-1 cursor-pointer transition-colors shadow-2xs"
-                >
-                  <Activity className="w-3.5 h-3.5" /> Twin
-                </button>
-              </div>
-            ))}
-          </div>
+                  <button
+                    onClick={() => setSelectedHealthTwin(p)}
+                    className="px-3 py-1.5 bg-white border border-[#EDE9FE] hover:bg-purple-50 text-[#7C3AED] font-bold rounded-xl flex items-center gap-1 cursor-pointer transition-colors shadow-2xs"
+                  >
+                    <Activity className="w-3.5 h-3.5" /> Twin
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

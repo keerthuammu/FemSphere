@@ -10,7 +10,10 @@ export const getAppointments = async (req, res) => {
 
     if (role === 'Doctor') {
       const doc = await pool.query('SELECT id FROM doctors WHERE user_id = $1', [userId]);
-      const doctorId = doc.rows[0]?.id || 1;
+      if (doc.rows.length === 0) {
+        return res.json({ success: true, appointments: [] });
+      }
+      const doctorId = doc.rows[0].id;
       query = `
         SELECT a.*, u.username as patient_username, p.full_name as patient_name
         FROM appointments a
@@ -41,6 +44,7 @@ export const getAppointments = async (req, res) => {
 export const createAppointment = async (req, res) => {
   try {
     const userId = req.user.id;
+    const role = req.user.role;
     const { 
       doctorId, 
       patientId, 
@@ -54,25 +58,47 @@ export const createAppointment = async (req, res) => {
       type 
     } = req.body;
 
-    const finalPatientId = patientId || userId;
-    const finalDoctorId = doctorId || 1;
-    const finalDate = appointmentDate || date || '2026-08-25';
+    let finalPatientId;
+    let finalDoctorId;
+
+    if (role === 'Doctor') {
+      const doc = await pool.query('SELECT id FROM doctors WHERE user_id = $1', [userId]);
+      if (doc.rows.length === 0) {
+        return res.status(404).json({ success: false, message: 'Doctor profile not found in database.' });
+      }
+      finalDoctorId = doc.rows[0].id;
+      finalPatientId = parseInt(String(patientId).replace(/\D/g, ''));
+    } else {
+      finalPatientId = userId;
+      finalDoctorId = parseInt(String(doctorId).replace(/\D/g, '')) || 1;
+    }
+
+    const finalDate = appointmentDate || date || new Date().toISOString().split('T')[0];
     const finalTime = appointmentTime || time || '10:00 AM';
     const finalReason = reason || 'Regular Health Twin Consultation';
 
     const result = await pool.query(
       `INSERT INTO appointments (patient_id, doctor_id, appointment_date, appointment_time, reason, status)
-       VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-      [finalPatientId, finalDoctorId, finalDate, finalTime, finalReason, 'Scheduled']
+       VALUES ($1, $2, $3, $4, $5, 'Scheduled')
+       ON CONFLICT (doctor_id, appointment_date, appointment_time)
+       DO UPDATE SET reason = EXCLUDED.reason, status = 'Scheduled'
+       RETURNING *`,
+      [finalPatientId, finalDoctorId, finalDate, finalTime, finalReason]
     );
+
+    const joined = await pool.query(`
+      SELECT a.*, u.username as patient_username, p.full_name as patient_name
+      FROM appointments a
+      JOIN users u ON a.patient_id = u.id
+      LEFT JOIN user_profiles p ON u.id = p.user_id
+      WHERE a.id = $1
+    `, [result.rows[0].id]);
 
     res.status(201).json({ 
       success: true, 
       message: 'Appointment scheduled successfully.',
       appointment: {
-        ...result.rows[0],
-        doctor: doctorName || 'Dr. Sarah Jenkins (OB/GYN)',
-        patient: patientName || 'Patient',
+        ...joined.rows[0],
         type: type || 'Virtual Telehealth'
       }
     });

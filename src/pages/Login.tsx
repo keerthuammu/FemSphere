@@ -11,13 +11,17 @@ export default function Login() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const navigateRoleDashboard = (targetRole: string, userEmail: string) => {
+  const navigateRoleDashboard = (targetRole: string, userEmail: string, userData?: any) => {
     if (userEmail.toLowerCase().includes('admin') || targetRole === 'Administrator' || targetRole === 'Admin (Superuser)') {
       navigate('/admin');
     } else if (targetRole === 'Caregiver') {
       navigate('/caregiver-dashboard');
     } else if (targetRole === 'Doctor') {
-      navigate('/doctor-dashboard');
+      if (userData?.doctor?.approval_status !== 'Approved') {
+        navigate('/doctor-pending');
+      } else {
+        navigate('/doctor-dashboard');
+      }
     } else {
       navigate('/dashboard');
     }
@@ -47,7 +51,7 @@ export default function Login() {
       localStorage.setItem('femsphere_token', data.token);
       localStorage.setItem('femsphere_user', JSON.stringify(data.user));
 
-      navigateRoleDashboard(data.user.role, data.user.email);
+      navigateRoleDashboard(data.user.role, data.user.email, data.user);
     } catch (err: any) {
       setErrorMsg('Unable to reach the server. Please check your connection and try again.');
     } finally {

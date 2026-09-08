@@ -21,7 +21,7 @@ router.get('/shared-records', authenticateToken, getSharedPatientRecords);
 router.get('/consultation-notes', authenticateToken, getConsultationNotes);
 router.post('/consultation-notes', authenticateToken, createConsultationNote);
 router.delete('/consultation-notes/:id', authenticateToken, deleteConsultationNote);
-router.get('/schedule', getDoctorSchedule);
+router.get('/schedule', authenticateToken, getDoctorSchedule);
 router.put('/schedule', authenticateToken, updateDoctorSchedule);
 
 export default router;
