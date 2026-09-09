@@ -11,6 +11,10 @@ export default function Login() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  const isEmailValid = (val: string): boolean => {
+    return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(val.trim());
+  };
+
   const navigateRoleDashboard = (targetRole: string, userEmail: string, userData?: any) => {
     if (userEmail.toLowerCase().includes('admin') || targetRole === 'Administrator' || targetRole === 'Admin (Superuser)') {
       navigate('/admin');
@@ -107,9 +111,18 @@ export default function Login() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="hello@example.com" 
-                className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none transition-all text-sm" 
+                className={`w-full px-4 py-3 rounded-xl border ${
+                  email.trim() && !isEmailValid(email)
+                    ? 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-100'
+                    : 'border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100'
+                } outline-none transition-all text-sm`} 
                 required 
               />
+              {email.trim() && !isEmailValid(email) && (
+                <p className="text-xs mt-1.5 font-medium text-red-500">
+                  Invalid email
+                </p>
+              )}
             </div>
             <div>
               <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1.5">Password</label>

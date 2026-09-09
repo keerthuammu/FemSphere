@@ -101,6 +101,10 @@ export default function Register() {
 
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+  const isEmailValid = (val: string): boolean => {
+    return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(val.trim());
+  };
+
   const validateCurrentStep = (currentStep: number): boolean => {
     setErrorMsg(null);
 
@@ -133,6 +137,10 @@ export default function Register() {
       }
       if (!formData.email.trim()) {
         setErrorMsg('Please enter your Email Address.');
+        return false;
+      }
+      if (!isEmailValid(formData.email)) {
+        setErrorMsg('Please enter a valid Email Address.');
         return false;
       }
       if (!formData.address.trim()) {
@@ -654,11 +662,20 @@ export default function Register() {
                     type="email" 
                     name="email" 
                     value={formData.email} 
-                    onChange={handleChange}
+                    onChange={handleChange} 
                     placeholder="e.g. elena.rostova@femsphere.health" 
-                    className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
+                    className={`w-full px-4 py-3 rounded-xl border ${
+                      formData.email.trim() && !isEmailValid(formData.email)
+                        ? 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-100'
+                        : 'border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100'
+                    } outline-none text-sm transition-all`} 
                     required 
                   />
+                  {formData.email.trim() && !isEmailValid(formData.email) && (
+                    <p className="text-xs mt-1.5 font-medium text-red-500">
+                      Invalid email
+                    </p>
+                  )}
                 </div>
 
                 {/* Street Address */}
