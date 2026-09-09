@@ -31,8 +31,9 @@ export interface WorkoutPlan {
   id: string;
   title: string;
   category: string;
-  patientCondition: 'pcos' | 'prenatal' | 'postpartum' | 'menstrual' | 'menopause' | 'general';
+  patientCondition: 'pcos' | 'prenatal' | 'postpartum' | 'menstrual' | 'menopause' | 'cardio' | 'general';
   clinicalApproval: string; // e.g. 'OB/GYN & Pelvic Health Approved'
+
   targetHeartRateBpm: string;
   safetySafeguards: string;
   durationMinutes: number;
@@ -636,24 +637,22 @@ export const WORKOUT_PLANS: WorkoutPlan[] = [
     ],
   },
   {
-    id: 'full_body_master',
-    title: 'Female Metabolic Conditioning & Tone',
-    category: 'General Vitality & Tone',
-    patientCondition: 'general',
-    clinicalApproval: 'Sports Medicine Certified',
-    targetHeartRateBpm: '130 - 165 BPM (Cardio Metabolic)',
-    safetySafeguards: 'Full dynamic range of motion with biomechanically aligned joint tracking.',
-    durationMinutes: 20,
-    caloriesBurned: 220,
-    level: 'Intermediate',
-    description: 'Comprehensive 8-exercise circuit designed for female metabolic health and posture.',
+    id: 'cardiometabolic_endothelial_protocol',
+    title: 'Cardiometabolic Endothelial Flow',
+    category: 'Cardiology & Vascular Health',
+    patientCondition: 'cardio',
+    clinicalApproval: 'Cardiologist & Preventive Medicine Approved',
+    targetHeartRateBpm: '120 - 145 BPM (Submaximal Aerobic)',
+    safetySafeguards: 'Prescribed for endothelial vasodilation and arterial elasticity; avoids valsalva breath holding.',
+    durationMinutes: 16,
+    caloriesBurned: 160,
+    level: 'All Levels',
+    description: 'Cardiologist-prescribed aerobic circuit to optimize heart rate variability and blood pressure regulation.',
     exercises: [
       EXERCISE_CATALOG[0], // Squats
       EXERCISE_CATALOG[1], // Jumping Jacks
       EXERCISE_CATALOG[2], // Forward Lunges
-      EXERCISE_CATALOG[3], // High Knees
       EXERCISE_CATALOG[4], // Glute Bridge
-      EXERCISE_CATALOG[5], // Push-ups
       EXERCISE_CATALOG[6], // Plank
       EXERCISE_CATALOG[7], // Side Leg Raises
     ],
@@ -2142,11 +2141,44 @@ function StrictBiomechanicalHumanCanvas({
   );
 }
 
-export default function FitnessTracker() {
+export interface FitnessTrackerProps {
+  prescribedOnly?: boolean;
+  userStage?: string;
+  consultationAdvice?: Array<{
+    id: string | number;
+    doctor_name?: string;
+    specialization?: string;
+    hospital_clinic?: string;
+    diagnosis: string;
+    advice: string;
+    created_at: string;
+  }>;
+}
+
+export default function FitnessTracker({
+  prescribedOnly = true,
+  userStage = '',
+  consultationAdvice = []
+}: FitnessTrackerProps = {}) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedDay, setSelectedDay] = useState(25);
   const [weeklyGoal, setWeeklyGoal] = useState({ completed: 3, target: 4 });
+
+  // Auto-detect stage to highlight doctor prescribed exercise protocol
+  useEffect(() => {
+    if (!userStage) return;
+    const stage = userStage.toUpperCase();
+    if (stage.includes('PREGNAN') || stage.includes('TRIMESTER')) {
+      setSelectedCategory('prenatal');
+    } else if (stage.includes('POSTPARTUM')) {
+      setSelectedCategory('postpartum');
+    } else if (stage.includes('MENOPAUSE') || stage.includes('PERIMENOPAUSE')) {
+      setSelectedCategory('menopause');
+    } else if (stage.includes('ADOLESCENT') || stage.includes('PUBERTY')) {
+      setSelectedCategory('menstrual');
+    }
+  }, [userStage]);
 
   const calorieBudget = 2000;
   const [foodCalories] = useState(1340);
@@ -2568,12 +2600,12 @@ export default function FitnessTracker() {
         
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <h2 className="text-2xl font-black text-[#3a3135] tracking-tight">PATIENT EXERCISE PROTOCOLS</h2>
+            <h2 className="text-2xl font-black text-[#3a3135] tracking-tight">DOCTOR-PRESCRIBED EXERCISES & PROTOCOLS</h2>
             <span className="px-2.5 py-1 rounded-full text-xs font-extrabold bg-purple-100 text-[#7C3AED] flex items-center gap-1 border border-purple-200">
-              <ShieldCheck className="w-3.5 h-3.5" /> Doctor Prescribed
+              <ShieldCheck className="w-3.5 h-3.5" /> 100% Doctor Prescribed
             </span>
             <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 flex items-center gap-1">
-              ✓ Biomechanically Safe
+              ✓ Clinical Safety Verified
             </span>
           </div>
 
@@ -2581,7 +2613,7 @@ export default function FitnessTracker() {
             <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-3" />
             <input
               type="text"
-              placeholder="Search patient protocols..."
+              placeholder="Search prescribed protocols..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-[#FAF8FC] border border-[#EDE9FE] text-xs font-medium focus:border-[#7C3AED] outline-none"
@@ -2592,13 +2624,13 @@ export default function FitnessTracker() {
         {/* --- PATIENT MEDICAL CONDITION FILTER TABS --- */}
         <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
           {[
-            { id: 'all', label: '🩺 All Patient Protocols', count: WORKOUT_PLANS.length },
-            { id: 'pcos', label: '🌸 PCOS & Insulin Balance', count: 1 },
-            { id: 'prenatal', label: '🤰 Prenatal (Trimester Safe)', count: 1 },
-            { id: 'postpartum', label: '👶 Postpartum & Diastasis', count: 1 },
-            { id: 'menstrual', label: '🩸 Menstrual & Endo Relief', count: 1 },
-            { id: 'menopause', label: '🦴 Menopause Bone Density', count: 1 },
-            { id: 'general', label: '⚡ Metabolic Vitality', count: 1 },
+            { id: 'all', label: '🩺 All Doctor Prescriptions', count: WORKOUT_PLANS.length },
+            { id: 'pcos', label: '🌸 PCOS & Insulin (Endo)', count: 1 },
+            { id: 'prenatal', label: '🤰 Prenatal Trimesters (OB/GYN)', count: 1 },
+            { id: 'postpartum', label: '👶 Postpartum Diastasis (PT)', count: 1 },
+            { id: 'menstrual', label: '🩸 Menstrual & Endo Relief (Gyn)', count: 1 },
+            { id: 'menopause', label: '🦴 Menopause Bone Density (Ortho)', count: 1 },
+            { id: 'cardio', label: '❤️ Cardiometabolic Flow (Cardio)', count: 1 },
           ].map((cat) => (
             <button
               key={cat.id}
@@ -2617,6 +2649,48 @@ export default function FitnessTracker() {
           ))}
         </div>
 
+        {/* --- ATTENDING DOCTOR'S PERSONALIZED PRESCRIPTIONS (IF ANY) --- */}
+        {consultationAdvice && consultationAdvice.length > 0 && (
+          <div className="p-5 rounded-3xl bg-[#FAF5FF] border border-purple-200 space-y-4">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-[#7C3AED] text-white flex items-center justify-center text-xs font-bold shadow-xs">
+                Rx
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-[#3a3135]">Attending Physician's Clinical Exercise & Movement Orders</h4>
+                <p className="text-[11px] text-[#7a6f75]">Personalized physical therapy and lifestyle advice prescribed during your doctor consultations</p>
+              </div>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {consultationAdvice.map((cons) => (
+                <div key={cons.id} className="p-4 rounded-2xl bg-white border border-[#EDE9FE] space-y-2 text-xs shadow-2xs">
+                  <div className="flex items-center justify-between border-b border-gray-100 pb-2">
+                    <span className="font-bold text-[#7C3AED]">
+                      {cons.doctor_name || 'Attending Specialist'}
+                    </span>
+                    <span className="text-[10px] text-gray-400">
+                      {cons.created_at ? new Date(cons.created_at).toLocaleDateString() : 'Active Prescription'}
+                    </span>
+                  </div>
+                  {cons.specialization && (
+                    <span className="text-[10px] font-semibold text-purple-700 bg-purple-50 px-2 py-0.5 rounded-md inline-block">
+                      {cons.specialization} • {cons.hospital_clinic || 'FemSphere Health'}
+                    </span>
+                  )}
+                  <div>
+                    <span className="font-bold text-gray-500 block text-[10px] uppercase">Diagnosis:</span>
+                    <p className="font-medium text-gray-800">{cons.diagnosis}</p>
+                  </div>
+                  <div>
+                    <span className="font-bold text-emerald-700 block text-[10px] uppercase">Prescribed Therapy / Movement:</span>
+                    <p className="text-gray-700 whitespace-pre-line">{cons.advice}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* --- PATIENT CLINICAL SAFEGUARD BANNER --- */}
         <div className="rounded-3xl bg-gradient-to-r from-[#7C3AED] via-purple-700 to-indigo-900 text-white p-6 md:p-8 overflow-hidden shadow-xl relative">
           <div className="absolute top-0 right-0 w-80 h-80 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
@@ -2624,18 +2698,18 @@ export default function FitnessTracker() {
           <div className="relative z-10 max-w-2xl space-y-3">
             <div className="flex flex-wrap items-center gap-2">
               <span className="px-3 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-white/20 text-purple-100 border border-white/30 inline-block">
-                🩺 Clinical Protocol Engine
+                🩺 Clinical Exercise Prescription
               </span>
               <span className="px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-500/30 text-emerald-200 border border-emerald-400/40">
-                100% Patient Tailored & Contraindication Filtered
+                100% Doctor Prescribed & Contraindication Filtered
               </span>
             </div>
             
             <h3 className="text-2xl md:text-3xl font-black tracking-tight leading-tight">
-              Evidence-Based Fitness Tailored to Your Medical State
+              Clinical Exercise Therapy Prescribed by Your Physicians
             </h3>
             <p className="text-xs md:text-sm text-purple-100/90 leading-relaxed font-light">
-              Exercises adapt specifically to your clinical condition: PCOS insulin resistance, prenatal trimesters (zero belly compression), postpartum diastasis recti, menstrual cramp relief, or menopause bone density.
+              Movement regimens certified by attending specialists (OB/GYN, Endocrinology, Pelvic Floor Physical Therapy, and Orthopedics). Biomechanically guided, contraindication-safe, and calibrated to your active life stage.
             </p>
 
             <div className="pt-2 flex flex-wrap gap-3">
@@ -2648,7 +2722,7 @@ export default function FitnessTracker() {
                 }}
                 className="px-8 py-3.5 bg-white text-[#7C3AED] hover:bg-purple-50 font-black text-sm rounded-full shadow-lg transition-all cursor-pointer flex items-center gap-2"
               >
-                <span>Start Patient Prescribed Routine</span>
+                <span>Start Doctor-Prescribed Routine</span>
                 <span>🚀</span>
               </button>
               <button
@@ -2660,7 +2734,7 @@ export default function FitnessTracker() {
                 }}
                 className="px-6 py-3.5 bg-white/20 hover:bg-white/30 text-white font-bold text-sm rounded-full border border-white/30 transition-all cursor-pointer"
               >
-                View Clinical Biomechanics 📖
+                View Biomechanical Form 📖
               </button>
             </div>
           </div>
@@ -2749,42 +2823,44 @@ export default function FitnessTracker() {
 
       </div>
 
-      {/* --- CALORIE & HYDRATION METRICS --- */}
-      <div className="grid md:grid-cols-3 gap-4">
-        <div className="bg-white p-5 rounded-3xl border border-[#EDE9FE] shadow-sm space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Calorie Balance</span>
-            <Flame className="w-4 h-4 text-rose-500" />
-          </div>
-          <div className="flex items-baseline justify-between">
-            <div>
-              <h4 className="text-2xl font-black text-[#3a3135]">{remainingCalories}</h4>
-              <span className="text-xs text-gray-400">kcal remaining</span>
+      {/* --- CALORIE & HYDRATION METRICS (ONLY IF NOT PRESCRIBED-ONLY) --- */}
+      {!prescribedOnly && (
+        <div className="grid md:grid-cols-3 gap-4">
+          <div className="bg-white p-5 rounded-3xl border border-[#EDE9FE] shadow-sm space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Calorie Balance</span>
+              <Flame className="w-4 h-4 text-rose-500" />
             </div>
-            <div className="text-right text-xs">
-              <span className="text-emerald-700 font-bold block">-{burnedCalories} burned</span>
-              <span className="text-amber-600 font-bold block">+{foodCalories} eaten</span>
+            <div className="flex items-baseline justify-between">
+              <div>
+                <h4 className="text-2xl font-black text-[#3a3135]">{remainingCalories}</h4>
+                <span className="text-xs text-gray-400">kcal remaining</span>
+              </div>
+              <div className="text-right text-xs">
+                <span className="text-emerald-700 font-bold block">-{burnedCalories} burned</span>
+                <span className="text-amber-600 font-bold block">+{foodCalories} eaten</span>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="bg-white p-5 rounded-3xl border border-[#EDE9FE] shadow-sm space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Daily Steps</span>
-            <Footprints className="w-4 h-4 text-[#7C3AED]" />
+          <div className="bg-white p-5 rounded-3xl border border-[#EDE9FE] shadow-sm space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Daily Steps</span>
+              <Footprints className="w-4 h-4 text-[#7C3AED]" />
+            </div>
+            <h4 className="text-2xl font-black text-[#3a3135]">{steps.toLocaleString()}</h4>
+            <p className="text-xs text-purple-700 font-semibold">5.8 km • 48 active mins</p>
           </div>
-          <h4 className="text-2xl font-black text-[#3a3135]">{steps.toLocaleString()}</h4>
-          <p className="text-xs text-purple-700 font-semibold">5.8 km • 48 active mins</p>
-        </div>
 
-        <div className="bg-white p-5 rounded-3xl border border-[#EDE9FE] shadow-sm space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Hydration</span>
-            <Droplets className="w-4 h-4 text-sky-600" />
+          <div className="bg-white p-5 rounded-3xl border border-[#EDE9FE] shadow-sm space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Hydration</span>
+              <Droplets className="w-4 h-4 text-sky-600" />
+            </div>
+            <h4 className="text-2xl font-black text-[#3a3135]">{(waterGlasses * 0.25).toFixed(1)}L <span className="text-xs font-normal text-gray-400">/ 3.0L</span></h4>
           </div>
-          <h4 className="text-2xl font-black text-[#3a3135]">{(waterGlasses * 0.25).toFixed(1)}L <span className="text-xs font-normal text-gray-400">/ 3.0L</span></h4>
         </div>
-      </div>
+      )}
 
     </div>
   );

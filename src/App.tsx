@@ -3,9 +3,22 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import Dashboard from './pages/Dashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import CaregiverDashboard from './pages/CaregiverDashboard';
+
+// User (Female) / Myself Sub-Pages & Layout
+import { UserProvider } from './context/UserContext';
+import UserLayout from './pages/user/UserLayout';
+import UserOverview from './pages/user/UserOverview';
+import UserRecords from './pages/user/UserRecords';
+import UserTracker from './pages/user/UserTracker';
+import UserAppointments from './pages/user/UserAppointments';
+import UserReports from './pages/user/UserReports';
+import UserFitness from './pages/user/UserFitness';
+import UserPartner from './pages/user/UserPartner';
+import UserNotifications from './pages/user/UserNotifications';
+import UserProfilePage from './pages/user/UserProfilePage';
+import UserSettings from './pages/user/UserSettings';
 
 // Admin Sub-Pages & Layout
 import { AdminProvider } from './context/AdminContext';
@@ -115,15 +128,28 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        {/* User (Female) / Myself dashboard */}
+        {/* User (Female) / Myself dashboard with nested modular sub-routes */}
         <Route
           path="/dashboard"
           element={
             <RoleProtectedRoute allowedRoles={['Myself', 'User (Female)']}>
-              <Dashboard />
+              <UserProvider>
+                <UserLayout />
+              </UserProvider>
             </RoleProtectedRoute>
           }
-        />
+        >
+          <Route index element={<UserOverview />} />
+          <Route path="records" element={<UserRecords />} />
+          <Route path="tracker" element={<UserTracker />} />
+          <Route path="appointments" element={<UserAppointments />} />
+          <Route path="reports" element={<UserReports />} />
+          <Route path="fitness" element={<UserFitness />} />
+          <Route path="partner" element={<UserPartner />} />
+          <Route path="notifications" element={<UserNotifications />} />
+          <Route path="profile" element={<UserProfilePage />} />
+          <Route path="settings" element={<UserSettings />} />
+        </Route>
 
         {/* Admin dashboard with nested modular sub-routes */}
         <Route

@@ -161,3 +161,100 @@ export const updateUserProfile = async (req, res) => {
     res.status(500).json({ success: false, message: 'Database error updating profile: ' + err.message });
   }
 };
+
+// ==============================================================================
+// NOTIFICATIONS CONTROLLER
+// ==============================================================================
+
+export const getUserNotifications = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const result = await pool.query(
+      'SELECT * FROM notifications WHERE user_id = $1 ORDER BY created_at DESC LIMIT 50',
+      [userId]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+export const createNotification = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { title, message, type } = req.body;
+
+    const result = await pool.query(
+      `INSERT INTO notifications (user_id, title, message, type)
+       VALUES ($1, $2, $3, $4) RETURNING *`,
+      [userId, title || 'System Update', message || 'New alert received.', type || 'system']
+    );
+
+    res.status(201).json({ success: true, notification: result.rows[0] });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+export const markNotificationAsRead = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { id } = req.params;
+
+    const result = await pool.query(
+      'UPDATE notifications SET is_read = TRUE WHERE id = $1 AND user_id = $2 RETURNING *',
+      [id, userId]
+    );
+
+    res.json({ success: true, notification: result.rows[0] });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+export const markAllNotificationsAsRead = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    await pool.query('UPDATE notifications SET is_read = TRUE WHERE user_id = $1', [userId]);
+    res.json({ success: true, message: 'All notifications marked as read.' });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+export const deleteNotification = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { id } = req.params;
+    await pool.query('DELETE FROM notifications WHERE id = $1 AND user_id = $2', [id, userId]);
+    res.json({ success: true, message: 'Notification deleted successfully.' });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// ==============================================================================
+// USER CONSULTATIONS & DOCTOR PRESCRIPTION ADVICE
+// ==============================================================================
+
+export const getUserConsultationNotes = async (req, res) => {
+  try {
+    const patientUserId = req.user.id;
+    const notes = await pool.query(
+      `SELECT c.*, d.specialization, d.hospital_clinic, d.license_number,
+              u.username as doctor_username, p.full_name as doctor_name
+       FROM consultation_notes c
+       JOIN doctors d ON c.doctor_id = d.id
+       JOIN users u ON d.user_id = u.id
+       LEFT JOIN user_profiles p ON u.id = p.user_id
+       WHERE c.patient_id = $1
+       ORDER BY c.created_at DESC`,
+      [patientUserId]
+    );
+    res.json({ success: true, notes: notes.rows });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+
