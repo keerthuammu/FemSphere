@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Sparkles, Heart, Dna, Brain, Moon } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import heroImg from '../assets/images/healthcare_hero_1785261756891.jpeg';
+import { isValidEmail } from '../utils/validation';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -10,10 +11,6 @@ export default function Login() {
 
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-
-  const isEmailValid = (val: string): boolean => {
-    return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(val.trim());
-  };
 
   const navigateRoleDashboard = (targetRole: string, userEmail: string, userData?: any) => {
     if (userEmail.toLowerCase().includes('admin') || targetRole === 'Administrator' || targetRole === 'Admin (Superuser)') {
@@ -34,6 +31,17 @@ export default function Login() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
+
+    if (!isValidEmail(email)) {
+      setErrorMsg('Please enter a valid email address.');
+      return;
+    }
+
+    if (password.length < 6) {
+      setErrorMsg('Password must be at least 6 characters long.');
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -68,21 +76,8 @@ export default function Login() {
       <div className="max-w-5xl w-full bg-white rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col md:flex-row border border-[#EDE9FE]">
         
         {/* Left Side - Illustration */}
-        <div className="md:w-1/2 relative hidden md:block bg-gradient-to-br from-[#EDE9FE] to-[#FCE7F3] p-12">
-          <div className="absolute inset-0">
-            <img src={heroImg} alt="Health Twin" className="w-full h-full object-cover opacity-30 mix-blend-multiply" />
-          </div>
-          
-          <div className="relative z-10 h-full flex flex-col justify-center text-center">
-             {/* Floating Icons */}
-             <Heart className="absolute top-10 left-10 w-8 h-8 text-[#F472B6] animate-bounce" style={{animationDuration: '3s'}} />
-             <Dna className="absolute top-20 right-20 w-8 h-8 text-[#7C3AED] animate-bounce" style={{animationDuration: '4s'}} />
-             <Brain className="absolute bottom-20 left-20 w-8 h-8 text-[#14B8A6] animate-bounce" style={{animationDuration: '3.5s'}} />
-             <Moon className="absolute bottom-10 right-10 w-8 h-8 text-[#6366F1] animate-bounce" style={{animationDuration: '4.5s'}} />
-
-             <h2 className="font-serif text-4xl text-[#3a3135] mb-4">Welcome back to <br/><span className="text-[#7C3AED]">FemSphere</span></h2>
-             <p className="text-[#64595e] font-light">Your personalized women's health intelligence platform.</p>
-          </div>
+        <div className="md:w-1/2 relative hidden md:block">
+          <img src={heroImg} alt="Health Twin" className="w-full h-full object-cover" />
         </div>
 
         {/* Right Side - Login Form */}
@@ -112,13 +107,13 @@ export default function Login() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="hello@example.com" 
                 className={`w-full px-4 py-3 rounded-xl border ${
-                  email.trim() && !isEmailValid(email)
+                  email.trim() && !isValidEmail(email)
                     ? 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-100'
                     : 'border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100'
                 } outline-none transition-all text-sm`} 
                 required 
               />
-              {email.trim() && !isEmailValid(email) && (
+              {email.trim() && !isValidEmail(email) && (
                 <p className="text-xs mt-1.5 font-medium text-red-500">
                   Invalid email
                 </p>
@@ -131,9 +126,18 @@ export default function Login() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••••••" 
-                className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none transition-all text-sm" 
+                className={`w-full px-4 py-3 rounded-xl border ${
+                  password && password.length < 6
+                    ? 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-100'
+                    : 'border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100'
+                } outline-none transition-all text-sm`} 
                 required 
               />
+              {password && password.length < 6 && (
+                <p className="text-xs mt-1.5 font-medium text-red-500">
+                  Password must be at least 6 characters
+                </p>
+              )}
             </div>
             
             <div className="flex items-center justify-between">

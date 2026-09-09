@@ -5,6 +5,17 @@ import {
   Upload, ChevronLeft, ChevronRight, Lock, Activity, Phone, 
   Mail, MapPin, Calendar, FileText, CheckSquare, Square, FileCheck, AlertCircle
 } from 'lucide-react';
+import { 
+  isValidEmail, 
+  isValidPhone, 
+  isValidPincode, 
+  isValidUsername, 
+  isValidName, 
+  validatePassword, 
+  isPastOrToday, 
+  calculateAge,
+  isValidDocumentFile 
+} from '../utils/validation';
 
 export default function Register() {
   const [step, setStep] = useState(1);
@@ -83,7 +94,15 @@ export default function Register() {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setFormData(prev => ({ ...prev, profilePhoto: e.target.files![0] }));
+      const file = e.target.files[0];
+      const valid = isValidDocumentFile(file, ['.jpg', '.jpeg', '.png', '.webp'], 5 * 1024 * 1024);
+      if (!valid.isValid) {
+        setErrorMsg(valid.message);
+        e.target.value = '';
+        return;
+      }
+      setErrorMsg(null);
+      setFormData(prev => ({ ...prev, profilePhoto: file }));
     }
   };
 
@@ -100,10 +119,6 @@ export default function Register() {
   };
 
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-
-  const isEmailValid = (val: string): boolean => {
-    return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(val.trim());
-  };
 
   const validateCurrentStep = (currentStep: number): boolean => {
     setErrorMsg(null);
@@ -123,8 +138,16 @@ export default function Register() {
         setErrorMsg('Please enter your Full Name.');
         return false;
       }
+      if (!isValidName(formData.fullName)) {
+        setErrorMsg('Full Name must contain at least 2 characters and letters only.');
+        return false;
+      }
       if (!formData.dob.trim()) {
         setErrorMsg('Please select your Date of Birth.');
+        return false;
+      }
+      if (!isPastOrToday(formData.dob) || calculateAge(formData.dob) < 0) {
+        setErrorMsg('Date of Birth cannot be a future date.');
         return false;
       }
       if (!formData.gender) {
@@ -135,11 +158,15 @@ export default function Register() {
         setErrorMsg('Please enter your Mobile Number.');
         return false;
       }
+      if (!isValidPhone(formData.mobileNumber)) {
+        setErrorMsg('Please enter a valid Mobile Number (at least 10 digits).');
+        return false;
+      }
       if (!formData.email.trim()) {
         setErrorMsg('Please enter your Email Address.');
         return false;
       }
-      if (!isEmailValid(formData.email)) {
+      if (!isValidEmail(formData.email)) {
         setErrorMsg('Please enter a valid Email Address.');
         return false;
       }
@@ -149,6 +176,10 @@ export default function Register() {
       }
       if (!formData.pincode.trim()) {
         setErrorMsg('Please enter your Pincode / Zip Code.');
+        return false;
+      }
+      if (!isValidPincode(formData.pincode)) {
+        setErrorMsg('Please enter a valid Pincode / Zip Code (4-10 characters).');
         return false;
       }
       if (!formData.country) {
@@ -164,8 +195,17 @@ export default function Register() {
         setErrorMsg('Please enter a Username.');
         return false;
       }
+      if (!isValidUsername(formData.username)) {
+        setErrorMsg('Username must be 3-30 characters long and contain only letters, numbers, hyphens, or underscores.');
+        return false;
+      }
       if (!formData.password) {
         setErrorMsg('Please enter a Password.');
+        return false;
+      }
+      const pwdRes = validatePassword(formData.password);
+      if (!pwdRes.isValid) {
+        setErrorMsg(pwdRes.message);
         return false;
       }
       if (!formData.confirmPassword) {
@@ -179,9 +219,9 @@ export default function Register() {
       return true;
     }
 
-    // Step 4: Role-Specific Information
+    // Step 4: Role-Specific Information (Note: Height & Weight are strictly excluded from validation)
     if (currentStep === 4) {
-      if (formData.accountType === 'User (Female)') {
+      if (formData.accountType === 'User (Female)' || formData.accountType === 'Myself') {
         if (!formData.bloodGroup) {
           setErrorMsg('Please select your Blood Group.');
           return false;
@@ -194,6 +234,10 @@ export default function Register() {
           setErrorMsg('Please select your Current Life Stage.');
           return false;
         }
+        if (formData.emergencyContactPhone.trim() && !isValidPhone(formData.emergencyContactPhone)) {
+          setErrorMsg('Please enter a valid Emergency Contact Phone.');
+          return false;
+        }
       } else if (formData.accountType === 'Caregiver') {
         if (!formData.caregiverType) {
           setErrorMsg('Please select Caregiver Sub-Type / Role.');
@@ -201,6 +245,10 @@ export default function Register() {
         }
         if (!formData.dependentName.trim()) {
           setErrorMsg('Please enter Dependent / Care Recipient Full Name.');
+          return false;
+        }
+        if (!isValidName(formData.dependentName)) {
+          setErrorMsg('Dependent Full Name must contain letters only.');
           return false;
         }
         if (!formData.relationship) {
@@ -211,12 +259,25 @@ export default function Register() {
           setErrorMsg('Please select Dependent Date of Birth.');
           return false;
         }
+        if (!isPastOrToday(formData.dependentDob)) {
+          setErrorMsg('Dependent Date of Birth cannot be a future date.');
+          return false;
+        }
         if (!formData.dependentGender) {
           setErrorMsg('Please select Dependent Gender.');
           return false;
         }
         if (!formData.dependentCategory) {
           setErrorMsg('Please select Dependent Life Stage / Category.');
+          return false;
+        }
+        const depAge = calculateAge(formData.dependentDob);
+        if (formData.dependentCategory === 'Child / Infant' && depAge >= 18) {
+          setErrorMsg(`Dependent is ${depAge} years old. Please select Adult category or verify Date of Birth.`);
+          return false;
+        }
+        if (formData.dependentCategory === 'Elder / Senior' && depAge < 50) {
+          setErrorMsg(`Dependent is ${depAge} years old. Please select an appropriate category or verify Date of Birth.`);
           return false;
         }
         if (formData.caregiverScopes.length === 0) {
@@ -227,9 +288,13 @@ export default function Register() {
           setErrorMsg('Please enter Caregiver Emergency Contact Phone.');
           return false;
         }
+        if (!isValidPhone(formData.emergencyContactPhone)) {
+          setErrorMsg('Please enter a valid Caregiver Emergency Contact Phone.');
+          return false;
+        }
       } else if (formData.accountType === 'Doctor') {
-        if (!formData.licenseNumber.trim()) {
-          setErrorMsg('Please enter your Medical License Number.');
+        if (!formData.licenseNumber.trim() || formData.licenseNumber.trim().length < 3) {
+          setErrorMsg('Please enter a valid Medical License Number (min 3 characters).');
           return false;
         }
         if (!formData.specialization) {
@@ -242,6 +307,11 @@ export default function Register() {
         }
         if (!formData.yearsOfExperience) {
           setErrorMsg('Please enter Years of Clinical Experience.');
+          return false;
+        }
+        const exp = parseInt(formData.yearsOfExperience, 10);
+        if (isNaN(exp) || exp < 0 || exp > 60) {
+          setErrorMsg('Years of Experience must be between 0 and 60.');
           return false;
         }
       }
@@ -611,9 +681,18 @@ export default function Register() {
                     value={formData.fullName} 
                     onChange={handleChange}
                     placeholder="Elena Rostova" 
-                    className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
+                    className={`w-full px-4 py-3 rounded-xl border ${
+                      formData.fullName.trim() && !isValidName(formData.fullName)
+                        ? 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-100'
+                        : 'border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100'
+                    } outline-none text-sm`} 
                     required 
                   />
+                  {formData.fullName.trim() && !isValidName(formData.fullName) && (
+                    <p className="text-xs mt-1.5 font-medium text-red-500">
+                      Please enter letters only (at least 2 characters)
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -623,9 +702,18 @@ export default function Register() {
                     name="dob" 
                     value={formData.dob} 
                     onChange={handleChange}
-                    className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
+                    className={`w-full px-4 py-3 rounded-xl border ${
+                      formData.dob && (!isPastOrToday(formData.dob) || calculateAge(formData.dob) < 0)
+                        ? 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-100'
+                        : 'border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100'
+                    } outline-none text-sm`} 
                     required 
                   />
+                  {formData.dob && (!isPastOrToday(formData.dob) || calculateAge(formData.dob) < 0) && (
+                    <p className="text-xs mt-1.5 font-medium text-red-500">
+                      Date of birth cannot be in the future
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -651,9 +739,18 @@ export default function Register() {
                     value={formData.mobileNumber} 
                     onChange={handleChange}
                     placeholder="e.g. +1 (555) 382-9102" 
-                    className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
+                    className={`w-full px-4 py-3 rounded-xl border ${
+                      formData.mobileNumber.trim() && !isValidPhone(formData.mobileNumber)
+                        ? 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-100'
+                        : 'border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100'
+                    } outline-none text-sm`} 
                     required 
                   />
+                  {formData.mobileNumber.trim() && !isValidPhone(formData.mobileNumber) && (
+                    <p className="text-xs mt-1.5 font-medium text-red-500">
+                      Invalid mobile number (min 10 digits)
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -665,13 +762,13 @@ export default function Register() {
                     onChange={handleChange} 
                     placeholder="e.g. elena.rostova@femsphere.health" 
                     className={`w-full px-4 py-3 rounded-xl border ${
-                      formData.email.trim() && !isEmailValid(formData.email)
+                      formData.email.trim() && !isValidEmail(formData.email)
                         ? 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-100'
                         : 'border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100'
                     } outline-none text-sm transition-all`} 
                     required 
                   />
-                  {formData.email.trim() && !isEmailValid(formData.email) && (
+                  {formData.email.trim() && !isValidEmail(formData.email) && (
                     <p className="text-xs mt-1.5 font-medium text-red-500">
                       Invalid email
                     </p>
@@ -701,9 +798,18 @@ export default function Register() {
                     value={formData.pincode} 
                     onChange={handleChange}
                     placeholder="e.g. 94107" 
-                    className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
+                    className={`w-full px-4 py-3 rounded-xl border ${
+                      formData.pincode.trim() && !isValidPincode(formData.pincode)
+                        ? 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-100'
+                        : 'border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100'
+                    } outline-none text-sm`} 
                     required
                   />
+                  {formData.pincode.trim() && !isValidPincode(formData.pincode) && (
+                    <p className="text-xs mt-1.5 font-medium text-red-500">
+                      Invalid pincode / zip code
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -774,9 +880,18 @@ export default function Register() {
                     value={formData.username} 
                     onChange={handleChange}
                     placeholder="e.g. elena_health" 
-                    className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
+                    className={`w-full px-4 py-3 rounded-xl border ${
+                      formData.username.trim() && !isValidUsername(formData.username)
+                        ? 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-100'
+                        : 'border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100'
+                    } outline-none text-sm`} 
                     required 
                   />
+                  {formData.username.trim() && !isValidUsername(formData.username) && (
+                    <p className="text-xs mt-1.5 font-medium text-red-500">
+                      Username must be 3-30 letters, numbers, hyphens or underscores
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -787,9 +902,18 @@ export default function Register() {
                     value={formData.password} 
                     onChange={handleChange}
                     placeholder="Enter strong password" 
-                    className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
+                    className={`w-full px-4 py-3 rounded-xl border ${
+                      formData.password && !validatePassword(formData.password).isValid
+                        ? 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-100'
+                        : 'border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100'
+                    } outline-none text-sm`} 
                     required 
                   />
+                  {formData.password && !validatePassword(formData.password).isValid && (
+                    <p className="text-xs mt-1.5 font-medium text-red-500">
+                      {validatePassword(formData.password).message}
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -800,9 +924,18 @@ export default function Register() {
                     value={formData.confirmPassword} 
                     onChange={handleChange}
                     placeholder="Confirm password" 
-                    className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
+                    className={`w-full px-4 py-3 rounded-xl border ${
+                      formData.confirmPassword && formData.password !== formData.confirmPassword
+                        ? 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-100'
+                        : 'border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100'
+                    } outline-none text-sm`} 
                     required 
                   />
+                  {formData.confirmPassword && formData.password !== formData.confirmPassword && (
+                    <p className="text-xs mt-1.5 font-medium text-red-500">
+                      Passwords do not match
+                    </p>
+                  )}
                 </div>
               </div>
             )}

@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Heart, Lock, Unlock, Shield, Check, Trash2, UserPlus, AlertCircle } from 'lucide-react';
+import { isValidEmail } from '../../utils/validation';
 
 export default function PartnerSharingModule() {
   const [partnerEmail, setPartnerEmail] = useState('');
   const [partnerData, setPartnerData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [activeConsentId, setActiveConsentId] = useState<number | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const [permissions, setPermissions] = useState<Record<string, boolean>>({
     Wellbeing: true,
@@ -45,7 +47,28 @@ export default function PartnerSharingModule() {
   };
 
   const handleGrantAccess = async () => {
-    if (!partnerEmail) return;
+    setErrorMsg(null);
+    if (!partnerEmail.trim()) {
+      setErrorMsg('Please enter your partner\'s email address.');
+      return;
+    }
+    if (!isValidEmail(partnerEmail)) {
+      setErrorMsg('Please enter a valid email address.');
+      return;
+    }
+
+    try {
+      const stored = localStorage.getItem('femsphere_user');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        const currentUserEmail = parsed.email || '';
+        if (currentUserEmail && partnerEmail.trim().toLowerCase() === currentUserEmail.trim().toLowerCase()) {
+          setErrorMsg('You cannot share access with your own account email.');
+          return;
+        }
+      }
+    } catch (e) {}
+
     setIsLoading(true);
     try {
       const token = localStorage.getItem('femsphere_token');
@@ -122,6 +145,12 @@ export default function PartnerSharingModule() {
         <div className="bg-[#FAF8FC] p-5 rounded-2xl border border-[#EDE9FE] space-y-4">
           <h4 className="font-bold text-xs text-[#7C3AED] uppercase tracking-wider">Grant Partner Access</h4>
           
+          {errorMsg && (
+            <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs font-semibold">
+              {errorMsg}
+            </div>
+          )}
+
           <div className="grid md:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1.5">Partner Email / Username</label>
@@ -130,8 +159,15 @@ export default function PartnerSharingModule() {
                 value={partnerEmail}
                 onChange={(e) => setPartnerEmail(e.target.value)}
                 placeholder="partner@example.com"
-                className="w-full px-4 py-2.5 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] outline-none text-sm bg-white"
+                className={`w-full px-4 py-2.5 rounded-xl border ${
+                  partnerEmail.trim() && !isValidEmail(partnerEmail)
+                    ? 'border-red-400 focus:border-red-500'
+                    : 'border-[#EDE9FE] focus:border-[#7C3AED]'
+                } outline-none text-sm bg-white`}
               />
+              {partnerEmail.trim() && !isValidEmail(partnerEmail) && (
+                <p className="text-xs mt-1 text-red-500 font-medium">Invalid email format</p>
+              )}
             </div>
 
             <div>

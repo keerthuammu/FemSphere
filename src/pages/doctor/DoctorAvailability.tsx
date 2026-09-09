@@ -1,8 +1,8 @@
-import React from 'react';
 import { 
   CheckCircle2, Clock, Trash2, Plus, ShieldCheck, CheckSquare 
 } from 'lucide-react';
 import { useDoctor } from '../../context/DoctorContext';
+import { isValidPatientCapacity } from '../../utils/validation';
 
 export default function DoctorAvailability() {
   const {
@@ -12,6 +12,8 @@ export default function DoctorAvailability() {
     newShiftForm,
     setNewShiftForm,
     handleAddShift,
+    shiftErrorMsg,
+    setShiftErrorMsg,
     handleUpdateShiftMaxPatients,
     handleSetShiftMaxPatients,
     handleDeleteShift,
@@ -128,17 +130,29 @@ export default function DoctorAvailability() {
             <Plus className="w-4 h-4 text-[#7C3AED]" /> Add New Consultation Shift / Time Range
           </h5>
 
+          {shiftErrorMsg && (
+            <div className="p-3 bg-rose-50 border border-rose-200 text-rose-600 text-xs font-semibold rounded-xl">
+              {shiftErrorMsg}
+            </div>
+          )}
+
           <form onSubmit={handleAddShift} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 text-xs">
             <div>
               <label className="block font-bold text-[#7a6f75] uppercase text-[10px] mb-1">Shift Name</label>
               <input 
                 type="text" 
                 value={newShiftForm.name} 
-                onChange={(e) => setNewShiftForm({ ...newShiftForm, name: e.target.value })}
+                onChange={(e) => {
+                  setNewShiftForm({ ...newShiftForm, name: e.target.value });
+                  if (shiftErrorMsg) setShiftErrorMsg(null);
+                }}
                 placeholder="e.g., Evening Clinic" 
-                className="w-full p-2.5 rounded-xl border border-[#EDE9FE] font-bold text-[#3a3135]"
+                className={`w-full p-2.5 rounded-xl border ${newShiftForm.name && newShiftForm.name.trim().length > 0 && newShiftForm.name.trim().length < 2 ? 'border-rose-400 bg-rose-50/20' : 'border-[#EDE9FE]'} font-bold text-[#3a3135]`}
                 required
               />
+              {newShiftForm.name && newShiftForm.name.trim().length > 0 && newShiftForm.name.trim().length < 2 && (
+                <p className="text-[10px] text-red-500 mt-1">Min 2 characters</p>
+              )}
             </div>
 
             <div>
@@ -170,11 +184,18 @@ export default function DoctorAvailability() {
               <input 
                 type="number" 
                 value={newShiftForm.maxPatients} 
-                onChange={(e) => setNewShiftForm({ ...newShiftForm, maxPatients: Number(e.target.value) })}
+                onChange={(e) => {
+                  setNewShiftForm({ ...newShiftForm, maxPatients: Number(e.target.value) });
+                  if (shiftErrorMsg) setShiftErrorMsg(null);
+                }}
                 min={1} 
-                className="w-full p-2.5 rounded-xl border border-[#EDE9FE] font-bold text-[#7C3AED]"
+                max={100}
+                className={`w-full p-2.5 rounded-xl border ${newShiftForm.maxPatients !== undefined && !isValidPatientCapacity(Number(newShiftForm.maxPatients)) ? 'border-rose-400 bg-rose-50/20' : 'border-[#EDE9FE]'} font-bold text-[#7C3AED]`}
                 required
               />
+              {newShiftForm.maxPatients !== undefined && !isValidPatientCapacity(Number(newShiftForm.maxPatients)) && (
+                <p className="text-[10px] text-red-500 mt-1">Between 1 and 100</p>
+              )}
             </div>
 
             <div>

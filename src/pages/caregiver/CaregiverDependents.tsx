@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { Users, Plus, Trash2, Heart, Calendar, Droplet, User, AlertCircle } from 'lucide-react';
 import { useCaregiver } from '../../context/CaregiverContext';
+import { isValidName, isPastOrToday, calculateAge } from '../../utils/validation';
 
 export default function CaregiverDependents() {
   const { dependents, addDependent, deleteDependent, isAddingDep } = useCaregiver();
   const [showAddDepModal, setShowAddDepModal] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [newDep, setNewDep] = useState({
     name: '',
     dob: '2020-01-01',
@@ -14,6 +16,27 @@ export default function CaregiverDependents() {
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMsg(null);
+
+    if (!newDep.name.trim() || !isValidName(newDep.name)) {
+      setErrorMsg('Please enter a valid dependent name (letters only, min 2 characters).');
+      return;
+    }
+    if (!newDep.dob || !isPastOrToday(newDep.dob)) {
+      setErrorMsg('Date of birth cannot be in the future.');
+      return;
+    }
+
+    const age = calculateAge(newDep.dob);
+    if (newDep.relation.startsWith('Child') && age >= 18) {
+      setErrorMsg(`Dependent is ${age} years old. Please select an adult relationship or adjust date of birth.`);
+      return;
+    }
+    if ((newDep.relation === 'Grandparent' || newDep.relation === 'Elder Relative') && age < 50) {
+      setErrorMsg(`Dependent is ${age} years old. Please select an appropriate relationship or adjust date of birth.`);
+      return;
+    }
+
     const success = await addDependent(newDep);
     if (success) {
       setNewDep({
@@ -138,6 +161,12 @@ export default function CaregiverDependents() {
               </div>
             </div>
 
+            {errorMsg && (
+              <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs font-semibold">
+                {errorMsg}
+              </div>
+            )}
+
             <form onSubmit={handleFormSubmit} className="space-y-4 text-xs">
               <div>
                 <label className="block font-bold text-[#3a3135] uppercase text-[10px] mb-1">
@@ -148,9 +177,16 @@ export default function CaregiverDependents() {
                   value={newDep.name}
                   onChange={(e) => setNewDep({ ...newDep, name: e.target.value })}
                   placeholder="e.g. Sophia Rostova"
-                  className="w-full p-3 rounded-xl border border-[#EDE9FE] outline-none focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 text-sm font-medium"
+                  className={`w-full p-3 rounded-xl border ${
+                    newDep.name.trim() && !isValidName(newDep.name)
+                      ? 'border-red-400 focus:border-red-500'
+                      : 'border-[#EDE9FE] focus:border-[#7C3AED]'
+                  } outline-none text-sm font-medium`}
                   required
                 />
+                {newDep.name.trim() && !isValidName(newDep.name) && (
+                  <p className="text-xs mt-1 text-red-500 font-medium">Please enter letters only (min 2 characters)</p>
+                )}
               </div>
 
               <div>
@@ -161,9 +197,16 @@ export default function CaregiverDependents() {
                   type="date"
                   value={newDep.dob}
                   onChange={(e) => setNewDep({ ...newDep, dob: e.target.value })}
-                  className="w-full p-3 rounded-xl border border-[#EDE9FE] bg-white outline-none focus:border-[#7C3AED] text-sm"
+                  className={`w-full p-3 rounded-xl border ${
+                    newDep.dob && !isPastOrToday(newDep.dob)
+                      ? 'border-red-400 focus:border-red-500'
+                      : 'border-[#EDE9FE] focus:border-[#7C3AED]'
+                  } bg-white outline-none text-sm`}
                   required
                 />
+                {newDep.dob && !isPastOrToday(newDep.dob) && (
+                  <p className="text-xs mt-1 text-red-500 font-medium">Date of birth cannot be in the future</p>
+                )}
               </div>
 
               <div>

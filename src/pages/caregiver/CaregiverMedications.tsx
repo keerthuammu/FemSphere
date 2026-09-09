@@ -5,6 +5,7 @@ import { useCaregiver } from '../../context/CaregiverContext';
 export default function CaregiverMedications() {
   const { medications, addMedication, deleteMedication, dependents } = useCaregiver();
   const [showAddMedModal, setShowAddMedModal] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [newMed, setNewMed] = useState({
     dependent: dependents[0]?.name || '',
     medicineName: '',
@@ -14,7 +15,25 @@ export default function CaregiverMedications() {
 
   const handleAddSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newMed.medicineName.trim()) return;
+    setErrorMsg(null);
+
+    if (!newMed.dependent) {
+      setErrorMsg('Please select a dependent.');
+      return;
+    }
+    if (!newMed.medicineName.trim() || newMed.medicineName.trim().length < 2) {
+      setErrorMsg('Please enter a valid medicine name (at least 2 characters).');
+      return;
+    }
+    if (!newMed.dosage.trim()) {
+      setErrorMsg('Please enter the prescribed dosage.');
+      return;
+    }
+    if (!newMed.time.trim()) {
+      setErrorMsg('Please enter the scheduled dosage time.');
+      return;
+    }
+
     addMedication(newMed);
     setNewMed({
       dependent: dependents[0]?.name || '',
@@ -126,6 +145,12 @@ export default function CaregiverMedications() {
               </button>
             </div>
 
+            {errorMsg && (
+              <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs font-semibold">
+                {errorMsg}
+              </div>
+            )}
+
             <form onSubmit={handleAddSubmit} className="space-y-4 text-xs">
               <div>
                 <label className="block font-bold mb-1">Select Dependent</label>
@@ -149,9 +174,16 @@ export default function CaregiverMedications() {
                   value={newMed.medicineName}
                   onChange={(e) => setNewMed({ ...newMed, medicineName: e.target.value })}
                   placeholder="e.g. Calcium Carbonate, Metformin, Multivitamin"
-                  className="w-full p-3 rounded-xl border border-[#EDE9FE] text-xs font-medium"
+                  className={`w-full p-3 rounded-xl border ${
+                    newMed.medicineName.trim() && newMed.medicineName.trim().length < 2
+                      ? 'border-red-400 focus:border-red-500'
+                      : 'border-[#EDE9FE]'
+                  } text-xs font-medium`}
                   required
                 />
+                {newMed.medicineName.trim() && newMed.medicineName.trim().length < 2 && (
+                  <p className="text-xs mt-1 text-red-500 font-medium">Please enter at least 2 characters</p>
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-3">

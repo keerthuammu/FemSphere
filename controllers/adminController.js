@@ -85,7 +85,8 @@ export const createAdminUser = async (req, res) => {
 
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(password || 'password123', salt);
-    const userRole = role || 'Myself';
+    let userRole = role || 'User (Female)';
+    if (userRole === 'Myself') userRole = 'User (Female)';
     const userStatus = status || 'Active';
     const finalUsername = username || email.split('@')[0];
 

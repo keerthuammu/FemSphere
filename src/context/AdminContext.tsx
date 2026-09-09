@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { isValidName, isValidEmail, isValidPhone, validatePassword } from '../utils/validation';
 
 export interface AdminUserItem {
   id: string | number;
@@ -346,7 +347,14 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
   // User Actions
   const handleAddUser = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!userForm.name || !userForm.email) return;
+    if (!isValidName(userForm.name)) {
+      alert('User full name must be at least 2 characters.');
+      return;
+    }
+    if (!isValidEmail(userForm.email)) {
+      alert('Please enter a valid email address.');
+      return;
+    }
 
     try {
       const res = await fetch('/api/admin/users', {
@@ -405,7 +413,18 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
   // Caregiver Actions
   const handleAddCaregiver = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!caregiverForm.name || !caregiverForm.email) return;
+    if (!isValidName(caregiverForm.name)) {
+      alert('Caregiver name must be at least 2 characters.');
+      return;
+    }
+    if (!isValidEmail(caregiverForm.email)) {
+      alert('Please enter a valid email address.');
+      return;
+    }
+    if (caregiverForm.phone && !isValidPhone(caregiverForm.phone)) {
+      alert('Phone number must be a valid 10-digit number.');
+      return;
+    }
 
     try {
       const res = await fetch('/api/admin/caregivers', {
@@ -491,7 +510,14 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
   // Article Actions
   const handleAddArticle = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newArticle.title) return;
+    if (!newArticle.title || newArticle.title.trim().length < 5) {
+      alert('Article title must be at least 5 characters long.');
+      return;
+    }
+    if (newArticle.desc && newArticle.desc.trim().length > 0 && newArticle.desc.trim().length < 10) {
+      alert('Article description must be at least 10 characters long.');
+      return;
+    }
 
     try {
       const res = await fetch('/api/admin/articles', {
@@ -508,6 +534,9 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
         await fetchArticles();
         setShowAddArticleModal(false);
         setNewArticle({ title: '', category: 'Wellness', desc: '', image: '' });
+      } else {
+        const err = await res.json();
+        alert(err.message || 'Failed to create article');
       }
     } catch (err) {
       console.error('Error creating article:', err);
@@ -532,6 +561,17 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
   // Profile Save
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isValidName(adminEditForm.name)) {
+      setProfileSaveMsg('Admin name must be at least 2 characters.');
+      setTimeout(() => setProfileSaveMsg(null), 3500);
+      return;
+    }
+    if (!isValidEmail(adminEditForm.email)) {
+      setProfileSaveMsg('Please enter a valid email address.');
+      setTimeout(() => setProfileSaveMsg(null), 3500);
+      return;
+    }
+
     setProfileSaveMsg('Saving admin profile...');
     setAdminProfile(prev => ({ ...prev, name: adminEditForm.name, email: adminEditForm.email }));
     setIsAdminEditing(false);
@@ -569,8 +609,13 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
   // Password Change
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newPassword || newPassword.length < 6) {
-      alert('New password must be at least 6 characters long.');
+    const pwdValidation = validatePassword(newPassword);
+    if (!pwdValidation.isValid) {
+      alert(pwdValidation.errors[0]);
+      return;
+    }
+    if (oldPassword && newPassword && oldPassword === newPassword) {
+      alert('New password must be different from current password.');
       return;
     }
     try {

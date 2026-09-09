@@ -1,6 +1,13 @@
 import React, { useState } from 'react';
 import { Heart, Activity, Watch, Droplet, Moon, Footprints, Flame, CheckCircle2, Trash2, Plus } from 'lucide-react';
 import { useCaregiver } from '../../context/CaregiverContext';
+import { 
+  isPastOrToday, 
+  isValidWater, 
+  isValidSleep, 
+  isValidHeartRate, 
+  isValidBloodPressure 
+} from '../../utils/validation';
 
 export default function CaregiverTracker() {
   const {
@@ -31,6 +38,7 @@ export default function CaregiverTracker() {
   });
 
   const [trackerSuccessMsg, setTrackerSuccessMsg] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const availableSymptomsList = [
     'Fever', 'Fatigue', 'Cough', 'Headache', 'Mild Nausea',
@@ -48,6 +56,47 @@ export default function CaregiverTracker() {
 
   const handleLogSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMsg(null);
+
+    if (!trackerInput.dependent) {
+      setErrorMsg('Please select a dependent.');
+      return;
+    }
+    if (!trackerInput.date || !isPastOrToday(trackerInput.date)) {
+      setErrorMsg('Log date cannot be in the future.');
+      return;
+    }
+
+    // Biometric ranges (EXCLUDING Height and Weight)
+    if (trackerInput.water.trim()) {
+      const w = parseFloat(trackerInput.water);
+      if (isNaN(w) || !isValidWater(w)) {
+        setErrorMsg('Water intake must be between 0.1 and 10.0 Liters.');
+        return;
+      }
+    }
+    if (trackerInput.sleep.trim()) {
+      const s = parseFloat(trackerInput.sleep);
+      if (isNaN(s) || !isValidSleep(s)) {
+        setErrorMsg('Sleep hours must be between 0.0 and 24.0 hours.');
+        return;
+      }
+    }
+    if (trackerInput.heartRate.trim()) {
+      const hr = parseInt(trackerInput.heartRate, 10);
+      if (isNaN(hr) || !isValidHeartRate(hr)) {
+        setErrorMsg('Heart rate must be between 35 and 220 bpm.');
+        return;
+      }
+    }
+    if (trackerInput.bloodPressure.trim()) {
+      const bp = isValidBloodPressure(trackerInput.bloodPressure);
+      if (!bp.isValid) {
+        setErrorMsg(bp.message);
+        return;
+      }
+    }
+
     addTrackerLog(trackerInput);
     setTrackerSuccessMsg(true);
     setTimeout(() => setTrackerSuccessMsg(false), 3000);
@@ -110,6 +159,12 @@ export default function CaregiverTracker() {
           <h4 className="font-bold text-lg text-[#3a3135] flex items-center gap-2">
             <Activity className="w-5 h-5 text-[#7C3AED]" /> Log Daily Health Metrics
           </h4>
+
+          {errorMsg && (
+            <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs font-semibold">
+              {errorMsg}
+            </div>
+          )}
 
           <form onSubmit={handleLogSubmit} className="space-y-4 text-xs">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

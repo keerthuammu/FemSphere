@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { isValidName, isValidEmail, isValidPhone, isFutureDate, isValidPatientCapacity } from '../utils/validation';
 
 export interface MedicationItem {
   id: string;
@@ -184,6 +185,8 @@ interface DoctorContextType {
   handleMedicationChange: (id: string, field: keyof MedicationItem, value: string) => void;
   handleSaveConsultation: (e: React.FormEvent) => Promise<void>;
   handleDeleteConsultation: (id: string) => Promise<void>;
+  consultationErrorMsg: string | null;
+  setConsultationErrorMsg: (val: string | null) => void;
 
   // Appointments
   appointments: AppointmentItem[];
@@ -192,6 +195,8 @@ interface DoctorContextType {
   setAppointmentFilter: (val: string) => void;
   showBookAppointmentModal: boolean;
   setShowBookAppointmentModal: (show: boolean) => void;
+  appointmentErrorMsg: string | null;
+  setAppointmentErrorMsg: (val: string | null) => void;
   newAppointmentForm: {
     patient: string;
     patientId: string;
@@ -237,6 +242,8 @@ interface DoctorContextType {
   addCustomSlot: (e: React.FormEvent) => void;
   removeSlot: (slot: string) => void;
   handleAddShift: (e: React.FormEvent) => void;
+  shiftErrorMsg: string | null;
+  setShiftErrorMsg: (val: string | null) => void;
   handleUpdateShiftMaxPatients: (shiftId: string, delta: number) => void;
   handleSetShiftMaxPatients: (shiftId: string, count: number) => void;
   handleDeleteShift: (shiftId: string) => void;
@@ -349,9 +356,11 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
     ]
   });
 
+  const [consultationErrorMsg, setConsultationErrorMsg] = useState<string | null>(null);
   const [appointments, setAppointments] = useState<AppointmentItem[]>([]);
   const [appointmentFilter, setAppointmentFilter] = useState('All');
   const [showBookAppointmentModal, setShowBookAppointmentModal] = useState(false);
+  const [appointmentErrorMsg, setAppointmentErrorMsg] = useState<string | null>(null);
 
   const [newAppointmentForm, setNewAppointmentForm] = useState({
     patient: '',
@@ -432,6 +441,7 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
   });
 
   const [scheduleSaveMsg, setScheduleSaveMsg] = useState<string | null>(null);
+  const [shiftErrorMsg, setShiftErrorMsg] = useState<string | null>(null);
   const [customSlotInput, setCustomSlotInput] = useState('');
   const [newShiftForm, setNewShiftForm] = useState({
     name: 'Afternoon Care Window',
@@ -684,12 +694,23 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
 
   const handleAddShift = (e: React.FormEvent) => {
     e.preventDefault();
+    setShiftErrorMsg(null);
+    if (newShiftForm.name && newShiftForm.name.trim().length > 0 && newShiftForm.name.trim().length < 2) {
+      setShiftErrorMsg('Shift label must be at least 2 characters.');
+      return;
+    }
+    const maxPat = Number(newShiftForm.maxPatients);
+    if (!isValidPatientCapacity(maxPat)) {
+      setShiftErrorMsg('Maximum patient capacity must be between 1 and 100.');
+      return;
+    }
+
     const newShift: ShiftItem = {
       id: `SHIFT-${Date.now().toString().slice(-4)}`,
       name: newShiftForm.name || `${newShiftForm.fromTime} - ${newShiftForm.toTime} Session`,
       fromTime: newShiftForm.fromTime,
       toTime: newShiftForm.toTime,
-      maxPatients: Number(newShiftForm.maxPatients) || 4,
+      maxPatients: maxPat || 4,
       days: scheduleSettings.availableDays,
       mode: newShiftForm.mode
     };
@@ -759,6 +780,22 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
   // Profile Save
   const handleSaveDoctorProfile = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isValidName(profile.name)) {
+      setProfileSaveMsg('Please enter a valid full name (at least 2 characters).');
+      setTimeout(() => setProfileSaveMsg(null), 3500);
+      return;
+    }
+    if (!isValidEmail(profile.email)) {
+      setProfileSaveMsg('Please enter a valid email address.');
+      setTimeout(() => setProfileSaveMsg(null), 3500);
+      return;
+    }
+    if (profile.phone && !isValidPhone(profile.phone)) {
+      setProfileSaveMsg('Phone number must be a valid 10-digit number.');
+      setTimeout(() => setProfileSaveMsg(null), 3500);
+      return;
+    }
+
     setProfileSaveMsg('Saving profile changes to database...');
 
     try {
@@ -840,7 +877,23 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
 
   const handleSaveConsultation = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newConsultationForm.diagnosis) return;
+    setConsultationErrorMsg(null);
+    if (!newConsultationForm.patientId && !newConsultationForm.patient) {
+      setConsultationErrorMsg('Please select a patient.');
+      return;
+    }
+    if (!newConsultationForm.diagnosis || newConsultationForm.diagnosis.trim().length < 3) {
+      setConsultationErrorMsg('Clinical diagnosis must be at least 3 characters.');
+      return;
+    }
+    if (newConsultationForm.chiefComplaint && newConsultationForm.chiefComplaint.trim().length > 0 && newConsultationForm.chiefComplaint.trim().length < 3) {
+      setConsultationErrorMsg('Chief complaint must be at least 3 characters.');
+      return;
+    }
+    if (newConsultationForm.followUpDate && !isFutureDate(newConsultationForm.followUpDate)) {
+      setConsultationErrorMsg('Follow-up review date must be today or in the future.');
+      return;
+    }
 
     const token = localStorage.getItem('femsphere_token');
     const cleanPatId = parseInt(newConsultationForm.patientId.replace(/\D/g, '')) || 2;
@@ -931,6 +984,20 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
 
   const handleCreateAppointment = async (e: React.FormEvent) => {
     e.preventDefault();
+    setAppointmentErrorMsg(null);
+    if (!newAppointmentForm.patientId && !newAppointmentForm.patient) {
+      setAppointmentErrorMsg('Please select a patient.');
+      return;
+    }
+    if (!newAppointmentForm.date || !isFutureDate(newAppointmentForm.date)) {
+      setAppointmentErrorMsg('Appointment date must be today or in the future.');
+      return;
+    }
+    if (!newAppointmentForm.reason || newAppointmentForm.reason.trim().length < 5) {
+      setAppointmentErrorMsg('Reason for appointment must be at least 5 characters.');
+      return;
+    }
+
     const token = localStorage.getItem('femsphere_token');
     const cleanPatId = parseInt(newAppointmentForm.patientId.replace(/\D/g, '')) || 2;
 
@@ -1017,6 +1084,8 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
         setConsultations,
         showAddConsultationModal,
         setShowAddConsultationModal,
+        consultationErrorMsg,
+        setConsultationErrorMsg,
         viewingPrescriptionModal,
         setViewingPrescriptionModal,
         newConsultationForm,
@@ -1033,6 +1102,8 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
         setAppointmentFilter,
         showBookAppointmentModal,
         setShowBookAppointmentModal,
+        appointmentErrorMsg,
+        setAppointmentErrorMsg,
         newAppointmentForm,
         setNewAppointmentForm,
         handleCreateAppointment,
@@ -1051,6 +1122,8 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
         addCustomSlot,
         removeSlot,
         handleAddShift,
+        shiftErrorMsg,
+        setShiftErrorMsg,
         handleUpdateShiftMaxPatients,
         handleSetShiftMaxPatients,
         handleDeleteShift,

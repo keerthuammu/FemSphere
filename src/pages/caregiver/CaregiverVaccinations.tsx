@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { Syringe, Plus, Trash2, Calendar, CheckCircle2, X } from 'lucide-react';
 import { useCaregiver } from '../../context/CaregiverContext';
+import { isPastOrToday, isChronological } from '../../utils/validation';
 
 export default function CaregiverVaccinations() {
   const { vaccinations, addVaccination, deleteVaccination, dependents } = useCaregiver();
   const [showAddVacModal, setShowAddVacModal] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [newVac, setNewVac] = useState({
     dependent: dependents[0]?.name || '',
     vaccineName: '',
@@ -14,7 +16,25 @@ export default function CaregiverVaccinations() {
 
   const handleAddSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newVac.vaccineName.trim()) return;
+    setErrorMsg(null);
+
+    if (!newVac.dependent) {
+      setErrorMsg('Please select a dependent.');
+      return;
+    }
+    if (!newVac.vaccineName.trim() || newVac.vaccineName.trim().length < 2) {
+      setErrorMsg('Please enter a valid vaccine name (at least 2 characters).');
+      return;
+    }
+    if (!newVac.date || !isPastOrToday(newVac.date)) {
+      setErrorMsg('Administered date cannot be in the future.');
+      return;
+    }
+    if (newVac.nextDueDate && !isChronological(newVac.date, newVac.nextDueDate)) {
+      setErrorMsg('Next due date must be after the administered date.');
+      return;
+    }
+
     addVaccination(newVac);
     setNewVac({
       dependent: dependents[0]?.name || '',
@@ -119,6 +139,12 @@ export default function CaregiverVaccinations() {
               </button>
             </div>
 
+            {errorMsg && (
+              <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs font-semibold">
+                {errorMsg}
+              </div>
+            )}
+
             <form onSubmit={handleAddSubmit} className="space-y-4 text-xs">
               <div>
                 <label className="block font-bold mb-1">Select Dependent</label>
@@ -142,9 +168,16 @@ export default function CaregiverVaccinations() {
                   value={newVac.vaccineName}
                   onChange={(e) => setNewVac({ ...newVac, vaccineName: e.target.value })}
                   placeholder="e.g. MMR Booster, DTaP, HPV Dose 2"
-                  className="w-full p-3 rounded-xl border border-[#EDE9FE] text-xs font-medium"
+                  className={`w-full p-3 rounded-xl border ${
+                    newVac.vaccineName.trim() && newVac.vaccineName.trim().length < 2
+                      ? 'border-red-400 focus:border-red-500'
+                      : 'border-[#EDE9FE]'
+                  } text-xs font-medium`}
                   required
                 />
+                {newVac.vaccineName.trim() && newVac.vaccineName.trim().length < 2 && (
+                  <p className="text-xs mt-1 text-red-500 font-medium">Please enter at least 2 characters</p>
+                )}
               </div>
 
               <div>

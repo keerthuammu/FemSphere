@@ -23,6 +23,20 @@ import PostpartumDashboardModule from '../components/modules/PostpartumDashboard
 import MidlifeMenopauseModule from '../components/modules/MidlifeMenopauseModule';
 import HealthyAgingModule from '../components/modules/HealthyAgingModule';
 import FitnessTracker from '../components/FitnessTracker';
+import { 
+  isValidEmail, 
+  isValidPhone, 
+  isValidName, 
+  validatePassword, 
+  isPastOrToday, 
+  isFutureDate, 
+  isValidWater, 
+  isValidSleep, 
+  isValidExercise, 
+  isValidHeartRate, 
+  isValidBloodPressure, 
+  isValidDocumentFile 
+} from '../utils/validation';
 
 function calculateAge(dobString: string): number {
   if (!dobString) return 30;
@@ -231,6 +245,7 @@ export default function Dashboard() {
 
   const [editProfileForm, setEditProfileForm] = useState({ ...userProfile });
   const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [profileErrorMsg, setProfileErrorMsg] = useState<string | null>(null);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [passwordData, setPasswordData] = useState({ oldPassword: '', newPassword: '', confirmPassword: '' });
   const [passwordMsg, setPasswordMsg] = useState<string | null>(null);
@@ -246,11 +261,14 @@ export default function Dashboard() {
   const [records, setRecords] = useState<any[]>([]);
 
   const [newRecord, setNewRecord] = useState({ title: '', type: 'PDF', description: '', category: 'Lab Results', fileName: '' });
+  const [selectedRecordFile, setSelectedRecordFile] = useState<File | null>(null);
+  const [uploadErrorMsg, setUploadErrorMsg] = useState<string | null>(null);
   const [showUploadModal, setShowUploadModal] = useState(false);
 
   // 3. Health Tracker State (CRUD - Manual Food, Exercise, Steps, Symptoms & Vitals Log)
   // Health tracker logs — starts empty; user logs their own real data
   const [trackerLogs, setTrackerLogs] = useState<any[]>([]);
+  const [trackerErrorMsg, setTrackerErrorMsg] = useState<string | null>(null);
 
   const [trackerInput, setTrackerInput] = useState({
     weight: '',
@@ -288,6 +306,7 @@ export default function Dashboard() {
   const [newAppointment, setNewAppointment] = useState({
     doctor: '', date: '', time: '', reason: ''
   });
+  const [appointmentErrorMsg, setAppointmentErrorMsg] = useState<string | null>(null);
   const [showBookModal, setShowBookModal] = useState(false);
 
   // 6. Notifications State (CRUD)
@@ -315,6 +334,25 @@ export default function Dashboard() {
   // --- PROFILE UPDATE HANDLERS ---
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
+    setProfileErrorMsg(null);
+
+    if (!editProfileForm.fullName.trim() || !isValidName(editProfileForm.fullName)) {
+      setProfileErrorMsg('Please enter a valid full name (letters only, min 2 characters).');
+      return;
+    }
+    if (!editProfileForm.dob.trim() || !isPastOrToday(editProfileForm.dob)) {
+      setProfileErrorMsg('Date of birth cannot be in the future.');
+      return;
+    }
+    if (!editProfileForm.phone.trim() || !isValidPhone(editProfileForm.phone)) {
+      setProfileErrorMsg('Please enter a valid phone number (min 10 digits).');
+      return;
+    }
+    if (!editProfileForm.email.trim() || !isValidEmail(editProfileForm.email)) {
+      setProfileErrorMsg('Please enter a valid email address.');
+      return;
+    }
+
     const computedAge = calculateAge(editProfileForm.dob);
     const updatedProfile = { ...editProfileForm, age: computedAge };
     setUserProfile(updatedProfile);
@@ -421,6 +459,15 @@ export default function Dashboard() {
       setPasswordMsg('Please enter both old and new password.');
       return;
     }
+    const pwdRes = validatePassword(passwordData.newPassword);
+    if (!pwdRes.isValid) {
+      setPasswordMsg(pwdRes.message);
+      return;
+    }
+    if (passwordData.oldPassword === passwordData.newPassword) {
+      setPasswordMsg('New password cannot be the same as current password.');
+      return;
+    }
     if (passwordData.newPassword !== passwordData.confirmPassword) {
       setPasswordMsg('New passwords do not match.');
       return;
@@ -487,7 +534,22 @@ export default function Dashboard() {
 
   const handleUploadRecord = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newRecord.title.trim()) return;
+    setUploadErrorMsg(null);
+    if (!newRecord.title.trim() || newRecord.title.trim().length < 3) {
+      setUploadErrorMsg('Please enter a report title (at least 3 characters).');
+      return;
+    }
+    if (selectedRecordFile) {
+      const valid = isValidDocumentFile(selectedRecordFile, ['.pdf', '.jpg', '.jpeg', '.png'], 10 * 1024 * 1024);
+      if (!valid.isValid) {
+        setUploadErrorMsg(valid.message);
+        return;
+      }
+    } else if (!newRecord.fileName) {
+      setUploadErrorMsg('Please select a file to upload (.pdf, .jpg, .png).');
+      return;
+    }
+
     const fileExt = newRecord.fileName ? newRecord.fileName.split('.').pop()?.toUpperCase() || newRecord.type : newRecord.type;
     const todayStr = new Date().toISOString().split('T')[0];
     const monthStr = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
@@ -518,6 +580,7 @@ export default function Dashboard() {
 
     setRecords([createdRecord, ...records]);
     setNewRecord({ title: '', type: 'PDF', description: '', category: 'Lab Results', fileName: '' });
+    setSelectedRecordFile(null);
     setShowUploadModal(false);
     
     // Add Notification
@@ -534,6 +597,45 @@ export default function Dashboard() {
   // --- HEALTH TRACKER HANDLERS ---
   const handleSaveTrackerLog = (e: React.FormEvent) => {
     e.preventDefault();
+    setTrackerErrorMsg(null);
+
+    // Validate tracker inputs (EXCLUDING Height & Weight)
+    if (trackerInput.water.trim()) {
+      const w = parseFloat(trackerInput.water);
+      if (isNaN(w) || !isValidWater(w)) {
+        setTrackerErrorMsg('Water intake must be between 0.1 and 10.0 Liters.');
+        return;
+      }
+    }
+    if (trackerInput.sleep.trim()) {
+      const s = parseFloat(trackerInput.sleep);
+      if (isNaN(s) || !isValidSleep(s)) {
+        setTrackerErrorMsg('Sleep duration must be between 0.0 and 24.0 hours.');
+        return;
+      }
+    }
+    if (trackerInput.exercise.trim()) {
+      const ex = parseInt(trackerInput.exercise, 10);
+      if (isNaN(ex) || !isValidExercise(ex)) {
+        setTrackerErrorMsg('Exercise duration must be between 0 and 720 minutes.');
+        return;
+      }
+    }
+    if (trackerInput.heartRate.trim()) {
+      const hr = parseInt(trackerInput.heartRate, 10);
+      if (isNaN(hr) || !isValidHeartRate(hr)) {
+        setTrackerErrorMsg('Heart rate must be between 35 and 220 bpm.');
+        return;
+      }
+    }
+    if (trackerInput.bloodPressure.trim()) {
+      const bp = isValidBloodPressure(trackerInput.bloodPressure);
+      if (!bp.isValid) {
+        setTrackerErrorMsg(bp.message);
+        return;
+      }
+    }
+
     if (editingTrackerId) {
       setTrackerLogs(trackerLogs.map(log => log.id === editingTrackerId ? { ...log, ...trackerInput } : log));
       setEditingTrackerId(null);
@@ -625,12 +727,30 @@ export default function Dashboard() {
   // --- APPOINTMENT HANDLERS ---
   const handleBookAppointment = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newAppointment.date) return;
+    setAppointmentErrorMsg(null);
+
+    if (!newAppointment.doctor) {
+      setAppointmentErrorMsg('Please select a doctor.');
+      return;
+    }
+    if (!newAppointment.date) {
+      setAppointmentErrorMsg('Please select an appointment date.');
+      return;
+    }
+    if (!isFutureDate(newAppointment.date)) {
+      setAppointmentErrorMsg('Appointment date must be today or in the future.');
+      return;
+    }
+    if (!newAppointment.reason.trim() || newAppointment.reason.trim().length < 5) {
+      setAppointmentErrorMsg('Please provide a reason for the visit (at least 5 characters).');
+      return;
+    }
+
     const booked = {
       id: `APT-${Date.now().toString().slice(-3)}`,
       doctor: newAppointment.doctor,
       date: newAppointment.date,
-      time: newAppointment.time,
+      time: newAppointment.time || '10:00 AM',
       reason: newAppointment.reason || 'General Health Twin Review',
       status: 'Scheduled',
       type: (newAppointment as any).type || 'Virtual Telehealth'
@@ -1318,6 +1438,12 @@ export default function Dashboard() {
               ) : (
                 // Edit Form Mode
                 <form onSubmit={handleSaveProfile} className="space-y-4">
+                  {profileErrorMsg && (
+                    <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs font-semibold">
+                      {profileErrorMsg}
+                    </div>
+                  )}
+
                   <div className="grid md:grid-cols-2 gap-4 text-xs">
                     <div>
                       <label className="block font-bold text-[#4a4145] uppercase mb-1">Full Name</label>
@@ -1325,9 +1451,16 @@ export default function Dashboard() {
                         type="text" 
                         value={editProfileForm.fullName} 
                         onChange={(e) => setEditProfileForm({...editProfileForm, fullName: e.target.value})} 
-                        className="w-full p-3 rounded-xl border border-[#EDE9FE]" 
+                        className={`w-full p-3 rounded-xl border ${
+                          editProfileForm.fullName.trim() && !isValidName(editProfileForm.fullName)
+                            ? 'border-red-400 focus:border-red-500'
+                            : 'border-[#EDE9FE]'
+                        }`} 
                         required 
                       />
+                      {editProfileForm.fullName.trim() && !isValidName(editProfileForm.fullName) && (
+                        <p className="text-xs mt-1 font-medium text-red-500">Please enter letters only (min 2 characters)</p>
+                      )}
                     </div>
 
                     <div>
@@ -1336,9 +1469,16 @@ export default function Dashboard() {
                         type="date" 
                         value={editProfileForm.dob} 
                         onChange={(e) => setEditProfileForm({...editProfileForm, dob: e.target.value})} 
-                        className="w-full p-3 rounded-xl border border-[#EDE9FE]" 
+                        className={`w-full p-3 rounded-xl border ${
+                          editProfileForm.dob && !isPastOrToday(editProfileForm.dob)
+                            ? 'border-red-400 focus:border-red-500'
+                            : 'border-[#EDE9FE]'
+                        }`} 
                         required 
                       />
+                      {editProfileForm.dob && !isPastOrToday(editProfileForm.dob) && (
+                        <p className="text-xs mt-1 font-medium text-red-500">Date of birth cannot be in the future</p>
+                      )}
                     </div>
 
                     <div>
@@ -1386,9 +1526,16 @@ export default function Dashboard() {
                         type="tel" 
                         value={editProfileForm.phone} 
                         onChange={(e) => setEditProfileForm({...editProfileForm, phone: e.target.value})} 
-                        className="w-full p-3 rounded-xl border border-[#EDE9FE]" 
+                        className={`w-full p-3 rounded-xl border ${
+                          editProfileForm.phone.trim() && !isValidPhone(editProfileForm.phone)
+                            ? 'border-red-400 focus:border-red-500'
+                            : 'border-[#EDE9FE]'
+                        }`} 
                         required 
                       />
+                      {editProfileForm.phone.trim() && !isValidPhone(editProfileForm.phone) && (
+                        <p className="text-xs mt-1 font-medium text-red-500">Invalid phone number (min 10 digits)</p>
+                      )}
                     </div>
 
                     <div>
@@ -1397,9 +1544,16 @@ export default function Dashboard() {
                         type="email" 
                         value={editProfileForm.email} 
                         onChange={(e) => setEditProfileForm({...editProfileForm, email: e.target.value})} 
-                        className="w-full p-3 rounded-xl border border-[#EDE9FE]" 
+                        className={`w-full p-3 rounded-xl border ${
+                          editProfileForm.email.trim() && !isValidEmail(editProfileForm.email)
+                            ? 'border-red-400 focus:border-red-500'
+                            : 'border-[#EDE9FE]'
+                        }`} 
                         required 
                       />
+                      {editProfileForm.email.trim() && !isValidEmail(editProfileForm.email) && (
+                        <p className="text-xs mt-1 font-medium text-red-500">Invalid email</p>
+                      )}
                     </div>
 
                     <div className="md:col-span-2">
@@ -1734,6 +1888,12 @@ export default function Dashboard() {
                       </h4>
                       <span className="text-xs text-[#7a6f75] font-medium">Date: {new Date().toLocaleDateString()}</span>
                     </div>
+
+                    {trackerErrorMsg && (
+                      <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs font-semibold">
+                        {trackerErrorMsg}
+                      </div>
+                    )}
 
                     {/* LIVE WATCH CONNECTED BANNER */}
                     {bluetoothConnected && (
@@ -2394,6 +2554,12 @@ export default function Dashboard() {
               </button>
             </div>
 
+            {uploadErrorMsg && (
+              <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs font-semibold">
+                {uploadErrorMsg}
+              </div>
+            )}
+
             <form onSubmit={handleUploadRecord} className="space-y-3 text-xs">
               <div>
                 <label className="block font-bold mb-1">Report Title</label>
@@ -2421,11 +2587,15 @@ export default function Dashboard() {
               </div>
 
               <div>
-                <label className="block font-bold mb-1">Select File (PDF, JPG, PNG)</label>
+                <label className="block font-bold mb-1">Select File (PDF, JPG, PNG - Max 10MB)</label>
                 <input 
                   type="file" 
                   accept=".pdf,.jpg,.jpeg,.png"
-                  onChange={(e) => setNewRecord({...newRecord, fileName: e.target.files?.[0]?.name || ''})}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0] || null;
+                    setSelectedRecordFile(file);
+                    setNewRecord({...newRecord, fileName: file?.name || ''});
+                  }}
                   className="w-full text-xs text-[#7a6f75] file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-[#EDE9FE] file:text-[#7C3AED]"
                   required
                 />
@@ -2466,6 +2636,12 @@ export default function Dashboard() {
               </button>
             </div>
 
+            {appointmentErrorMsg && (
+              <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs font-semibold">
+                {appointmentErrorMsg}
+              </div>
+            )}
+
             <form onSubmit={handleBookAppointment} className="space-y-3 text-xs">
               <div>
                 <label className="block font-bold mb-1">Select Doctor</label>
@@ -2474,6 +2650,7 @@ export default function Dashboard() {
                   onChange={(e) => setNewAppointment({...newAppointment, doctor: e.target.value})} 
                   className="w-full p-2.5 rounded-xl border border-[#EDE9FE] bg-white font-medium"
                 >
+                  <option value="">Select a Doctor</option>
                   <option value="Dr. Sarah Jenkins (OB/GYN)">Dr. Sarah Jenkins (Obstetrics & Gynecology)</option>
                   <option value="Dr. Priya Sharma (Maternal-Fetal)">Dr. Priya Sharma (Maternal-Fetal Specialist)</option>
                   <option value="Dr. Amanda Vance (Reproductive Endocrine)">Dr. Amanda Vance (Reproductive Specialist)</option>
@@ -2484,11 +2661,19 @@ export default function Dashboard() {
                 <label className="block font-bold mb-1">Appointment Date</label>
                 <input 
                   type="date" 
+                  min={new Date().toISOString().split('T')[0]}
                   value={newAppointment.date} 
                   onChange={(e) => setNewAppointment({...newAppointment, date: e.target.value})} 
-                  className="w-full p-2.5 rounded-xl border border-[#EDE9FE]" 
+                  className={`w-full p-2.5 rounded-xl border ${
+                    newAppointment.date && !isFutureDate(newAppointment.date)
+                      ? 'border-red-400 focus:border-red-500'
+                      : 'border-[#EDE9FE]'
+                  }`} 
                   required 
                 />
+                {newAppointment.date && !isFutureDate(newAppointment.date) && (
+                  <p className="text-xs mt-1 text-red-500 font-medium">Date must be today or in the future</p>
+                )}
               </div>
 
               <div>
@@ -2513,9 +2698,16 @@ export default function Dashboard() {
                   placeholder="e.g. Reproductive health checkup & vitals review" 
                   value={newAppointment.reason} 
                   onChange={(e) => setNewAppointment({...newAppointment, reason: e.target.value})} 
-                  className="w-full p-2.5 rounded-xl border border-[#EDE9FE]" 
+                  className={`w-full p-2.5 rounded-xl border ${
+                    newAppointment.reason.trim() && newAppointment.reason.trim().length < 5
+                      ? 'border-red-400 focus:border-red-500'
+                      : 'border-[#EDE9FE]'
+                  }`} 
                   required 
                 />
+                {newAppointment.reason.trim() && newAppointment.reason.trim().length < 5 && (
+                  <p className="text-xs mt-1 text-red-500 font-medium">Please enter at least 5 characters</p>
+                )}
               </div>
 
               <div className="flex gap-2 pt-2">

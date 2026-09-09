@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { 
   Droplet, Calendar, Activity, Sparkles, Heart, Check, Plus, Clock, AlertCircle, ChevronRight, BarChart2
 } from 'lucide-react';
+import { isPastOrToday, isChronological } from '../utils/validation';
 
 export default function PeriodTracker() {
   const [periodStartDate, setPeriodStartDate] = useState('2026-08-22');
@@ -12,6 +13,7 @@ export default function PeriodTracker() {
   const [selectedMood, setSelectedMood] = useState('Calm');
   const [notes, setNotes] = useState('');
   const [isLogged, setIsLogged] = useState(false);
+  const [periodErrorMsg, setPeriodErrorMsg] = useState<string | null>(null);
 
   // Past recorded cycles
   const [cycleHistory, setCycleHistory] = useState([
@@ -75,9 +77,29 @@ export default function PeriodTracker() {
 
   const handleLogPeriod = async (e: React.FormEvent) => {
     e.preventDefault();
+    setPeriodErrorMsg(null);
+
+    if (!periodStartDate || !periodEndDate) {
+      setPeriodErrorMsg('Please select both period start and end dates.');
+      return;
+    }
+    if (!isPastOrToday(periodStartDate)) {
+      setPeriodErrorMsg('Period start date cannot be in the future.');
+      return;
+    }
+    if (!isChronological(periodStartDate, periodEndDate)) {
+      setPeriodErrorMsg('Period end date must be on or after the start date.');
+      return;
+    }
+
     const start = new Date(periodStartDate);
     const end = new Date(periodEndDate);
     const duration = Math.max(1, Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1);
+
+    if (duration > 15) {
+      setPeriodErrorMsg('Period duration cannot exceed 15 days.');
+      return;
+    }
 
     const newCycle = {
       id: `CYC-${Date.now().toString().slice(-3)}`,
@@ -219,6 +241,12 @@ export default function PeriodTracker() {
           )}
         </div>
 
+        {periodErrorMsg && (
+          <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs font-semibold">
+            {periodErrorMsg}
+          </div>
+        )}
+
         <form onSubmit={handleLogPeriod} className="space-y-4">
           <div className="grid md:grid-cols-3 gap-4 text-xs">
             <div>
@@ -227,9 +255,16 @@ export default function PeriodTracker() {
                 type="date"
                 value={periodStartDate}
                 onChange={(e) => setPeriodStartDate(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] outline-none text-sm bg-white font-medium"
+                className={`w-full px-4 py-2.5 rounded-xl border ${
+                  periodStartDate && !isPastOrToday(periodStartDate)
+                    ? 'border-red-400 focus:border-red-500'
+                    : 'border-[#EDE9FE] focus:border-[#7C3AED]'
+                } outline-none text-sm bg-white font-medium`}
                 required
               />
+              {periodStartDate && !isPastOrToday(periodStartDate) && (
+                <p className="text-xs mt-1 text-red-500 font-medium">Start date cannot be in the future</p>
+              )}
             </div>
 
             <div>
@@ -238,9 +273,16 @@ export default function PeriodTracker() {
                 type="date"
                 value={periodEndDate}
                 onChange={(e) => setPeriodEndDate(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] outline-none text-sm bg-white font-medium"
+                className={`w-full px-4 py-2.5 rounded-xl border ${
+                  periodStartDate && periodEndDate && !isChronological(periodStartDate, periodEndDate)
+                    ? 'border-red-400 focus:border-red-500'
+                    : 'border-[#EDE9FE] focus:border-[#7C3AED]'
+                } outline-none text-sm bg-white font-medium`}
                 required
               />
+              {periodStartDate && periodEndDate && !isChronological(periodStartDate, periodEndDate) && (
+                <p className="text-xs mt-1 text-red-500 font-medium">End date must be on or after start date</p>
+              )}
             </div>
 
             <div>

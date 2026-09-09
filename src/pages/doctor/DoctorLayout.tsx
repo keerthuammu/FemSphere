@@ -9,8 +9,10 @@ import {
   FileCheck, Sliders, Settings, DollarSign, RefreshCw, Send, CheckSquare
 } from 'lucide-react';
 import { useDoctor } from '../../context/DoctorContext';
+import { isFutureDate, validatePassword } from '../../utils/validation';
 
 export default function DoctorLayout() {
+  const [passwordError, setPasswordError] = React.useState<string | null>(null);
   const {
     profile,
     currentTime,
@@ -23,6 +25,8 @@ export default function DoctorLayout() {
     setSelectedRecordToView,
     showAddConsultationModal,
     setShowAddConsultationModal,
+    consultationErrorMsg,
+    setConsultationErrorMsg,
     viewingPrescriptionModal,
     setViewingPrescriptionModal,
     newConsultationForm,
@@ -44,6 +48,8 @@ export default function DoctorLayout() {
     formatCallTime,
     showBookAppointmentModal,
     setShowBookAppointmentModal,
+    appointmentErrorMsg,
+    setAppointmentErrorMsg,
     newAppointmentForm,
     setNewAppointmentForm,
     handleCreateAppointment,
@@ -431,6 +437,12 @@ export default function DoctorLayout() {
               </button>
             </div>
 
+            {consultationErrorMsg && (
+              <div className="p-3 bg-rose-50 border border-rose-200 text-rose-600 text-xs font-semibold rounded-xl">
+                {consultationErrorMsg}
+              </div>
+            )}
+
             <form onSubmit={handleSaveConsultation} className="space-y-4 text-xs">
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
@@ -454,10 +466,16 @@ export default function DoctorLayout() {
                   <input 
                     type="date" 
                     value={newConsultationForm.followUpDate} 
-                    onChange={(e) => setNewConsultationForm({ ...newConsultationForm, followUpDate: e.target.value })} 
-                    className="w-full p-3 rounded-xl border border-[#EDE9FE]" 
+                    onChange={(e) => {
+                      setNewConsultationForm({ ...newConsultationForm, followUpDate: e.target.value });
+                      if (consultationErrorMsg) setConsultationErrorMsg(null);
+                    }} 
+                    className={`w-full p-3 rounded-xl border ${newConsultationForm.followUpDate && !isFutureDate(newConsultationForm.followUpDate) ? 'border-rose-400 bg-rose-50/20' : 'border-[#EDE9FE]'}`} 
                     required 
                   />
+                  {newConsultationForm.followUpDate && !isFutureDate(newConsultationForm.followUpDate) && (
+                    <p className="text-[11px] text-red-500 mt-1">Review date must be today or in the future</p>
+                  )}
                 </div>
               </div>
 
@@ -466,11 +484,17 @@ export default function DoctorLayout() {
                 <input 
                   type="text" 
                   value={newConsultationForm.chiefComplaint} 
-                  onChange={(e) => setNewConsultationForm({ ...newConsultationForm, chiefComplaint: e.target.value })} 
+                  onChange={(e) => {
+                    setNewConsultationForm({ ...newConsultationForm, chiefComplaint: e.target.value });
+                    if (consultationErrorMsg) setConsultationErrorMsg(null);
+                  }} 
                   placeholder="e.g., Fatigue during luteal phase, cramps"
-                  className="w-full p-3 rounded-xl border border-[#EDE9FE]" 
+                  className={`w-full p-3 rounded-xl border ${newConsultationForm.chiefComplaint && newConsultationForm.chiefComplaint.trim().length > 0 && newConsultationForm.chiefComplaint.trim().length < 3 ? 'border-rose-400 bg-rose-50/20' : 'border-[#EDE9FE]'}`} 
                   required 
                 />
+                {newConsultationForm.chiefComplaint && newConsultationForm.chiefComplaint.trim().length > 0 && newConsultationForm.chiefComplaint.trim().length < 3 && (
+                  <p className="text-[11px] text-red-500 mt-1">Chief complaint must be at least 3 characters</p>
+                )}
               </div>
 
               <div>
@@ -478,11 +502,17 @@ export default function DoctorLayout() {
                 <input 
                   type="text" 
                   value={newConsultationForm.diagnosis} 
-                  onChange={(e) => setNewConsultationForm({ ...newConsultationForm, diagnosis: e.target.value })} 
+                  onChange={(e) => {
+                    setNewConsultationForm({ ...newConsultationForm, diagnosis: e.target.value });
+                    if (consultationErrorMsg) setConsultationErrorMsg(null);
+                  }} 
                   placeholder="e.g., Phase 3 Luteal Dysphoria with Microcytic Anemia"
-                  className="w-full p-3 rounded-xl border border-[#EDE9FE]" 
+                  className={`w-full p-3 rounded-xl border ${newConsultationForm.diagnosis && newConsultationForm.diagnosis.trim().length < 3 ? 'border-rose-400 bg-rose-50/20' : 'border-[#EDE9FE]'}`} 
                   required 
                 />
+                {newConsultationForm.diagnosis && newConsultationForm.diagnosis.trim().length < 3 && (
+                  <p className="text-[11px] text-red-500 mt-1">Clinical diagnosis must be at least 3 characters</p>
+                )}
               </div>
 
               <div>
@@ -797,6 +827,12 @@ export default function DoctorLayout() {
               </button>
             </div>
 
+            {appointmentErrorMsg && (
+              <div className="p-3 bg-rose-50 border border-rose-200 text-rose-600 text-xs font-semibold rounded-xl">
+                {appointmentErrorMsg}
+              </div>
+            )}
+
             <form onSubmit={handleCreateAppointment} className="space-y-3.5 text-xs">
               <div>
                 <label className="block font-bold text-[#4a4145] uppercase mb-1">Select Patient</label>
@@ -820,10 +856,16 @@ export default function DoctorLayout() {
                   <input 
                     type="date" 
                     value={newAppointmentForm.date} 
-                    onChange={(e) => setNewAppointmentForm({ ...newAppointmentForm, date: e.target.value })} 
-                    className="w-full p-3 rounded-xl border border-[#EDE9FE]" 
+                    onChange={(e) => {
+                      setNewAppointmentForm({ ...newAppointmentForm, date: e.target.value });
+                      if (appointmentErrorMsg) setAppointmentErrorMsg(null);
+                    }} 
+                    className={`w-full p-3 rounded-xl border ${newAppointmentForm.date && !isFutureDate(newAppointmentForm.date) ? 'border-rose-400 bg-rose-50/20' : 'border-[#EDE9FE]'}`} 
                     required 
                   />
+                  {newAppointmentForm.date && !isFutureDate(newAppointmentForm.date) && (
+                    <p className="text-[11px] text-red-500 mt-1">Appointment date must be today or in the future</p>
+                  )}
                 </div>
                 <div>
                   <label className="block font-bold text-[#4a4145] uppercase mb-1">Time Slot</label>
@@ -859,11 +901,17 @@ export default function DoctorLayout() {
                 <input 
                   type="text" 
                   value={newAppointmentForm.reason} 
-                  onChange={(e) => setNewAppointmentForm({ ...newAppointmentForm, reason: e.target.value })} 
+                  onChange={(e) => {
+                    setNewAppointmentForm({ ...newAppointmentForm, reason: e.target.value });
+                    if (appointmentErrorMsg) setAppointmentErrorMsg(null);
+                  }} 
                   placeholder="e.g. Hormonal Review Follow-up"
-                  className="w-full p-3 rounded-xl border border-[#EDE9FE]" 
+                  className={`w-full p-3 rounded-xl border ${newAppointmentForm.reason && newAppointmentForm.reason.trim().length > 0 && newAppointmentForm.reason.trim().length < 5 ? 'border-rose-400 bg-rose-50/20' : 'border-[#EDE9FE]'}`} 
                   required 
                 />
+                {newAppointmentForm.reason && newAppointmentForm.reason.trim().length > 0 && newAppointmentForm.reason.trim().length < 5 && (
+                  <p className="text-[11px] text-red-500 mt-1">Reason must be at least 5 characters</p>
+                )}
               </div>
 
               <div className="flex gap-2 pt-3 border-t border-[#EDE9FE]">
@@ -885,7 +933,7 @@ export default function DoctorLayout() {
           <div className="bg-white rounded-3xl max-w-sm w-full p-6 border border-[#EDE9FE] shadow-2xl space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="font-bold text-base text-[#3a3135]">Update Security Password</h3>
-              <button onClick={() => setShowPasswordModal(false)} className="cursor-pointer">
+              <button onClick={() => { setShowPasswordModal(false); setPasswordError(null); }} className="cursor-pointer">
                 <X className="w-5 h-5 text-gray-500" />
               </button>
             </div>
@@ -895,15 +943,31 @@ export default function DoctorLayout() {
                 {passwordMsg}
               </div>
             )}
+            {passwordError && (
+              <div className="p-2.5 bg-rose-50 border border-rose-200 text-rose-600 text-xs font-semibold rounded-xl">
+                {passwordError}
+              </div>
+            )}
 
             <form onSubmit={(e) => {
               e.preventDefault();
+              const pwdValidation = validatePassword(newPassword);
+              if (!pwdValidation.isValid) {
+                setPasswordError(pwdValidation.errors[0]);
+                return;
+              }
+              if (oldPassword && newPassword && oldPassword === newPassword) {
+                setPasswordError('New password must be different from current password.');
+                return;
+              }
+              setPasswordError(null);
               setPasswordMsg('Password changed successfully.');
               setTimeout(() => {
                 setShowPasswordModal(false);
                 setPasswordMsg(null);
                 setOldPassword('');
                 setNewPassword('');
+                setPasswordError(null);
               }, 1500);
             }} className="space-y-3 text-xs">
               <div>
@@ -911,7 +975,7 @@ export default function DoctorLayout() {
                 <input 
                   type="password" 
                   value={oldPassword} 
-                  onChange={(e) => setOldPassword(e.target.value)} 
+                  onChange={(e) => { setOldPassword(e.target.value); setPasswordError(null); }} 
                   className="w-full p-2.5 rounded-xl border border-[#EDE9FE]" 
                   required 
                 />
@@ -921,10 +985,16 @@ export default function DoctorLayout() {
                 <input 
                   type="password" 
                   value={newPassword} 
-                  onChange={(e) => setNewPassword(e.target.value)} 
-                  className="w-full p-2.5 rounded-xl border border-[#EDE9FE]" 
+                  onChange={(e) => { setNewPassword(e.target.value); setPasswordError(null); }} 
+                  className={`w-full p-2.5 rounded-xl border ${newPassword && (!validatePassword(newPassword).isValid || (oldPassword && oldPassword === newPassword)) ? 'border-rose-400 bg-rose-50/20' : 'border-[#EDE9FE]'}`} 
                   required 
                 />
+                {newPassword && !validatePassword(newPassword).isValid && (
+                  <p className="text-[11px] text-red-500 mt-1">{validatePassword(newPassword).errors[0]}</p>
+                )}
+                {oldPassword && newPassword && oldPassword === newPassword && (
+                  <p className="text-[11px] text-red-500 mt-1">New password cannot match current password</p>
+                )}
               </div>
               <button type="submit" className="w-full py-3 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl font-bold cursor-pointer">
                 Update Password

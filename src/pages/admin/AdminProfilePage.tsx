@@ -1,6 +1,7 @@
 import React from 'react';
 import { CheckCircle2, User, Mail, Shield, Key } from 'lucide-react';
 import { useAdmin } from '../../context/AdminContext';
+import { isValidName, isValidEmail } from '../../utils/validation';
 
 export default function AdminProfilePage() {
   const {
@@ -85,9 +86,12 @@ export default function AdminProfilePage() {
               type="text" 
               value={adminEditForm.name} 
               onChange={(e) => setAdminEditForm({ ...adminEditForm, name: e.target.value })} 
-              className="w-full p-3 rounded-xl border border-[#EDE9FE] text-sm focus:ring-2 focus:ring-[#7C3AED] outline-none" 
+              className={`w-full p-3 rounded-xl border ${adminEditForm.name && !isValidName(adminEditForm.name) ? 'border-rose-400 bg-rose-50/20' : 'border-[#EDE9FE]'} text-sm focus:ring-2 focus:ring-[#7C3AED] outline-none`} 
               required 
             />
+            {adminEditForm.name && !isValidName(adminEditForm.name) && (
+              <p className="text-[11px] text-red-500 mt-1">Admin name must be at least 2 characters</p>
+            )}
           </div>
           <div>
             <label className="block font-bold uppercase text-[#7a6f75] mb-1">Email Address</label>
@@ -95,9 +99,12 @@ export default function AdminProfilePage() {
               type="email" 
               value={adminEditForm.email} 
               onChange={(e) => setAdminEditForm({ ...adminEditForm, email: e.target.value })} 
-              className="w-full p-3 rounded-xl border border-[#EDE9FE] text-sm focus:ring-2 focus:ring-[#7C3AED] outline-none" 
+              className={`w-full p-3 rounded-xl border ${adminEditForm.email && !isValidEmail(adminEditForm.email) ? 'border-rose-400 bg-rose-50/20' : 'border-[#EDE9FE]'} text-sm focus:ring-2 focus:ring-[#7C3AED] outline-none`} 
               required 
             />
+            {adminEditForm.email && !isValidEmail(adminEditForm.email) && (
+              <p className="text-[11px] text-red-500 mt-1">Please enter a valid email address</p>
+            )}
           </div>
           <div className="pt-2 flex items-center justify-between">
             <button 

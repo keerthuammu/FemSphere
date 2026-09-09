@@ -63,8 +63,8 @@ export const register = async (req, res) => {
     }
 
     // Normalize role name
-    let role = 'Myself';
-    if (accountType === 'User (Female)' || accountType === 'Myself') role = 'Myself';
+    let role = 'User (Female)';
+    if (accountType === 'User (Female)' || accountType === 'Myself') role = 'User (Female)';
     if (accountType === 'Caregiver') role = 'Caregiver';
     if (accountType === 'Doctor') role = 'Doctor';
     if (accountType === 'Administrator' || accountType === 'Admin (Superuser)') role = 'Admin (Superuser)';
