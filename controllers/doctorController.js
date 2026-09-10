@@ -146,9 +146,22 @@ export const getAvailableDoctors = async (req, res) => {
         const remainingCapacity = Math.max(0, maxCapacity - bookedCount);
         const isFull = remainingCapacity <= 0;
 
-        // Generate slots
-        const generatedSlots = generateSlotsForShift(fromStr, toStr, 30);
-        const slotsStatus = generatedSlots.map(slotTime => {
+        // Generate or retrieve doctor configured slots for this shift window
+        let shiftSlots = [];
+        if (Array.isArray(schedule.availableSlots) && schedule.availableSlots.length > 0) {
+          shiftSlots = schedule.availableSlots.filter(s => {
+            const m = parseTimeToMinutes(s);
+            return m >= shiftFromMins && m <= shiftToMins;
+          });
+        }
+        if (shiftSlots.length === 0) {
+          const stepMins = (schedule.slotDuration && String(schedule.slotDuration).includes('15')) ? 15 
+            : (schedule.slotDuration && String(schedule.slotDuration).includes('45')) ? 45
+            : (schedule.slotDuration && String(schedule.slotDuration).includes('60')) ? 60 : 30;
+          shiftSlots = generateSlotsForShift(fromStr, toStr, stepMins);
+        }
+
+        const slotsStatus = shiftSlots.map(slotTime => {
           const isSlotTaken = docApts.some(a => a.appointment_time === slotTime);
           return {
             time: slotTime,
@@ -166,8 +179,8 @@ export const getAvailableDoctors = async (req, res) => {
           bookedCount,
           remainingCapacity,
           isFull,
-          slots: generatedSlots,
-          availableSlots: generatedSlots.filter(s => !docApts.some(a => a.appointment_time === s))
+          slots: shiftSlots,
+          availableSlots: shiftSlots.filter(s => !docApts.some(a => a.appointment_time === s))
         };
       });
 

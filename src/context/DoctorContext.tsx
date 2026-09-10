@@ -3,6 +3,37 @@ import { useNavigate } from 'react-router-dom';
 import { isValidName, isValidEmail, isValidPhone, isFutureDate, isValidPatientCapacity } from '../utils/validation';
 import { isAppointmentSlotActive } from '../utils/appointmentSlot';
 
+export function parseTimeToMinutes(timeStr: string): number {
+  if (!timeStr) return 0;
+  const match = String(timeStr).match(/(\d+):(\d+)\s*(AM|PM)?/i);
+  if (!match) return 0;
+  let hours = parseInt(match[1], 10);
+  const minutes = parseInt(match[2], 10);
+  const ampm = match[3] ? match[3].toUpperCase() : null;
+  if (ampm === 'PM' && hours !== 12) hours += 12;
+  if (ampm === 'AM' && hours === 12) hours = 0;
+  return hours * 60 + minutes;
+}
+
+export function formatMinutesToTime(mins: number): string {
+  let hours = Math.floor(mins / 60);
+  const minutes = mins % 60;
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  hours = hours % 12 || 12;
+  return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')} ${ampm}`;
+}
+
+export function generateSlotsBetween(fromTime: string, toTime: string, stepMins = 30): string[] {
+  const start = parseTimeToMinutes(fromTime);
+  const end = parseTimeToMinutes(toTime);
+  const slots: string[] = [];
+  if (end <= start) return [fromTime];
+  for (let m = start; m < end; m += stepMins) {
+    slots.push(formatMinutesToTime(m));
+  }
+  return slots;
+}
+
 
 export interface MedicationItem {
   id: string;
@@ -253,6 +284,7 @@ interface DoctorContextType {
     toTime: string;
     maxPatients: number;
     mode: 'Both' | 'Virtual Telehealth' | 'In-Clinic';
+    days: string[];
   };
   setNewShiftForm: React.Dispatch<React.SetStateAction<{
     name: string;
@@ -260,18 +292,23 @@ interface DoctorContextType {
     toTime: string;
     maxPatients: number;
     mode: 'Both' | 'Virtual Telehealth' | 'In-Clinic';
+    days: string[];
   }>>;
   toggleDay: (day: string) => void;
+  setAllWorkingDays: (days: string[]) => void;
   toggleSlot: (slot: string) => void;
   addCustomSlot: (e: React.FormEvent) => void;
+  addSlot: (slotStr: string) => void;
   removeSlot: (slot: string) => void;
+  clearAllSlots: () => void;
+  generateSlotsForShifts: (stepMinutes?: number) => void;
   handleAddShift: (e: React.FormEvent) => void;
   shiftErrorMsg: string | null;
   setShiftErrorMsg: (val: string | null) => void;
   handleUpdateShiftMaxPatients: (shiftId: string, delta: number) => void;
   handleSetShiftMaxPatients: (shiftId: string, count: number) => void;
   handleDeleteShift: (shiftId: string) => void;
-  handleSaveSchedule: (e: React.FormEvent) => Promise<void>;
+  handleSaveSchedule: (e?: React.FormEvent | React.MouseEvent) => Promise<void>;
 
   // Telehealth
   activeTelehealthSession: AppointmentItem | null;
@@ -556,7 +593,8 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
     fromTime: '01:00 PM',
     toTime: '03:00 PM',
     maxPatients: 5,
-    mode: 'Both' as 'Virtual Telehealth' | 'In-Clinic' | 'Both'
+    mode: 'Both' as 'Virtual Telehealth' | 'In-Clinic' | 'Both',
+    days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
   });
 
   // --- API DATA FETCHERS ---
@@ -783,6 +821,13 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
     }));
   };
 
+  const setAllWorkingDays = (days: string[]) => {
+    setScheduleSettings(prev => ({
+      ...prev,
+      availableDays: days
+    }));
+  };
+
   const toggleSlot = (slot: string) => {
     setScheduleSettings(prev => ({
       ...prev,
@@ -797,18 +842,54 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
     if (!customSlotInput.trim()) return;
     const formatted = customSlotInput.trim();
     if (!scheduleSettings.availableSlots.includes(formatted)) {
+      const updated = [...scheduleSettings.availableSlots, formatted];
+      updated.sort((a, b) => parseTimeToMinutes(a) - parseTimeToMinutes(b));
       setScheduleSettings(prev => ({
         ...prev,
-        availableSlots: [...prev.availableSlots, formatted]
+        availableSlots: updated
       }));
     }
     setCustomSlotInput('');
+  };
+
+  const addSlot = (slotStr: string) => {
+    if (!slotStr || !slotStr.trim()) return;
+    const formatted = slotStr.trim();
+    if (!scheduleSettings.availableSlots.includes(formatted)) {
+      const updated = [...scheduleSettings.availableSlots, formatted];
+      updated.sort((a, b) => parseTimeToMinutes(a) - parseTimeToMinutes(b));
+      setScheduleSettings(prev => ({
+        ...prev,
+        availableSlots: updated
+      }));
+    }
   };
 
   const removeSlot = (slot: string) => {
     setScheduleSettings(prev => ({
       ...prev,
       availableSlots: prev.availableSlots.filter(s => s !== slot)
+    }));
+  };
+
+  const clearAllSlots = () => {
+    setScheduleSettings(prev => ({
+      ...prev,
+      availableSlots: []
+    }));
+  };
+
+  const generateSlotsForShifts = (stepMinutes = 30) => {
+    const allSlots: string[] = [];
+    scheduleSettings.shifts.forEach(shift => {
+      const slots = generateSlotsBetween(shift.fromTime, shift.toTime, stepMinutes);
+      allSlots.push(...slots);
+    });
+    const unique = Array.from(new Set(allSlots));
+    unique.sort((a, b) => parseTimeToMinutes(a) - parseTimeToMinutes(b));
+    setScheduleSettings(prev => ({
+      ...prev,
+      availableSlots: unique
     }));
   };
 
@@ -831,13 +912,19 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
       fromTime: newShiftForm.fromTime,
       toTime: newShiftForm.toTime,
       maxPatients: maxPat || 4,
-      days: scheduleSettings.availableDays,
+      days: (newShiftForm.days && newShiftForm.days.length > 0) ? newShiftForm.days : scheduleSettings.availableDays,
       mode: newShiftForm.mode
     };
 
+    // Auto-generate slots for this shift
+    const shiftSlots = generateSlotsBetween(newShift.fromTime, newShift.toTime, 30);
+    const combinedSlots = Array.from(new Set([...scheduleSettings.availableSlots, ...shiftSlots]));
+    combinedSlots.sort((a, b) => parseTimeToMinutes(a) - parseTimeToMinutes(b));
+
     setScheduleSettings(prev => ({
       ...prev,
-      shifts: [...prev.shifts, newShift]
+      shifts: [...prev.shifts, newShift],
+      availableSlots: combinedSlots
     }));
 
     setNewShiftForm({
@@ -845,7 +932,8 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
       fromTime: '09:00 AM',
       toTime: '12:00 PM',
       maxPatients: 5,
-      mode: 'Both'
+      mode: 'Both',
+      days: scheduleSettings.availableDays
     });
   };
 
@@ -876,14 +964,16 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
     }));
   };
 
-  const handleSaveSchedule = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setScheduleSaveMsg('Syncing consultation shifts with system database...');
+  const handleSaveSchedule = async (e?: React.FormEvent | React.MouseEvent) => {
+    if (e && 'preventDefault' in e && typeof e.preventDefault === 'function') {
+      e.preventDefault();
+    }
+    setScheduleSaveMsg('Syncing consultation shifts and slots with system database...');
     try {
       localStorage.setItem('femsphere_doctor_schedule', JSON.stringify(scheduleSettings));
       const token = localStorage.getItem('femsphere_token');
       if (token) {
-        await fetch('/api/doctors/schedule', {
+        const res = await fetch('/api/doctors/schedule', {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -891,9 +981,18 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
           },
           body: JSON.stringify(scheduleSettings)
         });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.schedule) {
+            setScheduleSettings(prev => ({ ...prev, ...data.schedule }));
+          }
+        }
       }
-    } catch (err) {}
-    setScheduleSaveMsg('Consultation shifts and patient capacity counts are now LIVE for booking!');
+      setScheduleSaveMsg('Consultation shifts and patient capacity slots are now LIVE for booking!');
+    } catch (err) {
+      console.error('Error saving schedule:', err);
+      setScheduleSaveMsg('Saved locally to browser storage.');
+    }
     setTimeout(() => setScheduleSaveMsg(null), 4000);
   };
 
@@ -1301,9 +1400,13 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
         newShiftForm,
         setNewShiftForm,
         toggleDay,
+        setAllWorkingDays,
         toggleSlot,
         addCustomSlot,
+        addSlot,
         removeSlot,
+        clearAllSlots,
+        generateSlotsForShifts,
         handleAddShift,
         shiftErrorMsg,
         setShiftErrorMsg,
