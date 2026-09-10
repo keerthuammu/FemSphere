@@ -353,3 +353,34 @@ INSERT INTO users (id, username, email, password_hash, role, status) VALUES
 (3, 'marcus_cg', 'caregiver@femsphere.health', 'caregiver_hash_2026', 'Caregiver', 'Active'),
 (4, 'dr_jenkins', 'dr.jenkins@femsphere.health', 'doctor_hash_2026', 'Doctor', 'Active')
 ON CONFLICT (id) DO UPDATE SET email = EXCLUDED.email;
+
+-- ==============================================================================
+-- DOMAIN 8: PERIOD & MENSTRUAL CYCLE TRACKING
+-- ==============================================================================
+CREATE TABLE IF NOT EXISTS period_settings (
+    id SERIAL PRIMARY KEY,
+    user_id INT UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    last_period_start DATE NOT NULL,
+    period_duration INT NOT NULL DEFAULT 5,
+    cycle_length INT NOT NULL DEFAULT 28,
+    is_configured BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS period_cycles (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    start_date DATE NOT NULL,
+    end_date DATE,
+    duration_days INT NOT NULL DEFAULT 5,
+    cycle_length_days INT NOT NULL DEFAULT 28,
+    status VARCHAR(50) DEFAULT 'On Time',
+    variance_days INT DEFAULT 0,
+    flow_intensity VARCHAR(30) DEFAULT 'Medium',
+    symptoms JSONB DEFAULT '[]'::jsonb,
+    mood VARCHAR(50) DEFAULT 'Calm',
+    notes TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+

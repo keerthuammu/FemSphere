@@ -18,6 +18,7 @@ import lifeStageRoutes from './routes/lifeStageRoutes.js';
 import privacyConsentRoutes from './routes/privacyConsentRoutes.js';
 import healthTimelineRoutes from './routes/healthTimelineRoutes.js';
 import aiTwinRoutes from './routes/aiTwinRoutes.js';
+import periodTrackerRoutes from './routes/periodTrackerRoutes.js';
 
 dotenv.config();
 
@@ -63,6 +64,7 @@ app.use('/api/life-stages', lifeStageRoutes);
 app.use('/api/privacy', privacyConsentRoutes);
 app.use('/api/health/timeline', healthTimelineRoutes);
 app.use('/api/health/insights', aiTwinRoutes);
+app.use('/api/period-tracker', periodTrackerRoutes);
 
 // Global Error Handler
 app.use((err, req, res, next) => {

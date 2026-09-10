@@ -9,6 +9,7 @@ import {
   FileCheck, Sliders, Settings, DollarSign, RefreshCw, Send, CheckSquare
 } from 'lucide-react';
 import { useDoctor } from '../../context/DoctorContext';
+import { isAppointmentSlotActive } from '../../utils/appointmentSlot';
 import { isFutureDate, validatePassword } from '../../utils/validation';
 
 export default function DoctorLayout() {
@@ -35,6 +36,8 @@ export default function DoctorLayout() {
     handleAddMedicationRow,
     handleRemoveMedicationRow,
     handleMedicationChange,
+    handleAddExerciseToPrescription,
+    handleRemoveExerciseFromPrescription,
     handleSaveConsultation,
     activeTelehealthSession,
     setActiveTelehealthSession,
@@ -60,7 +63,12 @@ export default function DoctorLayout() {
     newPassword,
     setNewPassword,
     passwordMsg,
-    setPasswordMsg
+    setPasswordMsg,
+    appointments,
+    isCallRinging,
+    callStatusText,
+    handleStartDoctorCall,
+    handleEndDoctorCall
   } = useDoctor();
 
   const navItems = [
@@ -165,22 +173,15 @@ export default function DoctorLayout() {
 
             <button
               onClick={() => {
-                if (patients.length === 0) {
-                  alert('No registered patients found in database yet. Telehealth rooms activate when connected patients exist.');
-                  return;
+                const activeSlotApt = appointments.find(a => 
+                  a.type === 'Virtual Telehealth' && 
+                  isAppointmentSlotActive(a.date, a.time).isActive
+                );
+                if (activeSlotApt) {
+                  handleStartDoctorCall(activeSlotApt);
+                } else {
+                  alert('No active telehealth appointment slot right now.\n\nVideo calls can only be started during the scheduled appointment slot. Please go to Appointments to view upcoming slots.');
                 }
-                const targetPatient = patients[0];
-                setActiveTelehealthSession({
-                  id: `LIVE-${Date.now().toString().slice(-4)}`,
-                  numericId: targetPatient.numericId,
-                  patient: targetPatient.name,
-                  patientId: targetPatient.id,
-                  date: new Date().toISOString().split('T')[0],
-                  time: 'Live',
-                  reason: 'Immediate Telehealth Consultation Room',
-                  status: 'Accepted',
-                  type: 'Virtual Telehealth'
-                });
               }}
               className="px-3.5 py-2 bg-[#14B8A6] hover:bg-[#0D9488] text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
             >
@@ -446,18 +447,42 @@ export default function DoctorLayout() {
             <form onSubmit={handleSaveConsultation} className="space-y-4 text-xs">
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block font-bold text-[#4a4145] uppercase mb-1">Select Patient</label>
+                  <label className="block font-bold text-[#4a4145] uppercase mb-1">Select Appointment / Patient</label>
                   <select 
-                    value={newConsultationForm.patient}
+                    value={newConsultationForm.appointmentId ? `APT-${newConsultationForm.appointmentId}` : newConsultationForm.patient}
                     onChange={(e) => {
-                      const sel = patients.find(p => p.name === e.target.value);
-                      setNewConsultationForm({ ...newConsultationForm, patient: e.target.value, patientId: sel ? sel.id : (patients[0]?.id || '') });
+                      const selectedVal = e.target.value;
+                      const matchedApt = appointments.find(a => a.id === selectedVal || `APT-${a.numericId}` === selectedVal);
+                      if (matchedApt) {
+                        setNewConsultationForm(prev => ({
+                          ...prev,
+                          patient: matchedApt.patient,
+                          patientId: matchedApt.patientId,
+                          appointmentId: matchedApt.numericId || matchedApt.id,
+                          chiefComplaint: matchedApt.reason || prev.chiefComplaint
+                        }));
+                      } else {
+                        const sel = patients.find(p => p.name === selectedVal);
+                        setNewConsultationForm(prev => ({
+                          ...prev,
+                          patient: selectedVal,
+                          patientId: sel ? sel.id : (patients[0]?.id || '')
+                        }));
+                      }
                     }}
                     className="w-full p-3 rounded-xl border border-[#EDE9FE] bg-white font-bold text-[#3a3135]"
                   >
-                    {patients.map(p => (
-                      <option key={p.id} value={p.name}>{p.name} ({p.id})</option>
-                    ))}
+                    {appointments.length > 0 ? (
+                      appointments.map(a => (
+                        <option key={a.id} value={a.id}>
+                          {a.patient} — Appointment on {a.date} at {a.time} ({a.reason})
+                        </option>
+                      ))
+                    ) : (
+                      patients.map(p => (
+                        <option key={p.id} value={p.name}>{p.name} ({p.id})</option>
+                      ))
+                    )}
                   </select>
                 </div>
 
@@ -594,6 +619,59 @@ export default function DoctorLayout() {
                 ))}
               </div>
 
+              {/* Prescribed Clinical Exercises & Movement Regimens */}
+              <div className="space-y-3 pt-3 border-t border-[#EDE9FE]">
+                <div>
+                  <span className="font-bold text-emerald-700 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                    <Activity className="w-3.5 h-3.5 text-emerald-600" /> Doctor-Prescribed Exercise & Physical Therapy Regimens
+                  </span>
+                  <p className="text-[10px] text-[#7a6f75] mt-0.5">Select and prescribe clinical movement protocols customized for this patient</p>
+                </div>
+
+                {/* Quick Add Clinical Regimen Buttons */}
+                <div className="flex flex-wrap gap-2 text-[10px]">
+                  {[
+                    { id: 'pcos-regimen', name: 'PCOS Insulin Regimen', category: 'Metabolic & Core', duration: '20 mins', frequency: 'Daily', instructions: 'Low-impact steady cardio and pelvic stabilization' },
+                    { id: 'pelvic-floor', name: 'Pelvic Floor & Kegel Stabilization', category: 'Pelvic Health', duration: '15 mins', frequency: 'Twice Daily', instructions: '5-second isometric pelvic floor holds, 10 reps' },
+                    { id: 'diastasis-recti', name: 'Diastasis Recti Core Repair', category: 'Postpartum PT', duration: '15 mins', frequency: '3x Weekly', instructions: 'Transverse abdominis activation, avoid forward crunches' },
+                    { id: 'menstrual-relief', name: 'Endometriosis Pain Relief Flow', category: 'Pain Reduction', duration: '20 mins', frequency: 'During Flares', instructions: 'Restorative hip openers, child pose, gentle pelvic tilts' },
+                    { id: 'bone-density', name: 'Menopause Bone Density Regimen', category: 'Strength & Bone', duration: '25 mins', frequency: '3x Weekly', instructions: 'Bodyweight squats, wall push-ups, light resistance' },
+                  ].map((preset) => (
+                    <button
+                      key={preset.id}
+                      type="button"
+                      onClick={() => handleAddExerciseToPrescription(preset)}
+                      className="px-2.5 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold border border-emerald-200 transition-colors flex items-center gap-1 cursor-pointer"
+                    >
+                      <Plus className="w-3 h-3 text-emerald-600" /> {preset.name}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Active Prescribed Exercises List */}
+                {newConsultationForm.prescribedExercises && newConsultationForm.prescribedExercises.length > 0 && (
+                  <div className="space-y-2 pt-1">
+                    {newConsultationForm.prescribedExercises.map((ex) => (
+                      <div key={ex.id} className="p-3 bg-emerald-50/60 rounded-2xl border border-emerald-100 flex items-center justify-between text-xs">
+                        <div>
+                          <span className="font-bold text-emerald-950 block">{ex.name}</span>
+                          <p className="text-[11px] text-emerald-700">{ex.category} • {ex.duration} • {ex.frequency}</p>
+                          <p className="text-[10px] text-slate-500 italic mt-0.5">{ex.instructions}</p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveExerciseFromPrescription(ex.id)}
+                          className="p-1.5 text-rose-500 hover:bg-rose-50 rounded-lg cursor-pointer"
+                          title="Remove Exercise"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
               <div className="flex gap-3 pt-4 border-t border-[#EDE9FE]">
                 <button type="submit" className="flex-1 py-3 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl font-bold shadow-md cursor-pointer">
                   Save & Issue Digital Prescription
@@ -672,6 +750,27 @@ export default function DoctorLayout() {
               </div>
             </div>
 
+            {/* Prescribed Exercises */}
+            {viewingPrescriptionModal.prescribedExercises && viewingPrescriptionModal.prescribedExercises.length > 0 && (
+              <div className="space-y-2">
+                <span className="font-serif font-bold text-lg text-emerald-700 block flex items-center gap-1.5">
+                  <Activity className="w-4 h-4 text-emerald-600" /> Prescribed Clinical Exercise Regimens
+                </span>
+                <div className="border border-emerald-100 rounded-2xl bg-emerald-50/40 p-4 space-y-2.5">
+                  {viewingPrescriptionModal.prescribedExercises.map((ex, idx) => (
+                    <div key={idx} className="flex items-start justify-between border-b border-emerald-100 pb-2 last:border-0 last:pb-0">
+                      <div>
+                        <p className="font-bold text-xs text-emerald-950">{ex.name}</p>
+                        <p className="text-[11px] text-emerald-800">{ex.category} • {ex.duration} • {ex.frequency}</p>
+                        <p className="text-[10px] text-slate-600 mt-0.5">{ex.instructions}</p>
+                      </div>
+                      <span className="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 text-[10px] font-bold shrink-0">Rx Regimen</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Advice */}
             <div className="p-4 bg-[#FAF8FC] rounded-2xl border border-[#EDE9FE] text-xs space-y-1">
               <span className="font-bold text-[#14B8A6] uppercase text-[10px]">Lifestyle & Dietary Guidance</span>
@@ -715,18 +814,20 @@ export default function DoctorLayout() {
           {/* Top Bar */}
           <div className="p-4 bg-slate-900 border-b border-slate-800 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse" />
+              <div className={`w-3 h-3 rounded-full ${isCallRinging ? 'bg-amber-400 animate-ping' : 'bg-emerald-500 animate-pulse'}`} />
               <div>
                 <h3 className="font-bold text-sm">Telehealth Consultation: {activeTelehealthSession.patient}</h3>
-                <p className="text-xs text-slate-400">Duration: {formatCallTime(telehealthCallDuration)} • Encrypted Peer-to-Peer Stream</p>
+                <p className="text-xs text-slate-400">
+                  {isCallRinging ? (callStatusText || 'Calling patient...') : `Duration: ${formatCallTime(telehealthCallDuration)} • Encrypted Peer-to-Peer Stream`}
+                </p>
               </div>
             </div>
             
             <button 
-              onClick={() => setActiveTelehealthSession(null)} 
-              className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+              onClick={handleEndDoctorCall} 
+              className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-md"
             >
-              <PhoneOff className="w-4 h-4" /> End Call
+              <PhoneOff className="w-4 h-4" /> {isCallRinging ? 'Cancel Call' : 'End Call'}
             </button>
           </div>
 
@@ -734,16 +835,42 @@ export default function DoctorLayout() {
           <div className="flex-1 grid md:grid-cols-3 gap-4 p-4 overflow-hidden">
             {/* Video Feeds (2/3 col) */}
             <div className="md:col-span-2 relative bg-slate-900 rounded-3xl overflow-hidden border border-slate-800 flex items-center justify-center">
-              {/* Patient Video Simulation */}
-              <div className="text-center space-y-3">
-                <div className="w-24 h-24 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-3xl font-bold mx-auto">
-                  {activeTelehealthSession.patient.charAt(0)}
+              {/* Patient Video / Ringing Screen */}
+              {isCallRinging ? (
+                <div className="text-center space-y-4 max-w-sm px-4">
+                  <div className="relative mx-auto w-24 h-24">
+                    <div className="absolute inset-0 rounded-full bg-purple-500/30 animate-ping" />
+                    <div className="relative w-24 h-24 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-3xl font-bold">
+                      {activeTelehealthSession.patient.charAt(0)}
+                    </div>
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-xl">{activeTelehealthSession.patient}</h4>
+                    <p className="text-xs text-amber-400 font-semibold mt-1 animate-pulse">
+                      {callStatusText || 'Calling patient... Waiting for patient to answer'}
+                    </p>
+                    <p className="text-[11px] text-slate-400 mt-2">
+                      An incoming call alert has been sent to the patient's dashboard.
+                    </p>
+                  </div>
+                  <button
+                    onClick={handleEndDoctorCall}
+                    className="px-4 py-2 bg-rose-600/80 hover:bg-rose-600 text-white rounded-xl text-xs font-bold inline-flex items-center gap-2 cursor-pointer shadow-md"
+                  >
+                    <PhoneOff className="w-4 h-4" /> Cancel Call
+                  </button>
                 </div>
-                <h4 className="font-bold text-lg">{activeTelehealthSession.patient}</h4>
-                <p className="text-xs text-emerald-400 font-semibold flex items-center justify-center gap-1">
-                  <Activity className="w-3.5 h-3.5" /> Live Health Twin Stream Connected
-                </p>
-              </div>
+              ) : (
+                <div className="text-center space-y-3">
+                  <div className="w-24 h-24 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-3xl font-bold mx-auto">
+                    {activeTelehealthSession.patient.charAt(0)}
+                  </div>
+                  <h4 className="font-bold text-lg">{activeTelehealthSession.patient}</h4>
+                  <p className="text-xs text-emerald-400 font-semibold flex items-center justify-center gap-1">
+                    <Activity className="w-3.5 h-3.5" /> Live Health Twin Stream Connected
+                  </p>
+                </div>
+              )}
 
               {/* Doctor Mini Camera View (Bottom Right) */}
               <div className="absolute bottom-4 right-4 w-40 h-28 bg-slate-800 rounded-2xl border-2 border-purple-500 overflow-hidden flex items-center justify-center shadow-lg">

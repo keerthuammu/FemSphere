@@ -1,6 +1,7 @@
-import React from 'react';
-import { Search, Activity, Pill, Eye, FileText } from 'lucide-react';
+import React, { useState } from 'react';
+import { Search, Activity, Pill, Eye, FileText, Droplet } from 'lucide-react';
 import { useDoctor } from '../../context/DoctorContext';
+import DoctorPatientCycleModal from '../../components/DoctorPatientCycleModal';
 
 export default function DoctorPatients() {
   const {
@@ -13,8 +14,11 @@ export default function DoctorPatients() {
     setSelectedHealthTwin,
     setSelectedRecordToView,
     setNewConsultationForm,
-    setShowAddConsultationModal
+    setShowAddConsultationModal,
+    fetchPatientCycleProfile
   } = useDoctor();
+
+  const [selectedCyclePatient, setSelectedCyclePatient] = useState<{ id: number; name: string } | null>(null);
 
   const filteredPatients = patients
     .filter(p => p.name.toLowerCase().includes(searchPatient.toLowerCase()) || p.email.toLowerCase().includes(searchPatient.toLowerCase()))
@@ -83,10 +87,22 @@ export default function DoctorPatients() {
                   </div>
 
                   <div className="grid grid-cols-2 gap-2 pt-2 border-t border-[#EDE9FE] text-xs">
-                    <div className="p-2 bg-white rounded-xl border border-[#EDE9FE]">
-                      <span className="text-[10px] text-[#7a6f75] block">Cycle Phase</span>
-                      <span className="font-bold text-[#3a3135] truncate block">{p.cyclePhase}</span>
-                    </div>
+                    <button 
+                      type="button"
+                      onClick={() => setSelectedCyclePatient({ id: p.numericId, name: p.name })}
+                      className="p-2 bg-rose-50/50 hover:bg-rose-50 rounded-xl border border-rose-100 hover:border-rose-300 text-left transition-all cursor-pointer group"
+                      title="Click to inspect patient menstrual cycle & history"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] text-rose-600 font-bold block flex items-center gap-1">
+                          <Droplet className="w-3 h-3 fill-rose-500 text-rose-500" /> Cycle Phase
+                        </span>
+                        <span className="text-[9px] text-[#7C3AED] font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
+                          View
+                        </span>
+                      </div>
+                      <span className="font-bold text-xs text-[#3a3135] truncate block mt-0.5">{p.cyclePhase}</span>
+                    </button>
                     <div className="p-2 bg-white rounded-xl border border-[#EDE9FE]">
                       <span className="text-[10px] text-[#7a6f75] block">Resting HR</span>
                       <span className="font-bold text-[#14B8A6]">{p.heartRate} bpm</span>
@@ -136,6 +152,17 @@ export default function DoctorPatients() {
             );
           })}
         </div>
+      )}
+
+      {/* Attending Physician Patient Cycle Modal */}
+      {selectedCyclePatient && (
+        <DoctorPatientCycleModal
+          isOpen={Boolean(selectedCyclePatient)}
+          onClose={() => setSelectedCyclePatient(null)}
+          patientId={selectedCyclePatient.id}
+          patientName={selectedCyclePatient.name}
+          fetchPatientCycleProfile={fetchPatientCycleProfile}
+        />
       )}
     </div>
   );

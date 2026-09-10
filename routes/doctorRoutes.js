@@ -1,6 +1,7 @@
 import express from 'express';
 import { 
   getDoctors, 
+  getAvailableDoctors,
   getDoctorDashboardStats, 
   getDoctorPatients, 
   getSharedPatientRecords, 
@@ -14,6 +15,7 @@ import { authenticateToken } from '../middleware/auth.js';
 
 const router = express.Router();
 
+router.get('/available', getAvailableDoctors);
 router.get('/', getDoctors);
 router.get('/dashboard-stats', authenticateToken, getDoctorDashboardStats);
 router.get('/patients', authenticateToken, getDoctorPatients);

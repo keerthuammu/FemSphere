@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { 
   Sparkles, Activity, Heart, Calendar, FileText, 
   LogOut, Bell, Watch, Bluetooth, Wifi, RefreshCw, 
   Battery, CheckCircle2, Clock, Printer, Camera, 
-  X, FileCheck, Scan, User, Sliders
+  X, FileCheck, Scan, User, Sliders, Video, VideoOff, Mic, MicOff, PhoneCall, PhoneOff,
+  MapPin, Search, Stethoscope, AlertCircle, AlertTriangle, ShieldCheck, Users, ChevronRight, Droplet
 } from 'lucide-react';
 import { useUser } from '../../context/UserContext';
 import LifeStageSelector from '../../components/LifeStageSelector';
@@ -50,11 +51,17 @@ export default function UserLayout() {
     symptomLogs,
     appointments,
     doctorsList,
+    availableDoctors,
+    isLoadingAvailableDoctors,
+    availableSearchFilters,
+    setAvailableSearchFilters,
+    fetchAvailableDoctors,
     showBookModal,
     setShowBookModal,
     newAppointment,
     setNewAppointment,
     appointmentErrorMsg,
+    setAppointmentErrorMsg,
     handleBookAppointment,
     notifications,
     unreadCount,
@@ -75,15 +82,33 @@ export default function UserLayout() {
     showReportPreview,
     setShowReportPreview,
     handlePrintPDFReport,
+    incomingCall,
+    activeVideoConsultation,
+    handleAcceptCall,
+    handleDeclineCall,
+    handleEndUserCall,
+    isReproductiveAgeUser,
     handleLogout
   } = useUser();
 
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
+  const [isPatientMicOn, setIsPatientMicOn] = useState(true);
+  const [isPatientVideoOn, setIsPatientVideoOn] = useState(true);
+  const [selectedShiftId, setSelectedShiftId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (showBookModal) {
+      fetchAvailableDoctors();
+    }
+  }, [showBookModal, fetchAvailableDoctors]);
 
   const navItems = [
     { name: 'Dashboard', path: '/dashboard', icon: Activity, end: true },
     { name: 'Medical Records', path: '/dashboard/records', icon: FileText },
     { name: 'Health Tracker', path: '/dashboard/tracker', icon: Heart, iconColor: 'text-[#F472B6]' },
+    ...(isReproductiveAgeUser ? [
+      { name: 'Period Tracker', path: '/dashboard/period-tracker', icon: Droplet, iconColor: 'text-rose-500' }
+    ] : []),
     { name: 'Appointments', path: '/dashboard/appointments', icon: Calendar },
     { name: 'Health Reports', path: '/dashboard/reports', icon: Printer, iconColor: 'text-[#14B8A6]' },
     { name: 'Prescribed Fitness', path: '/dashboard/fitness', icon: Activity, iconColor: 'text-emerald-600' },
@@ -503,111 +528,385 @@ export default function UserLayout() {
         </div>
       )}
 
-      {/* 4. Book Appointment Modal */}
+      {/* 4. Book Appointment Modal - Doctor Availability & Capacity Booking Hub */}
       {showBookModal && (
-        <div className="fixed inset-0 bg-slate-900/40 flex items-center justify-center p-4 z-50 font-inter">
-          <div className="bg-white rounded-3xl p-6 max-w-md w-full border border-[#EDE9FE] shadow-2xl space-y-4">
-            <div className="flex items-center justify-between pb-2 border-b border-[#EDE9FE]">
-              <h3 className="font-bold text-base text-[#3a3135]">Book Doctor Appointment</h3>
-              <button onClick={() => setShowBookModal(false)} className="text-[#7a6f75] hover:text-black cursor-pointer">
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 z-50 font-inter overflow-y-auto">
+          <div className="bg-white rounded-3xl p-5 sm:p-6 max-w-4xl w-full border border-[#EDE9FE] shadow-2xl space-y-4 my-auto max-h-[92vh] flex flex-col">
+            
+            {/* Modal Header */}
+            <div className="flex items-center justify-between pb-3 border-b border-[#EDE9FE] shrink-0">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-purple-100 text-[#7C3AED] flex items-center justify-center font-bold">
+                  <Calendar className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-base sm:text-lg text-[#3a3135]">Find & Book Available Doctors</h3>
+                  <p className="text-xs text-[#7a6f75]">Live shift capacity, real-time accommodations & instant slot reservation</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => {
+                  setShowBookModal(false);
+                  setAppointmentErrorMsg(null);
+                }} 
+                className="p-1.5 rounded-xl hover:bg-gray-100 text-[#7a6f75] hover:text-black cursor-pointer transition-colors"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
+            {/* Error / Alert notification */}
             {appointmentErrorMsg && (
-              <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs font-semibold">
-                {appointmentErrorMsg}
+              <div className="p-3 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-xs font-semibold flex items-center gap-2 shrink-0">
+                <AlertCircle className="w-4 h-4 text-red-500 shrink-0" />
+                <span>{appointmentErrorMsg}</span>
               </div>
             )}
 
-            <form onSubmit={handleBookAppointment} className="space-y-3 text-xs">
-              <div>
-                <label className="block font-bold mb-1">Select Doctor</label>
-                <select 
-                  value={newAppointment.doctor} 
-                  onChange={(e) => {
-                    const selectedName = e.target.value;
-                    const found = doctorsList.find(d => `${d.name} (${d.specialization})` === selectedName || d.name === selectedName);
-                    setNewAppointment({
-                      ...newAppointment,
-                      doctor: selectedName,
-                      doctorId: found?.id
-                    });
-                  }} 
-                  className="w-full p-2.5 rounded-xl border border-[#EDE9FE] bg-white font-medium"
-                  required
-                >
-                  <option value="">Select a Doctor</option>
-                  {doctorsList.map(doc => (
-                    <option key={doc.id} value={`${doc.name} (${doc.specialization})`}>
-                      {doc.name} — {doc.specialization} ({doc.hospitalClinic})
-                    </option>
+            {/* SEARCH & FILTER BAR */}
+            <div className="p-4 rounded-2xl bg-[#FAF8FC] border border-[#EDE9FE] space-y-3 shrink-0 text-xs">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-[#3a3135] uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                  <Search className="w-3.5 h-3.5 text-[#7C3AED]" /> Filter Available Shifts & Accommodations
+                </span>
+                {availableSearchFilters.date && (
+                  <span className="text-[11px] font-bold text-[#7C3AED] bg-purple-100 px-2.5 py-0.5 rounded-full">
+                    {new Date(availableSearchFilters.date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' })}
+                  </span>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2.5">
+                {/* 1. Date Picker */}
+                <div>
+                  <label className="block font-bold text-gray-700 mb-1">Appointment Date</label>
+                  <input 
+                    type="date"
+                    min={new Date().toISOString().split('T')[0]}
+                    value={availableSearchFilters.date}
+                    onChange={(e) => {
+                      const newDate = e.target.value;
+                      setAvailableSearchFilters(prev => ({ ...prev, date: newDate }));
+                      setNewAppointment(prev => ({ ...prev, date: newDate }));
+                      fetchAvailableDoctors({ date: newDate });
+                    }}
+                    className="w-full p-2 rounded-xl border border-[#EDE9FE] bg-white font-medium focus:border-[#7C3AED] outline-none"
+                    required
+                  />
+                </div>
+
+                {/* 2. Clinic / Place / Location */}
+                <div>
+                  <label className="block font-bold text-gray-700 mb-1">Clinic / Place</label>
+                  <div className="relative">
+                    <MapPin className="w-3.5 h-3.5 text-gray-400 absolute left-2.5 top-2.5" />
+                    <input 
+                      type="text"
+                      placeholder="e.g. Center, Memorial..."
+                      value={availableSearchFilters.place}
+                      onChange={(e) => {
+                        const newPlace = e.target.value;
+                        setAvailableSearchFilters(prev => ({ ...prev, place: newPlace }));
+                        fetchAvailableDoctors({ place: newPlace });
+                      }}
+                      className="w-full pl-8 pr-2.5 py-2 rounded-xl border border-[#EDE9FE] bg-white font-medium focus:border-[#7C3AED] outline-none"
+                    />
+                  </div>
+                </div>
+
+                {/* 3. Time Window */}
+                <div>
+                  <label className="block font-bold text-gray-700 mb-1">Time Window</label>
+                  <select
+                    value={availableSearchFilters.time}
+                    onChange={(e) => {
+                      const newTime = e.target.value;
+                      setAvailableSearchFilters(prev => ({ ...prev, time: newTime }));
+                      fetchAvailableDoctors({ time: newTime });
+                    }}
+                    className="w-full p-2 rounded-xl border border-[#EDE9FE] bg-white font-medium focus:border-[#7C3AED] outline-none"
+                  >
+                    <option value="">All Shift Times</option>
+                    <option value="09:00 AM">Morning (08:00 AM - 12:00 PM)</option>
+                    <option value="01:00 PM">Afternoon (12:00 PM - 05:00 PM)</option>
+                    <option value="06:00 PM">Evening (05:00 PM - 09:00 PM)</option>
+                  </select>
+                </div>
+
+                {/* 4. Specialization */}
+                <div>
+                  <label className="block font-bold text-gray-700 mb-1">Specialization</label>
+                  <select
+                    value={availableSearchFilters.specialty}
+                    onChange={(e) => {
+                      const newSpec = e.target.value;
+                      setAvailableSearchFilters(prev => ({ ...prev, specialty: newSpec }));
+                      fetchAvailableDoctors({ specialty: newSpec });
+                    }}
+                    className="w-full p-2 rounded-xl border border-[#EDE9FE] bg-white font-medium focus:border-[#7C3AED] outline-none"
+                  >
+                    <option value="">All Specialties</option>
+                    <option value="Obstetrics & Gynecology">Obstetrics & Gynecology</option>
+                    <option value="Maternal-Fetal">Maternal-Fetal Specialist</option>
+                    <option value="Reproductive">Reproductive Specialist</option>
+                    <option value="Pelvic">Pelvic Health & PT</option>
+                    <option value="General">General Practice</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* DOCTORS & SHIFTS LIST (SCROLLABLE) */}
+            <div className="flex-1 overflow-y-auto space-y-4 pr-1">
+              {isLoadingAvailableDoctors ? (
+                <div className="py-12 text-center space-y-3">
+                  <div className="w-10 h-10 border-3 border-[#7C3AED] border-t-transparent rounded-full animate-spin mx-auto"></div>
+                  <p className="text-xs text-[#7a6f75] font-medium">Checking live doctor shift schedules & accommodation capacity...</p>
+                </div>
+              ) : availableDoctors.length === 0 ? (
+                <div className="py-12 px-4 text-center rounded-2xl border border-dashed border-[#EDE9FE] space-y-3 bg-[#FAF8FC]">
+                  <div className="w-12 h-12 rounded-2xl bg-purple-50 text-[#7C3AED] flex items-center justify-center mx-auto">
+                    <Stethoscope className="w-6 h-6" />
+                  </div>
+                  <h4 className="font-bold text-sm text-[#3a3135]">No Available Doctors Found for Chosen Criteria</h4>
+                  <p className="text-xs text-[#7a6f75] max-w-md mx-auto">
+                    No active clinical shifts or remaining accommodations match your search filters for this date. Try picking another date or clearing your location/time filters.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const resetFilters = {
+                        date: new Date().toISOString().split('T')[0],
+                        place: '',
+                        time: '',
+                        specialty: ''
+                      };
+                      setAvailableSearchFilters(resetFilters);
+                      fetchAvailableDoctors(resetFilters);
+                    }}
+                    className="px-4 py-2 bg-[#7C3AED] text-white text-xs font-bold rounded-xl cursor-pointer hover:bg-[#6D28D9] transition-all"
+                  >
+                    Reset Search Filters
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {availableDoctors.map((doc) => (
+                    <div key={doc.id} className="p-4 sm:p-5 rounded-2xl border border-[#EDE9FE] bg-white shadow-2xs hover:shadow-xs transition-all space-y-3">
+                      
+                      {/* Doctor Info Row */}
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-100 pb-3">
+                        <div className="flex items-center gap-3">
+                          <div className="w-11 h-11 rounded-2xl bg-[#EDE9FE] text-[#7C3AED] flex items-center justify-center font-bold text-base shrink-0 shadow-2xs">
+                            {doc.name ? doc.name.replace('Dr. ', '').charAt(0) : 'D'}
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <h4 className="font-bold text-sm text-[#3a3135]">{doc.name}</h4>
+                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-50 text-[#7C3AED] border border-purple-200">
+                                {doc.specialization}
+                              </span>
+                            </div>
+                            <p className="text-xs text-[#7a6f75] flex items-center gap-1.5 mt-0.5">
+                              <MapPin className="w-3.5 h-3.5 text-gray-400" />
+                              <span>{doc.hospitalClinic || 'FemSphere Health Center'}</span>
+                            </p>
+                          </div>
+                        </div>
+
+                        {doc.teleconsultFee && (
+                          <div className="text-right sm:text-right shrink-0">
+                            <span className="text-[10px] text-gray-400 font-bold block uppercase">Consultation Fee</span>
+                            <span className="text-sm font-bold text-[#7C3AED]">${doc.teleconsultFee}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Doctor Shifts on this day */}
+                      <div className="space-y-3">
+                        {doc.shifts.map((shift) => {
+                          const percentFilled = shift.maxPatients > 0 
+                            ? Math.min(100, Math.round((shift.bookedCount / shift.maxPatients) * 100)) 
+                            : 0;
+
+                          return (
+                            <div 
+                              key={shift.id} 
+                              className={`p-3.5 rounded-xl border transition-all text-xs space-y-2.5 ${
+                                shift.isFull 
+                                  ? 'bg-red-50/40 border-red-200 opacity-90' 
+                                  : 'bg-[#FAF8FC] border-[#EDE9FE] hover:border-purple-300'
+                              }`}
+                            >
+                              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                <div className="flex items-center gap-2">
+                                  <span className="font-bold text-[#3a3135]">{shift.type || 'Clinical Shift'}</span>
+                                  <span className="text-gray-400">•</span>
+                                  <span className="font-semibold text-gray-600 flex items-center gap-1">
+                                    <Clock className="w-3.5 h-3.5 text-[#7C3AED]" /> {shift.startTime} - {shift.endTime}
+                                  </span>
+                                </div>
+
+                                {/* Live Accommodation Decrement Badge */}
+                                <div className="flex items-center gap-2">
+                                  {shift.isFull ? (
+                                    <span className="px-2.5 py-1 rounded-full font-bold text-[10px] bg-red-100 text-red-700 border border-red-200 flex items-center gap-1">
+                                      🔒 FULL (0 / {shift.maxPatients} Accommodations Left)
+                                    </span>
+                                  ) : shift.remainingCapacity <= 2 ? (
+                                    <span className="px-2.5 py-1 rounded-full font-bold text-[10px] bg-amber-100 text-amber-800 border border-amber-200 flex items-center gap-1">
+                                      ⚠️ {shift.remainingCapacity} / {shift.maxPatients} Accommodations Left (Filling Fast!)
+                                    </span>
+                                  ) : (
+                                    <span className="px-2.5 py-1 rounded-full font-bold text-[10px] bg-emerald-100 text-emerald-800 border border-emerald-200 flex items-center gap-1">
+                                      🟢 {shift.remainingCapacity} / {shift.maxPatients} Accommodations Available
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+
+                              {/* Visual Capacity Bar */}
+                              <div className="space-y-1">
+                                <div className="flex items-center justify-between text-[10px] text-gray-500 font-medium">
+                                  <span>Shift Accommodation Capacity: {shift.bookedCount} booked / {shift.maxPatients} max</span>
+                                  <span>{shift.isFull ? '100% Full' : `${shift.remainingCapacity} spots remaining`}</span>
+                                </div>
+                                <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                                  <div 
+                                    className={`h-full rounded-full transition-all duration-300 ${
+                                      shift.isFull 
+                                        ? 'bg-red-500' 
+                                        : shift.remainingCapacity <= 2 
+                                        ? 'bg-amber-500' 
+                                        : 'bg-emerald-500'
+                                    }`}
+                                    style={{ width: `${percentFilled}%` }}
+                                  />
+                                </div>
+                              </div>
+
+                              {/* Slot Pill Buttons */}
+                              {shift.isFull ? (
+                                <div className="p-2.5 bg-red-100/50 rounded-lg text-[11px] text-red-700 font-semibold flex items-center gap-1.5">
+                                  <AlertCircle className="w-3.5 h-3.5 text-red-500 shrink-0" />
+                                  <span>All {shift.maxPatients} accommodation spots for this shift are filled. Please select another shift.</span>
+                                </div>
+                              ) : (
+                                <div className="space-y-1 pt-1">
+                                  <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">
+                                    Select Appointment Slot:
+                                  </span>
+                                  <div className="flex flex-wrap gap-2">
+                                    {(shift.availableSlots || shift.slots).map((slotTime) => {
+                                      const isSelected = newAppointment.doctorId === doc.id && 
+                                                         newAppointment.time === slotTime && 
+                                                         newAppointment.date === availableSearchFilters.date;
+
+                                      return (
+                                        <button
+                                          key={slotTime}
+                                          type="button"
+                                          onClick={() => {
+                                            setSelectedShiftId(shift.id);
+                                            setNewAppointment({
+                                              ...newAppointment,
+                                              doctorId: doc.id,
+                                              doctor: `${doc.name} (${doc.specialization})`,
+                                              date: availableSearchFilters.date,
+                                              time: slotTime
+                                            });
+                                            setAppointmentErrorMsg(null);
+                                          }}
+                                          className={`px-3 py-1.5 rounded-xl font-bold text-xs transition-all cursor-pointer flex items-center gap-1 ${
+                                            isSelected
+                                              ? 'bg-[#7C3AED] text-white shadow-sm ring-2 ring-purple-300'
+                                              : 'bg-white hover:bg-purple-50 text-gray-700 border border-[#EDE9FE]'
+                                          }`}
+                                        >
+                                          <Clock className={`w-3 h-3 ${isSelected ? 'text-white' : 'text-[#7C3AED]'}`} />
+                                          <span>{slotTime}</span>
+                                        </button>
+                                      );
+                                    })}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                    </div>
                   ))}
-                  {doctorsList.length === 0 && (
-                    <>
-                      <option value="Dr. Sarah Jenkins (OB/GYN)">Dr. Sarah Jenkins (Obstetrics & Gynecology)</option>
-                      <option value="Dr. Priya Sharma (Maternal-Fetal)">Dr. Priya Sharma (Maternal-Fetal Specialist)</option>
-                      <option value="Dr. Amanda Vance (Reproductive Endocrine)">Dr. Amanda Vance (Reproductive Specialist)</option>
-                    </>
+                </div>
+              )}
+            </div>
+
+            {/* BOOKING DETAILS & SUBMISSION FORM */}
+            <form onSubmit={handleBookAppointment} className="p-4 rounded-2xl bg-purple-50/70 border border-purple-200 space-y-3 shrink-0 text-xs">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-purple-200/60 pb-2">
+                <div>
+                  <span className="font-bold text-[#3a3135] text-xs">Selected Consultation Slot:</span>
+                  {newAppointment.doctor && newAppointment.time ? (
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="font-bold text-[#7C3AED] text-sm">{newAppointment.doctor}</span>
+                      <span className="px-2 py-0.5 rounded-md bg-white border border-purple-200 text-[#7C3AED] font-bold">
+                        {newAppointment.date} at {newAppointment.time}
+                      </span>
+                    </div>
+                  ) : (
+                    <p className="text-gray-500 italic mt-0.5">Please click on an available time slot above to book with that doctor.</p>
                   )}
-                </select>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <label className="font-bold text-gray-600">Visit Type:</label>
+                  <select
+                    value={newAppointment.type || 'Virtual Telehealth'}
+                    onChange={(e) => setNewAppointment({ ...newAppointment, type: e.target.value })}
+                    className="p-1.5 rounded-lg border border-purple-200 bg-white font-semibold text-xs text-[#3a3135] outline-none"
+                  >
+                    <option value="Virtual Telehealth">Virtual Telehealth (In-App Video)</option>
+                    <option value="In-Person Clinic Visit">In-Person Clinic Visit</option>
+                  </select>
+                </div>
               </div>
 
               <div>
-                <label className="block font-bold mb-1">Appointment Date</label>
+                <label className="block font-bold text-gray-700 mb-1">Reason for Visit & Symptoms Review</label>
                 <input 
-                  type="date" 
-                  min={new Date().toISOString().split('T')[0]}
-                  value={newAppointment.date} 
-                  onChange={(e) => setNewAppointment({...newAppointment, date: e.target.value})} 
-                  className={`w-full p-2.5 rounded-xl border ${
-                    newAppointment.date && !isFutureDate(newAppointment.date)
-                      ? 'border-red-400 focus:border-red-500'
-                      : 'border-[#EDE9FE]'
-                  }`} 
-                  required 
+                  type="text"
+                  placeholder="e.g. PCOS follow-up, hormonal bloodwork review & exercise prescription"
+                  value={newAppointment.reason}
+                  onChange={(e) => setNewAppointment({ ...newAppointment, reason: e.target.value })}
+                  className="w-full p-2.5 rounded-xl border border-purple-200 bg-white text-xs outline-none focus:border-[#7C3AED]"
+                  required
                 />
               </div>
 
-              <div>
-                <label className="block font-bold mb-1">Appointment Time</label>
-                <select 
-                  value={newAppointment.time} 
-                  onChange={(e) => setNewAppointment({...newAppointment, time: e.target.value})} 
-                  className="w-full p-2.5 rounded-xl border border-[#EDE9FE] bg-white font-medium"
+              <div className="flex items-center justify-end gap-2 pt-1">
+                <button 
+                  type="button" 
+                  onClick={() => setShowBookModal(false)} 
+                  className="py-2.5 px-4 border border-gray-300 rounded-xl font-bold cursor-pointer hover:bg-gray-50 transition-colors"
                 >
-                  <option value="09:00 AM">09:00 AM</option>
-                  <option value="10:00 AM">10:00 AM</option>
-                  <option value="11:30 AM">11:30 AM</option>
-                  <option value="02:00 PM">02:00 PM</option>
-                  <option value="04:00 PM">04:00 PM</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block font-bold mb-1">Reason for Visit</label>
-                <input 
-                  type="text" 
-                  placeholder="e.g. Reproductive health checkup & vitals review" 
-                  value={newAppointment.reason} 
-                  onChange={(e) => setNewAppointment({...newAppointment, reason: e.target.value})} 
-                  className="w-full p-2.5 rounded-xl border border-[#EDE9FE]" 
-                  required 
-                />
-              </div>
-
-              <div className="flex gap-2 pt-2">
-                <button type="submit" className="flex-1 py-2.5 bg-[#7C3AED] text-white font-bold rounded-xl cursor-pointer">
-                  Confirm Booking
-                </button>
-                <button type="button" onClick={() => setShowBookModal(false)} className="py-2.5 px-4 border rounded-xl font-bold cursor-pointer">
                   Cancel
+                </button>
+                <button 
+                  type="submit" 
+                  disabled={!newAppointment.doctorId || !newAppointment.time}
+                  className="py-2.5 px-6 bg-[#7C3AED] hover:bg-[#6D28D9] disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold rounded-xl cursor-pointer shadow-sm transition-all flex items-center gap-1.5"
+                >
+                  <ShieldCheck className="w-4 h-4" />
+                  <span>Confirm & Lock Accommodation Slot</span>
                 </button>
               </div>
             </form>
+
           </div>
         </div>
       )}
+
 
       {/* 5. AI Document Scanning Progress Modal */}
       {isScanningDoc && (
@@ -957,6 +1256,133 @@ export default function UserLayout() {
                 ) : (
                   <p className="text-gray-500 italic">No appointments booked.</p>
                 )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* --- MODAL: INCOMING TELEHEALTH CALL --- */}
+      {incomingCall && (
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 z-50 font-inter animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl max-w-md w-full p-8 border border-purple-200 shadow-2xl text-center space-y-6">
+            <div className="relative mx-auto w-24 h-24">
+              <div className="absolute inset-0 rounded-full bg-purple-500/30 animate-ping" />
+              <div className="relative w-24 h-24 rounded-full bg-gradient-to-tr from-[#7C3AED] to-pink-500 flex items-center justify-center text-white shadow-lg">
+                <Video className="w-10 h-10 animate-bounce" />
+              </div>
+            </div>
+
+            <div>
+              <span className="px-3 py-1 bg-purple-100 text-[#7C3AED] text-xs font-bold rounded-full uppercase tracking-wider">
+                Incoming Video Call
+              </span>
+              <h3 className="text-2xl font-serif font-bold text-[#2E2428] mt-3">
+                {incomingCall.doctorName}
+              </h3>
+              <p className="text-sm text-[#7C3AED] font-semibold mt-0.5">
+                {incomingCall.doctorSpecialization}
+              </p>
+              <p className="text-xs text-slate-500 mt-2">
+                Scheduled Slot: {incomingCall.appointmentDate} at {incomingCall.appointmentTime}
+              </p>
+            </div>
+
+            <p className="text-xs text-slate-600 bg-[#FAF8FC] p-3 rounded-2xl border border-purple-50">
+              Your doctor is calling you for your scheduled clinical consultation. Click Accept to join the encrypted video session.
+            </p>
+
+            <div className="flex items-center gap-3 pt-2">
+              <button
+                onClick={handleDeclineCall}
+                className="flex-1 py-3 px-4 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold rounded-2xl flex items-center justify-center gap-2 cursor-pointer transition-all border border-rose-200 text-sm"
+              >
+                <PhoneOff className="w-4 h-4" /> Decline
+              </button>
+              <button
+                onClick={handleAcceptCall}
+                className="flex-1 py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl flex items-center justify-center gap-2 cursor-pointer transition-all shadow-lg text-sm animate-pulse"
+              >
+                <PhoneCall className="w-4 h-4" /> Accept Call
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* --- MODAL: PATIENT ACTIVE VIDEO CONSULTATION ROOM --- */}
+      {activeVideoConsultation && (
+        <div className="fixed inset-0 bg-slate-950 flex flex-col z-50 font-inter text-white animate-in fade-in duration-200">
+          {/* Top Bar */}
+          <div className="p-4 bg-slate-900 border-b border-slate-800 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse" />
+              <div>
+                <h3 className="font-bold text-sm">Consultation with {activeVideoConsultation.doctorName}</h3>
+                <p className="text-xs text-slate-400">
+                  Duration: {Math.floor(activeVideoConsultation.durationSeconds / 60).toString().padStart(2, '0')}:{(activeVideoConsultation.durationSeconds % 60).toString().padStart(2, '0')} • Encrypted Peer-to-Peer Stream
+                </p>
+              </div>
+            </div>
+
+            <button
+              onClick={handleEndUserCall}
+              className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-md"
+            >
+              <PhoneOff className="w-4 h-4" /> Leave Call
+            </button>
+          </div>
+
+          {/* Video Feed Area */}
+          <div className="flex-1 p-4 flex items-center justify-center relative bg-slate-900/50">
+            {/* Main Doctor Feed */}
+            <div className="w-full h-full max-w-4xl bg-slate-900 rounded-3xl border border-slate-800 flex flex-col items-center justify-center relative overflow-hidden">
+              <div className="text-center space-y-3">
+                <div className="w-28 h-28 rounded-full bg-gradient-to-tr from-[#7C3AED] to-pink-500 flex items-center justify-center text-4xl font-bold mx-auto shadow-2xl">
+                  {activeVideoConsultation.doctorName.charAt(0)}
+                </div>
+                <div>
+                  <h4 className="font-bold text-xl">{activeVideoConsultation.doctorName}</h4>
+                  <p className="text-xs text-[#A78BFA] font-medium">{activeVideoConsultation.doctorSpecialization}</p>
+                  <p className="text-xs text-emerald-400 font-semibold flex items-center justify-center gap-1.5 mt-2">
+                    <Activity className="w-3.5 h-3.5" /> Doctor Video & Audio Connected
+                  </p>
+                </div>
+              </div>
+
+              {/* Patient Mini PIP Camera View (Bottom Right) */}
+              <div className="absolute bottom-6 right-6 w-44 h-32 bg-slate-800 rounded-2xl border-2 border-[#7C3AED] overflow-hidden flex items-center justify-center shadow-2xl">
+                <div className="text-center">
+                  <div className="w-12 h-12 rounded-full bg-pink-500 flex items-center justify-center text-base font-bold mx-auto">
+                    {userProfile.fullName.charAt(0)}
+                  </div>
+                  <span className="text-[11px] text-slate-200 block mt-1 font-medium">You ({userProfile.fullName})</span>
+                </div>
+              </div>
+
+              {/* Floating Controls Bar */}
+              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-4 bg-slate-800/90 backdrop-blur-md px-6 py-3 rounded-full border border-slate-700 shadow-xl">
+                <button
+                  onClick={() => setIsPatientMicOn(!isPatientMicOn)}
+                  className={`p-3 rounded-full cursor-pointer transition-all ${isPatientMicOn ? 'bg-slate-700 hover:bg-slate-600 text-white' : 'bg-rose-600 text-white'}`}
+                  title={isPatientMicOn ? 'Mute Microphone' : 'Unmute Microphone'}
+                >
+                  {isPatientMicOn ? <Mic className="w-4 h-4" /> : <MicOff className="w-4 h-4" />}
+                </button>
+                <button
+                  onClick={() => setIsPatientVideoOn(!isPatientVideoOn)}
+                  className={`p-3 rounded-full cursor-pointer transition-all ${isPatientVideoOn ? 'bg-slate-700 hover:bg-slate-600 text-white' : 'bg-rose-600 text-white'}`}
+                  title={isPatientVideoOn ? 'Turn Off Camera' : 'Turn On Camera'}
+                >
+                  {isPatientVideoOn ? <Video className="w-4 h-4" /> : <VideoOff className="w-4 h-4" />}
+                </button>
+                <button
+                  onClick={handleEndUserCall}
+                  className="p-3 bg-rose-600 hover:bg-rose-700 text-white rounded-full cursor-pointer transition-all shadow-md"
+                  title="End Consultation Call"
+                >
+                  <PhoneOff className="w-4 h-4" />
+                </button>
               </div>
             </div>
           </div>

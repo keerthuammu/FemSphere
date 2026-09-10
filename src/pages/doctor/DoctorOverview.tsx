@@ -5,6 +5,7 @@ import {
   ArrowRight, Clock, Plus, ShieldCheck, FileCheck, Stethoscope
 } from 'lucide-react';
 import { useDoctor } from '../../context/DoctorContext';
+import { isAppointmentSlotActive } from '../../utils/appointmentSlot';
 
 export default function DoctorOverview() {
   const {
@@ -14,6 +15,7 @@ export default function DoctorOverview() {
     profile,
     setSelectedHealthTwin,
     setActiveTelehealthSession,
+    handleStartDoctorCall,
     setShowAddConsultationModal
   } = useDoctor();
 
@@ -134,14 +136,29 @@ export default function DoctorOverview() {
                   </div>
 
                   <div className="flex items-center gap-2">
-                    {apt.type === 'Virtual Telehealth' && (
-                      <button
-                        onClick={() => setActiveTelehealthSession(apt)}
-                        className="px-3 py-1.5 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl font-bold text-xs flex items-center gap-1 cursor-pointer"
-                      >
-                        <Video className="w-3.5 h-3.5" /> Launch
-                      </button>
-                    )}
+                    {apt.type === 'Virtual Telehealth' && (() => {
+                      const slotStatus = isAppointmentSlotActive(apt.date, apt.time);
+                      if (slotStatus.isActive) {
+                        return (
+                          <button
+                            onClick={() => handleStartDoctorCall(apt)}
+                            className="px-3 py-1.5 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl font-bold text-xs flex items-center gap-1 cursor-pointer animate-pulse"
+                            title="Start call now"
+                          >
+                            <Video className="w-3.5 h-3.5" /> Call Patient
+                          </button>
+                        );
+                      }
+                      return (
+                        <button
+                          onClick={() => alert(`Telehealth can only be launched during the scheduled slot.\n\n${slotStatus.reason}`)}
+                          className="px-2.5 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-500 rounded-xl font-semibold text-xs flex items-center gap-1 cursor-pointer"
+                          title={slotStatus.reason}
+                        >
+                          <Clock className="w-3 h-3" /> Inactive
+                        </button>
+                      );
+                    })()}
                   </div>
                 </div>
               ))}

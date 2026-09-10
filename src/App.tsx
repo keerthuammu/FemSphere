@@ -19,6 +19,7 @@ import UserPartner from './pages/user/UserPartner';
 import UserNotifications from './pages/user/UserNotifications';
 import UserProfilePage from './pages/user/UserProfilePage';
 import UserSettings from './pages/user/UserSettings';
+import UserPeriodTracker from './pages/user/UserPeriodTracker';
 
 // Admin Sub-Pages & Layout
 import { AdminProvider } from './context/AdminContext';
@@ -145,6 +146,7 @@ export default function App() {
           <Route path="appointments" element={<UserAppointments />} />
           <Route path="reports" element={<UserReports />} />
           <Route path="fitness" element={<UserFitness />} />
+          <Route path="period-tracker" element={<UserPeriodTracker />} />
           <Route path="partner" element={<UserPartner />} />
           <Route path="notifications" element={<UserNotifications />} />
           <Route path="profile" element={<UserProfilePage />} />

@@ -124,6 +124,32 @@ export interface DoctorOption {
   hospitalClinic?: string;
 }
 
+export interface AvailableDoctorShift {
+  id: string;
+  day: string;
+  startTime: string;
+  endTime: string;
+  type: string;
+  maxPatients: number;
+  bookedCount: number;
+  remainingCapacity: number;
+  isFull: boolean;
+  notes?: string;
+  slots: string[];
+  availableSlots: string[];
+}
+
+export interface AvailableDoctorItem {
+  id: number;
+  userId: number;
+  name: string;
+  specialization: string;
+  hospitalClinic: string;
+  licenseNumber?: string;
+  teleconsultFee?: number;
+  shifts: AvailableDoctorShift[];
+}
+
 export interface ConsultationNoteItem {
   id: string | number;
   doctor_id: number;
@@ -136,7 +162,97 @@ export interface ConsultationNoteItem {
   advice: string;
   prescription_notes?: string;
   chief_complaint?: string;
+  appointment_id?: number;
+  prescribed_exercises?: Array<{
+    name: string;
+    target: string;
+    setsReps: string;
+    clinicalNote?: string;
+  }>;
   created_at: string;
+}
+
+export interface IncomingCallSession {
+  appointmentId: number;
+  doctorId: number;
+  doctorName: string;
+  doctorSpecialization?: string;
+  appointmentTime: string;
+  appointmentDate: string;
+  roomUrl?: string;
+}
+
+export interface ActiveVideoConsultation {
+  appointmentId: number;
+  doctorName: string;
+  doctorSpecialization?: string;
+  roomUrl?: string;
+  durationSeconds: number;
+}
+
+// Period & Menstrual Cycle Tracking Interfaces
+export interface PeriodSettings {
+  id?: number;
+  lastPeriodStart: string;
+  periodDuration: number;
+  cycleLength: number;
+  isConfigured: boolean;
+  updatedAt?: string;
+}
+
+export interface PhaseOverviewItem {
+  id: string;
+  name: string;
+  days: string;
+  badge: string;
+  color: string;
+  hormone: string;
+  feelings: string;
+  foods: string;
+  workouts: string;
+  isActive: boolean;
+}
+
+export interface PeriodMetrics {
+  cycleDay: number;
+  cycleLength: number;
+  periodDuration: number;
+  lastPeriodStart: string;
+  phaseCode: 'MENSTRUAL' | 'FOLLICULAR' | 'OVULATORY' | 'LUTEAL' | 'DELAYED';
+  phaseName: string;
+  phaseBadge: string;
+  phaseColor: string;
+  phaseDescription: string;
+  hormonalState: string;
+  isDelayed: boolean;
+  daysDelayed: number;
+  cycleProgressPercent: number;
+  nextPeriodDateStr: string;
+  ovulationDateStr: string;
+  fertileWindowStr: string;
+  phasesOverview: PhaseOverviewItem[];
+}
+
+export interface CycleHistoryItem {
+  id: number | string;
+  startDate: string;
+  endDate: string | null;
+  durationDays: number;
+  cycleLengthDays: number;
+  status: string;
+  varianceDays: number;
+  flowIntensity: string;
+  symptoms: string[];
+  mood: string;
+  notes?: string;
+  createdAt?: string;
+}
+
+export interface MenstrualTip {
+  title: string;
+  category: string;
+  tip: string;
+  icon: string;
 }
 
 
@@ -251,6 +367,11 @@ interface UserContextType {
   // Appointments
   appointments: AppointmentItem[];
   doctorsList: DoctorOption[];
+  availableDoctors: AvailableDoctorItem[];
+  isLoadingAvailableDoctors: boolean;
+  availableSearchFilters: { date: string; place: string; time: string; specialty: string };
+  setAvailableSearchFilters: React.Dispatch<React.SetStateAction<{ date: string; place: string; time: string; specialty: string }>>;
+  fetchAvailableDoctors: (customFilters?: { date?: string; place?: string; time?: string; specialty?: string }) => Promise<void>;
   showBookModal: boolean;
   setShowBookModal: React.Dispatch<React.SetStateAction<boolean>>;
   newAppointment: { doctor: string; doctorId?: number; date: string; time: string; reason: string; type: string };
@@ -283,6 +404,29 @@ interface UserContextType {
   showReportPreview: boolean;
   setShowReportPreview: React.Dispatch<React.SetStateAction<boolean>>;
   handlePrintPDFReport: () => void;
+
+  // Telehealth Active & Incoming Calls
+  incomingCall: IncomingCallSession | null;
+  activeVideoConsultation: ActiveVideoConsultation | null;
+  handleAcceptCall: () => Promise<void>;
+  handleDeclineCall: () => Promise<void>;
+  handleEndUserCall: () => Promise<void>;
+
+  // Period Tracker (Reproductive Age Feature)
+  isReproductiveAgeUser: boolean;
+  isPeriodTrackerConfigured: boolean;
+  periodSettings: PeriodSettings | null;
+  periodMetrics: PeriodMetrics | null;
+  cycleHistory: CycleHistoryItem[];
+  menstrualAffirmation: string;
+  menstrualTips: MenstrualTip[];
+  isLoadingPeriodData: boolean;
+  periodErrorMsg: string | null;
+  setPeriodErrorMsg: (val: string | null) => void;
+  fetchPeriodData: () => Promise<void>;
+  handleSavePeriodSetup: (data: { lastPeriodStart: string; periodDuration: number; cycleLength: number }) => Promise<boolean>;
+  handleLogPeriodEntry: (data: { startDate: string; endDate?: string; durationDays?: number; flowIntensity: string; symptoms: string[]; mood: string; notes?: string }) => Promise<boolean>;
+  handleAdjustCycleDelay: (newCycleLength?: number, delayDays?: number) => Promise<boolean>;
 
   // Logout
   handleLogout: () => void;
@@ -435,9 +579,17 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Appointments State (Pure Backend - Starts empty)
   const [appointments, setAppointments] = useState<AppointmentItem[]>([]);
   const [doctorsList, setDoctorsList] = useState<DoctorOption[]>([]);
+  const [availableDoctors, setAvailableDoctors] = useState<AvailableDoctorItem[]>([]);
+  const [isLoadingAvailableDoctors, setIsLoadingAvailableDoctors] = useState(false);
+  const [availableSearchFilters, setAvailableSearchFilters] = useState({
+    date: new Date().toISOString().split('T')[0],
+    place: '',
+    time: '',
+    specialty: ''
+  });
   const [showBookModal, setShowBookModal] = useState(false);
   const [newAppointment, setNewAppointment] = useState<{ doctor: string; doctorId?: number; date: string; time: string; reason: string; type: string }>({
-    doctor: '', date: '', time: '10:00 AM', reason: '', type: 'Virtual Telehealth'
+    doctor: '', date: new Date().toISOString().split('T')[0], time: '10:00 AM', reason: '', type: 'Virtual Telehealth'
   });
   const [appointmentErrorMsg, setAppointmentErrorMsg] = useState<string | null>(null);
 
@@ -457,6 +609,21 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Report Preview State
   const [showReportPreview, setShowReportPreview] = useState(false);
+
+  // Telehealth Incoming & Active Call State
+  const [incomingCall, setIncomingCall] = useState<IncomingCallSession | null>(null);
+  const [activeVideoConsultation, setActiveVideoConsultation] = useState<ActiveVideoConsultation | null>(null);
+
+  // Period & Menstrual Cycle Tracker State
+  const isReproductiveAgeUser = currentStageCode === 'REPRODUCTIVE_AGE' || currentStageCode === 'YOUNG_ADULT';
+  const [isPeriodTrackerConfigured, setIsPeriodTrackerConfigured] = useState(false);
+  const [periodSettings, setPeriodSettings] = useState<PeriodSettings | null>(null);
+  const [periodMetrics, setPeriodMetrics] = useState<PeriodMetrics | null>(null);
+  const [cycleHistory, setCycleHistory] = useState<CycleHistoryItem[]>([]);
+  const [menstrualAffirmation, setMenstrualAffirmation] = useState('');
+  const [menstrualTips, setMenstrualTips] = useState<MenstrualTip[]>([]);
+  const [isLoadingPeriodData, setIsLoadingPeriodData] = useState(false);
+  const [periodErrorMsg, setPeriodErrorMsg] = useState<string | null>(null);
 
   // ==============================================================================
   // BACKEND API FETCH FUNCTIONS
@@ -635,18 +802,36 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
           hospitalClinic: d.hospital_clinic || 'FemSphere Health Center'
         }));
         setDoctorsList(mapped);
-        if (mapped.length > 0 && !newAppointment.doctor) {
-          setNewAppointment(prev => ({
-            ...prev,
-            doctor: `${mapped[0].name} (${mapped[0].specialization})`,
-            doctorId: mapped[0].id
-          }));
-        }
       }
     } catch (err) {
       console.error('Error fetching doctors:', err);
     }
-  }, [newAppointment.doctor]);
+  }, []);
+
+  const fetchAvailableDoctors = useCallback(async (customFilters?: { date?: string; place?: string; time?: string; specialty?: string }) => {
+    setIsLoadingAvailableDoctors(true);
+    try {
+      const filters = { ...availableSearchFilters, ...(customFilters || {}) };
+      const params = new URLSearchParams();
+      if (filters.date) params.append('date', filters.date);
+      if (filters.place) params.append('place', filters.place);
+      if (filters.time) params.append('time', filters.time);
+      if (filters.specialty) params.append('specialty', filters.specialty);
+
+      const res = await fetch(`/api/doctors/available?${params.toString()}`);
+      const data = await res.json();
+      if (data.success && Array.isArray(data.doctors)) {
+        setAvailableDoctors(data.doctors);
+      } else {
+        setAvailableDoctors([]);
+      }
+    } catch (err) {
+      console.error('Error fetching available doctors with shifts:', err);
+      setAvailableDoctors([]);
+    } finally {
+      setIsLoadingAvailableDoctors(false);
+    }
+  }, [availableSearchFilters]);
 
   const fetchNotifications = useCallback(async () => {
     try {
@@ -691,6 +876,110 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
+  // Period Tracker API Fetch & Action Handlers
+  const fetchPeriodData = useCallback(async () => {
+    setIsLoadingPeriodData(true);
+    try {
+      const token = localStorage.getItem('femsphere_token');
+      if (!token) return;
+      const res = await fetch('/api/period-tracker/settings', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.success && data.isConfigured) {
+        setIsPeriodTrackerConfigured(true);
+        setPeriodSettings(data.settings);
+        setPeriodMetrics(data.metrics);
+        setCycleHistory(data.cycleHistory || []);
+        if (data.affirmation) setMenstrualAffirmation(data.affirmation);
+        if (data.tips) setMenstrualTips(data.tips);
+      } else {
+        setIsPeriodTrackerConfigured(false);
+        setPeriodSettings(null);
+        setPeriodMetrics(null);
+      }
+    } catch (err) {
+      console.error('Error fetching period tracking data:', err);
+    } finally {
+      setIsLoadingPeriodData(false);
+    }
+  }, []);
+
+  const handleSavePeriodSetup = async (setupData: { lastPeriodStart: string; periodDuration: number; cycleLength: number }): Promise<boolean> => {
+    setPeriodErrorMsg(null);
+    try {
+      const token = localStorage.getItem('femsphere_token');
+      if (!token) return false;
+      const res = await fetch('/api/period-tracker/setup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify(setupData)
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setIsPeriodTrackerConfigured(true);
+        setPeriodSettings(data.settings);
+        setPeriodMetrics(data.metrics);
+        await fetchPeriodData();
+        return true;
+      } else {
+        setPeriodErrorMsg(data.message || 'Failed to save cycle setup.');
+        return false;
+      }
+    } catch (e: any) {
+      setPeriodErrorMsg(e.message || 'Error communicating with server.');
+      return false;
+    }
+  };
+
+  const handleLogPeriodEntry = async (entry: { startDate: string; endDate?: string; durationDays?: number; flowIntensity: string; symptoms: string[]; mood: string; notes?: string }): Promise<boolean> => {
+    setPeriodErrorMsg(null);
+    try {
+      const token = localStorage.getItem('femsphere_token');
+      if (!token) return false;
+      const res = await fetch('/api/period-tracker/log', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify(entry)
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        await fetchPeriodData();
+        return true;
+      } else {
+        setPeriodErrorMsg(data.message || 'Failed to log period.');
+        return false;
+      }
+    } catch (e: any) {
+      setPeriodErrorMsg(e.message || 'Error logging period.');
+      return false;
+    }
+  };
+
+  const handleAdjustCycleDelay = async (newCycleLength?: number, delayDays?: number): Promise<boolean> => {
+    setPeriodErrorMsg(null);
+    try {
+      const token = localStorage.getItem('femsphere_token');
+      if (!token) return false;
+      const res = await fetch('/api/period-tracker/adjust-delay', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ newCycleLength, delayDays })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        await fetchPeriodData();
+        return true;
+      } else {
+        setPeriodErrorMsg(data.message || 'Failed to adjust delay.');
+        return false;
+      }
+    } catch (e: any) {
+      setPeriodErrorMsg(e.message || 'Error adjusting delay.');
+      return false;
+    }
+  };
+
   // Initial Load from Backend
   useEffect(() => {
     fetchUserProfile();
@@ -701,7 +990,80 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     fetchDoctors();
     fetchNotifications();
     fetchConsultationNotes();
-  }, [fetchUserProfile, fetchRecords, fetchTrackerLogs, fetchSymptoms, fetchAppointments, fetchDoctors, fetchNotifications, fetchConsultationNotes]);
+    fetchPeriodData();
+  }, [fetchUserProfile, fetchRecords, fetchTrackerLogs, fetchSymptoms, fetchAppointments, fetchDoctors, fetchNotifications, fetchConsultationNotes, fetchPeriodData]);
+
+  // Telehealth Incoming Call Ringtone Audio chime
+  useEffect(() => {
+    if (!incomingCall) return;
+    const playChime = () => {
+      try {
+        const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+        if (!AudioContextClass) return;
+        const ctx = new AudioContextClass();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(523.25, ctx.currentTime);
+        osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.15);
+        gain.gain.setValueAtTime(0.08, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.6);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.6);
+      } catch (e) {}
+    };
+
+    playChime();
+    const interval = setInterval(playChime, 2500);
+    return () => clearInterval(interval);
+  }, [incomingCall]);
+
+  // Telehealth Active Consultation Call Duration Timer
+  useEffect(() => {
+    if (!activeVideoConsultation) return;
+    const timer = setInterval(() => {
+      setActiveVideoConsultation(prev => prev ? { ...prev, durationSeconds: prev.durationSeconds + 1 } : null);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [activeVideoConsultation]);
+
+  // Telehealth Background Polling for Incoming Calls
+  useEffect(() => {
+    const token = localStorage.getItem('femsphere_token');
+    if (!token) return;
+
+    const pollIncomingCall = async () => {
+      try {
+        const res = await fetch('/api/appointments/active-call', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.activeCall && data.activeCall.status === 'calling') {
+            setIncomingCall({
+              appointmentId: data.activeCall.id,
+              doctorId: data.activeCall.doctor_id,
+              doctorName: data.activeCall.doctor_name || 'Dr. Healthcare Specialist',
+              doctorSpecialization: data.activeCall.doctor_specialization || 'Clinical Specialist',
+              appointmentTime: data.activeCall.appointment_time,
+              appointmentDate: data.activeCall.appointment_date,
+              roomUrl: data.activeCall.room_url
+            });
+          } else {
+            if (incomingCall) setIncomingCall(null);
+            if (activeVideoConsultation && (!data.activeCall || data.activeCall.status !== 'connected')) {
+              setActiveVideoConsultation(null);
+            }
+          }
+        }
+      } catch (e) {}
+    };
+
+    const interval = setInterval(pollIncomingCall, 3500);
+    return () => clearInterval(interval);
+  }, [incomingCall, activeVideoConsultation]);
 
   // ==============================================================================
   // ACTIONS & HANDLERS
@@ -1293,8 +1655,8 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     e.preventDefault();
     setAppointmentErrorMsg(null);
 
-    if (!newAppointment.doctor) {
-      setAppointmentErrorMsg('Please select a doctor.');
+    if (!newAppointment.doctor || !newAppointment.doctorId) {
+      setAppointmentErrorMsg('Please select a doctor and appointment slot.');
       return;
     }
     if (!newAppointment.date) {
@@ -1313,14 +1675,14 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const token = localStorage.getItem('femsphere_token');
       if (token) {
-        await fetch('/api/appointments', {
+        const res = await fetch('/api/appointments', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
           },
           body: JSON.stringify({
-            doctorId: newAppointment.doctorId || 1,
+            doctorId: newAppointment.doctorId,
             doctorName: newAppointment.doctor,
             date: newAppointment.date,
             time: newAppointment.time || '10:00 AM',
@@ -1328,18 +1690,28 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
             type: newAppointment.type || 'Virtual Telehealth'
           })
         });
-        await fetchAppointments();
-      }
-    } catch (apiErr) {
-      console.error('Error booking appointment in backend:', apiErr);
-    }
 
-    setShowBookModal(false);
-    await addNotification({
-      title: 'Appointment Booked',
-      message: `Confirmed consultation with ${newAppointment.doctor} on ${newAppointment.date} at ${newAppointment.time}.`,
-      type: 'appointment'
-    });
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+          setAppointmentErrorMsg(data.error || data.message || 'Failed to book appointment: Shift limit reached.');
+          return;
+        }
+
+        // Successfully booked: accommodation decrement takes effect
+        await fetchAppointments();
+        await fetchAvailableDoctors();
+        setShowBookModal(false);
+        setAppointmentErrorMsg(null);
+        await addNotification({
+          title: 'Appointment Booked & Confirmed',
+          message: `Your consultation with ${newAppointment.doctor} on ${newAppointment.date} at ${newAppointment.time} is locked.`,
+          type: 'appointment'
+        });
+      }
+    } catch (apiErr: any) {
+      console.error('Error booking appointment in backend:', apiErr);
+      setAppointmentErrorMsg(apiErr.message || 'Network error while booking appointment.');
+    }
   };
 
   const handleCancelAppointment = async (id: string | number) => {
@@ -1366,6 +1738,59 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (token) {
         await fetch(`/api/appointments/${id}`, {
           method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+      }
+    } catch (e) {}
+  };
+
+  // Telehealth Call Answering & Control Handlers
+  const handleAcceptCall = async () => {
+    if (!incomingCall) return;
+    const current = incomingCall;
+    setIncomingCall(null);
+    try {
+      const token = localStorage.getItem('femsphere_token');
+      if (token) {
+        await fetch(`/api/appointments/${current.appointmentId}/answer`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+      }
+    } catch (e) {}
+    setActiveVideoConsultation({
+      appointmentId: current.appointmentId,
+      doctorName: current.doctorName,
+      doctorSpecialization: current.doctorSpecialization,
+      roomUrl: current.roomUrl,
+      durationSeconds: 0
+    });
+  };
+
+  const handleDeclineCall = async () => {
+    if (!incomingCall) return;
+    const current = incomingCall;
+    setIncomingCall(null);
+    try {
+      const token = localStorage.getItem('femsphere_token');
+      if (token) {
+        await fetch(`/api/appointments/${current.appointmentId}/decline`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+      }
+    } catch (e) {}
+  };
+
+  const handleEndUserCall = async () => {
+    if (!activeVideoConsultation) return;
+    const current = activeVideoConsultation;
+    setActiveVideoConsultation(null);
+    try {
+      const token = localStorage.getItem('femsphere_token');
+      if (token) {
+        await fetch(`/api/appointments/${current.appointmentId}/end-call`, {
+          method: 'POST',
           headers: { 'Authorization': `Bearer ${token}` }
         });
       }
@@ -1596,6 +2021,11 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         fetchSymptoms,
         appointments,
         doctorsList,
+        availableDoctors,
+        isLoadingAvailableDoctors,
+        availableSearchFilters,
+        setAvailableSearchFilters,
+        fetchAvailableDoctors,
         showBookModal,
         setShowBookModal,
         newAppointment,
@@ -1620,6 +2050,25 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         showReportPreview,
         setShowReportPreview,
         handlePrintPDFReport,
+        incomingCall,
+        activeVideoConsultation,
+        handleAcceptCall,
+        handleDeclineCall,
+        handleEndUserCall,
+        isReproductiveAgeUser,
+        isPeriodTrackerConfigured,
+        periodSettings,
+        periodMetrics,
+        cycleHistory,
+        menstrualAffirmation,
+        menstrualTips,
+        isLoadingPeriodData,
+        periodErrorMsg,
+        setPeriodErrorMsg,
+        fetchPeriodData,
+        handleSavePeriodSetup,
+        handleLogPeriodEntry,
+        handleAdjustCycleDelay,
         handleLogout
       }}
     >

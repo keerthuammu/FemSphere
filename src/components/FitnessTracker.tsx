@@ -2151,6 +2151,13 @@ export interface FitnessTrackerProps {
     hospital_clinic?: string;
     diagnosis: string;
     advice: string;
+    prescription_notes?: string;
+    prescribed_exercises?: Array<{
+      name: string;
+      target: string;
+      setsReps: string;
+      clinicalNote?: string;
+    }>;
     created_at: string;
   }>;
 }
@@ -2661,32 +2668,78 @@ export default function FitnessTracker({
                 <p className="text-[11px] text-[#7a6f75]">Personalized physical therapy and lifestyle advice prescribed during your doctor consultations</p>
               </div>
             </div>
-            <div className="grid gap-3 sm:grid-cols-2">
-              {consultationAdvice.map((cons) => (
-                <div key={cons.id} className="p-4 rounded-2xl bg-white border border-[#EDE9FE] space-y-2 text-xs shadow-2xs">
-                  <div className="flex items-center justify-between border-b border-gray-100 pb-2">
-                    <span className="font-bold text-[#7C3AED]">
-                      {cons.doctor_name || 'Attending Specialist'}
-                    </span>
-                    <span className="text-[10px] text-gray-400">
-                      {cons.created_at ? new Date(cons.created_at).toLocaleDateString() : 'Active Prescription'}
-                    </span>
+            <div className="grid gap-4 sm:grid-cols-2">
+              {consultationAdvice.map((cons) => {
+                let exercisesList: any[] = [];
+                if (Array.isArray(cons.prescribed_exercises)) {
+                  exercisesList = cons.prescribed_exercises;
+                } else if (typeof cons.prescribed_exercises === 'string') {
+                  try {
+                    exercisesList = JSON.parse(cons.prescribed_exercises);
+                  } catch (e) {}
+                }
+
+                return (
+                  <div key={cons.id} className="p-4 rounded-2xl bg-white border border-[#EDE9FE] space-y-3 text-xs shadow-2xs">
+                    <div className="flex items-center justify-between border-b border-gray-100 pb-2">
+                      <span className="font-bold text-[#7C3AED]">
+                        {cons.doctor_name || 'Attending Specialist'}
+                      </span>
+                      <span className="text-[10px] text-gray-400">
+                        {cons.created_at ? new Date(cons.created_at).toLocaleDateString() : 'Active Prescription'}
+                      </span>
+                    </div>
+                    {cons.specialization && (
+                      <span className="text-[10px] font-semibold text-purple-700 bg-purple-50 px-2 py-0.5 rounded-md inline-block">
+                        {cons.specialization} • {cons.hospital_clinic || 'FemSphere Health'}
+                      </span>
+                    )}
+                    <div>
+                      <span className="font-bold text-gray-500 block text-[10px] uppercase">Clinical Diagnosis:</span>
+                      <p className="font-semibold text-gray-800">{cons.diagnosis}</p>
+                    </div>
+
+                    {cons.advice && (
+                      <div>
+                        <span className="font-bold text-emerald-700 block text-[10px] uppercase">Clinical Movement Advice:</span>
+                        <p className="text-gray-700 whitespace-pre-line bg-emerald-50/50 p-2.5 rounded-xl border border-emerald-100">{cons.advice}</p>
+                      </div>
+                    )}
+
+                    {/* Prescribed Exercises & Regimens */}
+                    {exercisesList.length > 0 && (
+                      <div className="space-y-1.5 pt-1">
+                        <span className="font-bold text-purple-800 block text-[10px] uppercase flex items-center gap-1">
+                          <Activity className="w-3.5 h-3.5 text-[#7C3AED]" /> Prescribed Exercise Regimens:
+                        </span>
+                        <div className="space-y-1.5">
+                          {exercisesList.map((ex, idx) => (
+                            <div key={idx} className="p-2.5 rounded-xl bg-purple-50/70 border border-purple-200/80 flex flex-col gap-1">
+                              <div className="flex items-center justify-between">
+                                <span className="font-bold text-[#3a3135]">{ex.name}</span>
+                                <span className="font-black text-[#7C3AED] text-[10px] bg-white px-2 py-0.5 rounded-full border border-purple-200">
+                                  {ex.setsReps}
+                                </span>
+                              </div>
+                              <div className="flex items-center justify-between text-[10px] text-gray-600">
+                                <span>Target: <b className="text-gray-700">{ex.target}</b></span>
+                                {ex.clinicalNote && <span className="text-[#7a6f75] italic">{ex.clinicalNote}</span>}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {cons.prescription_notes && (
+                      <div>
+                        <span className="font-bold text-blue-700 block text-[10px] uppercase">Prescribed Medications:</span>
+                        <p className="text-gray-700 whitespace-pre-line bg-blue-50/40 p-2 rounded-xl border border-blue-100 font-mono text-[11px]">{cons.prescription_notes}</p>
+                      </div>
+                    )}
                   </div>
-                  {cons.specialization && (
-                    <span className="text-[10px] font-semibold text-purple-700 bg-purple-50 px-2 py-0.5 rounded-md inline-block">
-                      {cons.specialization} • {cons.hospital_clinic || 'FemSphere Health'}
-                    </span>
-                  )}
-                  <div>
-                    <span className="font-bold text-gray-500 block text-[10px] uppercase">Diagnosis:</span>
-                    <p className="font-medium text-gray-800">{cons.diagnosis}</p>
-                  </div>
-                  <div>
-                    <span className="font-bold text-emerald-700 block text-[10px] uppercase">Prescribed Therapy / Movement:</span>
-                    <p className="text-gray-700 whitespace-pre-line">{cons.advice}</p>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}

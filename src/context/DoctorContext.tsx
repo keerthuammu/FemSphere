@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { isValidName, isValidEmail, isValidPhone, isFutureDate, isValidPatientCapacity } from '../utils/validation';
+import { isAppointmentSlotActive } from '../utils/appointmentSlot';
+
 
 export interface MedicationItem {
   id: string;
@@ -58,17 +60,28 @@ export interface SharedMedicalRecord {
   riskAssessment: string;
 }
 
+export interface PrescribedExerciseItem {
+  id: string;
+  name: string;
+  category: string;
+  duration: string;
+  frequency: string;
+  instructions: string;
+}
+
 export interface ConsultationRecord {
   id: string;
   numericId: number;
   patient: string;
   patientId: string;
+  appointmentId?: number | string;
   date: string;
   time: string;
   chiefComplaint: string;
   diagnosis: string;
   advice: string;
   medications: MedicationItem[];
+  prescribedExercises?: PrescribedExerciseItem[];
   followUpDate: string;
 }
 
@@ -82,6 +95,9 @@ export interface AppointmentItem {
   reason: string;
   status: 'Scheduled' | 'Accepted' | 'Completed' | 'Rejected';
   type: 'In-Clinic' | 'Virtual Telehealth';
+  cyclePhase?: string;
+  cycleDay?: number | null;
+  cycleBadge?: string | null;
 }
 
 export interface ShiftItem {
@@ -165,24 +181,31 @@ interface DoctorContextType {
   newConsultationForm: {
     patient: string;
     patientId: string;
+    appointmentId?: string | number;
     chiefComplaint: string;
     diagnosis: string;
     advice: string;
     followUpDate: string;
     medications: MedicationItem[];
+    prescribedExercises: PrescribedExerciseItem[];
   };
   setNewConsultationForm: React.Dispatch<React.SetStateAction<{
     patient: string;
     patientId: string;
+    appointmentId?: string | number;
     chiefComplaint: string;
     diagnosis: string;
     advice: string;
     followUpDate: string;
     medications: MedicationItem[];
+    prescribedExercises: PrescribedExerciseItem[];
   }>>;
   handleAddMedicationRow: () => void;
   handleRemoveMedicationRow: (id: string) => void;
   handleMedicationChange: (id: string, field: keyof MedicationItem, value: string) => void;
+  handleAddExerciseToPrescription: (ex: PrescribedExerciseItem) => void;
+  handleRemoveExerciseFromPrescription: (id: string) => void;
+  handleOpenPrescribeForAppointment: (apt: AppointmentItem) => void;
   handleSaveConsultation: (e: React.FormEvent) => Promise<void>;
   handleDeleteConsultation: (id: string) => Promise<void>;
   consultationErrorMsg: string | null;
@@ -215,6 +238,7 @@ interface DoctorContextType {
   }>>;
   handleCreateAppointment: (e: React.FormEvent) => Promise<void>;
   handleUpdateAppointmentStatus: (id: string, newStatus: 'Accepted' | 'Completed' | 'Rejected') => Promise<void>;
+  fetchPatientCycleProfile: (numericPatientId: number) => Promise<any>;
 
   // Schedule & Shifts
   scheduleSettings: ScheduleSettings;
@@ -260,6 +284,11 @@ interface DoctorContextType {
   telehealthLiveNotes: string;
   setTelehealthLiveNotes: (val: string) => void;
   formatCallTime: (seconds: number) => string;
+  isCallRinging: boolean;
+  callStatusText: string;
+  handleStartDoctorCall: (apt: AppointmentItem) => Promise<boolean>;
+  handleEndDoctorCall: () => Promise<void>;
+
 
   // Global Time & Auth
   currentTime: Date;
@@ -347,13 +376,15 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
   const [newConsultationForm, setNewConsultationForm] = useState({
     patient: '',
     patientId: '',
+    appointmentId: '' as string | number | undefined,
     chiefComplaint: '',
     diagnosis: '',
     advice: '',
     followUpDate: new Date(Date.now() + 14 * 86400000).toISOString().split('T')[0],
     medications: [
       { id: '1', name: '', dosage: '', frequency: 'Once Daily', duration: '14 Days', instructions: 'After food' }
-    ]
+    ],
+    prescribedExercises: [] as PrescribedExerciseItem[]
   });
 
   const [consultationErrorMsg, setConsultationErrorMsg] = useState<string | null>(null);
@@ -377,6 +408,8 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
   const [isMicOn, setIsMicOn] = useState(true);
   const [isVideoOn, setIsVideoOn] = useState(true);
   const [telehealthLiveNotes, setTelehealthLiveNotes] = useState('');
+  const [isCallRinging, setIsCallRinging] = useState(false);
+  const [callStatusText, setCallStatusText] = useState('Calling patient...');
 
   useEffect(() => {
     let interval: any;
@@ -395,6 +428,81 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
+
+  const handleStartDoctorCall = async (apt: AppointmentItem): Promise<boolean> => {
+    const slotCheck = isAppointmentSlotActive(apt.date, apt.time);
+    if (!slotCheck.isActive) {
+      alert(slotCheck.reason);
+      return false;
+    }
+
+    setActiveTelehealthSession(apt);
+    setIsCallRinging(true);
+    setCallStatusText('Calling patient... Waiting for patient to answer.');
+
+    try {
+      const token = localStorage.getItem('femsphere_token');
+      const aptId = apt.numericId || parseInt(String(apt.id).replace(/\D/g, '')) || apt.id;
+      if (token) {
+        await fetch(`/api/appointments/${aptId}/call`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+      }
+    } catch (err) {
+      console.error('Error starting doctor call:', err);
+    }
+    return true;
+  };
+
+  const handleEndDoctorCall = async () => {
+    if (!activeTelehealthSession) return;
+    try {
+      const token = localStorage.getItem('femsphere_token');
+      const aptId = activeTelehealthSession.numericId || parseInt(String(activeTelehealthSession.id).replace(/\D/g, '')) || activeTelehealthSession.id;
+      if (token) {
+        await fetch(`/api/appointments/${aptId}/end-call`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+      }
+    } catch (err) {
+      console.error('Error ending doctor call:', err);
+    }
+    setActiveTelehealthSession(null);
+    setIsCallRinging(false);
+  };
+
+  // Poll for call status while ringing
+  useEffect(() => {
+    if (!activeTelehealthSession || !isCallRinging) return;
+    const token = localStorage.getItem('femsphere_token');
+    const aptId = activeTelehealthSession.numericId || parseInt(String(activeTelehealthSession.id).replace(/\D/g, '')) || activeTelehealthSession.id;
+
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/appointments/${aptId}/call-status`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.call && data.call.status === 'connected') {
+            setIsCallRinging(false);
+            setCallStatusText('Live Health Twin Stream Connected • Patient In Room');
+          } else if (data.call && data.call.status === 'declined') {
+            setIsCallRinging(false);
+            setCallStatusText('Patient declined call.');
+            setTimeout(() => setActiveTelehealthSession(null), 3000);
+          }
+        }
+      } catch (e) {
+        // silent
+      }
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, [activeTelehealthSession, isCallRinging]);
+
 
   // Schedule & Shifts
   const [scheduleSettings, setScheduleSettings] = useState<ScheduleSettings>(() => {
@@ -494,8 +602,8 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
             weightKg: weight,
             bmi,
             lifeStage: p.life_stage || 'Reproductive Age',
-            cyclePhase: 'Follicular Phase',
-            cycleDay: 12,
+            cyclePhase: p.cycle_phase || 'Not Configured',
+            cycleDay: p.cycle_day !== null && p.cycle_day !== undefined ? Number(p.cycle_day) : 0,
             heartRate: 72,
             bp: '118/76 mmHg',
             sleepHours: Number(p.recent_sleep) || 7.5,
@@ -568,7 +676,10 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
           time: a.appointment_time || '10:00 AM',
           reason: a.reason || 'General Health Review',
           status: a.status || 'Scheduled',
-          type: a.type || 'Virtual Telehealth'
+          type: a.type || 'Virtual Telehealth',
+          cyclePhase: a.cycle_phase || 'Not Configured',
+          cycleDay: a.cycle_day !== null && a.cycle_day !== undefined ? Number(a.cycle_day) : null,
+          cycleBadge: a.cycle_badge || null
         }));
         setAppointments(mappedAppointments);
       }
@@ -590,6 +701,13 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
               ];
             }
           }
+          let parsedExercises: PrescribedExerciseItem[] = [];
+          if (n.prescribed_exercises) {
+            try {
+              const parsedEx = typeof n.prescribed_exercises === 'string' ? JSON.parse(n.prescribed_exercises) : n.prescribed_exercises;
+              if (Array.isArray(parsedEx)) parsedExercises = parsedEx;
+            } catch {}
+          }
           const consDate = n.created_at ? new Date(n.created_at) : new Date();
           const followUp = new Date(consDate.getTime() + 14 * 86400000).toISOString().split('T')[0];
           return {
@@ -597,16 +715,30 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
             numericId: n.id,
             patient: n.patient_name || n.username || `Patient #${n.patient_id}`,
             patientId: `PAT-${n.patient_id}`,
+            appointmentId: n.appointment_id,
             date: consDate.toISOString().split('T')[0],
             time: n.created_at ? new Date(n.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '10:00 AM',
             chiefComplaint: n.advice && n.advice.startsWith('Complaint:') ? n.advice.split('\n')[0].replace('Complaint: ', '') : (n.chief_complaint || 'Clinical Consultation'),
             diagnosis: n.diagnosis || 'Clinical Review',
             advice: n.advice || '',
             medications: parsedMeds,
+            prescribedExercises: parsedExercises,
             followUpDate: followUp
           };
         });
         setConsultations(mappedConsultations);
+      }
+
+      // 4b. Fetch Real Doctor Availability Schedule from Database
+      const schedRes = await fetch('/api/doctors/schedule', { headers });
+      if (schedRes.ok) {
+        const schedData = await schedRes.json();
+        if (schedData.success && schedData.schedule) {
+          setScheduleSettings(prev => ({
+            ...prev,
+            ...schedData.schedule
+          }));
+        }
       }
 
       // 5. Fetch Current Doctor Profile strictly from /api/auth/me
@@ -627,18 +759,6 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
             yearsExperience: d.years_experience ? `${d.years_experience} Years` : prev.yearsExperience,
             phone: p.mobile || prev.phone,
             isVerified: d.approval_status === 'Approved'
-          }));
-        }
-      }
-
-      // 6. Fetch Doctor Availability Schedule from Database
-      const schedRes = await fetch('/api/doctors/schedule', { headers });
-      if (schedRes.ok) {
-        const schedData = await schedRes.json();
-        if (schedData.schedule) {
-          setScheduleSettings(prev => ({
-            ...prev,
-            ...schedData.schedule
           }));
         }
       }
@@ -875,6 +995,41 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
     }));
   };
 
+  const handleAddExerciseToPrescription = (ex: PrescribedExerciseItem) => {
+    setNewConsultationForm(prev => {
+      const exists = prev.prescribedExercises.some(e => e.id === ex.id || e.name === ex.name);
+      if (exists) return prev;
+      return {
+        ...prev,
+        prescribedExercises: [...prev.prescribedExercises, ex]
+      };
+    });
+  };
+
+  const handleRemoveExerciseFromPrescription = (id: string) => {
+    setNewConsultationForm(prev => ({
+      ...prev,
+      prescribedExercises: prev.prescribedExercises.filter(e => e.id !== id)
+    }));
+  };
+
+  const handleOpenPrescribeForAppointment = (apt: AppointmentItem) => {
+    setNewConsultationForm({
+      patient: apt.patient,
+      patientId: apt.patientId,
+      appointmentId: apt.numericId || parseInt(apt.id.replace(/\D/g, '')) || apt.id,
+      chiefComplaint: apt.reason || 'General Clinical Review',
+      diagnosis: '',
+      advice: '',
+      followUpDate: new Date(Date.now() + 14 * 86400000).toISOString().split('T')[0],
+      medications: [
+        { id: '1', name: '', dosage: '', frequency: 'Once Daily', duration: '14 Days', instructions: 'After food' }
+      ],
+      prescribedExercises: []
+    });
+    setShowAddConsultationModal(true);
+  };
+
   const handleSaveConsultation = async (e: React.FormEvent) => {
     e.preventDefault();
     setConsultationErrorMsg(null);
@@ -897,6 +1052,7 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
 
     const token = localStorage.getItem('femsphere_token');
     const cleanPatId = parseInt(newConsultationForm.patientId.replace(/\D/g, '')) || 2;
+    const cleanAptId = newConsultationForm.appointmentId ? parseInt(String(newConsultationForm.appointmentId).replace(/\D/g, '')) : null;
     const validMeds = newConsultationForm.medications.filter(m => m.name.trim() !== '');
 
     try {
@@ -909,10 +1065,12 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
           },
           body: JSON.stringify({
             patientId: cleanPatId,
+            appointmentId: cleanAptId,
             diagnosis: newConsultationForm.diagnosis,
             advice: newConsultationForm.advice,
             chiefComplaint: newConsultationForm.chiefComplaint,
-            medications: validMeds
+            medications: validMeds,
+            prescribedExercises: newConsultationForm.prescribedExercises
           })
         });
 
@@ -924,12 +1082,14 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
             numericId: n.id,
             patient: n.patient_name || newConsultationForm.patient,
             patientId: `PAT-${n.patient_id}`,
+            appointmentId: cleanAptId || undefined,
             date: n.created_at ? new Date(n.created_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
             time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             chiefComplaint: newConsultationForm.chiefComplaint || 'Routine Review',
             diagnosis: n.diagnosis,
             advice: n.advice,
             medications: validMeds,
+            prescribedExercises: newConsultationForm.prescribedExercises,
             followUpDate: newConsultationForm.followUpDate
           };
           setConsultations(prev => [createdRecord, ...prev]);
@@ -942,10 +1102,12 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
     setShowAddConsultationModal(false);
     setNewConsultationForm(prev => ({
       ...prev,
+      appointmentId: undefined,
       chiefComplaint: '',
       diagnosis: '',
       advice: '',
-      medications: [{ id: '1', name: '', dosage: '', frequency: 'Once Daily', duration: '14 Days', instructions: 'After food' }]
+      medications: [{ id: '1', name: '', dosage: '', frequency: 'Once Daily', duration: '14 Days', instructions: 'After food' }],
+      prescribedExercises: []
     }));
   };
 
@@ -981,6 +1143,23 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
       }
     } catch (e) {}
   };
+
+  const fetchPatientCycleProfile = useCallback(async (numericPatientId: number) => {
+    try {
+      const token = localStorage.getItem('femsphere_token');
+      if (!token) return null;
+      const res = await fetch(`/api/period-tracker/doctor/patient/${numericPatientId}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        return await res.json();
+      }
+      return null;
+    } catch (err) {
+      console.error('Error fetching patient cycle profile:', err);
+      return null;
+    }
+  }, []);
 
   const handleCreateAppointment = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -1093,6 +1272,9 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
         handleAddMedicationRow,
         handleRemoveMedicationRow,
         handleMedicationChange,
+        handleAddExerciseToPrescription,
+        handleRemoveExerciseFromPrescription,
+        handleOpenPrescribeForAppointment,
         handleSaveConsultation,
         handleDeleteConsultation,
 
@@ -1108,6 +1290,7 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
         setNewAppointmentForm,
         handleCreateAppointment,
         handleUpdateAppointmentStatus,
+        fetchPatientCycleProfile,
 
         scheduleSettings,
         setScheduleSettings,
@@ -1139,6 +1322,10 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
         telehealthLiveNotes,
         setTelehealthLiveNotes,
         formatCallTime,
+        isCallRinging,
+        callStatusText,
+        handleStartDoctorCall,
+        handleEndDoctorCall,
 
         currentTime,
         handleLogout,

@@ -86,6 +86,26 @@ export default function DoctorConsultations() {
                   </div>
                 </div>
               )}
+
+              {cons.prescribedExercises && cons.prescribedExercises.length > 0 && (
+                <div className="space-y-2">
+                  <span className="font-bold text-emerald-700 uppercase text-[10px] tracking-wider flex items-center gap-1">
+                    ✓ Doctor-Prescribed Exercise & Physical Therapy
+                  </span>
+                  <div className="grid sm:grid-cols-2 gap-2">
+                    {cons.prescribedExercises.map((ex, idx) => (
+                      <div key={idx} className="p-3 bg-emerald-50/50 rounded-xl border border-emerald-100 flex items-start justify-between">
+                        <div>
+                          <p className="font-bold text-emerald-950">{ex.name}</p>
+                          <p className="text-[#7a6f75] text-[11px]">{ex.category} • {ex.duration} • {ex.frequency}</p>
+                          <p className="text-[10px] text-slate-500 italic mt-0.5">{ex.instructions}</p>
+                        </div>
+                        <span className="text-[10px] px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 font-semibold shrink-0">Rx Regimen</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           ))}
         </div>
