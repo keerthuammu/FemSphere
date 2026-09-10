@@ -1,151 +1,145 @@
 # 🌸 FemSphere — Lifetime AI Health Twin Companion
 
-> **Comprehensive Women's & Family Digital Health Platform** built with **React 19, TypeScript, TailwindCSS, Express REST API, Spring Boot, and PostgreSQL**.
+> **A minimal, comprehensive Women's & Family Digital Health Twin Platform** built with **React 19, TypeScript, Vite, TailwindCSS, Express REST API, and PostgreSQL**.
+
+[![React](https://img.shields.io/badge/React-19.0-61DAFB?style=flat-square&logo=react)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
+[![Vite](https://img.shields.io/badge/Vite-6.4-646CFF?style=flat-square&logo=vite)](https://vitejs.dev/)
+[![Express](https://img.shields.io/badge/Express-4.21-000000?style=flat-square&logo=express)](https://expressjs.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16.0-4169E1?style=flat-square&logo=postgresql)](https://www.postgresql.org/)
+[![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4.0-06B6D4?style=flat-square&logo=tailwindcss)](https://tailwindcss.com/)
 
 ---
 
-## 🌟 Project Overview
+## 🌟 Overview
 
-**FemSphere** is a modern, privacy-first Digital Health Twin platform designed to monitor health vitals, track cycles and symptoms, coordinate caregiver responsibilities, and facilitate seamless teleconsultation sharing between patients and medical practitioners.
-
-The platform provides **Role-Based Access Control (RBAC)** across four specialized workspaces:
-- 🌸 **Myself**: Personal Digital Twin, daily vitals, symptom history, AI recommendations, and medical vault.
-- 🤝 **Caregiver**: Family care management, multi-dependent scheduling, vaccination trackers, and medication reminders.
-- 🩺 **Doctor**: Clinical patient list, patient-shared medical records (read-only), consultation notes, and appointment scheduling.
-- 🛡️ **Administrator**: System governance, user & doctor verification/approvals, health article publishing, and analytics.
+**FemSphere** is an AI-powered Digital Health Twin ecosystem offering personalized health tracking, family care management, clinical teleconsultations, and system governance. The entire platform features a **unified, cohesive UI design language** shared across four distinct role-based portals.
 
 ---
 
-## 🛠️ Technology Stack
+## 🏛️ System Architecture & Portals
 
-| Layer | Technologies Used |
+```
+FemSphere Platform
+├── 🌸 Patient Portal       (/dashboard)            → Digital Twin, Vitals, Period Tracker, OCR Vault, Telehealth
+├── 🤝 Caregiver Portal     (/caregiver-dashboard)  → Dependents, Clinical Vault, Vaccines, Meds, BLE Watch
+├── 🩺 Doctor Portal        (/doctor-dashboard)     → Patients, OCR Records, Prescriptions, Slot Availability
+└── 🛡️ Admin Portal         (/admin)                → System Overview, Users, Caregivers, Doctors, Articles
+```
+
+### 1. 🌸 Patient Portal (`/dashboard`)
+- **Digital Health Twin**: Live aggregate health score (0–100) and predictive vitals.
+- **Daily Health Tracker**: Log water, sleep, weight, and exercise with rule-based recommendations.
+- **Period & Cycle Tracker**: Predict phases (Follicular, Ovulatory, Luteal, Menstrual) and log symptoms.
+- **AI Medical Vault**: Upload lab reports (PDF/JPG/PNG up to 10MB) with automatic OCR biomarker extraction.
+- **Prescribed Physical Therapy**: View exercises prescribed directly by verified doctors with practitioner attribution.
+- **Telehealth & Appointments**: Book capacity slots and join live video/audio consultations.
+- **BLE Smartwatch Sync**: Stream real-time heart rate, SpO2, temperature, and steps.
+
+### 2. 🤝 Caregiver Portal (`/caregiver-dashboard`)
+- **Multi-Dependent Care**: Manage children, elderly relatives, and family members.
+- **Dependent Medical Records Vault**: Full file upload matching the user experience, AI OCR biomarker tables, and document downloads.
+- **Vaccination Tracker**: Track administered vaccines and upcoming booster due dates.
+- **Medication Reminders**: Daily dosage schedules with time-based reminder alerts.
+- **BLE Smartwatch Sync**: Live vitals streaming from dependent wearable devices.
+
+### 3. 🩺 Doctor Portal (`/doctor-dashboard`)
+- **Patient Directory**: Review patient profiles, health twins, and shared histories.
+- **Shared Medical Records**: Inspect patient-uploaded diagnostic files and extracted biomarkers.
+- **Consultation & Prescriptions**: Issue diagnosis notes, medications, and prescribed physical therapy.
+- **Availability Slot Manager**: Create recurring availability shifts and slot capacities (Max 1–5 patients/slot).
+- **Appointment Queue**: Accept, reschedule, complete, or reject consultation requests.
+
+### 4. 🛡️ Admin Portal (`/admin`)
+- **Unified Dashboard**: Platform overview, operational metrics, and quick actions in one place.
+- **Users Directory**: Manage patients (Female & Male accounts) with account activation and status toggles.
+- **Caregiver Management**: Inspect caregivers and click directly into linked dependent profiles.
+- **Doctor Approvals**: Verify medical licenses, review credentials, and approve/reject practitioners.
+- **Health Articles CMS**: Draft, edit, publish, and delete community wellness articles.
+
+---
+
+## 🎨 Unified Design System
+
+All four portals share an identical, cohesive design layout:
+- **Color Palette**: Warm canvas (`#FAF7F4`), soft stone sidebar (`#F2EBE5`), and accent borders (`#E5CDBC`).
+- **Sidebar (`w-64`)**: Serif brand header with purple icon badge (`#7C3AED`), rounded-2xl navigation pills, and an identity card footer with instant Logout.
+- **Top Header Bar**: Frosted glass (`backdrop-blur-md`), verified status badge, live digital clock, and role-tailored action buttons.
+- **Registration Layout**: Standardized 3-input-per-row grid, automatic Caregiver sub-type calculation from relationship, automatic Dependent Stage calculation from DOB, and 16+ age enforcement.
+
+---
+
+## 🗄️ Database Schema (PostgreSQL)
+
+The database schema (`config/db.js`) includes full relational integrity:
+
+| Table Name | Description |
 |---|---|
-| **Frontend Framework** | React 19 + TypeScript + Vite |
-| **Styling & UI** | TailwindCSS + Lucide Icons + Google Fonts (Inter/Outfit) |
-| **Routing** | React Router DOM v7 |
-| **Backend REST API** | Express.js (Node.js) / Spring Boot Architecture |
-| **Database** | PostgreSQL (`schema.sql`) — 14 Relational Tables |
-| **Security & Privacy** | Role-Based Access Control (RBAC), 256-bit Encrypted Storage Protocols |
+| `users` | Auth credentials, roles (`User (Female)`, `User (Male)`, `Caregiver`, `Doctor`, `Admin (Superuser)`), status. |
+| `user_profiles` | Age, blood group, life stage, height, weight, emergency contacts, avatar. |
+| `caregivers` | Caregiver type, organization, emergency contact phone. |
+| `dependents` | Linked care recipients, date of birth, relationship, medical notes. |
+| `doctors` | License number, specialization, clinic affiliation, experience, approval status. |
+| `medical_records` | Vault files, category, description, OCR scan results, dependent link, binary data. |
+| `health_tracker` | Daily logs for water, sleep, weight, heart rate, symptoms. |
+| `period_tracking` | Cycle dates, flow intensity, mood, ovulation predictions. |
+| `doctor_availability_slots` | Date, start/end time, max capacity, booked count, active status. |
+| `appointments` | Doctor-patient links, appointment slot, reason, consultation status. |
+| `consultation_notes` | Clinical diagnoses, prescriptions, and doctor-prescribed physical therapy. |
+| `health_articles` | Educational health guidance, category, publish dates. |
+| `vaccinations` | Dependent vaccine records, administered dates, booster due dates. |
+| `medications` | Dependent prescription reminders, dosages, daily schedules. |
 
 ---
 
-## 🏛️ Database Architecture (14 Relational Tables)
-
-FemSphere relies on a structured PostgreSQL schema ([schema.sql](schema.sql)) with full relational integrity and foreign keys:
-
-1. `users` — Authentication accounts and user roles.
-2. `user_profiles` — Female health profile, vitals, blood group, life stage, and emergency contacts.
-3. `caregivers` — Caregiver types, organization details, and contact info.
-4. `dependents` — Linked care recipients (children, elders, family members).
-5. `doctors` — Medical licenses, specializations, affiliations, and approval statuses.
-6. `medical_records` — Vault for uploaded lab results & scans (PDF, JPG, PNG).
-7. `health_tracker` — Daily vital logs (weight, water intake, sleep, exercise).
-8. `symptoms` — Symptom tracker with severity levels, dates, and clinical notes.
-9. `appointments` — Appointment booking, approval status, and time slots.
-10. `health_reports` — Generated health reports & doctor sharing logs.
-11. `consultation_notes` — Clinical diagnoses, advice, and prescription notes.
-12. `health_articles` — Published medical articles & wellness guidance.
-13. `vaccinations` — Dependent vaccination schedules & booster due dates.
-14. `medications` — Active medication reminders, dosages, and daily schedules.
-
----
-
-## 🚀 Key Features by Role
-
-### 1. 🌸 Myself (User) Workspace
-- **Digital Health Twin Overview**: Real-time Health Score (89/100) and vital summary.
-- **Daily Health Tracker**: Log weight, water (L), sleep (hrs), and exercise (mins).
-- **Symptom Tracker**: Record symptoms with severity levels (Low, Moderate, High) and notes.
-- **Rule-Based AI Health Engine**: Automated suggestions (*"Drink 2.5L water daily"*, *"Sleep at least 8 hours"*).
-- **Medical Vault**: Upload, view, download, and delete lab reports (PDF, JPG, PNG).
-- **Report Generator & Sharing**: Export PDF health reports and grant read-only access to doctors.
-
-### 2. 🤝 Caregiver Workspace
-- **Multi-Dependent Care**: Manage children, elders, or family care profiles.
-- **Multi-Scope Setup**: Select multiple primary scopes (Medication reminders, Vaccination tracking, Emergency escalation).
-- **Vaccination Tracker**: Monitor administered vaccines and upcoming due dates.
-- **Medication Reminders**: Set dosage schedules and daily reminder times.
-- **Appointments**: Book & manage medical consultations for dependents.
-
-### 3. 🩺 Doctor Workspace
-- **Patient Directory**: Access patients who have explicitly shared their health twin reports.
-- **Shared Medical Records**: Read-only inspection and download of patient files.
-- **Consultation Notes**: Create, edit, and maintain patient diagnosis, advice, and prescription notes.
-- **Appointment Queue**: Accept, reject, or mark appointments as completed.
-
-### 4. 🛡️ Administrator Control Center
-- **User Directory**: Search, edit details, activate/deactivate accounts, or delete users.
-- **Caregiver Directory**: Search, edit caregiver details, and manage linked care profiles.
-- **Doctor Verification**: Review pending registrations, approve, reject, or suspend licenses.
-- **Health Articles CMS**: Add, edit, publish, or delete health guidance articles.
-- **System Reports**: Real-time stats on registered users, active doctors, and report counts.
-
----
-
-## 📋 5-Step Registration Workflow
-
-1. **Step 1: Account Type**: Choose between **Myself**, **Caregiver**, or **Doctor**.
-2. **Step 2: Personal Information**: Name, DOB, Gender (Female, Male, Other), Mobile, Email, Street Address, Pincode, City, State, Country.
-3. **Step 3: Account Credentials**: Unique Username and Password.
-4. **Step 4: Role-Specific Setup**:
-   - *Myself*: Blood group, height, weight, marital status, life stage, wearable device.
-   - *Caregiver*: Caregiver sub-type, dependent details, multi-select primary scope.
-   - *Doctor*: Medical license number, specialization, hospital affiliation, years of experience.
-5. **Step 5: Simple Consent & Rules**: 4 role-tailored checkboxes confirming info accuracy, rules agreement, data collection consent, and doctor sharing rights.
-
----
-
-## 💻 Quick Start & Run Locally
+## 🚀 Getting Started
 
 ### Prerequisites
-- **Node.js**: v18.0.0 or higher
-- **npm** or **bun**
+- **Node.js** v18.0.0 or higher
+- **PostgreSQL** v14+ running on port `5432` with database `femsphere_db`
 
-### Installation
+### Environment Configuration (`.env`)
+```env
+PORT=5001
+DB_HOST=127.0.0.1
+DB_PORT=5432
+DB_NAME=femsphere_db
+DB_USER=postgres
+DB_PASSWORD=postgres
+JWT_SECRET=femsphere_secret_key_2026
+```
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/keerthuammu/FemSphere.git
-   cd FemSphere
-   ```
+### Installation & Run
 
-2. **Install dependencies:**
-   ```bash
-   npm install
-   ```
+```bash
+# 1. Install dependencies
+npm install
 
-3. **Start the Frontend Development Server:**
-   ```bash
-   npm run dev
-   ```
-   *Application will launch on http://localhost:3000*
+# 2. Start the Express REST API backend (Port 5001)
+npm run server
 
-4. **Start the Express Backend API Server:**
-   ```bash
-   npm run server
-   ```
-   *REST API server will run on http://localhost:5001*
+# 3. In a separate terminal, start the Vite frontend (Port 3000)
+npm run dev
 
-5. **Build for Production:**
-   ```bash
-   npm run build
-   ```
+# 4. Build for production
+npm run build
+```
+
+The web application will be accessible at **`http://localhost:3000`**.
 
 ---
 
-## 🔑 Quick Demo Credentials
+## 🔑 Demo Access Credentials
 
-For quick testing from the Login page:
-
-| Role | Email / Username | Password | Target Dashboard |
+| Portal | Email / Username | Password | Default Route |
 |---|---|---|---|
-| **Administrator** | `admin@femsphere.health` | `••••••••••••` | `/admin` |
-| **Myself (User)** | `elena.rostova@femsphere.health` | `••••••••••••` | `/dashboard` |
-| **Caregiver** | `caregiver@femsphere.health` | `••••••••••••` | `/caregiver-dashboard` |
-| **Doctor** | `dr.jenkins@femsphere.health` | `••••••••••••` | `/doctor-dashboard` |
+| **🌸 Patient** | `elena.rostova@femsphere.health` | `Password123!` | `/dashboard` |
+| **🤝 Caregiver** | `caregiver@femsphere.health` | `Password123!` | `/caregiver-dashboard` |
+| **🩺 Doctor** | `dr.jenkins@femsphere.health` | `Password123!` | `/doctor-dashboard` |
+| **🛡️ Admin** | `admin@femsphere.health` | `Password123!` | `/admin` |
 
 ---
 
-## 📄 License & Contact
+## 📄 License
 
-Distributed under the MIT License. Developed for women's and family health intelligence.
+Distributed under the **MIT License**. Engineered for privacy-first women's and family health intelligence.
