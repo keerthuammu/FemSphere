@@ -244,6 +244,43 @@ export const deleteAdminCaregiver = async (req, res) => {
   }
 };
 
+export const getAdminCaregiverDependents = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const cgRes = await pool.query(`
+      SELECT 
+        c.id, 
+        c.user_id,
+        c.caregiver_type,
+        c.emergency_phone,
+        u.email, 
+        u.username,
+        p.full_name
+      FROM caregivers c
+      JOIN users u ON c.user_id = u.id
+      LEFT JOIN user_profiles p ON u.id = p.user_id
+      WHERE c.id = $1
+    `, [id]);
+
+    if (cgRes.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Caregiver not found.' });
+    }
+
+    const depRes = await pool.query(
+      'SELECT * FROM dependents WHERE caregiver_id = $1 ORDER BY id ASC',
+      [id]
+    );
+
+    res.json({
+      success: true,
+      caregiver: cgRes.rows[0],
+      dependents: depRes.rows
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
 // 5. Health Articles Management
 export const getHealthArticles = async (req, res) => {
   try {

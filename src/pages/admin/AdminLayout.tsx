@@ -3,7 +3,7 @@ import { NavLink, Outlet, Link, useNavigate } from 'react-router-dom';
 import { 
   Shield, Sparkles, Users, UserCheck, Stethoscope, FileText, 
   BookOpen, LogOut, CheckCircle2, User, Clock, Activity, 
-  Plus, X, Lock, Sliders, ChevronDown
+  Plus, X, Lock, Sliders, ChevronDown, LayoutDashboard
 } from 'lucide-react';
 import { useAdmin } from '../../context/AdminContext';
 import { isValidName, isValidEmail, isValidPhone, validatePassword } from '../../utils/validation';
@@ -27,7 +27,7 @@ export default function AdminLayout() {
     caregiverForm,
     setCaregiverForm,
     handleAddCaregiver,
-    // Add Article Modal
+    // Add Health Article Modal
     showAddArticleModal,
     setShowAddArticleModal,
     newArticle,
@@ -46,195 +46,186 @@ export default function AdminLayout() {
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#FAF7F4] flex font-inter text-[#2E2428]">
-      
-      {/* SIDEBAR NAVIGATION MENU */}
-      <aside className="w-64 bg-[#F4E0D1] border-r border-[#E5CDBC] hidden lg:flex flex-col flex-shrink-0 sticky top-0 h-screen font-inter print:hidden">
-        <div className="p-5 border-b border-[#E5CDBC] flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
-            <h1 className="font-serif text-2xl font-bold text-[#7C3AED] tracking-tight">FemSphere</h1>
-            <Sparkles className="w-4 h-4 text-[#14B8A6]" />
+    <div className="min-h-screen bg-[#FAF7F4] flex font-sans text-[#2E2428]">
+      {/* --- SIDEBAR --- Identical to DoctorLayout */}
+      <aside className="w-64 bg-[#F2EBE5] border-r border-[#E5CDBC] p-6 flex flex-col justify-between hidden md:flex shrink-0 print:hidden">
+        <div className="space-y-8">
+          {/* Brand */}
+          <Link to="/" className="flex items-center gap-2.5">
+            <div className="w-10 h-10 rounded-2xl bg-[#7C3AED] text-white flex items-center justify-center font-bold text-lg shadow-sm">
+              <Shield className="w-5 h-5" />
+            </div>
+            <div>
+              <span className="font-serif text-xl font-bold tracking-tight text-[#2E2428] block leading-none">FemSphere</span>
+              <span className="text-[10px] uppercase font-bold text-[#7C3AED] tracking-widest block mt-0.5">Admin Portal</span>
+            </div>
           </Link>
-        </div>
-        
-        <div className="flex-1 overflow-y-auto p-3 space-y-1 scrollbar-hide font-inter">
-          <p className="text-[11px] uppercase tracking-widest text-[#8C756B] font-bold px-3 py-1.5">Governance</p>
-          
-          {/* 1. Overview */}
-          <NavLink 
-            to="/admin" 
-            end
-            className={({ isActive }) => `w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all ${
-              isActive ? 'bg-white text-[#7C3AED] shadow-xs border border-[#E5CDBC]' : 'text-[#4A3B42] hover:bg-white/40 hover:text-[#2E2428]'
-            }`}
-          >
-            <Activity className="w-4 h-4 text-[#7C3AED]" /> Overview
-          </NavLink>
 
-          {/* 2. Manage Users */}
-          <NavLink 
-            to="/admin/users" 
-            className={({ isActive }) => `w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all ${
-              isActive ? 'bg-white text-[#7C3AED] shadow-xs border border-[#E5CDBC]' : 'text-[#4A3B42] hover:bg-white/40 hover:text-[#2E2428]'
-            }`}
-          >
-            <div className="flex items-center gap-2.5">
-              <Users className="w-4 h-4 text-[#7C3AED]" /> Users
-            </div>
-            <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-white text-[#7C3AED] border border-[#E5CDBC]">
-              {stats.totalUsers}
-            </span>
-          </NavLink>
+          {/* Navigation Links */}
+          <nav className="space-y-1.5">
+            {/* 1. Dashboard */}
+            <NavLink 
+              to="/admin" 
+              end
+              className={({ isActive }) => `w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl font-bold text-xs transition-all ${
+                isActive ? 'bg-white text-[#7C3AED] shadow-xs border border-[#E5CDBC]' : 'text-[#4A3B42] hover:bg-white/40 hover:text-[#2E2428]'
+              }`}
+            >
+              <LayoutDashboard className="w-4 h-4 shrink-0" />
+              <span className="truncate">Dashboard</span>
+            </NavLink>
 
-          {/* 3. Manage Caregivers */}
-          <NavLink 
-            to="/admin/caregivers" 
-            className={({ isActive }) => `w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all ${
-              isActive ? 'bg-white text-[#7C3AED] shadow-xs border border-[#E5CDBC]' : 'text-[#4A3B42] hover:bg-white/40 hover:text-[#2E2428]'
-            }`}
-          >
-            <div className="flex items-center gap-2.5">
-              <Users className="w-4 h-4 text-[#14B8A6]" /> Caregivers
-            </div>
-            <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-white text-[#7C3AED] border border-[#E5CDBC]">
-              {stats.totalCaregivers}
-            </span>
-          </NavLink>
-
-          {/* 4. Manage Doctors & Approvals */}
-          <NavLink 
-            to="/admin/doctors" 
-            className={({ isActive }) => `w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all ${
-              isActive ? 'bg-white text-[#7C3AED] shadow-xs border border-[#E5CDBC]' : 'text-[#4A3B42] hover:bg-white/40 hover:text-[#2E2428]'
-            }`}
-          >
-            <div className="flex items-center gap-2.5">
-              <Stethoscope className="w-4 h-4 text-[#F472B6]" /> Doctors & Approvals
-            </div>
-            {stats.pendingDoctorApprovals > 0 && (
-              <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-amber-500 text-white">
-                {stats.pendingDoctorApprovals}
+            {/* 2. Manage Users */}
+            <NavLink 
+              to="/admin/users" 
+              className={({ isActive }) => `w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl font-bold text-xs transition-all ${
+                isActive ? 'bg-white text-[#7C3AED] shadow-xs border border-[#E5CDBC]' : 'text-[#4A3B42] hover:bg-white/40 hover:text-[#2E2428]'
+              }`}
+            >
+              <div className="flex items-center gap-3 truncate">
+                <Users className="w-4 h-4 shrink-0" />
+                <span className="truncate">Users</span>
+              </div>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white text-[#7C3AED] border border-[#E5CDBC]">
+                {stats.totalUsers}
               </span>
-            )}
-          </NavLink>
+            </NavLink>
 
-          {/* 5. Health Articles */}
-          <NavLink 
-            to="/admin/articles" 
-            className={({ isActive }) => `w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all ${
-              isActive ? 'bg-white text-[#7C3AED] shadow-xs border border-[#E5CDBC]' : 'text-[#4A3B42] hover:bg-white/40 hover:text-[#2E2428]'
-            }`}
-          >
-            <BookOpen className="w-4 h-4 text-[#7C3AED]" /> Health Articles
-          </NavLink>
+            {/* 3. Manage Caregivers */}
+            <NavLink 
+              to="/admin/caregivers" 
+              className={({ isActive }) => `w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl font-bold text-xs transition-all ${
+                isActive ? 'bg-white text-[#7C3AED] shadow-xs border border-[#E5CDBC]' : 'text-[#4A3B42] hover:bg-white/40 hover:text-[#2E2428]'
+              }`}
+            >
+              <div className="flex items-center gap-3 truncate">
+                <Users className="w-4 h-4 shrink-0" />
+                <span className="truncate">Caregivers</span>
+              </div>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white text-[#7C3AED] border border-[#E5CDBC]">
+                {stats.totalCaregivers}
+              </span>
+            </NavLink>
 
-          {/* 6. System Reports */}
-          <NavLink 
-            to="/admin/reports" 
-            className={({ isActive }) => `w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all ${
-              isActive ? 'bg-white text-[#7C3AED] shadow-xs border border-[#E5CDBC]' : 'text-[#4A3B42] hover:bg-white/40 hover:text-[#2E2428]'
-            }`}
-          >
-            <FileText className="w-4 h-4 text-[#14B8A6]" /> System Reports
-          </NavLink>
+            {/* 4. Manage Doctors & Approvals */}
+            <NavLink 
+              to="/admin/doctors" 
+              className={({ isActive }) => `w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl font-bold text-xs transition-all ${
+                isActive ? 'bg-white text-[#7C3AED] shadow-xs border border-[#E5CDBC]' : 'text-[#4A3B42] hover:bg-white/40 hover:text-[#2E2428]'
+              }`}
+            >
+              <div className="flex items-center gap-3 truncate">
+                <Stethoscope className="w-4 h-4 shrink-0" />
+                <span className="truncate">Doctors & Approvals</span>
+              </div>
+              {stats.pendingDoctorApprovals > 0 && (
+                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-amber-500 text-white">
+                  {stats.pendingDoctorApprovals}
+                </span>
+              )}
+            </NavLink>
+
+            {/* 5. Health Articles */}
+            <NavLink 
+              to="/admin/articles" 
+              className={({ isActive }) => `w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl font-bold text-xs transition-all ${
+                isActive ? 'bg-white text-[#7C3AED] shadow-xs border border-[#E5CDBC]' : 'text-[#4A3B42] hover:bg-white/40 hover:text-[#2E2428]'
+              }`}
+            >
+              <BookOpen className="w-4 h-4 shrink-0" />
+              <span className="truncate">Health Articles</span>
+            </NavLink>
+          </nav>
+        </div>
+
+        {/* Admin Identity & Logout Footer */}
+        <div className="pt-6 border-t border-[#E5CDBC] space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-purple-100 text-[#7C3AED] flex items-center justify-center font-bold text-sm shrink-0">
+              {adminProfile.name ? adminProfile.name.charAt(0) : 'A'}
+            </div>
+            <div className="overflow-hidden">
+              <h4 className="font-bold text-xs text-[#2E2428] truncate">{adminProfile.name}</h4>
+              <p className="text-[10px] text-[#7A6A72] truncate">{adminProfile.securityClearance || 'Superuser'}</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Link
+              to="/admin/profile"
+              className="flex-1 flex items-center justify-center py-2 px-3 bg-white/60 hover:bg-white border border-[#E5CDBC] rounded-xl text-xs font-bold text-[#4A3B42] hover:text-[#2E2428] transition-all cursor-pointer shadow-2xs"
+            >
+              Profile
+            </Link>
+            <button
+              onClick={handleLogout}
+              className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 bg-white/60 hover:bg-white border border-[#E5CDBC] rounded-xl text-xs font-bold text-rose-700 transition-all cursor-pointer shadow-2xs"
+            >
+              <LogOut className="w-3.5 h-3.5" /> Log Out
+            </button>
+          </div>
         </div>
       </aside>
 
-      {/* MAIN CONTENT AREA */}
-      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto font-inter">
-        
-        {/* HEADER BAR */}
-        <header className="bg-[#F4E0D1]/90 backdrop-blur-md border-b border-[#E5CDBC] p-4 md:px-6 flex items-center justify-between sticky top-0 z-20 print:hidden font-inter">
-          <div>
-            <h2 className="font-bold text-[#3a3135] text-lg md:text-xl">
-              Welcome, {adminProfile.name}!
-            </h2>
-            <p className="text-xs text-[#64595e] flex items-center gap-1.5 mt-0.5 font-medium">
-              <Clock className="w-3.5 h-3.5 text-[#7C3AED]" />
-              {currentTime.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} • {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-            </p>
+      {/* --- MAIN CONTENT AREA --- */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
+        {/* Top Header */}
+        <header className="bg-white/80 backdrop-blur-md sticky top-0 z-30 border-b border-[#E5CDBC] px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 print:hidden">
+          <div className="flex items-center gap-3">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200 shadow-2xs">
+              <Shield className="w-3.5 h-3.5 text-emerald-600" /> Superuser Active
+            </span>
+            <span className="text-xs text-[#7A6A72] hidden sm:inline">•</span>
+            <span className="text-xs text-[#7A6A72] font-semibold hidden sm:inline">
+              Welcome back, <strong className="text-[#2E2428]">{adminProfile.name}</strong>
+            </span>
           </div>
-          
-          <div className="flex items-center gap-2.5">
-            {/* Quick Action: Add User */}
-            <button 
-              onClick={() => setShowAddUserModal(true)} 
-              className="hidden sm:flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#7C3AED] text-white text-xs font-bold shadow-xs hover:bg-[#6D28D9] transition-colors"
-            >
-              <Plus className="w-3.5 h-3.5" /> Add User
-            </button>
 
-            {/* Profile Photo Avatar Dropdown Menu */}
-            <div className="relative">
-              <button 
-                onClick={() => setShowProfileDropdown(!showProfileDropdown)} 
-                className="p-1 rounded-full border border-[#EDE9FE] bg-[#FAF8FC] hover:bg-white hover:scale-105 transition-all cursor-pointer shadow-xs focus:ring-2 focus:ring-[#7C3AED]"
-                title="Profile Menu"
-              >
-                {/* Profile Avatar Circle */}
-                <div className="w-9 h-9 rounded-full bg-[#7C3AED] text-white flex items-center justify-center font-bold text-sm shadow-inner relative">
-                  {adminProfile.name.charAt(0)}
-                  <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white"></span>
-                </div>
-              </button>
-
-              {/* Popover Menu */}
-              {showProfileDropdown && (
-                <>
-                  <div 
-                    className="fixed inset-0 z-30" 
-                    onClick={() => setShowProfileDropdown(false)}
-                  ></div>
-
-                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl border border-[#EDE9FE] shadow-xl z-40 py-2 font-inter animate-in fade-in slide-in-from-top-2 duration-200">
-                    <div className="px-4 py-2.5 border-b border-[#EDE9FE] bg-[#FAF8FC]">
-                      <p className="text-xs font-bold text-[#3a3135] truncate">{adminProfile.name}</p>
-                      <p className="text-[11px] text-[#7a6f75] truncate">{adminProfile.email}</p>
-                      <span className="inline-block mt-1 text-[9px] font-bold px-1.5 py-0.5 rounded bg-[#EDE9FE] text-[#7C3AED]">
-                        {adminProfile.securityClearance}
-                      </span>
-                    </div>
-
-                    <button 
-                      onClick={() => {
-                        navigate('/admin/profile');
-                        setShowProfileDropdown(false);
-                      }} 
-                      className="w-full flex items-center gap-2.5 px-4 py-2.5 text-xs font-bold text-[#3a3135] hover:bg-[#F5F3FF] hover:text-[#7C3AED] transition-colors"
-                    >
-                      <User className="w-3.5 h-3.5 text-[#7C3AED]" /> Admin Profile
-                    </button>
-
-                    <button 
-                      onClick={() => {
-                        navigate('/admin/reports');
-                        setShowProfileDropdown(false);
-                      }} 
-                      className="w-full flex items-center gap-2.5 px-4 py-2.5 text-xs font-bold text-[#3a3135] hover:bg-[#F5F3FF] hover:text-[#7C3AED] transition-colors"
-                    >
-                      <Sliders className="w-3.5 h-3.5 text-[#7C3AED]" /> System Governance
-                    </button>
-
-                    <div className="my-1 border-t border-[#EDE9FE]"></div>
-
-                    <button 
-                      onClick={() => {
-                        setShowProfileDropdown(false);
-                        handleLogout();
-                      }} 
-                      className="w-full flex items-center gap-2.5 px-4 py-2.5 text-xs font-bold text-red-600 hover:bg-red-50 transition-colors"
-                    >
-                      <LogOut className="w-3.5 h-3.5 text-red-500" /> Logout
-                    </button>
-                  </div>
-                </>
-              )}
+          {/* Quick Actions & Live Time */}
+          <div className="flex items-center gap-3">
+            <div className="hidden lg:flex items-center gap-2 bg-[#FAF7F4] px-3.5 py-1.5 rounded-xl border border-[#E5CDBC] text-xs font-mono font-bold text-[#7A6A72]">
+              <Clock className="w-3.5 h-3.5 text-[#7C3AED]" />
+              {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
             </div>
+            <button
+              onClick={() => setShowAddArticleModal(true)}
+              className="px-3.5 py-1.5 rounded-xl text-xs font-bold border border-[#E5CDBC] bg-white text-[#4A3B42] hover:bg-white/80 flex items-center gap-1.5 cursor-pointer shadow-2xs"
+            >
+              <BookOpen className="w-3.5 h-3.5 text-[#7C3AED]" />
+              Publish Article
+            </button>
           </div>
         </header>
 
+        {/* Mobile Navigation Strip */}
+        <div className="md:hidden flex overflow-x-auto gap-2 p-3 bg-[#F2EBE5] border-b border-[#E5CDBC]">
+          {[
+            { label: 'Dashboard', to: '/admin', end: true },
+            { label: 'Users', to: '/admin/users' },
+            { label: 'Caregivers', to: '/admin/caregivers' },
+            { label: 'Doctors', to: '/admin/doctors' },
+            { label: 'Articles', to: '/admin/articles' },
+            { label: 'Profile', to: '/admin/profile' }
+          ].map((item) => (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              end={item.end}
+              className={({ isActive }) =>
+                `px-3 py-1.5 rounded-xl font-bold text-xs whitespace-nowrap transition-all ${
+                  isActive
+                    ? 'bg-white text-[#7C3AED] shadow-xs border border-[#E5CDBC]'
+                    : 'text-[#4A3B42] hover:bg-white/40'
+                }`
+              }
+            >
+              {item.label}
+            </NavLink>
+          ))}
+        </div>
+
         {/* CONTAINER WORKSPACE FOR SUB-ROUTES */}
-        <main className="p-4 md:p-6 max-w-6xl mx-auto w-full space-y-6 font-inter">
+        <main className="p-6 md:p-8 max-w-7xl mx-auto w-full space-y-8">
           <Outlet />
         </main>
       </div>
@@ -283,11 +274,9 @@ export default function AdminLayout() {
                   onChange={(e) => setUserForm({ ...userForm, role: e.target.value })}
                   className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] text-sm"
                 >
-                  <option value="Myself">Myself (User)</option>
                   <option value="User (Female)">User (Female)</option>
-                  <option value="Caregiver">Caregiver</option>
-                  <option value="Doctor">Doctor</option>
-                  <option value="Administrator">Administrator</option>
+                  <option value="User (Male)">User (Male)</option>
+                  <option value="Myself">Myself (User)</option>
                 </select>
               </div>
               <button type="submit" className="w-full py-3 bg-[#7C3AED] text-white rounded-xl font-bold text-sm cursor-pointer">

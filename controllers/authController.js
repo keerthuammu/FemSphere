@@ -63,11 +63,12 @@ export const register = async (req, res) => {
     }
 
     // Normalize role name
+    const effectiveType = accountType || req.body.role;
     let role = 'User (Female)';
-    if (accountType === 'User (Female)' || accountType === 'Myself') role = 'User (Female)';
-    if (accountType === 'Caregiver') role = 'Caregiver';
-    if (accountType === 'Doctor') role = 'Doctor';
-    if (accountType === 'Administrator' || accountType === 'Admin (Superuser)') role = 'Admin (Superuser)';
+    if (effectiveType === 'User (Female)' || effectiveType === 'Myself') role = 'User (Female)';
+    if (effectiveType === 'Caregiver') role = 'Caregiver';
+    if (effectiveType === 'Doctor') role = 'Doctor';
+    if (effectiveType === 'Administrator' || effectiveType === 'Admin (Superuser)') role = 'Admin (Superuser)';
 
     const passwordHash = await bcrypt.hash(password, 10);
 
@@ -106,10 +107,42 @@ export const register = async (req, res) => {
     // Insert role specifics
     let roleDetails = {};
     if (role === 'Caregiver') {
+      // Enforce Caregiver age >= 16
+      if (dob) {
+        const birthDate = new Date(dob);
+        const today = new Date();
+        let caregiverAge = today.getFullYear() - birthDate.getFullYear();
+        const m = today.getMonth() - birthDate.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+          caregiverAge--;
+        }
+        if (caregiverAge < 16) {
+          await client.query('ROLLBACK');
+          return res.status(400).json({ success: false, message: 'Caregiver must be at least 16 years of age.' });
+        }
+      }
+
+      // Calculate caregiver_type from relationship if not explicitly passed
+      let finalCaregiverType = caregiverType;
+      if (!finalCaregiverType || finalCaregiverType.trim() === '') {
+        const rel = (relationship || '').toLowerCase().trim();
+        if (rel.includes('daughter') || rel.includes('son') || rel.includes('child')) {
+          finalCaregiverType = 'Parent';
+        } else if (rel.includes('spouse') || rel.includes('partner') || rel.includes('husband') || rel.includes('wife')) {
+          finalCaregiverType = 'Partner / Spouse';
+        } else if (rel.includes('sister') || rel.includes('brother') || rel.includes('sibling')) {
+          finalCaregiverType = 'Sibling';
+        } else if (rel.includes('mother') || rel.includes('father') || rel.includes('grandparent') || rel.includes('relative') || rel.includes('elder')) {
+          finalCaregiverType = 'Relative';
+        } else {
+          finalCaregiverType = 'Relative';
+        }
+      }
+
       const cgResult = await client.query(
         `INSERT INTO caregivers (user_id, caregiver_type, organization_name, emergency_phone)
          VALUES ($1, $2, $3, $4) RETURNING *`,
-        [newUser.id, caregiverType || 'Parent', 'Family Care', emergencyContactPhone || mobileNumber || '']
+        [newUser.id, finalCaregiverType, 'Family Care', emergencyContactPhone || mobileNumber || '']
       );
       roleDetails.caregiver = cgResult.rows[0];
 

@@ -195,3 +195,32 @@ export const isValidDocumentFile = (
 
   return { isValid: true, message: '' };
 };
+
+// Caregiver sub-type calculation from relationship
+export const getCaregiverTypeFromRelationship = (relationship: string): string => {
+  const rel = (relationship || '').toLowerCase().trim();
+  if (!rel) return '';
+  if (rel.includes('daughter') || rel.includes('son') || rel.includes('child')) {
+    return 'Parent';
+  }
+  if (rel.includes('spouse') || rel.includes('partner') || rel.includes('husband') || rel.includes('wife')) {
+    return 'Partner / Spouse';
+  }
+  if (rel.includes('sister') || rel.includes('brother') || rel.includes('sibling')) {
+    return 'Sibling';
+  }
+  if (rel.includes('mother') || rel.includes('father') || rel.includes('grandparent') || rel.includes('relative') || rel.includes('elder')) {
+    return 'Relative';
+  }
+  return 'Relative';
+};
+
+// Dependent category / life stage calculation based on Date of Birth
+export const getDependentCategoryFromDob = (dobStr: string): string => {
+  if (!dobStr) return '';
+  const age = calculateAge(dobStr);
+  if (age < 12) return 'Child / Infant';
+  if (age < 18) return 'Adolescent';
+  if (age < 60) return 'Adult';
+  return 'Elder / Senior';
+};

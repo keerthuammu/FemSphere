@@ -14,7 +14,9 @@ import {
   validatePassword, 
   isPastOrToday, 
   calculateAge,
-  isValidDocumentFile 
+  isValidDocumentFile,
+  getCaregiverTypeFromRelationship,
+  getDependentCategoryFromDob
 } from '../utils/validation';
 
 export default function Register() {
@@ -87,6 +89,20 @@ export default function Register() {
     if (type === 'checkbox') {
       const checked = (e.target as HTMLInputElement).checked;
       setFormData(prev => ({ ...prev, [name]: checked }));
+    } else if (name === 'relationship') {
+      const calculatedType = getCaregiverTypeFromRelationship(value);
+      setFormData(prev => ({ 
+        ...prev, 
+        relationship: value,
+        caregiverType: calculatedType
+      }));
+    } else if (name === 'dependentDob') {
+      const calculatedCat = getDependentCategoryFromDob(value);
+      setFormData(prev => ({ 
+        ...prev, 
+        dependentDob: value,
+        dependentCategory: calculatedCat
+      }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
@@ -148,6 +164,10 @@ export default function Register() {
       }
       if (!isPastOrToday(formData.dob) || calculateAge(formData.dob) < 0) {
         setErrorMsg('Date of Birth cannot be a future date.');
+        return false;
+      }
+      if (formData.accountType === 'Caregiver' && calculateAge(formData.dob) < 16) {
+        setErrorMsg(`Caregiver must be at least 16 years of age (current age: ${calculateAge(formData.dob)} yrs).`);
         return false;
       }
       if (!formData.gender) {
@@ -239,8 +259,9 @@ export default function Register() {
           return false;
         }
       } else if (formData.accountType === 'Caregiver') {
-        if (!formData.caregiverType) {
-          setErrorMsg('Please select Caregiver Sub-Type / Role.');
+        const caregiverAge = calculateAge(formData.dob);
+        if (caregiverAge < 16) {
+          setErrorMsg(`Caregiver must be at least 16 years of age (current age: ${caregiverAge} yrs).`);
           return false;
         }
         if (!formData.dependentName.trim()) {
@@ -267,19 +288,11 @@ export default function Register() {
           setErrorMsg('Please select Dependent Gender.');
           return false;
         }
-        if (!formData.dependentCategory) {
-          setErrorMsg('Please select Dependent Life Stage / Category.');
-          return false;
-        }
-        const depAge = calculateAge(formData.dependentDob);
-        if (formData.dependentCategory === 'Child / Infant' && depAge >= 18) {
-          setErrorMsg(`Dependent is ${depAge} years old. Please select Adult category or verify Date of Birth.`);
-          return false;
-        }
-        if (formData.dependentCategory === 'Elder / Senior' && depAge < 50) {
-          setErrorMsg(`Dependent is ${depAge} years old. Please select an appropriate category or verify Date of Birth.`);
-          return false;
-        }
+        // Automatically calculate caregiver sub-type from relationship and dependent category from dependent DOB
+        const derivedType = getCaregiverTypeFromRelationship(formData.relationship);
+        const derivedCategory = getDependentCategoryFromDob(formData.dependentDob);
+        formData.caregiverType = derivedType;
+        formData.dependentCategory = derivedCategory;
         if (formData.caregiverScopes.length === 0) {
           setErrorMsg('Please select at least one Caregiver Primary Scope.');
           return false;
@@ -361,10 +374,16 @@ export default function Register() {
         setIsSubmitting(true);
         setErrorMsg(null);
 
+        const submissionData = { ...formData };
+        if (submissionData.accountType === 'Caregiver') {
+          submissionData.caregiverType = getCaregiverTypeFromRelationship(submissionData.relationship);
+          submissionData.dependentCategory = getDependentCategoryFromDob(submissionData.dependentDob);
+        }
+
         const response = await fetch('/api/auth/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(formData)
+          body: JSON.stringify(submissionData)
         });
 
         const data = await response.json();
@@ -605,66 +624,72 @@ export default function Register() {
               <div className="space-y-4">
                 <p className="text-sm text-[#7a6f75] mb-2">Select the primary profile role for your FemSphere workspace access:</p>
                 
-                {/* Option 1: Myself */}
-                <div 
-                  onClick={() => setFormData(prev => ({ ...prev, accountType: 'Myself' }))}
-                  className={`p-5 rounded-2xl border-2 transition-all cursor-pointer flex items-start gap-4 ${
-                    (formData.accountType === 'Myself' || formData.accountType === 'User (Female)') 
-                      ? 'border-[#7C3AED] bg-[#F5F3FF]/70 shadow-sm ring-1 ring-[#7C3AED]' 
-                      : 'border-[#EDE9FE] hover:border-[#7C3AED]/50 bg-white'
-                  }`}
-                >
-                  <div className={`p-3 rounded-xl ${(formData.accountType === 'Myself' || formData.accountType === 'User (Female)') ? 'bg-[#7C3AED] text-white' : 'bg-[#EDE9FE] text-[#7C3AED]'}`}>
-                    <User className="w-6 h-6" />
-                  </div>
-                  <div className="flex-1">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* Option 1: Myself */}
+                  <div 
+                    onClick={() => setFormData(prev => ({ ...prev, accountType: 'Myself' }))}
+                    className={`p-5 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between gap-3 ${
+                      (formData.accountType === 'Myself' || formData.accountType === 'User (Female)') 
+                        ? 'border-[#7C3AED] bg-[#F5F3FF]/70 shadow-sm ring-1 ring-[#7C3AED]' 
+                        : 'border-[#EDE9FE] hover:border-[#7C3AED]/50 bg-white'
+                    }`}
+                  >
                     <div className="flex items-center justify-between">
-                      <h3 className="font-bold text-[#3a3135] text-base">Myself</h3>
+                      <div className={`p-3 rounded-xl ${(formData.accountType === 'Myself' || formData.accountType === 'User (Female)') ? 'bg-[#7C3AED] text-white' : 'bg-[#EDE9FE] text-[#7C3AED]'}`}>
+                        <User className="w-6 h-6" />
+                      </div>
                       <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[#EDE9FE] text-[#7C3AED]">Default</span>
                     </div>
-                    <p className="text-xs text-[#64595e] mt-1 leading-relaxed">
-                      Track your personal Digital Health Twin, cycles, vitals, sleep, and AI health insights for yourself.
-                    </p>
+                    <div>
+                      <h3 className="font-bold text-[#3a3135] text-base">Myself</h3>
+                      <p className="text-xs text-[#64595e] mt-1 leading-relaxed">
+                        Track your personal Digital Health Twin, cycles, vitals, sleep, and AI health insights for yourself.
+                      </p>
+                    </div>
                   </div>
-                </div>
 
-                {/* Option 2: Caregiver */}
-                <div 
-                  onClick={() => setFormData(prev => ({ ...prev, accountType: 'Caregiver' }))}
-                  className={`p-5 rounded-2xl border-2 transition-all cursor-pointer flex items-start gap-4 ${
-                    formData.accountType === 'Caregiver' 
-                      ? 'border-[#7C3AED] bg-[#F5F3FF]/70 shadow-sm ring-1 ring-[#7C3AED]' 
-                      : 'border-[#EDE9FE] hover:border-[#7C3AED]/50 bg-white'
-                  }`}
-                >
-                  <div className={`p-3 rounded-xl ${formData.accountType === 'Caregiver' ? 'bg-[#7C3AED] text-white' : 'bg-[#EDE9FE] text-[#7C3AED]'}`}>
-                    <Users className="w-6 h-6" />
+                  {/* Option 2: Caregiver */}
+                  <div 
+                    onClick={() => setFormData(prev => ({ ...prev, accountType: 'Caregiver' }))}
+                    className={`p-5 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between gap-3 ${
+                      formData.accountType === 'Caregiver' 
+                        ? 'border-[#7C3AED] bg-[#F5F3FF]/70 shadow-sm ring-1 ring-[#7C3AED]' 
+                        : 'border-[#EDE9FE] hover:border-[#7C3AED]/50 bg-white'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className={`p-3 rounded-xl ${formData.accountType === 'Caregiver' ? 'bg-[#7C3AED] text-white' : 'bg-[#EDE9FE] text-[#7C3AED]'}`}>
+                        <Users className="w-6 h-6" />
+                      </div>
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-[#3a3135] text-base">Caregiver</h3>
+                      <p className="text-xs text-[#64595e] mt-1 leading-relaxed">
+                        Support a partner, child, sister, or elder with medication & growth tracking.
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <h3 className="font-bold text-[#3a3135] text-base">Caregiver</h3>
-                    <p className="text-xs text-[#64595e] mt-1 leading-relaxed">
-                      Support a partner, child, sister, or elder with medication & growth tracking.
-                    </p>
-                  </div>
-                </div>
 
-                {/* Option 3: Doctor */}
-                <div 
-                  onClick={() => setFormData(prev => ({ ...prev, accountType: 'Doctor' }))}
-                  className={`p-5 rounded-2xl border-2 transition-all cursor-pointer flex items-start gap-4 ${
-                    formData.accountType === 'Doctor' 
-                      ? 'border-[#7C3AED] bg-[#F5F3FF]/70 shadow-sm ring-1 ring-[#7C3AED]' 
-                      : 'border-[#EDE9FE] hover:border-[#7C3AED]/50 bg-white'
-                  }`}
-                >
-                  <div className={`p-3 rounded-xl ${formData.accountType === 'Doctor' ? 'bg-[#7C3AED] text-white' : 'bg-[#EDE9FE] text-[#7C3AED]'}`}>
-                    <Stethoscope className="w-6 h-6" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-bold text-[#3a3135] text-base">Doctor</h3>
-                    <p className="text-xs text-[#64595e] mt-1 leading-relaxed">
-                      Consult patients online, review AI health reports, and manage appointments.
-                    </p>
+                  {/* Option 3: Doctor */}
+                  <div 
+                    onClick={() => setFormData(prev => ({ ...prev, accountType: 'Doctor' }))}
+                    className={`p-5 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between gap-3 ${
+                      formData.accountType === 'Doctor' 
+                        ? 'border-[#7C3AED] bg-[#F5F3FF]/70 shadow-sm ring-1 ring-[#7C3AED]' 
+                        : 'border-[#EDE9FE] hover:border-[#7C3AED]/50 bg-white'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className={`p-3 rounded-xl ${formData.accountType === 'Doctor' ? 'bg-[#7C3AED] text-white' : 'bg-[#EDE9FE] text-[#7C3AED]'}`}>
+                        <Stethoscope className="w-6 h-6" />
+                      </div>
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-[#3a3135] text-base">Doctor</h3>
+                      <p className="text-xs text-[#64595e] mt-1 leading-relaxed">
+                        Consult patients online, review AI health reports, and manage appointments.
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -672,8 +697,8 @@ export default function Register() {
 
             {/* STEP 2: Personal Information */}
             {step === 2 && (
-              <div className="grid md:grid-cols-2 gap-5">
-                <div className="md:col-span-2">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div>
                   <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">Full Name</label>
                   <input 
                     type="text" 
@@ -703,7 +728,7 @@ export default function Register() {
                     value={formData.dob} 
                     onChange={handleChange}
                     className={`w-full px-4 py-3 rounded-xl border ${
-                      formData.dob && (!isPastOrToday(formData.dob) || calculateAge(formData.dob) < 0)
+                      formData.dob && (!isPastOrToday(formData.dob) || calculateAge(formData.dob) < 0 || (formData.accountType === 'Caregiver' && calculateAge(formData.dob) < 16))
                         ? 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-100'
                         : 'border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100'
                     } outline-none text-sm`} 
@@ -712,6 +737,11 @@ export default function Register() {
                   {formData.dob && (!isPastOrToday(formData.dob) || calculateAge(formData.dob) < 0) && (
                     <p className="text-xs mt-1.5 font-medium text-red-500">
                       Date of birth cannot be in the future
+                    </p>
+                  )}
+                  {formData.dob && isPastOrToday(formData.dob) && formData.accountType === 'Caregiver' && calculateAge(formData.dob) < 16 && (
+                    <p className="text-xs mt-1.5 font-medium text-red-500">
+                      Caregiver must be at least 16 years of age (current age: {calculateAge(formData.dob)} yrs)
                     </p>
                   )}
                 </div>
@@ -775,41 +805,22 @@ export default function Register() {
                   )}
                 </div>
 
-                {/* Street Address */}
-                <div className="md:col-span-2">
-                  <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">Address</label>
-                  <input 
-                    type="text" 
-                    name="address" 
-                    value={formData.address} 
-                    onChange={handleChange}
-                    placeholder="Enter your street address, apartment, suite..." 
-                    className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
-                    required
-                  />
-                </div>
-
-                {/* Pincode */}
                 <div>
-                  <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">Pincode / Zip Code</label>
-                  <input 
-                    type="text" 
-                    name="pincode" 
-                    value={formData.pincode} 
+                  <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">Country</label>
+                  <select 
+                    name="country" 
+                    value={formData.country} 
                     onChange={handleChange}
-                    placeholder="e.g. 94107" 
-                    className={`w-full px-4 py-3 rounded-xl border ${
-                      formData.pincode.trim() && !isValidPincode(formData.pincode)
-                        ? 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-100'
-                        : 'border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100'
-                    } outline-none text-sm`} 
-                    required
-                  />
-                  {formData.pincode.trim() && !isValidPincode(formData.pincode) && (
-                    <p className="text-xs mt-1.5 font-medium text-red-500">
-                      Invalid pincode / zip code
-                    </p>
-                  )}
+                    className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm bg-white"
+                  >
+                    <option value="">Select Country</option>
+                    <option value="United States">United States</option>
+                    <option value="Canada">Canada</option>
+                    <option value="United Kingdom">United Kingdom</option>
+                    <option value="Australia">Australia</option>
+                    <option value="India">India</option>
+                    <option value="Germany">Germany</option>
+                  </select>
                 </div>
 
                 <div>
@@ -837,32 +848,50 @@ export default function Register() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">Country</label>
-                  <select 
-                    name="country" 
-                    value={formData.country} 
+                  <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">Pincode / Zip Code</label>
+                  <input 
+                    type="text" 
+                    name="pincode" 
+                    value={formData.pincode} 
                     onChange={handleChange}
-                    className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm bg-white"
-                  >
-                    <option value="">Select Country</option>
-                    <option value="United States">United States</option>
-                    <option value="Canada">Canada</option>
-                    <option value="United Kingdom">United Kingdom</option>
-                    <option value="Australia">Australia</option>
-                    <option value="India">India</option>
-                    <option value="Germany">Germany</option>
-                  </select>
+                    placeholder="e.g. 94107" 
+                    className={`w-full px-4 py-3 rounded-xl border ${
+                      formData.pincode.trim() && !isValidPincode(formData.pincode)
+                        ? 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-100'
+                        : 'border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100'
+                    } outline-none text-sm`} 
+                    required
+                  />
+                  {formData.pincode.trim() && !isValidPincode(formData.pincode) && (
+                    <p className="text-xs mt-1.5 font-medium text-red-500">
+                      Invalid pincode / zip code
+                    </p>
+                  )}
                 </div>
 
+                {/* Street Address spanning 2 columns, Photo spanning 1 column */}
                 <div className="md:col-span-2">
+                  <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">Address</label>
+                  <input 
+                    type="text" 
+                    name="address" 
+                    value={formData.address} 
+                    onChange={handleChange}
+                    placeholder="Enter your street address, apartment, suite..." 
+                    className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
+                    required
+                  />
+                </div>
+
+                <div className="md:col-span-1">
                   <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">Profile Photo (Optional)</label>
-                  <div className="flex items-center gap-4 p-3 rounded-xl border border-dashed border-[#EDE9FE] bg-[#FBF9FE]">
-                    <Upload className="w-5 h-5 text-[#7C3AED]" />
+                  <div className="flex items-center gap-3 p-3 rounded-xl border border-dashed border-[#EDE9FE] bg-[#FBF9FE]">
+                    <Upload className="w-5 h-5 text-[#7C3AED] shrink-0" />
                     <input 
                       type="file" 
                       accept="image/*" 
                       onChange={handleFileChange}
-                      className="text-xs text-[#7a6f75] file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#EDE9FE] file:text-[#7C3AED] hover:file:bg-[#7C3AED] hover:file:text-white cursor-pointer"
+                      className="text-xs text-[#7a6f75] file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[11px] file:font-semibold file:bg-[#EDE9FE] file:text-[#7C3AED] hover:file:bg-[#7C3AED] hover:file:text-white cursor-pointer w-full"
                     />
                   </div>
                 </div>
@@ -871,7 +900,7 @@ export default function Register() {
 
             {/* STEP 3: Account Credentials */}
             {step === 3 && (
-              <div className="space-y-5 max-w-md mx-auto py-2">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5 py-2">
                 <div>
                   <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">Username</label>
                   <input 
@@ -949,7 +978,7 @@ export default function Register() {
                 </div>
 
                 {(formData.accountType === 'Myself' || formData.accountType === 'User (Female)') && (
-                  <div className="grid md:grid-cols-2 gap-5">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                     <div>
                       <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">Blood Group</label>
                       <select 
@@ -970,29 +999,28 @@ export default function Register() {
                       </select>
                     </div>
 
-                    <div className="flex gap-3">
-                      <div className="w-1/2">
-                        <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">Height (cm)</label>
-                        <input 
-                          type="number" 
-                          name="heightCm" 
-                          value={formData.heightCm} 
-                          onChange={handleChange}
-                          placeholder="e.g. 168" 
-                          className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
-                        />
-                      </div>
-                      <div className="w-1/2">
-                        <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">Weight (kg)</label>
-                        <input 
-                          type="number" 
-                          name="weightKg" 
-                          value={formData.weightKg} 
-                          onChange={handleChange}
-                          placeholder="e.g. 62" 
-                          className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
-                        />
-                      </div>
+                    <div>
+                      <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">Height (cm)</label>
+                      <input 
+                        type="number" 
+                        name="heightCm" 
+                        value={formData.heightCm} 
+                        onChange={handleChange}
+                        placeholder="e.g. 168" 
+                        className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">Weight (kg)</label>
+                      <input 
+                        type="number" 
+                        name="weightKg" 
+                        value={formData.weightKg} 
+                        onChange={handleChange}
+                        placeholder="e.g. 62" 
+                        className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
+                      />
                     </div>
 
                     <div>
@@ -1028,7 +1056,7 @@ export default function Register() {
                       </select>
                     </div>
 
-                    <div className="md:col-span-2">
+                    <div>
                       <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">Wearable Device (Optional)</label>
                       <select 
                         name="wearableDevice" 
@@ -1058,7 +1086,7 @@ export default function Register() {
                       />
                     </div>
 
-                    <div>
+                    <div className="md:col-span-2">
                       <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">Emergency Contact Phone</label>
                       <input 
                         type="tel" 
@@ -1083,28 +1111,7 @@ export default function Register() {
                         </h3>
                       </div>
 
-                      <div className="grid md:grid-cols-2 gap-5">
-                        <div>
-                          <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">
-                            Caregiver Sub-Type / Role
-                          </label>
-                          <select 
-                            name="caregiverType" 
-                            value={formData.caregiverType} 
-                            onChange={handleChange}
-                            className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm bg-white font-medium"
-                          >
-                            <option value="">Select Caregiver Sub-Type / Role</option>
-                            <option value="Parent">Parent</option>
-                            <option value="Partner / Spouse">Partner / Spouse</option>
-                            <option value="Sibling">Sibling (Sister / Brother)</option>
-                            <option value="Friend">Friend</option>
-                            <option value="Nurse">Nurse / Healthcare Professional</option>
-                            <option value="Caretaker">Professional Caretaker / Home Health</option>
-                            <option value="Relative">Relative / Elder Support</option>
-                          </select>
-                        </div>
-
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                         <div>
                           <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">
                             Dependent / Care Recipient Full Name
@@ -1141,6 +1148,11 @@ export default function Register() {
                             <option value="Grandparent">Grandparent</option>
                             <option value="Other Relative">Other Relative</option>
                           </select>
+                          {formData.relationship && (
+                            <p className="text-[11px] text-[#7C3AED] font-semibold mt-1">
+                              Calculated Role: <span className="font-bold">{getCaregiverTypeFromRelationship(formData.relationship)}</span>
+                            </p>
+                          )}
                         </div>
 
                         <div>
@@ -1155,6 +1167,11 @@ export default function Register() {
                             className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm bg-white" 
                             required
                           />
+                          {formData.dependentDob && isPastOrToday(formData.dependentDob) && (
+                            <p className="text-[11px] text-[#14B8A6] font-semibold mt-1">
+                              Stage: <span className="font-bold">{getDependentCategoryFromDob(formData.dependentDob)}</span> ({calculateAge(formData.dependentDob)} yrs)
+                            </p>
+                          )}
                         </div>
 
                         <div>
@@ -1196,49 +1213,6 @@ export default function Register() {
                           </select>
                         </div>
 
-                        <div className="flex gap-3">
-                          <div className="w-1/2">
-                            <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">Height (cm)</label>
-                            <input 
-                              type="number" 
-                              name="dependentHeightCm" 
-                              value={formData.dependentHeightCm} 
-                              onChange={handleChange}
-                              placeholder="e.g. 110" 
-                              className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
-                            />
-                          </div>
-                          <div className="w-1/2">
-                            <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">Weight (kg)</label>
-                            <input 
-                              type="number" 
-                              name="dependentWeightKg" 
-                              value={formData.dependentWeightKg} 
-                              onChange={handleChange}
-                              placeholder="e.g. 18" 
-                              className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
-                            />
-                          </div>
-                        </div>
-
-                        <div>
-                          <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">
-                            Dependent Category / Stage
-                          </label>
-                          <select 
-                            name="dependentCategory" 
-                            value={formData.dependentCategory} 
-                            onChange={handleChange}
-                            className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm bg-white"
-                          >
-                            <option value="">Select Category / Stage</option>
-                            <option value="Child / Infant">Child / Infant</option>
-                            <option value="Adolescent">Adolescent</option>
-                            <option value="Adult">Adult</option>
-                            <option value="Elder / Senior">Elder / Senior</option>
-                          </select>
-                        </div>
-
                         <div>
                           <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">
                             Caregiver Emergency Contact Phone
@@ -1254,7 +1228,31 @@ export default function Register() {
                           />
                         </div>
 
-                        <div className="md:col-span-2">
+                        <div>
+                          <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">Height (cm)</label>
+                          <input 
+                            type="number" 
+                            name="dependentHeightCm" 
+                            value={formData.dependentHeightCm} 
+                            onChange={handleChange}
+                            placeholder="e.g. 110" 
+                            className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">Weight (kg)</label>
+                          <input 
+                            type="number" 
+                            name="dependentWeightKg" 
+                            value={formData.dependentWeightKg} 
+                            onChange={handleChange}
+                            placeholder="e.g. 18" 
+                            className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
+                          />
+                        </div>
+
+                        <div className="md:col-span-3">
                           <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">
                             Existing Conditions / Allergies / Notes (Optional)
                           </label>
@@ -1304,7 +1302,7 @@ export default function Register() {
 
                 {/* DOCTOR ROLE SPECIFIC QUESTIONS */}
                 {formData.accountType === 'Doctor' && (
-                  <div className="grid md:grid-cols-2 gap-5">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                     <div>
                       <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">
                         Medical License Number
@@ -1341,20 +1339,6 @@ export default function Register() {
 
                     <div>
                       <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">
-                        Hospital / Clinic Affiliation
-                      </label>
-                      <input 
-                        type="text" 
-                        name="hospitalClinic" 
-                        value={formData.hospitalClinic} 
-                        onChange={handleChange}
-                        placeholder="e.g. St. Jude Women's Health Center"
-                        className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">
                         Years of Clinical Experience
                       </label>
                       <input 
@@ -1363,6 +1347,20 @@ export default function Register() {
                         value={formData.yearsOfExperience} 
                         onChange={handleChange}
                         placeholder="e.g. 12"
+                        className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
+                      />
+                    </div>
+
+                    <div className="md:col-span-3">
+                      <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">
+                        Hospital / Clinic Affiliation
+                      </label>
+                      <input 
+                        type="text" 
+                        name="hospitalClinic" 
+                        value={formData.hospitalClinic} 
+                        onChange={handleChange}
+                        placeholder="e.g. St. Jude Women's Health Center"
                         className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
                       />
                     </div>

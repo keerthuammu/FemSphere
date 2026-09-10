@@ -163,38 +163,6 @@ export default function DoctorLayout() {
               <Clock className="w-3.5 h-3.5 text-[#7C3AED]" />
               {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
             </div>
-
-            <button
-              onClick={() => setShowAddConsultationModal(true)}
-              className="px-3.5 py-2 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
-            >
-              <Plus className="w-3.5 h-3.5" /> New Note
-            </button>
-
-            <button
-              onClick={() => {
-                const activeSlotApt = appointments.find(a => 
-                  a.type === 'Virtual Telehealth' && 
-                  isAppointmentSlotActive(a.date, a.time).isActive
-                );
-                if (activeSlotApt) {
-                  handleStartDoctorCall(activeSlotApt);
-                } else {
-                  alert('No active telehealth appointment slot right now.\n\nVideo calls can only be started during the scheduled appointment slot. Please go to Appointments to view upcoming slots.');
-                }
-              }}
-              className="px-3.5 py-2 bg-[#14B8A6] hover:bg-[#0D9488] text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
-            >
-              <Video className="w-3.5 h-3.5" /> Launch Telehealth
-            </button>
-
-            <Link
-              to="/doctor-dashboard/profile"
-              className="p-2 rounded-xl border border-[#E5CDBC] bg-white text-[#7C3AED] hover:bg-purple-50 transition-colors"
-              title="Doctor Settings"
-            >
-              <Settings className="w-4 h-4" />
-            </Link>
           </div>
         </header>
 

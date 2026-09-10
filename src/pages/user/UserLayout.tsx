@@ -117,85 +117,124 @@ export default function UserLayout() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#FAF7F4] flex font-inter text-[#2E2428]">
+    <div className="min-h-screen bg-[#FAF7F4] flex font-sans text-[#2E2428]">
       
-      {/* SIDEBAR NAVIGATION MENU */}
-      <aside className="w-72 bg-[#F4E0D1] border-r border-[#E5CDBC] hidden lg:flex flex-col flex-shrink-0 sticky top-0 h-screen font-inter print:hidden">
-        <div className="p-6 border-b border-[#E5CDBC] flex items-center justify-between">
+      {/* --- SIDEBAR --- Identical to DoctorLayout */}
+      <aside className="w-64 bg-[#F2EBE5] border-r border-[#E5CDBC] p-6 flex flex-col justify-between hidden md:flex shrink-0 print:hidden">
+        <div className="space-y-8">
+          {/* Brand */}
           <Link to="/" className="flex items-center gap-2.5">
-            <h1 className="font-serif text-3xl font-bold text-[#7C3AED] tracking-tight">FemSphere</h1>
-            <Sparkles className="w-5 h-5 text-[#14B8A6]" />
+            <div className="w-10 h-10 rounded-2xl bg-[#7C3AED] text-white flex items-center justify-center font-bold text-lg shadow-sm">
+              <Activity className="w-5 h-5" />
+            </div>
+            <div>
+              <span className="font-serif text-xl font-bold tracking-tight text-[#2E2428] block leading-none">FemSphere</span>
+              <span className="text-[10px] uppercase font-bold text-[#7C3AED] tracking-widest block mt-0.5">Patient Portal</span>
+            </div>
           </Link>
-        </div>
-        
-        <div className="flex-1 overflow-y-auto p-4 space-y-1.5 scrollbar-hide font-inter">
-          <p className="text-xs uppercase tracking-widest text-[#8C756B] font-bold px-3 py-2">System Menu</p>
           
-          {navItems.map((item) => {
-            const IconComponent = item.icon;
-            return (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                end={item.end}
-                className={({ isActive }) =>
-                  `w-full flex items-center justify-between px-4 py-3 rounded-2xl font-bold text-base transition-all ${
-                    isActive 
-                      ? 'bg-white text-[#7C3AED] shadow-sm border border-[#E5CDBC]' 
-                      : 'text-[#4A3B42] hover:bg-white/40 hover:text-[#2E2428]'
-                  }`
-                }
-              >
-                <div className="flex items-center gap-3">
-                  <IconComponent className={`w-5 h-5 ${item.iconColor || 'text-[#7C3AED]'}`} />
-                  <span>{item.name}</span>
-                </div>
-                {item.badge !== undefined && (
-                  <span className="px-2 py-0.5 text-xs font-bold bg-rose-500 text-white rounded-full">
-                    {item.badge}
-                  </span>
-                )}
-              </NavLink>
-            );
-          })}
+          {/* Navigation Links */}
+          <nav className="space-y-1.5">
+            {navItems.map((item) => {
+              const IconComponent = item.icon;
+              return (
+                <NavLink
+                  key={item.path}
+                  to={item.path}
+                  end={item.end}
+                  className={({ isActive }) =>
+                    `w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl font-bold text-xs transition-all ${
+                      isActive 
+                        ? 'bg-white text-[#7C3AED] shadow-xs border border-[#E5CDBC]' 
+                        : 'text-[#4A3B42] hover:bg-white/40 hover:text-[#2E2428]'
+                    }`
+                  }
+                >
+                  <div className="flex items-center gap-3 truncate">
+                    <IconComponent className="w-4 h-4 shrink-0" />
+                    <span className="truncate">{item.name}</span>
+                  </div>
+                  {item.badge !== undefined && (
+                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-[#7C3AED] text-white">
+                      {item.badge}
+                    </span>
+                  )}
+                </NavLink>
+              );
+            })}
 
-          {/* Connect Watch (Bluetooth) */}
-          <button 
-            onClick={() => {
-              setShowBluetoothModal(true);
-              if (!bluetoothConnected && foundDevices.length === 0) {
-                handleScanBluetoothDevices();
-              }
-            }} 
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-base transition-all cursor-pointer ${
-              bluetoothConnected 
-                ? 'bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-2xs' 
-                : 'text-[#4A3B42] hover:bg-white/40 hover:text-[#2E2428]'
-            }`}
-          >
-            <Watch className={`w-5 h-5 ${bluetoothConnected ? 'text-emerald-600' : 'text-[#7C3AED]'}`} />
-            <span>Connect Watch</span>
-          </button>
+            {/* Connect Watch (Bluetooth) in nav */}
+            <button 
+              onClick={() => {
+                setShowBluetoothModal(true);
+                if (!bluetoothConnected && foundDevices.length === 0) {
+                  handleScanBluetoothDevices();
+                }
+              }} 
+              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl font-bold text-xs transition-all cursor-pointer ${
+                bluetoothConnected 
+                  ? 'bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-2xs' 
+                  : 'text-[#4A3B42] hover:bg-white/40 hover:text-[#2E2428]'
+              }`}
+            >
+              <Watch className={`w-4 h-4 shrink-0 ${bluetoothConnected ? 'text-emerald-600' : 'text-[#7C3AED]'}`} />
+              <span className="truncate">{bluetoothConnected ? 'Watch Paired' : 'Connect Watch'}</span>
+            </button>
+          </nav>
+        </div>
+
+        {/* User Identity & Logout Footer */}
+        <div className="pt-6 border-t border-[#E5CDBC] space-y-4">
+          <div className="flex items-center gap-3">
+            <div 
+              className="w-10 h-10 rounded-xl text-white flex items-center justify-center font-bold text-sm shadow-sm overflow-hidden shrink-0"
+              style={{ backgroundColor: userProfile.avatarBg || '#7C3AED' }}
+            >
+              {userProfile.avatarUrl ? (
+                <img src={userProfile.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+              ) : (
+                <span>{userProfile.fullName ? userProfile.fullName.charAt(0).toUpperCase() : 'U'}</span>
+              )}
+            </div>
+            <div className="overflow-hidden">
+              <h4 className="font-bold text-xs text-[#2E2428] truncate">{userProfile.fullName || 'User'}</h4>
+              <p className="text-[10px] text-[#7A6A72] truncate">{stageName || 'Patient'}</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Link
+              to="/dashboard/profile"
+              className="flex-1 flex items-center justify-center py-2 px-3 bg-white/60 hover:bg-white border border-[#E5CDBC] rounded-xl text-xs font-bold text-[#4A3B42] hover:text-[#2E2428] transition-all cursor-pointer shadow-2xs"
+            >
+              Profile
+            </Link>
+            <button
+              onClick={handleLogout}
+              className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 bg-white/60 hover:bg-white border border-[#E5CDBC] rounded-xl text-xs font-bold text-rose-700 transition-all cursor-pointer shadow-2xs"
+            >
+              <LogOut className="w-3.5 h-3.5" /> Log Out
+            </button>
+          </div>
         </div>
       </aside>
 
-      {/* MAIN CONTENT AREA */}
-      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto font-inter">
-        
-        {/* HEADER BAR */}
-        <header className="bg-[#F4E0D1]/90 backdrop-blur-md border-b border-[#E5CDBC] p-5 md:px-8 flex items-center justify-between sticky top-0 z-20 print:hidden font-inter">
-          <div>
-            <h2 className="font-bold text-[#2E2428] text-xl md:text-2xl truncate max-w-[280px] sm:max-w-md">
-              Welcome, {userProfile.fullName || 'User'}!
-            </h2>
-            <p className="text-xs md:text-sm text-[#635259] flex items-center gap-2 mt-1 font-medium">
-              <Clock className="w-4 h-4 text-[#7C3AED]" />
-              {currentTime.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} • {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-            </p>
+      {/* --- MAIN CONTENT AREA --- */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
+        {/* Top Header */}
+        <header className="bg-white/80 backdrop-blur-md sticky top-0 z-30 border-b border-[#E5CDBC] px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 print:hidden">
+          <div className="flex items-center gap-3 flex-wrap">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200 shadow-2xs">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" /> Patient Active
+            </span>
+            <span className="text-xs text-[#7A6A72] hidden sm:inline">•</span>
+            <span className="text-xs text-[#7A6A72] font-semibold hidden sm:inline">
+              Welcome back, <strong className="text-[#2E2428]">{userProfile.fullName || 'User'}</strong>
+            </span>
           </div>
           
           <div className="flex items-center gap-3">
-            {/* Life Stage Selector Dropdown */}
+            {/* Life Stage Selector */}
             <LifeStageSelector
               currentStageCode={currentStageCode}
               stageName={stageName}
@@ -206,7 +245,7 @@ export default function UserLayout() {
             {bluetoothConnected && (
               <button 
                 onClick={() => setShowBluetoothModal(true)}
-                className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold cursor-pointer hover:bg-emerald-100 transition-colors"
+                className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold cursor-pointer hover:bg-emerald-100 transition-colors shadow-2xs"
               >
                 <div className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></div>
                 <Watch className="w-3.5 h-3.5 text-emerald-600" />
@@ -214,81 +253,50 @@ export default function UserLayout() {
               </button>
             )}
 
-            {/* Notification Bell Icon with Link to Notifications */}
+            {/* Live Clock */}
+            <div className="hidden lg:flex items-center gap-2 bg-[#FAF7F4] px-3.5 py-1.5 rounded-xl border border-[#E5CDBC] text-xs font-mono font-bold text-[#7A6A72]">
+              <Clock className="w-3.5 h-3.5 text-[#7C3AED]" />
+              {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+            </div>
+
+            {/* Notification Bell */}
             <Link
               to="/dashboard/notifications"
-              className="relative p-2.5 rounded-2xl bg-white/70 hover:bg-white text-[#4A3B42] hover:text-[#7C3AED] transition-colors border border-[#E5CDBC] cursor-pointer"
+              className="relative p-2 rounded-xl bg-white text-[#4A3B42] hover:text-[#7C3AED] transition-colors border border-[#E5CDBC] cursor-pointer shadow-2xs"
               title="Notifications"
             >
-              <Bell className="w-5 h-5" />
+              <Bell className="w-4 h-4" />
               {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#7C3AED] text-white text-xs font-bold rounded-full flex items-center justify-center border-2 border-white">
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#7C3AED] text-white text-[10px] font-bold rounded-full flex items-center justify-center border border-white">
                   {unreadCount}
                 </span>
               )}
             </Link>
-
-            {/* Profile Menu Dropdown */}
-            <div className="relative">
-              <button 
-                onClick={() => setShowProfileDropdown(!showProfileDropdown)}
-                className="flex items-center gap-2 p-1.5 rounded-2xl hover:bg-white/50 transition-colors border border-transparent hover:border-[#E5CDBC] cursor-pointer"
-              >
-                <div 
-                  className="w-10 h-10 rounded-2xl text-white flex items-center justify-center font-bold text-base shadow-sm overflow-hidden"
-                  style={{ backgroundColor: userProfile.avatarBg || '#7C3AED' }}
-                >
-                  {userProfile.avatarUrl ? (
-                    <img src={userProfile.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
-                  ) : (
-                    <span>{userProfile.fullName ? userProfile.fullName.charAt(0).toUpperCase() : 'U'}</span>
-                  )}
-                </div>
-              </button>
-
-              {showProfileDropdown && (
-                <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-[#EDE9FE] py-2 z-30 font-inter">
-                  <div className="px-4 py-3 border-b border-[#EDE9FE]">
-                    <p className="font-bold text-sm text-[#3a3135] truncate">{userProfile.fullName}</p>
-                    <p className="text-xs text-[#7a6f75] truncate">{userProfile.email}</p>
-                  </div>
-                  
-                  <button 
-                    onClick={() => {
-                      navigate('/dashboard/profile');
-                      setShowProfileDropdown(false);
-                    }}
-                    className="w-full px-4 py-2.5 text-left text-sm text-[#3a3135] hover:bg-[#F5F3FF] hover:text-[#7C3AED] flex items-center gap-2.5 font-medium cursor-pointer"
-                  >
-                    <User className="w-4 h-4 text-[#7C3AED]" /> My Profile
-                  </button>
-
-                  <button 
-                    onClick={() => {
-                      navigate('/dashboard/settings');
-                      setShowProfileDropdown(false);
-                    }}
-                    className="w-full px-4 py-2.5 text-left text-sm text-[#3a3135] hover:bg-[#F5F3FF] hover:text-[#7C3AED] flex items-center gap-2.5 font-medium cursor-pointer"
-                  >
-                    <Sliders className="w-4 h-4 text-[#7C3AED]" /> Settings
-                  </button>
-                  
-                  <div className="border-t border-[#EDE9FE] my-1"></div>
-                  
-                  <button 
-                    onClick={handleLogout}
-                    className="w-full px-4 py-2.5 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2.5 font-medium cursor-pointer"
-                  >
-                    <LogOut className="w-4 h-4 text-red-600" /> Sign Out
-                  </button>
-                </div>
-              )}
-            </div>
           </div>
         </header>
 
+        {/* Mobile Navigation Strip */}
+        <div className="md:hidden flex overflow-x-auto gap-2 p-3 bg-[#F2EBE5] border-b border-[#E5CDBC]">
+          {navItems.map((item) => (
+            <NavLink
+              key={item.path}
+              to={item.path}
+              end={item.end}
+              className={({ isActive }) =>
+                `px-3 py-1.5 rounded-xl font-bold text-xs whitespace-nowrap transition-all ${
+                  isActive
+                    ? 'bg-white text-[#7C3AED] shadow-xs border border-[#E5CDBC]'
+                    : 'text-[#4A3B42] hover:bg-white/40'
+                }`
+              }
+            >
+              {item.name}
+            </NavLink>
+          ))}
+        </div>
+
         {/* SUB-PAGE VIEW ROUTE OUTLET */}
-        <main className="flex-1 p-5 md:p-8 space-y-8 font-inter">
+        <main className="p-6 md:p-8 max-w-7xl mx-auto w-full space-y-8">
           <Outlet />
         </main>
       </div>

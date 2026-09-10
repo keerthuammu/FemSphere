@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Search, Plus, Trash2, Users, User, Stethoscope } from 'lucide-react';
+import { Search, Plus, Trash2, Users, User } from 'lucide-react';
 import { useAdmin } from '../../context/AdminContext';
 
 export default function AdminUsers() {
@@ -14,34 +13,41 @@ export default function AdminUsers() {
     refreshAllData
   } = useAdmin();
 
-  const [selectedRole, setSelectedRole] = useState<'ALL' | 'USER' | 'CAREGIVER' | 'DOCTOR'>('ALL');
+  const [selectedRole, setSelectedRole] = useState<'ALL' | 'FEMALE' | 'MALE'>('ALL');
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
 
-  // Exclude admin accounts from User Management
-  const nonAdminUsers = users.filter(u => !(u.role || '').toLowerCase().includes('admin'));
+  // Exclude admin, doctor, and caregiver accounts - only list regular female and male users
+  const regularUsers = users.filter(u => {
+    const roleLower = (u.role || '').toLowerCase();
+    if (roleLower.includes('admin')) return false;
+    if (roleLower.includes('doctor')) return false;
+    if (roleLower.includes('caregiver')) return false;
+    return true;
+  });
 
-  const countUser = nonAdminUsers.filter(u => {
-    const r = (u.role || '').toLowerCase();
-    return r.includes('myself') || r.includes('user');
-  }).length;
+  const isFemale = (role?: string) => {
+    const r = (role || '').toLowerCase();
+    return r.includes('female') || (!r.includes('male') && r.includes('myself'));
+  };
 
-  const countCaregiver = nonAdminUsers.filter(u => (u.role || '').toLowerCase().includes('caregiver')).length;
-  const countDoctor = nonAdminUsers.filter(u => (u.role || '').toLowerCase().includes('doctor')).length;
+  const isMale = (role?: string) => {
+    const r = (role || '').toLowerCase();
+    return r.includes('male') && !r.includes('female');
+  };
+
+  const countFemale = regularUsers.filter(u => isFemale(u.role)).length;
+  const countMale = regularUsers.filter(u => isMale(u.role)).length;
 
   const userTypeFilters = [
-    { id: 'ALL' as const, label: 'All Users', count: nonAdminUsers.length, icon: Users, iconColor: 'text-[#7C3AED]' },
-    { id: 'USER' as const, label: 'User', count: countUser, icon: User, iconColor: 'text-[#7C3AED]' },
-    { id: 'CAREGIVER' as const, label: 'Caregivers', count: countCaregiver, icon: Users, iconColor: 'text-[#14B8A6]' },
-    { id: 'DOCTOR' as const, label: 'Doctors', count: countDoctor, icon: Stethoscope, iconColor: 'text-[#F472B6]' }
+    { id: 'ALL' as const, label: 'All Users', count: regularUsers.length, icon: Users, iconColor: 'text-[#7C3AED]' },
+    { id: 'FEMALE' as const, label: 'Female Users', count: countFemale, icon: User, iconColor: 'text-pink-500' },
+    { id: 'MALE' as const, label: 'Male Users', count: countMale, icon: User, iconColor: 'text-blue-500' }
   ];
 
-  const filteredUsers = nonAdminUsers.filter(u => {
-    const roleLower = (u.role || '').toLowerCase();
-    
-    // Role filter
-    if (selectedRole === 'USER' && !(roleLower.includes('myself') || roleLower.includes('user'))) return false;
-    if (selectedRole === 'CAREGIVER' && !roleLower.includes('caregiver')) return false;
-    if (selectedRole === 'DOCTOR' && !roleLower.includes('doctor')) return false;
+  const filteredUsers = regularUsers.filter(u => {
+    // Role / Gender filter
+    if (selectedRole === 'FEMALE' && !isFemale(u.role)) return false;
+    if (selectedRole === 'MALE' && !isMale(u.role)) return false;
 
     // Search query filter
     if (!searchUser.trim()) return true;
@@ -71,7 +77,7 @@ export default function AdminUsers() {
 
   const handleBulkToggleStatus = async () => {
     if (selectedUserIds.length === 0) return;
-    const targets = nonAdminUsers.filter(u => selectedUserIds.includes(String(u.id)));
+    const targets = regularUsers.filter(u => selectedUserIds.includes(String(u.id)));
     for (const u of targets) {
       await handleToggleUserStatus(u.id, u.status);
     }
@@ -107,9 +113,9 @@ export default function AdminUsers() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-[#EDE9FE] pb-3.5">
         <div>
           <h3 className="font-bold text-xl text-[#3a3135]">Manage Registered Users</h3>
-          <p className="text-xs text-[#64595e]">View, update, or restrict live platform user accounts</p>
+          <p className="text-xs text-[#64595e]">View, update, or restrict live platform regular user accounts</p>
         </div>
-        <div className="flex items-center gap-2.5">
+        <div className="flex iteFs-center gap-2.5">
           <div className="relative">
             <Search className="w-3.5 h-3.5 text-[#7a6f75] absolute left-3 top-2.5" />
             <input 
@@ -129,43 +135,6 @@ export default function AdminUsers() {
         </div>
       </div>
 
-      {/* USER TYPE NAVIGATION BUTTONS */}
-      <div className="flex flex-wrap items-center justify-between gap-2.5 pt-0.5 pb-1">
-        <div className="flex flex-wrap items-center gap-2">
-          {userTypeFilters.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setSelectedRole(tab.id)}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-xl font-bold text-xs transition-all cursor-pointer ${
-                selectedRole === tab.id
-                  ? 'bg-[#7C3AED] text-white shadow-xs'
-                  : 'bg-[#FAF8FC] text-[#64595e] border border-[#EDE9FE] hover:bg-[#F5F3FF] hover:text-[#7C3AED]'
-              }`}
-            >
-              <tab.icon className={`w-3.5 h-3.5 ${selectedRole === tab.id ? 'text-white' : tab.iconColor}`} />
-              <span>{tab.label}</span>
-              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                selectedRole === tab.id
-                  ? 'bg-white/20 text-white'
-                  : 'bg-[#EDE9FE] text-[#7C3AED]'
-              }`}>
-                {tab.count}
-              </span>
-            </button>
-          ))}
-        </div>
-
-        {selectedRole === 'CAREGIVER' && (
-          <Link to="/admin/caregivers" className="text-xs text-[#14B8A6] font-bold hover:underline">
-            Go to Caregiver Directory →
-          </Link>
-        )}
-        {selectedRole === 'DOCTOR' && (
-          <Link to="/admin/doctors" className="text-xs text-[#F472B6] font-bold hover:underline">
-            Go to Doctor Approvals →
-          </Link>
-        )}
-      </div>
 
       {/* Users Table */}
       <div className="overflow-x-auto rounded-xl border border-[#EDE9FE]">
@@ -183,7 +152,6 @@ export default function AdminUsers() {
               </th>
               <th className="p-3">Full Name</th>
               <th className="p-3">Email</th>
-              <th className="p-3">Role</th>
               <th className="p-3">Status</th>
               <th className="p-3">Date Joined</th>
               <th className="p-3 text-right">Actions</th>
@@ -204,11 +172,6 @@ export default function AdminUsers() {
                   </td>
                   <td className="p-3 font-bold text-[#3a3135]">{u.name}</td>
                   <td className="p-3 text-[#64595e]">{u.email}</td>
-                  <td className="p-3">
-                    <span className="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-[#FAF8FC] text-[#4A3B42] border border-[#EDE9FE]">
-                      {u.role}
-                    </span>
-                  </td>
                   <td className="p-3">
                     <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
                       u.status === 'Active' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'

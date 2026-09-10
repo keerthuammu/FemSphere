@@ -16,18 +16,22 @@ export const getMedicalRecords = async (req, res) => {
 export const uploadMedicalRecord = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { title, fileName, fileType, fileUrl, fileSize, category, description, isScanned, scanResults } = req.body;
+    const { 
+      title, fileName, fileType, fileUrl, fileSize, category, 
+      description, isScanned, scanResults, dependentName, dependent, fileData 
+    } = req.body;
 
     const resolvedTitle = title || fileName || 'Medical Report';
     const resolvedFileName = fileName || `${resolvedTitle.replace(/\s+/g, '_')}.pdf`;
     const resolvedFileType = (fileType || resolvedFileName.split('.').pop() || 'PDF').toUpperCase();
     const resolvedUrl = fileUrl || `/uploads/records/${resolvedFileName}`;
     const resolvedSize = fileSize ? parseInt(fileSize, 10) : 2400000;
+    const resolvedDependent = dependentName || dependent || null;
 
     const result = await pool.query(
       `INSERT INTO medical_records (
-        user_id, file_name, file_type, file_url, file_size_bytes, title, category, description, is_scanned, scan_results
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`,
+        user_id, file_name, file_type, file_url, file_size_bytes, title, category, description, is_scanned, scan_results, dependent_name, file_data
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *`,
       [
         userId,
         resolvedFileName,
@@ -38,7 +42,9 @@ export const uploadMedicalRecord = async (req, res) => {
         category || 'Lab Results',
         description || 'Uploaded medical record',
         isScanned !== undefined ? isScanned : false,
-        scanResults ? JSON.stringify(scanResults) : null
+        scanResults ? JSON.stringify(scanResults) : null,
+        resolvedDependent,
+        fileData || null
       ]
     );
 

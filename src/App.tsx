@@ -27,9 +27,9 @@ import AdminLayout from './pages/admin/AdminLayout';
 import AdminOverview from './pages/admin/AdminOverview';
 import AdminUsers from './pages/admin/AdminUsers';
 import AdminCaregivers from './pages/admin/AdminCaregivers';
+import AdminCaregiverDependents from './pages/admin/AdminCaregiverDependents';
 import AdminDoctors from './pages/admin/AdminDoctors';
 import AdminArticles from './pages/admin/AdminArticles';
-import AdminReports from './pages/admin/AdminReports';
 import AdminProfilePage from './pages/admin/AdminProfilePage';
 
 // Caregiver Sub-Pages & Layout
@@ -167,9 +167,9 @@ export default function App() {
           <Route index element={<AdminOverview />} />
           <Route path="users" element={<AdminUsers />} />
           <Route path="caregivers" element={<AdminCaregivers />} />
+          <Route path="caregivers/:caregiverId/dependents" element={<AdminCaregiverDependents />} />
           <Route path="doctors" element={<AdminDoctors />} />
           <Route path="articles" element={<AdminArticles />} />
-          <Route path="reports" element={<AdminReports />} />
           <Route path="profile" element={<AdminProfilePage />} />
         </Route>
 

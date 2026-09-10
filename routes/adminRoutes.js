@@ -9,6 +9,7 @@ import {
   getAdminCaregivers,
   createAdminCaregiver,
   deleteAdminCaregiver,
+  getAdminCaregiverDependents,
   getHealthArticles,
   createHealthArticle,
   deleteHealthArticle
@@ -35,6 +36,7 @@ router.put('/users/:id/status', ...adminAuth, updateUserStatus);
 // Caregivers
 router.get('/caregivers', ...adminAuth, getAdminCaregivers);
 router.post('/caregivers', ...adminAuth, createAdminCaregiver);
+router.get('/caregivers/:id/dependents', ...adminAuth, getAdminCaregiverDependents);
 router.delete('/caregivers/:id', ...adminAuth, deleteAdminCaregiver);
 
 // Health Articles
