@@ -966,7 +966,7 @@ export default function Dashboard() {
     <div className="min-h-screen bg-[#FAF7F4] flex font-inter text-[#2E2428]">
       
       {/* SIDEBAR NAVIGATION MENU */}
-      <aside className="w-72 bg-[#F4E0D1] border-r border-[#E5CDBC] hidden lg:flex flex-col flex-shrink-0 sticky top-0 h-screen font-inter print:hidden">
+      <aside className="w-72 bg-[#F4E0D1] border-r border-[#E5CDBC] hidden lg:flex flex-col flex-shrink-0 fixed top-0 left-0 h-screen z-40 overflow-y-auto font-inter print:hidden">
         <div className="p-6 border-b border-[#E5CDBC] flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2.5">
             <h1 className="font-serif text-3xl font-bold text-[#7C3AED] tracking-tight">FemSphere</h1>
@@ -1078,7 +1078,7 @@ export default function Dashboard() {
       </aside>
 
       {/* MAIN DASHBOARD CONTENT AREA */}
-      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto font-inter">
+      <div className="flex-1 flex flex-col min-w-0 min-h-screen lg:ml-72 font-inter">
         
         {/* HEADER BAR */}
         <header className="bg-[#F4E0D1]/90 backdrop-blur-md border-b border-[#E5CDBC] p-5 md:px-8 flex items-center justify-between sticky top-0 z-20 print:hidden font-inter">

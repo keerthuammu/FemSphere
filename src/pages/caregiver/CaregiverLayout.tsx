@@ -44,7 +44,7 @@ export default function CaregiverLayout() {
   return (
     <div className="min-h-screen bg-[#FAF7F4] flex font-sans text-[#2E2428]">
       {/* --- SIDEBAR --- Identical to DoctorLayout */}
-      <aside className="w-64 bg-[#F2EBE5] border-r border-[#E5CDBC] p-6 flex flex-col justify-between hidden md:flex shrink-0">
+      <aside className="hidden md:flex flex-col justify-between fixed top-0 left-0 h-screen w-64 z-40 bg-[#F2EBE5] border-r border-[#E5CDBC] p-6 overflow-y-auto">
         <div className="space-y-8">
           {/* Brand */}
           <Link to="/" className="flex items-center gap-2.5">
@@ -130,7 +130,7 @@ export default function CaregiverLayout() {
       </aside>
 
       {/* --- MAIN CONTENT AREA --- */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
+      <div className="flex-1 flex flex-col min-w-0 min-h-screen md:ml-64">
         {/* Top Header */}
         <header className="bg-white/80 backdrop-blur-md sticky top-0 z-30 border-b border-[#E5CDBC] px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">

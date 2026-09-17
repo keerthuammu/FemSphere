@@ -519,7 +519,7 @@ export default function Register() {
     'Account Type',
     'Personal Info',
     'Credentials',
-    'Role Details',
+    'Informations',
     'Rules & Consent'
   ];
 
@@ -603,7 +603,7 @@ export default function Register() {
                 {step === 1 && "Account Type (Required)"}
                 {step === 2 && "Personal Information"}
                 {step === 3 && "Account Credentials"}
-                {step === 4 && `Role-Specific Information (${formData.accountType})`}
+                {step === 4 && "Informations"}
                 {step === 5 && "Rules, Regulations & Consent"}
               </h2>
             </div>
