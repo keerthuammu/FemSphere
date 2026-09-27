@@ -19,6 +19,9 @@ import privacyConsentRoutes from './routes/privacyConsentRoutes.js';
 import healthTimelineRoutes from './routes/healthTimelineRoutes.js';
 import aiTwinRoutes from './routes/aiTwinRoutes.js';
 import periodTrackerRoutes from './routes/periodTrackerRoutes.js';
+import smartwatchRoutes from './routes/smartwatchRoutes.js';
+import wearableRoutes from './routes/wearableRoutes.js';
+import partnerRoutes from './routes/partnerRoutes.js';
 
 dotenv.config();
 
@@ -65,6 +68,9 @@ app.use('/api/privacy', privacyConsentRoutes);
 app.use('/api/health/timeline', healthTimelineRoutes);
 app.use('/api/health/insights', aiTwinRoutes);
 app.use('/api/period-tracker', periodTrackerRoutes);
+app.use('/api/smartwatch', smartwatchRoutes);
+app.use('/api/wearables', wearableRoutes);
+app.use('/api/partner', partnerRoutes);
 
 // Global Error Handler
 app.use((err, req, res, next) => {

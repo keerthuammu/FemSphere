@@ -23,3 +23,6 @@ coverage/
 # Local database files
 *.db
 *.sqlite
+
+# Screenshots
+android_screen.png

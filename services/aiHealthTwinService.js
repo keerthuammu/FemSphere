@@ -35,12 +35,41 @@ export async function generateAIHealthTwinInsights(userId) {
       [userId]
     );
 
+    const smartwatchRes = await pool.query(
+      `SELECT * FROM smartwatch_health_data WHERE user_id = $1 ORDER BY recorded_at DESC LIMIT 7`,
+      [userId]
+    );
+
     const stageName = activeLifeStageRes.rows[0]?.stage_name || user.life_stage || 'Reproductive Age';
     const recentSymptoms = symptomsRes.rows;
     const recentTracker = trackerRes.rows;
+    const recentWatch = smartwatchRes.rows;
 
     // Pattern Analysis Rules Engine (Non-causal phrasing)
     const insights = [];
+
+    // 0. Wearable & Smartwatch Telemetry Insight (Universal Multi-Brand Support)
+    if (recentWatch.length > 0) {
+      const latestWatch = recentWatch[0];
+      const sourceBrand = latestWatch.source ? latestWatch.source.replace(/_/g, ' ') : 'Wearable Device';
+      const items = [];
+      if (latestWatch.heart_rate !== null) items.push(`Heart Rate: ${latestWatch.heart_rate} BPM`);
+      if (latestWatch.resting_heart_rate !== null) items.push(`Resting HR: ${latestWatch.resting_heart_rate} BPM`);
+      if (latestWatch.steps !== null) items.push(`Steps: ${latestWatch.steps.toLocaleString()}`);
+      if (latestWatch.calories !== null) items.push(`Energy: ${latestWatch.calories} kcal`);
+      if (latestWatch.sleep_duration_minutes !== null) items.push(`Sleep Duration: ${(latestWatch.sleep_duration_minutes / 60).toFixed(1)} hrs`);
+      if (latestWatch.spo2 !== null) items.push(`SpO2: ${latestWatch.spo2}%`);
+      if (latestWatch.hrv_rmssd !== null) items.push(`HRV: ${latestWatch.hrv_rmssd} ms`);
+      if (latestWatch.body_temperature !== null) items.push(`Body Temp: ${latestWatch.body_temperature}°C`);
+      if (latestWatch.respiratory_rate !== null) items.push(`Respiration: ${latestWatch.respiratory_rate} rpm`);
+
+      insights.push({
+        type: 'DAILY',
+        title: `${sourceBrand} Synchronized Telemetry`,
+        content: `Actual telemetry synchronized from your ${sourceBrand} (${items.join(' • ')}). Source: ${latestWatch.source}. Recorded at ${new Date(latestWatch.recorded_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}.`,
+        severity: (latestWatch.heart_rate && (latestWatch.heart_rate > 105 || latestWatch.heart_rate < 50)) ? 'Notice' : 'Normal'
+      });
+    }
 
     // Daily Insight
     if (recentTracker.length > 0) {

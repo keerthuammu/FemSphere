@@ -16,7 +16,11 @@ export default function Navbar() {
         <a href="#timeline" className="text-base md:text-lg font-medium text-[#4a4145] hover:text-[#7C3AED] transition-colors">Journey</a>
       </div>
       
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3">
+        <Link to="/app" className="flex items-center gap-1.5 bg-gradient-to-r from-purple-600 via-purple-500 to-rose-500 text-white rounded-full px-4 py-2 text-sm font-semibold shadow-md hover:scale-105 transition-all">
+          <span>📱</span>
+          <span>Mobile App</span>
+        </Link>
         <Link to="/login" className="hidden md:block text-base md:text-lg font-medium text-[#4a4145] hover:text-[#7C3AED] transition-colors">
           Log in
         </Link>

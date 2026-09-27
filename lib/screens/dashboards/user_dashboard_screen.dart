@@ -5,6 +5,14 @@ import '../../models/exercise_model.dart';
 import '../../providers/auth_provider.dart';
 import '../auth/login_screen.dart';
 import '../fitness/workout_player_screen.dart';
+import '../user/appointments_screen.dart';
+import '../user/vitals_tracker_screen.dart';
+import '../user/health_reports_screen.dart';
+import '../user/partner_sync_screen.dart';
+import '../user/notifications_screen.dart';
+import '../user/user_profile_screen.dart';
+import '../user/user_settings_screen.dart';
+import '../../features/wearables/screens/universal_wearables_screen.dart';
 
 class UserDashboardScreen extends StatefulWidget {
   const UserDashboardScreen({super.key});
@@ -63,76 +71,113 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0.5,
+        leading: Builder(
+          builder: (ctx) => IconButton(
+            icon: const Icon(Icons.menu_rounded, color: AppTheme.textDark),
+            onPressed: () => Scaffold.of(ctx).openDrawer(),
+          ),
+        ),
         title: Row(
           children: [
-            const Text('🌸', style: TextStyle(fontSize: 18)),
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF7C3AED), Color(0xFFF43F5E)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Center(
+                child: Icon(Icons.auto_awesome, color: Colors.white, size: 16),
+              ),
+            ),
             const SizedBox(width: 8),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  user?.fullName ?? 'Elena Rostova',
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.textDark,
-                  ),
+            const Text(
+              'FemSphere',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+                color: AppTheme.textDark,
+                letterSpacing: -0.3,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF3E8FF),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Text(
+                '🌸 Patient',
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF7C3AED),
                 ),
-                Text(
-                  _currentStageName,
-                  style: const TextStyle(
-                    fontSize: 10,
-                    color: AppTheme.primaryPurple,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
+              ),
             ),
           ],
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications_outlined, color: AppTheme.textDark),
-            onPressed: () {},
+            icon: const Icon(Icons.shield_outlined, color: Colors.redAccent, size: 20),
+            tooltip: 'Emergency SOS',
+            onPressed: () => _showEmergencyModal(context, user),
           ),
           IconButton(
-            icon: const Icon(Icons.logout, color: AppTheme.textMuted),
+            icon: const Badge(
+              label: Text('2', style: TextStyle(fontSize: 10)),
+              child: Icon(Icons.notifications_outlined, color: AppTheme.textDark, size: 20),
+            ),
             onPressed: () {
-              auth.logout();
-              Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const LoginScreen()));
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationsScreen()));
             },
           ),
         ],
       ),
+      drawer: _buildUserDrawer(context, user, auth),
       bottomNavigationBar: NavigationBar(
-        selectedIndex: _selectedNavIndex,
+        selectedIndex: _selectedNavIndex > 4 ? 0 : _selectedNavIndex,
         onDestinationSelected: (index) {
+          if (index == 2) {
+            _showAIChatSheet(context);
+            return;
+          }
           setState(() {
             _selectedNavIndex = index;
           });
         },
         backgroundColor: Colors.white,
-        indicatorColor: AppTheme.primaryPurple.withOpacity(0.15),
+        indicatorColor: AppTheme.primaryPurple.withValues(alpha: 0.15),
         destinations: const [
           NavigationDestination(
-            icon: Icon(Icons.dashboard_outlined),
-            selectedIcon: Icon(Icons.dashboard, color: AppTheme.primaryPurple),
-            label: 'Dashboard',
+            icon: Icon(Icons.home_outlined),
+            selectedIcon: Icon(Icons.home, color: AppTheme.primaryPurple),
+            label: 'Home',
           ),
           NavigationDestination(
             icon: Icon(Icons.water_drop_outlined),
             selectedIcon: Icon(Icons.water_drop, color: _roseColor),
-            label: 'Period',
+            label: 'Health',
           ),
           NavigationDestination(
-            icon: Icon(Icons.fitness_center_outlined),
-            selectedIcon: Icon(Icons.fitness_center, color: _emeraldColor),
-            label: 'Fitness',
+            icon: Icon(Icons.auto_awesome, color: Color(0xFF7C3AED)),
+            selectedIcon: Icon(Icons.auto_awesome, color: Color(0xFF7C3AED)),
+            label: 'Twin AI',
           ),
           NavigationDestination(
-            icon: Icon(Icons.folder_outlined),
-            selectedIcon: Icon(Icons.folder, color: AppTheme.secondaryTeal),
-            label: 'Vault',
+            icon: Icon(Icons.medical_services_outlined),
+            selectedIcon: Icon(Icons.medical_services, color: AppTheme.secondaryTeal),
+            label: 'Care & Vault',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.person_outline),
+            selectedIcon: Icon(Icons.person, color: AppTheme.primaryPurple),
+            label: 'Profile',
           ),
         ],
       ),
@@ -196,6 +241,7 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
             if (_selectedNavIndex == 1) _buildPeriodTrackerTab(),
             if (_selectedNavIndex == 2) _buildFitnessTab(remainingCalories),
             if (_selectedNavIndex == 3) _buildVaultTab(),
+            if (_selectedNavIndex == 4) _buildProfileTab(user),
           ],
         ),
       ),
@@ -207,74 +253,32 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Digital Health Twin Card
-        Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Color(0xFF7C3AED), Color(0xFF6D28D9)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(24),
-            boxShadow: [
-              BoxShadow(
-                color: AppTheme.primaryPurple.withOpacity(0.3),
-                blurRadius: 15,
-                offset: const Offset(0, 6),
-              )
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Row(
-                      children: [
-                        Icon(Icons.auto_awesome, color: Colors.amberAccent, size: 14),
-                        SizedBox(width: 4),
-                        Text('AI Digital Twin Active', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      '$_healthScore/100',
-                      style: const TextStyle(color: AppTheme.primaryPurple, fontWeight: FontWeight.bold, fontSize: 13),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 14),
-              const Text(
-                'Digital Twin Health Score: 92%',
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
-              ),
-              const SizedBox(height: 4),
-              const Text(
-                'Your hormonal and metabolic parameters are well synchronized across your current reproductive cycle.',
-                style: TextStyle(color: Colors.white70, fontSize: 12, height: 1.4),
-              ),
-            ],
-          ),
-        ),
+        // 1. Health Score Ring Card
+        _buildHealthScoreCard(),
+
+        const SizedBox(height: 16),
+
+        // 2. Health Twin Visualizer Card
+        _buildHealthTwinVisualizer(),
 
         const SizedBox(height: 18),
 
-        // Quick Overview Tiles
+        // 3. Today's Snapshot (Horizontal vital telemetry cards)
+        _buildTodaySnapshot(),
+
+        const SizedBox(height: 18),
+
+        // 4. Gemini AI Clinical Synthesis Card
+        _buildAIInsightCard(),
+
+        const SizedBox(height: 18),
+
+        // 5. Specialty Modes (Pregnancy, Postpartum, Menopause, PCOS)
+        _buildSpecialtyModes(),
+
+        const SizedBox(height: 18),
+
+        // 6. Quick Overview Tiles
         Row(
           children: [
             Expanded(
@@ -303,46 +307,124 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
 
         const SizedBox(height: 18),
 
-        // AI Health Twin Insights Card
-        Container(
-          padding: const EdgeInsets.all(18),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(22),
-            border: Border.all(color: AppTheme.borderPurple),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
-                  Text('✨ Gemini AI Health Insights', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppTheme.textDark)),
-                  Text('Daily Synthesis', style: TextStyle(fontSize: 10, color: AppTheme.primaryPurple, fontWeight: FontWeight.bold)),
-                ],
+        // Quick Access Sub-Modules Grid
+        const Text(
+          '✨ Health Twin Hub & Quick Access',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.textDark),
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: _buildHubCard(
+                title: 'Appointments',
+                subtitle: 'OB/GYN Consults',
+                icon: Icons.calendar_month,
+                color: AppTheme.primaryPurple,
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AppointmentsScreen())),
               ),
-              const SizedBox(height: 10),
-              const Text(
-                '• "Your records show mild mid-cycle fatigue is consistent with LH hormone fluctuations. Recommended 500ml extra hydration and restorative yoga today."',
-                style: TextStyle(fontSize: 12, color: AppTheme.textDark, height: 1.45),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildHubCard(
+                title: 'Vitals Logger',
+                subtitle: 'BP, Sugar, Temp',
+                icon: Icons.monitor_heart,
+                color: const Color(0xFF10B981),
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const VitalsTrackerScreen())),
               ),
-              const SizedBox(height: 12),
-              ElevatedButton.icon(
-                onPressed: () {},
-                icon: const Icon(Icons.picture_as_pdf, size: 14),
-                label: const Text('Export Doctor Prep Summary', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFFAF5FF),
-                  foregroundColor: AppTheme.primaryPurple,
-                  elevation: 0,
-                  side: const BorderSide(color: Color(0xFFE9D5FF)),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: _buildHubCard(
+                title: 'AI Analytics',
+                subtitle: '92/100 Bio-Twin',
+                icon: Icons.auto_awesome,
+                color: const Color(0xFF6366F1),
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const HealthReportsScreen())),
               ),
-            ],
-          ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildHubCard(
+                title: 'Partner Sync',
+                subtitle: 'Cycle & SOS Link',
+                icon: Icons.favorite,
+                color: const Color(0xFFEC4899),
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PartnerSyncScreen())),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: _buildHubCard(
+                title: 'Smartwatches',
+                subtitle: 'Apple, Galaxy, Garmin, BLE',
+                icon: Icons.watch_outlined,
+                color: const Color(0xFF0EA5E9),
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const UniversalWearablesScreen())),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildHubCard(
+                title: 'Wearable Sensors',
+                subtitle: 'Rings, Bands, HR & SpO2',
+                icon: Icons.sensors,
+                color: const Color(0xFF8B5CF6),
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const UniversalWearablesScreen())),
+              ),
+            ),
+          ],
         ),
       ],
+    );
+  }
+
+  Widget _buildHubCard({
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(18),
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: AppTheme.borderPurple),
+        ),
+        child: Row(
+          children: [
+            CircleAvatar(
+              radius: 18,
+              backgroundColor: color.withValues(alpha: 0.12),
+              child: Icon(icon, size: 18, color: color),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppTheme.textDark)),
+                  Text(subtitle, style: const TextStyle(fontSize: 10, color: AppTheme.textMuted), maxLines: 1, overflow: TextOverflow.ellipsis),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -876,12 +958,1137 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(name, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.textDark)),
+                const SizedBox(height: 2),
                 Text(meta, style: const TextStyle(fontSize: 10, color: AppTheme.textMuted)),
               ],
             ),
           ),
           const Icon(Icons.download, size: 18, color: AppTheme.textMuted),
         ],
+      ),
+    );
+  }
+
+  Widget _buildUserDrawer(BuildContext context, dynamic user, AuthProvider auth) {
+    return Drawer(
+      backgroundColor: const Color(0xFFFAF8FC),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.fromLTRB(20, 48, 20, 20),
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF7C3AED), Color(0xFF6D28D9)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+            child: Row(
+              children: [
+                const CircleAvatar(
+                  radius: 28,
+                  backgroundColor: Colors.white,
+                  child: Text('ER', style: TextStyle(color: AppTheme.primaryPurple, fontWeight: FontWeight.bold, fontSize: 18)),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        (user?.fullName.isNotEmpty == true ? user!.fullName : user?.username) ?? 'User',
+                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        _currentStageName,
+                        style: const TextStyle(color: Colors.white70, fontSize: 11),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          'AI Twin: $_healthScore/100',
+                          style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              children: [
+                _buildDrawerTile(
+                  title: 'Dashboard Overview',
+                  icon: Icons.dashboard,
+                  color: AppTheme.primaryPurple,
+                  isSelected: _selectedNavIndex == 0,
+                  onTap: () {
+                    Navigator.pop(context);
+                    setState(() => _selectedNavIndex = 0);
+                  },
+                ),
+                _buildDrawerTile(
+                  title: 'Medical Records (Vault)',
+                  icon: Icons.folder,
+                  color: AppTheme.secondaryTeal,
+                  isSelected: _selectedNavIndex == 3,
+                  onTap: () {
+                    Navigator.pop(context);
+                    setState(() => _selectedNavIndex = 3);
+                  },
+                ),
+                _buildDrawerTile(
+                  title: 'Health Tracker (Vitals)',
+                  icon: Icons.monitor_heart,
+                  color: const Color(0xFFF472B6),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const VitalsTrackerScreen()));
+                  },
+                ),
+                _buildDrawerTile(
+                  title: 'Wearables & Smartwatches',
+                  icon: Icons.watch,
+                  color: const Color(0xFF8B5CF6),
+                  badge: 'BLE / Multi',
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const UniversalWearablesScreen()));
+                  },
+                ),
+                _buildDrawerTile(
+                  title: 'Period Tracker (Cycle & Ovulation)',
+                  icon: Icons.water_drop,
+                  color: const Color(0xFFF43F5E),
+                  isSelected: _selectedNavIndex == 1,
+                  onTap: () {
+                    Navigator.pop(context);
+                    setState(() => _selectedNavIndex = 1);
+                  },
+                ),
+                _buildDrawerTile(
+                  title: 'Doctor Appointments',
+                  icon: Icons.calendar_month,
+                  color: AppTheme.primaryPurple,
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const AppointmentsScreen()));
+                  },
+                ),
+                _buildDrawerTile(
+                  title: 'AI Health Reports',
+                  icon: Icons.print,
+                  color: const Color(0xFF14B8A6),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const HealthReportsScreen()));
+                  },
+                ),
+                _buildDrawerTile(
+                  title: 'Prescribed Fitness Workouts',
+                  icon: Icons.fitness_center,
+                  color: const Color(0xFF10B981),
+                  isSelected: _selectedNavIndex == 2,
+                  onTap: () {
+                    Navigator.pop(context);
+                    setState(() => _selectedNavIndex = 2);
+                  },
+                ),
+                _buildDrawerTile(
+                  title: 'Partner Mode Sync',
+                  icon: Icons.favorite,
+                  color: const Color(0xFFEC4899),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const PartnerSyncScreen()));
+                  },
+                ),
+                _buildDrawerTile(
+                  title: 'Notifications Center',
+                  icon: Icons.notifications,
+                  color: Colors.amber.shade800,
+                  badge: '2',
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationsScreen()));
+                  },
+                ),
+                const Divider(),
+                _buildDrawerTile(
+                  title: 'Profile & Medical ID',
+                  icon: Icons.person,
+                  color: AppTheme.primaryPurple,
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const UserProfileScreen()));
+                  },
+                ),
+                _buildDrawerTile(
+                  title: 'Settings & Privacy Consents',
+                  icon: Icons.settings,
+                  color: Colors.blueGrey,
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const UserSettingsScreen()));
+                  },
+                ),
+              ],
+            ),
+          ),
+          const Divider(height: 1),
+          ListTile(
+            leading: const Icon(Icons.logout, color: Colors.red),
+            title: const Text('Log Out', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 13)),
+            onTap: () {
+              auth.logout();
+              Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const LoginScreen()));
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDrawerTile({
+    required String title,
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+    bool isSelected = false,
+    String? badge,
+  }) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+      decoration: BoxDecoration(
+        color: isSelected ? color.withValues(alpha: 0.12) : Colors.transparent,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: ListTile(
+        dense: true,
+        leading: Icon(icon, color: color, size: 20),
+        title: Text(
+          title,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+            color: isSelected ? color : AppTheme.textDark,
+          ),
+        ),
+        trailing: badge != null
+            ? Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: color,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(badge, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+              )
+            : null,
+        onTap: onTap,
+      ),
+    );
+  }
+
+  Widget _buildHealthScoreCard() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: const Color(0xFFF1E8F8)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              SizedBox(
+                width: 90,
+                height: 90,
+                child: CircularProgressIndicator(
+                  value: 0.87,
+                  strokeWidth: 9,
+                  backgroundColor: const Color(0xFFF3E8FF),
+                  valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF7C3AED)),
+                  strokeCap: StrokeCap.round,
+                ),
+              ),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: const [
+                  Text(
+                    '87',
+                    style: TextStyle(
+                      fontSize: 26,
+                      fontWeight: FontWeight.w800,
+                      color: AppTheme.textDark,
+                    ),
+                  ),
+                  Text(
+                    '/100',
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black45,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(width: 20),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFECFDF5),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.arrow_upward, color: Color(0xFF059669), size: 12),
+                          SizedBox(width: 2),
+                          Text(
+                            '+3 pts vs last week',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF059669),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                const Text(
+                  'Health Score: Optimal',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.textDark,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  'Hormonal and cardiac bio-signals are well-balanced for Day 4 of your cycle.',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: Colors.black54,
+                    height: 1.3,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHealthTwinVisualizer() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFF5B21B6), Color(0xFF7C3AED), Color(0xFF9333EA)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF7C3AED).withValues(alpha: 0.35),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(Icons.hub, color: Colors.white, size: 16),
+                  ),
+                  const SizedBox(width: 8),
+                  const Text(
+                    'FemSphere Neural Twin',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF10B981).withValues(alpha: 0.25),
+                  border: Border.all(color: const Color(0xFF34D399).withValues(alpha: 0.5)),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(Icons.fiber_manual_record, color: Color(0xFF34D399), size: 8),
+                    SizedBox(width: 4),
+                    Text(
+                      'Live 1s Telemetry',
+                      style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'Biological Resilience: 92%',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w800,
+              fontSize: 18,
+            ),
+          ),
+          const SizedBox(height: 4),
+          const Text(
+            'Continuous digital modeling across hormonal, cardiac, and sleep bio-markers.',
+            style: TextStyle(color: Colors.white70, fontSize: 11, height: 1.3),
+          ),
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.black.withValues(alpha: 0.18),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildTwinMetricPill('HRV', '68 ms', Icons.favorite_border),
+                _buildTwinMetricPill('Core Temp', '36.6°C', Icons.thermostat_outlined),
+                _buildTwinMetricPill('Sleep', '7h 42m', Icons.nightlight_round),
+                _buildTwinMetricPill('Phase', 'Day 4', Icons.water_drop_outlined),
+              ],
+            ),
+          ),
+          const SizedBox(height: 14),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: () => _showAIChatSheet(context),
+              icon: const Icon(Icons.auto_awesome, color: Color(0xFF5B21B6), size: 16),
+              label: const Text(
+                'Consult Health Twin Simulation',
+                style: TextStyle(color: Color(0xFF5B21B6), fontWeight: FontWeight.bold, fontSize: 12),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                elevation: 0,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTwinMetricPill(String label, String value, IconData icon) {
+    return Column(
+      children: [
+        Icon(icon, color: Colors.white70, size: 14),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+        ),
+        Text(
+          label,
+          style: const TextStyle(color: Colors.white60, fontSize: 9),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTodaySnapshot() {
+    final vitals = [
+      {'title': 'Heart Rate', 'val': '72 bpm', 'status': 'Resting Normal', 'icon': Icons.favorite, 'color': const Color(0xFFF43F5E)},
+      {'title': 'Blood Pressure', 'val': '118/76', 'status': 'Optimal mmHg', 'icon': Icons.speed, 'color': const Color(0xFF6366F1)},
+      {'title': 'Blood Oxygen', 'val': '99%', 'status': 'SpO2 Optimal', 'icon': Icons.air, 'color': const Color(0xFF0EA5E9)},
+      {'title': 'Daily Steps', 'val': '8,420', 'status': 'Goal: 10,000', 'icon': Icons.directions_walk, 'color': const Color(0xFF10B981)},
+      {'title': 'Hydration', 'val': '2.25 L', 'status': 'Goal: 3.0 L', 'icon': Icons.water_drop, 'color': const Color(0xFF3B82F6)},
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              '📊 Today\'s Physiological Snapshot',
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppTheme.textDark),
+            ),
+            InkWell(
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const VitalsTrackerScreen())),
+              child: const Text(
+                'Log New',
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.primaryPurple),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        SizedBox(
+          height: 110,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            itemCount: vitals.length,
+            separatorBuilder: (_, __) => const SizedBox(width: 10),
+            itemBuilder: (context, index) {
+              final v = vitals[index];
+              final color = v['color'] as Color;
+              return Container(
+                width: 130,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(color: color.withValues(alpha: 0.2)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.03),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          v['title'] as String,
+                          style: const TextStyle(fontSize: 10, color: Colors.black54, fontWeight: FontWeight.w600),
+                        ),
+                        Icon(v['icon'] as IconData, size: 14, color: color),
+                      ],
+                    ),
+                    Text(
+                      v['val'] as String,
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: color),
+                    ),
+                    Text(
+                      v['status'] as String,
+                      style: const TextStyle(fontSize: 9, color: Colors.black45),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAIInsightCard() {
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: const Color(0xFFDDD6FE)),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF7C3AED).withValues(alpha: 0.06),
+            blurRadius: 14,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF3E8FF),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(Icons.auto_awesome, color: Color(0xFF7C3AED), size: 16),
+                  ),
+                  const SizedBox(width: 8),
+                  const Text(
+                    'Gemini Clinical AI Synthesis',
+                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppTheme.textDark),
+                  ),
+                ],
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF3E8FF),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Text(
+                  'Daily Brief',
+                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF7C3AED)),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          const Text(
+            '• "Your telemetry indicates sustained resting recovery with HRV at 68ms. Since you are in the menstrual phase, metabolic demands are lower. Recommended hydration: 2.5L with light stretching."',
+            style: TextStyle(fontSize: 12, color: AppTheme.textDark, height: 1.45),
+          ),
+          const SizedBox(height: 12),
+          InkWell(
+            onTap: () => _showAIChatSheet(context),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: const [
+                Text(
+                  'Chat with Twin AI',
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF7C3AED)),
+                ),
+                SizedBox(width: 4),
+                Icon(Icons.arrow_forward_rounded, size: 14, color: Color(0xFF7C3AED)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSpecialtyModes() {
+    final modes = [
+      {'title': 'Pregnancy Mode', 'sub': 'Trimester & Fetal Tracker', 'icon': '🤰', 'color': const Color(0xFFEC4899)},
+      {'title': 'Postpartum Care', 'sub': 'Pelvic Floor & Mental Vitals', 'icon': '🤱', 'color': const Color(0xFF8B5CF6)},
+      {'title': 'Menopause Navigator', 'sub': 'Vasomotor & Hormone Balance', 'icon': '🌿', 'color': const Color(0xFF10B981)},
+      {'title': 'PCOS / Endo Log', 'sub': 'Symptom & Ovulation Panel', 'icon': '🌸', 'color': const Color(0xFFF43F5E)},
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          '🌺 Specialty Health Journeys',
+          style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppTheme.textDark),
+        ),
+        const SizedBox(height: 10),
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: modes.length,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            childAspectRatio: 2.2,
+            crossAxisSpacing: 10,
+            mainAxisSpacing: 10,
+          ),
+          itemBuilder: (context, index) {
+            final m = modes[index];
+            final color = m['color'] as Color;
+            return Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: color.withValues(alpha: 0.2)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.02),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  Text(m['icon'] as String, style: const TextStyle(fontSize: 22)),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          m['title'] as String,
+                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppTheme.textDark),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          m['sub'] as String,
+                          style: const TextStyle(fontSize: 9, color: Colors.black45),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildProfileTab(dynamic user) {
+    final name = user?.name ?? 'Keerthana';
+    final email = user?.email ?? 'keerthana@femsphere.org';
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: const Color(0xFFF1E8F8)),
+          ),
+          child: Row(
+            children: [
+              CircleAvatar(
+                radius: 30,
+                backgroundColor: const Color(0xFFF3E8FF),
+                child: Text(
+                  name.isNotEmpty ? name[0].toUpperCase() : 'F',
+                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF7C3AED)),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.textDark)),
+                    const SizedBox(height: 2),
+                    Text(email, style: const TextStyle(fontSize: 12, color: Colors.black54)),
+                    const SizedBox(height: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF3E8FF),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Text('🌸 Patient Account', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF7C3AED))),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: const Color(0xFFF1E8F8)),
+          ),
+          child: Column(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.shield_outlined, color: Colors.redAccent),
+                title: const Text('Emergency Health Pass & SOS', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                trailing: const Icon(Icons.chevron_right, size: 20),
+                onTap: () => _showEmergencyModal(context, user),
+              ),
+              const Divider(height: 1),
+              ListTile(
+                leading: const Icon(Icons.watch_outlined, color: Color(0xFF0EA5E9)),
+                title: const Text('All Smartwatches & Wearables', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                subtitle: const Text('Apple Watch, Galaxy, Garmin, Fitbit, Amazfit, Noise, boAt & BLE', style: TextStyle(fontSize: 10, color: Colors.black45)),
+                trailing: const Icon(Icons.chevron_right, size: 20),
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const UniversalWearablesScreen())),
+              ),
+              const Divider(height: 1),
+              ListTile(
+                leading: const Icon(Icons.settings_outlined, color: AppTheme.primaryPurple),
+                title: const Text('Account & Privacy Settings', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                trailing: const Icon(Icons.chevron_right, size: 20),
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const UserSettingsScreen())),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showEmergencyModal(BuildContext context, dynamic user) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        return Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+          ),
+          padding: const EdgeInsets.all(24),
+          child: SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade300,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFEE2E2),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: const Icon(Icons.shield, color: Color(0xFFDC2626), size: 24),
+                    ),
+                    const SizedBox(width: 12),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: const [
+                        Text(
+                          '🚨 Emergency Health Pass',
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.textDark),
+                        ),
+                        Text(
+                          'One-tap SOS and critical medical telemetry',
+                          style: TextStyle(fontSize: 11, color: Colors.black54),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('🚨 SOS Alert Dispatched to Emergency Services & Primary Contacts!'),
+                          backgroundColor: Color(0xFFDC2626),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.phone_in_talk, color: Colors.white),
+                    label: const Text(
+                      'CALL EMERGENCY SERVICES (911 / 112)',
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.white),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFDC2626),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      elevation: 0,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Calling Emergency Contact: Alex (+1 555-0192)')),
+                      );
+                    },
+                    icon: const Icon(Icons.contact_phone, color: Color(0xFFDC2626)),
+                    label: const Text(
+                      'Call Primary Contact (Alex - +1 555-0192)',
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFFDC2626)),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Color(0xFFFCA5A5)),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFEF2F2),
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(color: const Color(0xFFFECACA)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: const [
+                      Text('Critical Clinical Profile:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFF991B1B))),
+                      SizedBox(height: 6),
+                      Text('• Blood Group: O Positive (O+)', style: TextStyle(fontSize: 11, color: Color(0xFF7F1D1D))),
+                      Text('• Critical Allergies: Penicillin, Sulfa Antibiotics', style: TextStyle(fontSize: 11, color: Color(0xFF7F1D1D))),
+                      Text('• Medical Conditions: Mild Asthma, PCOS', style: TextStyle(fontSize: 11, color: Color(0xFF7F1D1D))),
+                      Text('• Emergency Note: Inhaler in bag, Digital Health Twin active', style: TextStyle(fontSize: 11, color: Color(0xFF7F1D1D))),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showAIChatSheet(BuildContext context) {
+    final textController = TextEditingController();
+    final List<Map<String, String>> messages = [
+      {
+        'role': 'assistant',
+        'text': 'Hello Keerthana! I am your FemSphere Digital Twin AI. I am continuously analyzing your cycle phase (Day 4) and wearable vitals. How can I assist you today?'
+      },
+    ];
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (sheetContext, setSheetState) {
+            return Container(
+              height: MediaQuery.of(sheetContext).size.height * 0.75,
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+              ),
+              child: Column(
+                children: [
+                  const SizedBox(height: 12),
+                  Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade300,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFF7C3AED), Color(0xFFF43F5E)],
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(Icons.auto_awesome, color: Colors.white, size: 18),
+                        ),
+                        const SizedBox(width: 12),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: const [
+                            Text(
+                              'Gemini Health Twin Assistant',
+                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.textDark),
+                            ),
+                            Text(
+                              'Continuous clinical bio-synthesis',
+                              style: TextStyle(fontSize: 11, color: Colors.black54),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Divider(height: 1),
+                  // Chat message list
+                  Expanded(
+                    child: ListView.builder(
+                      padding: const EdgeInsets.all(16),
+                      itemCount: messages.length,
+                      itemBuilder: (context, idx) {
+                        final msg = messages[idx];
+                        final isUser = msg['role'] == 'user';
+                        return Align(
+                          alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+                          child: Container(
+                            margin: const EdgeInsets.only(bottom: 10),
+                            padding: const EdgeInsets.all(14),
+                            constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
+                            decoration: BoxDecoration(
+                              color: isUser ? const Color(0xFF7C3AED) : const Color(0xFFF3E8FF),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Text(
+                              msg['text']!,
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: isUser ? Colors.white : AppTheme.textDark,
+                                height: 1.4,
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  // Suggested prompts
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    child: Row(
+                      children: [
+                        _buildPromptChip('Explain my HRV score', () {
+                          setSheetState(() {
+                            messages.add({'role': 'user', 'text': 'Explain my HRV score'});
+                            messages.add({
+                              'role': 'assistant',
+                              'text': 'Your HRV of 68ms reflects strong parasympathetic activation and good recovery resilience today.'
+                            });
+                          });
+                        }),
+                        _buildPromptChip('How to manage fatigue?', () {
+                          setSheetState(() {
+                            messages.add({'role': 'user', 'text': 'How to manage fatigue?'});
+                            messages.add({
+                              'role': 'assistant',
+                              'text': 'Day 4 of your cycle often has lower estrogen. Prioritize 2.5L hydration, iron-rich meals, and gentle yoga.'
+                            });
+                          });
+                        }),
+                      ],
+                    ),
+                  ),
+                  // Input Bar
+                  Padding(
+                    padding: EdgeInsets.only(
+                      left: 16,
+                      right: 16,
+                      top: 8,
+                      bottom: MediaQuery.of(sheetContext).viewInsets.bottom + 16,
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: textController,
+                            decoration: InputDecoration(
+                              hintText: 'Ask your health twin anything...',
+                              hintStyle: const TextStyle(fontSize: 13, color: Colors.black45),
+                              filled: true,
+                              fillColor: const Color(0xFFF8F5FC),
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(24),
+                                borderSide: BorderSide.none,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        CircleAvatar(
+                          backgroundColor: const Color(0xFF7C3AED),
+                          radius: 22,
+                          child: IconButton(
+                            icon: const Icon(Icons.arrow_upward, color: Colors.white, size: 20),
+                            onPressed: () {
+                              final text = textController.text.trim();
+                              if (text.isEmpty) return;
+                              setSheetState(() {
+                                messages.add({'role': 'user', 'text': text});
+                                messages.add({
+                                  'role': 'assistant',
+                                  'text': 'Analyzing "$text" across your digital health twin profile... Your vital parameters are currently stable.'
+                                });
+                              });
+                              textController.clear();
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildPromptChip(String text, VoidCallback onTap) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: ActionChip(
+        label: Text(text, style: const TextStyle(fontSize: 11, color: Color(0xFF7C3AED), fontWeight: FontWeight.bold)),
+        backgroundColor: const Color(0xFFF3E8FF),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        side: BorderSide.none,
+        onPressed: onTap,
       ),
     );
   }

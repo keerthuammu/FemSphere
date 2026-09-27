@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import '../models/user_model.dart';
 import '../services/api_service.dart';
+import '../core/api_constants.dart';
 
 class AuthProvider extends ChangeNotifier {
   UserModel? _currentUser;
@@ -21,8 +22,9 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
+      await ApiConstants.autoDetectServer();
       final res = await ApiService.login(email, password).timeout(
-        const Duration(seconds: 4),
+        const Duration(seconds: 10),
       );
 
       if (res['success'] == true) {
@@ -33,59 +35,17 @@ class AuthProvider extends ChangeNotifier {
         notifyListeners();
         return true;
       } else {
-        // Fallback for demo credentials
-        _provisionFallbackUser(email);
+        _errorMessage = res['message'] ?? 'Invalid email or password.';
         _isLoading = false;
         notifyListeners();
-        return true;
+        return false;
       }
     } catch (e) {
-      // Offline/Device LAN fallback: Auto-provision matching user so login never fails
-      _provisionFallbackUser(email);
+      _errorMessage = 'Could not connect to FemSphere API server at ${ApiConstants.baseUrl} ($e). Tap Server Settings to verify.';
       _isLoading = false;
       notifyListeners();
-      return true;
+      return false;
     }
-  }
-
-  void _provisionFallbackUser(String email) {
-    String role = 'Myself (User)';
-    String fullName = 'Elena Rostova';
-    int id = 2;
-
-    final lower = email.toLowerCase();
-    if (lower.contains('doctor') || lower.contains('jenkins')) {
-      role = 'Doctor';
-      fullName = 'Dr. Sarah Jenkins (OB/GYN)';
-      id = 3;
-    } else if (lower.contains('caregiver')) {
-      role = 'Caregiver';
-      fullName = 'Marcus Rostova';
-      id = 4;
-    } else if (lower.contains('admin')) {
-      role = 'Admin (Superuser)';
-      fullName = 'System Administrator';
-      id = 1;
-    }
-
-    _token = 'demo_mobile_jwt_token_2026';
-    ApiService.authToken = _token;
-    _currentUser = UserModel(
-      id: id,
-      username: email.split('@')[0],
-      email: email,
-      fullName: fullName,
-      role: role,
-      status: 'Active',
-      profile: {
-        'full_name': fullName,
-        'dob': '1996-08-14',
-        'blood_group': 'A Positive (A+)',
-        'height_cm': 168,
-        'weight_kg': 62,
-        'mobile': '+1 (555) 382-9102'
-      },
-    );
   }
 
   Future<bool> register(Map<String, dynamic> formData) async {
@@ -94,8 +54,9 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
+      await ApiConstants.autoDetectServer();
       final res = await ApiService.register(formData).timeout(
-        const Duration(seconds: 4),
+        const Duration(seconds: 10),
       );
 
       if (res['success'] == true) {
@@ -106,16 +67,16 @@ class AuthProvider extends ChangeNotifier {
         notifyListeners();
         return true;
       } else {
-        _provisionFallbackUser(formData['email'] ?? 'user@femsphere.health');
+        _errorMessage = res['message'] ?? 'Registration failed.';
         _isLoading = false;
         notifyListeners();
-        return true;
+        return false;
       }
     } catch (e) {
-      _provisionFallbackUser(formData['email'] ?? 'user@femsphere.health');
+      _errorMessage = 'Could not connect to FemSphere API server at ${ApiConstants.baseUrl} ($e). Tap Server Settings to verify.';
       _isLoading = false;
       notifyListeners();
-      return true;
+      return false;
     }
   }
 

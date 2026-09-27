@@ -5,6 +5,10 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import AdminDashboard from './pages/AdminDashboard';
 import CaregiverDashboard from './pages/CaregiverDashboard';
+import { AppProvider } from './context/AppContext';
+import MobileApp from './pages/MobileApp';
+import MobileLogin from './pages/MobileLogin';
+import MobileRegister from './pages/MobileRegister';
 
 // User (Female) / Myself Sub-Pages & Layout
 import { UserProvider } from './context/UserContext';
@@ -20,6 +24,7 @@ import UserNotifications from './pages/user/UserNotifications';
 import UserProfilePage from './pages/user/UserProfilePage';
 import UserSettings from './pages/user/UserSettings';
 import UserPeriodTracker from './pages/user/UserPeriodTracker';
+import SmartwatchDashboard from './pages/user/SmartwatchDashboard';
 
 // Admin Sub-Pages & Layout
 import { AdminProvider } from './context/AdminContext';
@@ -123,11 +128,18 @@ function DoctorPendingRoute() {
 
 export default function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+    <AppProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+
+          {/* FemSphere Mobile App Routes */}
+          <Route path="/app" element={<MobileApp />} />
+          <Route path="/mobile" element={<MobileApp />} />
+          <Route path="/mobile/login" element={<MobileLogin />} />
+          <Route path="/mobile/register" element={<MobileRegister />} />
 
         {/* User (Female) / Myself dashboard with nested modular sub-routes */}
         <Route
@@ -151,6 +163,7 @@ export default function App() {
           <Route path="notifications" element={<UserNotifications />} />
           <Route path="profile" element={<UserProfilePage />} />
           <Route path="settings" element={<UserSettings />} />
+          <Route path="smartwatch" element={<SmartwatchDashboard />} />
         </Route>
 
         {/* Admin dashboard with nested modular sub-routes */}
@@ -219,5 +232,6 @@ export default function App() {
         <Route path="/doctor-pending" element={<DoctorPendingRoute />} />
       </Routes>
     </Router>
+    </AppProvider>
   );
 }

@@ -1181,7 +1181,7 @@ class StrictHumanoidSkeletalPainter extends CustomPainter {
       canvas.save();
       canvas.translate(activeFootX, activeFootY);
       canvas.rotate(-abductionAngle);
-      canvas.drawRRect(const RRect.fromRectAndRadius(Rect.fromLTWH(-6, -4, 18, 9), Radius.circular(3)), paintShoes);
+      canvas.drawRRect(RRect.fromRectAndRadius(const Rect.fromLTWH(-6, -4, 18, 9), const Radius.circular(3)), paintShoes);
       canvas.restore();
 
       canvas.drawRRect(RRect.fromRectAndRadius(Rect.fromLTWH(cx - 20, torsoY, 40, 42), const Radius.circular(6)), paintShorts);

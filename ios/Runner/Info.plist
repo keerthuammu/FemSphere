@@ -26,6 +26,10 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>FemSphere requires Bluetooth access to connect and synchronize health telemetry from your smartwatches and fitness wearables (Apple Watch, Samsung Galaxy, Garmin, Fitbit, Amazfit, Noise, boAt, and BLE monitors).</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>FemSphere uses Bluetooth to discover and read vitals from your smartwatches and wearable sensors.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

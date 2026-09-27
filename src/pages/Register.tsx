@@ -411,48 +411,7 @@ export default function Register() {
           navigate('/dashboard');
         }
       } catch (err: any) {
-        // Fallback for demo when backend database server is offline
-        // Normalize role to match what dashboards expect
-        let normalizedRole = formData.accountType;
-        if (formData.accountType === 'User (Female)') normalizedRole = 'Myself';
-        if (formData.accountType === 'Administrator') normalizedRole = 'Admin (Superuser)';
-
-        const mockUser = {
-          id: Date.now(),
-          username: formData.username || formData.email.split('@')[0],
-          fullName: formData.fullName || formData.username || formData.email.split('@')[0],
-          email: formData.email,
-          role: normalizedRole,
-          status: 'Active',
-          profile: {
-            full_name: formData.fullName || formData.username,
-            dob: formData.dob,
-            blood_group: formData.bloodGroup,
-            height_cm: formData.heightCm ? parseFloat(formData.heightCm) : null,
-            weight_kg: formData.weightKg ? parseFloat(formData.weightKg) : null,
-            mobile: formData.mobileNumber,
-            address: formData.address,
-            city: formData.city,
-          },
-          doctor: formData.accountType === 'Doctor' ? {
-            specialization: formData.specialization,
-            license_number: formData.licenseNumber,
-            hospital_clinic: formData.hospitalClinic,
-            approval_status: 'Pending',
-          } : undefined,
-        };
-        localStorage.setItem('femsphere_token', 'demo_token_2026');
-        localStorage.setItem('femsphere_user', JSON.stringify(mockUser));
-
-        if (normalizedRole === 'Caregiver') {
-          navigate('/caregiver-dashboard');
-        } else if (normalizedRole === 'Doctor') {
-          navigate('/doctor-pending');
-        } else if (normalizedRole === 'Admin (Superuser)') {
-          navigate('/admin');
-        } else {
-          navigate('/dashboard');
-        }
+        setErrorMsg('Unable to connect to FemSphere database server. Please ensure the backend is running and try again.');
       } finally {
         setIsSubmitting(false);
       }

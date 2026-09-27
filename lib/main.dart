@@ -1,29 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'core/app_theme.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:provider/provider.dart' as provider;
 import 'providers/auth_provider.dart';
-import 'screens/home_screen.dart';
+import 'providers/life_stage_provider.dart';
+import 'app/app.dart';
+export 'app/app.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const FemSphereApp());
-}
-
-class FemSphereApp extends StatelessWidget {
-  const FemSphereApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
-      ],
-      child: MaterialApp(
-        title: 'FemSphere - Lifetime AI Health Twin Companion',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.lightTheme,
-        home: const HomeScreen(),
+  runApp(
+    ProviderScope(
+      child: provider.MultiProvider(
+        providers: [
+          provider.ChangeNotifierProvider(create: (_) => AuthProvider()),
+          provider.ChangeNotifierProvider(create: (_) => LifeStageProvider()),
+        ],
+        child: const FemSphereApp(),
       ),
-    );
-  }
+    ),
+  );
 }

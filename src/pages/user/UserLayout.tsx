@@ -106,6 +106,7 @@ export default function UserLayout() {
     { name: 'Dashboard', path: '/dashboard', icon: Activity, end: true },
     { name: 'Medical Records', path: '/dashboard/records', icon: FileText },
     { name: 'Health Tracker', path: '/dashboard/tracker', icon: Heart, iconColor: 'text-[#F472B6]' },
+    { name: 'Smartwatch Hub', path: '/dashboard/smartwatch', icon: Watch, iconColor: 'text-[#7C3AED]' },
     ...(isReproductiveAgeUser ? [
       { name: 'Period Tracker', path: '/dashboard/period-tracker', icon: Droplet, iconColor: 'text-rose-500' }
     ] : []),
@@ -259,6 +260,16 @@ export default function UserLayout() {
               {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
             </div>
 
+            {/* Mobile App View Link */}
+            <Link
+              to="/app"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 border border-purple-200 text-purple-700 text-xs font-bold transition-all shadow-2xs"
+              title="Open Mobile App Experience"
+            >
+              <span>📱</span>
+              <span className="hidden sm:inline">Mobile App</span>
+            </Link>
+
             {/* Notification Bell */}
             <Link
               to="/dashboard/notifications"
@@ -277,6 +288,12 @@ export default function UserLayout() {
 
         {/* Mobile Navigation Strip */}
         <div className="md:hidden flex overflow-x-auto gap-2 p-3 bg-[#F2EBE5] border-b border-[#E5CDBC]">
+          <Link
+            to="/app"
+            className="px-3 py-1.5 rounded-xl font-bold text-xs whitespace-nowrap bg-purple-600 text-white shadow-xs flex items-center gap-1"
+          >
+            <span>📱</span> Mobile UI
+          </Link>
           {navItems.map((item) => (
             <NavLink
               key={item.path}
