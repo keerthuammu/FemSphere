@@ -14,7 +14,12 @@ import {
   AlertCircle,
   WifiOff,
   ChevronRight,
-  ShieldCheck
+  ShieldCheck,
+  QrCode,
+  Droplets,
+  Zap,
+  X,
+  Check
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 
@@ -25,11 +30,18 @@ export default function WearablesHubView() {
     syncWearable,
     isScanningWearables,
     startWearableScan,
-    vitals
+    vitals,
+    waterGlasses,
+    addWaterGlass
   } = useApp();
 
   const [activeTab, setActiveTab] = useState<'devices' | 'live'>('devices');
   const [selectedBrandFilter, setSelectedBrandFilter] = useState<string>('All');
+  const [showQrModal, setShowQrModal] = useState(false);
+  const [qrTarget, setQrTarget] = useState<'water' | 'watch'>('water');
+  const [qrSuccessMsg, setQrSuccessMsg] = useState<string | null>(null);
+  const [manualCode, setManualCode] = useState('');
+  const [isScanningPayload, setIsScanningPayload] = useState(false);
 
   const connectedDevice = wearables.find(w => w.connected) || wearables[0];
 
@@ -74,6 +86,41 @@ export default function WearablesHubView() {
           >
             <span className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-ping"></span>
             <span>Live Stream</span>
+          </button>
+        </div>
+      </div>
+
+      {/* QR Quick Pairing Strip */}
+      <div className="p-3.5 rounded-2xl bg-gradient-to-r from-purple-600 via-indigo-600 to-cyan-600 text-white shadow-md flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5">
+          <div className="w-9 h-9 rounded-xl bg-white/20 backdrop-blur-xs flex items-center justify-center shrink-0">
+            <QrCode className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <h4 className="text-xs font-bold">Scan QR Code to Connect</h4>
+            <p className="text-[11px] text-white/80">Pair Smart Water Bottle or Smartwatch via camera</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            onClick={() => {
+              setQrTarget('water');
+              setShowQrModal(true);
+            }}
+            className="px-3 py-1.5 rounded-xl bg-white text-slate-900 text-xs font-bold hover:bg-slate-100 transition-all min-h-[40px] flex items-center gap-1"
+          >
+            <Droplets className="w-3.5 h-3.5 text-cyan-600" />
+            <span>Scan Bottle</span>
+          </button>
+          <button
+            onClick={() => {
+              setQrTarget('watch');
+              setShowQrModal(true);
+            }}
+            className="px-3 py-1.5 rounded-xl bg-white/20 text-white text-xs font-bold hover:bg-white/30 transition-all min-h-[40px] flex items-center gap-1"
+          >
+            <Watch className="w-3.5 h-3.5" />
+            <span>Watch QR</span>
           </button>
         </div>
       </div>
@@ -163,12 +210,24 @@ export default function WearablesHubView() {
               <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                 No active wearable paired right now
               </p>
-              <button
-                onClick={startWearableScan}
-                className="px-4 py-2 rounded-xl bg-purple-600 text-white font-bold text-xs"
-              >
-                Scan for Nearby BLE Devices
-              </button>
+              <div className="flex items-center justify-center gap-2 pt-1">
+                <button
+                  onClick={() => {
+                    setQrTarget('water');
+                    setShowQrModal(true);
+                  }}
+                  className="px-4 py-2 rounded-xl bg-cyan-600 text-white font-bold text-xs flex items-center gap-1.5"
+                >
+                  <QrCode className="w-3.5 h-3.5" />
+                  <span>Scan QR to Connect</span>
+                </button>
+                <button
+                  onClick={startWearableScan}
+                  className="px-4 py-2 rounded-xl bg-purple-600 text-white font-bold text-xs"
+                >
+                  Scan Nearby BLE
+                </button>
+              </div>
             </div>
           )}
 
@@ -184,14 +243,27 @@ export default function WearablesHubView() {
                 </p>
               </div>
 
-              <button
-                onClick={startWearableScan}
-                disabled={isScanningWearables}
-                className="px-3 py-1.5 rounded-xl bg-purple-50 dark:bg-purple-950 hover:bg-purple-100 text-purple-700 dark:text-purple-300 text-xs font-bold border border-purple-200 dark:border-purple-800 flex items-center gap-1.5 transition-colors disabled:opacity-50 min-h-[44px]"
-              >
-                <Bluetooth className={`w-3.5 h-3.5 ${isScanningWearables ? 'animate-spin text-purple-600' : ''}`} />
-                <span>{isScanningWearables ? 'Scanning BLE...' : 'Scan Devices'}</span>
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    setQrTarget('water');
+                    setShowQrModal(true);
+                  }}
+                  className="px-3 py-1.5 rounded-xl bg-cyan-50 dark:bg-cyan-950/60 hover:bg-cyan-100 text-cyan-700 dark:text-cyan-300 text-xs font-bold border border-cyan-200 dark:border-cyan-800 flex items-center gap-1.5 transition-colors min-h-[44px]"
+                >
+                  <QrCode className="w-3.5 h-3.5" />
+                  <span>Scan QR</span>
+                </button>
+
+                <button
+                  onClick={startWearableScan}
+                  disabled={isScanningWearables}
+                  className="px-3 py-1.5 rounded-xl bg-purple-50 dark:bg-purple-950 hover:bg-purple-100 text-purple-700 dark:text-purple-300 text-xs font-bold border border-purple-200 dark:border-purple-800 flex items-center gap-1.5 transition-colors disabled:opacity-50 min-h-[44px]"
+                >
+                  <Bluetooth className={`w-3.5 h-3.5 ${isScanningWearables ? 'animate-spin text-purple-600' : ''}`} />
+                  <span>{isScanningWearables ? 'Scanning BLE...' : 'Scan Devices'}</span>
+                </button>
+              </div>
             </div>
 
             {/* Scan pulse indicator if scanning */}
@@ -306,6 +378,148 @@ export default function WearablesHubView() {
           <p className="text-[10px] text-slate-500 text-center">
             Continuous telemetry synchronizes with your Digital Health Twin neural network in 5-second intervals.
           </p>
+        </div>
+      )}
+
+      {/* QR Scanner Modal (Simulated camera with viewfinder, laser, & instant pairing) */}
+      {showQrModal && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-700 w-full max-w-sm rounded-3xl p-5 text-white shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+              <div className="flex items-center gap-2">
+                <div className={`p-2 rounded-xl ${qrTarget === 'water' ? 'bg-cyan-500/20 text-cyan-400' : 'bg-purple-500/20 text-purple-400'}`}>
+                  {qrTarget === 'water' ? <Droplets className="w-5 h-5" /> : <Watch className="w-5 h-5" />}
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold">
+                    {qrTarget === 'water' ? 'Scan Smart Water Bottle' : 'Scan Smartwatch QR'}
+                  </h3>
+                  <p className="text-[11px] text-slate-400">Align QR code within camera frame</p>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  setShowQrModal(false);
+                  setQrSuccessMsg(null);
+                }}
+                className="p-1.5 rounded-full hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Target Mode Switcher */}
+            <div className="flex bg-slate-800/80 p-1 rounded-xl my-3 border border-slate-700/60">
+              <button
+                onClick={() => setQrTarget('water')}
+                className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
+                  qrTarget === 'water' ? 'bg-cyan-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                <Droplets className="w-3.5 h-3.5" />
+                <span>Water Bottle</span>
+              </button>
+              <button
+                onClick={() => setQrTarget('watch')}
+                className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
+                  qrTarget === 'watch' ? 'bg-purple-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                <Watch className="w-3.5 h-3.5" />
+                <span>Smartwatch</span>
+              </button>
+            </div>
+
+            {/* Camera Viewfinder Reticle */}
+            <div className="relative w-full aspect-square max-h-56 bg-black rounded-2xl overflow-hidden border border-slate-700/80 flex items-center justify-center my-2">
+              {/* Corner brackets */}
+              <div className={`absolute top-3 left-3 w-6 h-6 border-t-2 border-l-2 rounded-tl-lg ${qrTarget === 'water' ? 'border-cyan-400' : 'border-purple-400'}`}></div>
+              <div className={`absolute top-3 right-3 w-6 h-6 border-t-2 border-r-2 rounded-tr-lg ${qrTarget === 'water' ? 'border-cyan-400' : 'border-purple-400'}`}></div>
+              <div className={`absolute bottom-3 left-3 w-6 h-6 border-b-2 border-l-2 rounded-bl-lg ${qrTarget === 'water' ? 'border-cyan-400' : 'border-purple-400'}`}></div>
+              <div className={`absolute bottom-3 right-3 w-6 h-6 border-b-2 border-r-2 rounded-br-lg ${qrTarget === 'water' ? 'border-cyan-400' : 'border-purple-400'}`}></div>
+
+              {/* Sweeping laser animation */}
+              <div className={`absolute left-4 right-4 h-0.5 shadow-lg animate-pulse ${
+                qrTarget === 'water' ? 'bg-cyan-400 shadow-cyan-400/50' : 'bg-purple-400 shadow-purple-400/50'
+              } animate-bounce`} style={{ animationDuration: '2s' }}></div>
+
+              {/* Watermark icon */}
+              <div className="text-slate-800">
+                {qrTarget === 'water' ? <Droplets className="w-16 h-16 opacity-30" /> : <QrCode className="w-16 h-16 opacity-30" />}
+              </div>
+
+              {/* Success Overlay */}
+              {qrSuccessMsg && (
+                <div className="absolute inset-0 bg-slate-950/90 backdrop-blur-xs flex flex-col items-center justify-center p-4 text-center">
+                  <div className="w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-2">
+                    <Check className="w-6 h-6" />
+                  </div>
+                  <p className="text-xs font-bold text-emerald-400">{qrSuccessMsg}</p>
+                </div>
+              )}
+            </div>
+
+            {/* Quick Demo Scan Buttons */}
+            <div className="space-y-2 mt-3">
+              <div className="flex items-center gap-1.5 text-[11px] text-slate-400">
+                <Zap className="w-3.5 h-3.5 text-amber-400" />
+                <span>Simulate instant QR code scan:</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    setIsScanningPayload(true);
+                    setTimeout(() => {
+                      if (qrTarget === 'water') {
+                        addWaterGlass();
+                        addWaterGlass();
+                        setQrSuccessMsg('✓ Smart Hydration Bottle linked! Added 500ml intake.');
+                      } else {
+                        toggleWearableConnection('boat-1');
+                        setQrSuccessMsg('✓ boAt Wave Beat paired & synchronized via QR!');
+                      }
+                      setIsScanningPayload(false);
+                      setTimeout(() => setShowQrModal(false), 1800);
+                    }, 600);
+                  }}
+                  disabled={isScanningPayload}
+                  className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all text-white flex items-center justify-center gap-1.5 ${
+                    qrTarget === 'water' ? 'bg-cyan-600 hover:bg-cyan-500' : 'bg-purple-600 hover:bg-purple-500'
+                  }`}
+                >
+                  <QrCode className="w-3.5 h-3.5" />
+                  <span>{qrTarget === 'water' ? '⚡ Scan Smart Bottle QR' : '⚡ Scan boAt Watch QR'}</span>
+                </button>
+              </div>
+
+              {/* Manual Code Entry */}
+              <div className="flex items-center gap-2 pt-2">
+                <input
+                  type="text"
+                  placeholder={qrTarget === 'water' ? 'Or enter bottle code: BOTTLE-H2O-01' : 'Or enter MAC: DC:1B:44:A2:89:12'}
+                  value={manualCode}
+                  onChange={e => setManualCode(e.target.value)}
+                  className="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-hidden focus:border-cyan-500"
+                />
+                <button
+                  onClick={() => {
+                    if (qrTarget === 'water') {
+                      addWaterGlass();
+                      setQrSuccessMsg('✓ Bottle ID verified & synced!');
+                    } else {
+                      toggleWearableConnection('boat-1');
+                      setQrSuccessMsg('✓ Watch paired from manual code!');
+                    }
+                    setTimeout(() => setShowQrModal(false), 1600);
+                  }}
+                  className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-200"
+                >
+                  Bind
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

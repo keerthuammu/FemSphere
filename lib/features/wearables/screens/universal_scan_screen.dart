@@ -6,6 +6,7 @@ import '../core/device_brand.dart';
 import '../core/wearable_manager.dart';
 import '../services/wearable_sync_service.dart';
 import '../widgets/brand_badge.dart';
+import 'device_qr_scanner_screen.dart';
 
 class UniversalScanScreen extends StatefulWidget {
   const UniversalScanScreen({super.key});
@@ -33,7 +34,10 @@ class _UniversalScanScreenState extends State<UniversalScanScreen> {
 
   @override
   void dispose() {
-    _stopScan();
+    _scanSub?.cancel();
+    try {
+      FlutterBluePlus.stopScan();
+    } catch (_) {}
     super.dispose();
   }
 
@@ -136,6 +140,13 @@ class _UniversalScanScreenState extends State<UniversalScanScreen> {
 
       _manager.setActiveDevice(adapter);
 
+      // Immediately read & sync initial vitals from watch
+      try {
+        await adapter.syncToBackend();
+      } catch (e) {
+        debugPrint('Initial telemetry sync warning: $e');
+      }
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -232,6 +243,19 @@ class _UniversalScanScreenState extends State<UniversalScanScreen> {
         elevation: 0,
         actions: [
           IconButton(
+            tooltip: 'Scan QR Code',
+            icon: const Icon(Icons.qr_code_scanner, color: AppTheme.primaryPurple),
+            onPressed: () async {
+              final result = await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const DeviceQrScannerScreen(initialTarget: ScannerTarget.smartwatch)),
+              );
+              if (result == true && mounted) {
+                Navigator.pop(context);
+              }
+            },
+          ),
+          IconButton(
             tooltip: 'Connection Help',
             icon: const Icon(Icons.help_outline, color: AppTheme.primaryPurple),
             onPressed: () => _showTroubleshootingDialog(context),
@@ -247,6 +271,78 @@ class _UniversalScanScreenState extends State<UniversalScanScreen> {
         children: [
           // 1. Brand Filter Tabs
           _buildBrandFilterBar(),
+
+          // QR Scan Quick Pair Banner (Watch or Bottle)
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF7C3AED), Color(0xFF06B6D4)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF7C3AED).withValues(alpha: 0.18),
+                  blurRadius: 10,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(16),
+                onTap: () async {
+                  final result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const DeviceQrScannerScreen(
+                        initialTarget: ScannerTarget.smartwatch,
+                      ),
+                    ),
+                  );
+                  if (result == true && mounted) {
+                    Navigator.pop(context);
+                  }
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: const BoxDecoration(
+                          color: Colors.white24,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.qr_code_scanner, color: Colors.white, size: 22),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Scan QR Code to Connect',
+                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                            ),
+                            SizedBox(height: 2),
+                            Text(
+                              'Instant bind for Smartwatch screen QR or Smart Water Bottle',
+                              style: TextStyle(color: Colors.white70, fontSize: 11),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Icon(Icons.arrow_forward_ios, color: Colors.white70, size: 14),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
 
           // 2. Scan Status Strip
           Container(
@@ -307,15 +403,16 @@ class _UniversalScanScreenState extends State<UniversalScanScreen> {
                             style: TextStyle(color: Colors.grey.shade500, fontSize: 11.5),
                           ),
                           const SizedBox(height: 16),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                          Wrap(
+                            alignment: WrapAlignment.center,
+                            spacing: 10,
+                            runSpacing: 8,
                             children: [
                               OutlinedButton.icon(
                                 onPressed: _startScan,
                                 icon: const Icon(Icons.refresh, size: 16),
                                 label: const Text('Rescan BLE'),
                               ),
-                              const SizedBox(width: 10),
                               ElevatedButton.icon(
                                 onPressed: () => _showTroubleshootingDialog(context),
                                 icon: const Icon(Icons.help_outline, size: 16),

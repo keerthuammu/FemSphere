@@ -30,6 +30,8 @@
 	<string>FemSphere requires Bluetooth access to connect and synchronize health telemetry from your smartwatches and fitness wearables (Apple Watch, Samsung Galaxy, Garmin, Fitbit, Amazfit, Noise, boAt, and BLE monitors).</string>
 	<key>NSBluetoothPeripheralUsageDescription</key>
 	<string>FemSphere uses Bluetooth to discover and read vitals from your smartwatches and wearable sensors.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>FemSphere requires camera access to scan device pairing QR codes displayed on your smartwatch screen or smart water bottle.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

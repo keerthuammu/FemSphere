@@ -11,6 +11,11 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" android:maxSdkVersion="30" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" android:maxSdkVersion="30" />
 
+    <!-- Camera Permission for Scanning QR Codes on Wearables & Water Bottles -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
+
     <!-- BLE Hardware Feature (optional so app installs on all devices) -->
     <uses-feature android:name="android.hardware.bluetooth_le" android:required="false" />
 

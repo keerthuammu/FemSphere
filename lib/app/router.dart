@@ -5,6 +5,7 @@ import '../core/constants/app_colors.dart';
 import '../features/smartwatch/screens/smartwatch_history_screen.dart';
 import '../features/wearables/screens/universal_wearables_screen.dart';
 import '../features/wearables/screens/universal_scan_screen.dart';
+import '../features/wearables/screens/device_qr_scanner_screen.dart';
 import '../screens/home_screen.dart';
 import '../screens/auth/login_screen.dart';
 import '../screens/auth/register_screen.dart';
@@ -88,6 +89,15 @@ final appRouter = GoRouter(
           path: 'scan',
           name: 'wearables_scan',
           builder: (context, state) => const UniversalScanScreen(),
+        ),
+        GoRoute(
+          path: 'qr_scan',
+          name: 'wearables_qr_scan',
+          builder: (context, state) {
+            final targetStr = state.uri.queryParameters['target'];
+            final target = targetStr == 'smartwatch' ? ScannerTarget.smartwatch : ScannerTarget.waterBottle;
+            return DeviceQrScannerScreen(initialTarget: target);
+          },
         ),
       ],
     ),

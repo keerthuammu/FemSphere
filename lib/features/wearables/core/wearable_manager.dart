@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../adapters/amazfit_adapter.dart';
 import '../adapters/apple_watch_adapter.dart';
 import '../adapters/fitbit_adapter.dart';
@@ -144,6 +146,13 @@ class WearableManager {
           brand: DeviceBrand.suunto,
           model: device.platformName.isNotEmpty ? device.platformName : 'Suunto Watch',
         );
+      case DeviceBrand.smartBottle:
+        return StandardBleAdapter(
+          bluetoothDevice: device,
+          syncService: syncService,
+          brand: DeviceBrand.smartBottle,
+          model: device.platformName.isNotEmpty ? device.platformName : 'Smart Water Bottle',
+        );
       default:
         return StandardBleAdapter(
           bluetoothDevice: device,
@@ -192,11 +201,196 @@ class WearableManager {
     }
   }
 
+  static const String _keyLastDeviceId = 'femsphere_last_wearable_id';
+  static const String _keyLastDeviceName = 'femsphere_last_wearable_name';
+  static const String _keyLastDeviceBrand = 'femsphere_last_wearable_brand';
+
+  /// Save last successfully connected wearable info to persistent storage
+  Future<void> saveLastConnectedDevice({
+    required String id,
+    required String name,
+    required String brand,
+  }) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_keyLastDeviceId, id);
+      await prefs.setString(_keyLastDeviceName, name);
+      await prefs.setString(_keyLastDeviceBrand, brand);
+      debugPrint('Saved last connected wearable: $name ($id)');
+    } catch (e) {
+      debugPrint('Error saving last connected wearable: $e');
+    }
+  }
+
+  /// Get last connected device details from persistent storage
+  Future<Map<String, String>?> getLastConnectedDevice() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final id = prefs.getString(_keyLastDeviceId);
+      final name = prefs.getString(_keyLastDeviceName);
+      final brand = prefs.getString(_keyLastDeviceBrand);
+      if (id != null && id.isNotEmpty) {
+        return {
+          'id': id,
+          'name': name ?? 'Smartwatch',
+          'brand': brand ?? 'GENERIC_BLE',
+        };
+      }
+    } catch (_) {}
+    return null;
+  }
+
+  /// Clear saved wearable info
+  Future<void> clearLastConnectedDevice() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_keyLastDeviceId);
+      await prefs.remove(_keyLastDeviceName);
+      await prefs.remove(_keyLastDeviceBrand);
+    } catch (_) {}
+  }
+
+  /// Automatically connects to any smartwatch that is already connected or bonded in phone Bluetooth
+  /// Eliminates the need for the user to manually connect every time.
+  Future<WearableDevice?> autoConnectIfBluetoothConnected() async {
+    if (_activeDevice != null && _activeDevice!.connectionState == DeviceConnectionState.connected) {
+      return _activeDevice;
+    }
+
+    try {
+      final isSupported = await FlutterBluePlus.isSupported;
+      if (!isSupported) return null;
+
+      final lastSaved = await getLastConnectedDevice();
+      final savedId = lastSaved?['id'];
+      final savedName = lastSaved?['name'];
+
+      // 1. Check system devices (already connected to Android/iOS OS Bluetooth stack)
+      List<BluetoothDevice> systemDevs = [];
+      try {
+        systemDevs = await FlutterBluePlus.systemDevices([]);
+      } catch (e) {
+        debugPrint('Error querying system devices: $e');
+      }
+
+      BluetoothDevice? targetDevice;
+      DeviceBrand? targetBrand;
+
+      // 1a. Match by saved ID or saved name
+      for (final dev in systemDevs) {
+        final devId = dev.remoteId.str.toUpperCase();
+        final devName = dev.platformName.toLowerCase();
+
+        if (savedId != null && devId == savedId.toUpperCase()) {
+          targetDevice = dev;
+          break;
+        }
+        if (savedName != null && savedName.isNotEmpty && devName.contains(savedName.toLowerCase())) {
+          targetDevice = dev;
+          break;
+        }
+      }
+
+      // 1b. If no saved match, check if ANY system device is an active smartwatch
+      if (targetDevice == null) {
+        for (final dev in systemDevs) {
+          final brand = detectBrand(dev.platformName, []);
+          final nameLower = dev.platformName.toLowerCase();
+          final isWatch = brand != DeviceBrand.genericBle ||
+              nameLower.contains('watch') ||
+              nameLower.contains('band') ||
+              nameLower.contains('fit') ||
+              nameLower.contains('wave') ||
+              nameLower.contains('beat') ||
+              nameLower.contains('colorfit') ||
+              nameLower.contains('bip') ||
+              nameLower.contains('ring') ||
+              nameLower.contains('strap');
+          if (isWatch && dev.platformName.isNotEmpty) {
+            targetDevice = dev;
+            targetBrand = brand;
+            break;
+          }
+        }
+      }
+
+      // 2. If not found in connected system devices, check bonded devices
+      if (targetDevice == null) {
+        List<BluetoothDevice> bondedDevs = [];
+        try {
+          bondedDevs = await FlutterBluePlus.bondedDevices;
+        } catch (_) {}
+
+        for (final dev in bondedDevs) {
+          final devId = dev.remoteId.str.toUpperCase();
+          final devName = dev.platformName.toLowerCase();
+
+          if (savedId != null && devId == savedId.toUpperCase()) {
+            targetDevice = dev;
+            break;
+          }
+          if (savedName != null && savedName.isNotEmpty && devName.contains(savedName.toLowerCase())) {
+            targetDevice = dev;
+            break;
+          }
+        }
+
+        if (targetDevice == null) {
+          for (final dev in bondedDevs) {
+            final brand = detectBrand(dev.platformName, []);
+            final nameLower = dev.platformName.toLowerCase();
+            final isWatch = brand != DeviceBrand.genericBle ||
+                nameLower.contains('watch') ||
+                nameLower.contains('band') ||
+                nameLower.contains('fit');
+            if (isWatch && dev.platformName.isNotEmpty) {
+              targetDevice = dev;
+              targetBrand = brand;
+              break;
+            }
+          }
+        }
+      }
+
+      // 3. Connect to the target device if found
+      if (targetDevice != null) {
+        final brand = targetBrand ?? detectBrand(targetDevice.platformName, []);
+        final adapter = createBleAdapter(targetDevice, forceBrand: brand);
+
+        try {
+          await adapter.connect();
+          setActiveDevice(adapter);
+          await saveLastConnectedDevice(
+            id: targetDevice.remoteId.str,
+            name: targetDevice.platformName.isNotEmpty ? targetDevice.platformName : 'Smartwatch',
+            brand: brand.code,
+          );
+          try {
+            await adapter.syncToBackend();
+          } catch (_) {}
+          debugPrint('Successfully auto-connected to watch: ${targetDevice.platformName}');
+          return adapter;
+        } catch (e) {
+          debugPrint('Auto-connect BLE link attempt note: $e');
+        }
+      }
+    } catch (e) {
+      debugPrint('autoConnectIfBluetoothConnected exception: $e');
+    }
+    return null;
+  }
+
   /// Sets the active wearable device and wires up real-time telemetry streams
   void setActiveDevice(WearableDevice device) {
     _hrSub?.cancel();
     _activeDevice = device;
     _activeDeviceController.add(device);
+
+    saveLastConnectedDevice(
+      id: device.id,
+      name: device.name,
+      brand: device.brand.code,
+    );
 
     _hrSub = device.heartRateStream.listen((bpm) {
       _liveHeartRateController.add(bpm);
@@ -210,6 +404,7 @@ class WearableManager {
       _hrSub?.cancel();
       _activeDevice = null;
       _activeDeviceController.add(null);
+      await clearLastConnectedDevice();
     }
   }
 }

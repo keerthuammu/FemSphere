@@ -48,12 +48,12 @@ class StandardBleAdapter extends BaseBleAdapter {
         if (uuidStr.contains('180d')) hasHr = true;
         if (uuidStr.contains('1822')) hasSpO2 = true;
         if (uuidStr.contains('1809')) hasTemp = true;
-        if (uuidStr.contains('1814')) hasSteps = true;
+        if (uuidStr.contains('1814') || uuidStr.contains('fee0') || uuidStr.contains('fee7')) hasSteps = true;
       }
 
       _capabilities = WearableCapabilities(
         heartRate: hasHr,
-        restingHeartRate: false,
+        restingHeartRate: hasHr,
         steps: hasSteps,
         calories: hasSteps,
         distance: hasSteps,
@@ -64,10 +64,8 @@ class StandardBleAdapter extends BaseBleAdapter {
         realTimeStream: hasHr,
       );
 
-      // Setup Heart Rate notifications
-      if (hasHr) {
-        await setupStandardHeartRateSubscription(services);
-      }
+      // Setup all health characteristic subscriptions and immediate readings
+      await setupStandardServices(services);
     } catch (_) {}
   }
 }

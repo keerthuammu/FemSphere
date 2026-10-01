@@ -19,6 +19,7 @@ enum DeviceBrand {
   whoop,
   polar,
   suunto,
+  smartBottle,
   genericBle;
 
   String get displayName {
@@ -59,6 +60,8 @@ enum DeviceBrand {
         return 'Polar';
       case DeviceBrand.suunto:
         return 'Suunto';
+      case DeviceBrand.smartBottle:
+        return 'Smart Water Bottle';
       case DeviceBrand.genericBle:
         return 'Standard BLE Wearable';
     }
@@ -102,6 +105,8 @@ enum DeviceBrand {
         return 'POLAR';
       case DeviceBrand.suunto:
         return 'SUUNTO';
+      case DeviceBrand.smartBottle:
+        return 'SMART_BOTTLE';
       case DeviceBrand.genericBle:
         return 'GENERIC_BLE';
     }
@@ -145,6 +150,8 @@ enum DeviceBrand {
         return const Color(0xFF0284C7); // Cyan Blue
       case DeviceBrand.suunto:
         return const Color(0xFFD97706); // Amber
+      case DeviceBrand.smartBottle:
+        return const Color(0xFF06B6D4); // Cyan / Water
       case DeviceBrand.genericBle:
         return const Color(0xFF64748B); // Blue Grey
     }
@@ -152,6 +159,8 @@ enum DeviceBrand {
 
   IconData get iconData {
     switch (this) {
+      case DeviceBrand.smartBottle:
+        return Icons.water_drop_outlined;
       case DeviceBrand.appleWatch:
         return Icons.watch_outlined;
       case DeviceBrand.garmin:
@@ -166,6 +175,9 @@ enum DeviceBrand {
 
   static DeviceBrand detectFromName(String name) {
     final lower = name.toLowerCase();
+    if (lower.contains('bottle') || lower.contains('water') || lower.contains('hidrate') || lower.contains('hydration') || lower.contains('h2o')) {
+      return DeviceBrand.smartBottle;
+    }
     if (lower.contains('amazfit') || lower.contains('bip') || lower.contains('gtr') || lower.contains('gts') || lower.contains('a2008')) {
       return DeviceBrand.amazfit;
     }

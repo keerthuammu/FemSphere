@@ -36,8 +36,8 @@ class AmazfitAdapter extends BaseBleAdapter {
     try {
       final services = await bluetoothDevice.discoverServices();
 
-      // 1. Setup Standard Heart Rate notification
-      await setupStandardHeartRateSubscription(services);
+      // 1. Setup Standard & Health services
+      await setupStandardServices(services);
 
       // 2. Discover Huami Real-time Steps characteristic
       for (final s in services) {

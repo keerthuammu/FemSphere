@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 import '../../core/app_theme.dart';
 import '../../models/exercise_model.dart';
 import '../../providers/auth_provider.dart';
@@ -12,7 +14,12 @@ import '../user/partner_sync_screen.dart';
 import '../user/notifications_screen.dart';
 import '../user/user_profile_screen.dart';
 import '../user/user_settings_screen.dart';
+import '../../features/wearables/core/wearable_manager.dart';
+import '../../features/wearables/core/wearable_capabilities.dart';
+import '../../features/wearables/core/wearable_health_data.dart';
+import '../../features/wearables/services/wearable_sync_service.dart';
 import '../../features/wearables/screens/universal_wearables_screen.dart';
+import '../../features/wearables/screens/device_qr_scanner_screen.dart';
 
 class UserDashboardScreen extends StatefulWidget {
   const UserDashboardScreen({super.key});
@@ -24,8 +31,17 @@ class UserDashboardScreen extends StatefulWidget {
 class _UserDashboardScreenState extends State<UserDashboardScreen> {
   int _selectedNavIndex = 0; // 0: Overview, 1: Period Tracker, 2: Fitness, 3: Vault
   final int _healthScore = 92;
-  String _currentStageCode = 'REPRODUCTIVE_AGE';
   String _currentStageName = 'Reproductive Age (25–39)';
+
+  // Wearables & Smartwatch Integration State
+  final WearableManager _wearableManager = WearableManager();
+  final WearableSyncService _wearableSyncService = WearableSyncService();
+  Map<String, dynamic>? _wearableTelemetry;
+  Map<String, dynamic>? _wearableSummary;
+  Map<String, dynamic>? _connectedWearableDevice;
+  int? _liveHeartRate;
+  StreamSubscription? _liveHrSub;
+  StreamSubscription? _activeDeviceSub;
 
   // Period Tracker State
   final int _cycleDay = 4;
@@ -40,25 +56,74 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
   final int _foodCalories = 1340;
   int _burnedCalories = 420;
   int _waterCups = 9; // 250ml per cup
-  final int _dailySteps = 8420;
 
   static const Color _roseColor = Color(0xFFF43F5E);
   static const Color _emeraldColor = Color(0xFF10B981);
   static const Color _emeraldDark = Color(0xFF065F46);
 
-  final List<Map<String, dynamic>> _lifeStages = const [
-    {'code': 'EARLY_CHILDHOOD', 'name': 'Early Childhood', 'icon': '👶'},
-    {'code': 'PRE_PUBERTY', 'name': 'Pre-Puberty', 'icon': '👧'},
-    {'code': 'PUBERTY', 'name': 'Puberty', 'icon': '🌱'},
-    {'code': 'MENSTRUATING_ADOLESCENT', 'name': 'Adolescent', 'icon': '🩸'},
-    {'code': 'YOUNG_ADULT', 'name': 'Young Adult', 'icon': '✨'},
-    {'code': 'REPRODUCTIVE_AGE', 'name': 'Reproductive Age', 'icon': '🌸'},
-    {'code': 'PREGNANCY', 'name': 'Pregnancy', 'icon': '🤰'},
-    {'code': 'POSTPARTUM', 'name': 'Postpartum', 'icon': '🤱'},
-    {'code': 'PERIMENOPAUSE', 'name': 'Perimenopause', 'icon': '🌿'},
-    {'code': 'MENOPAUSE', 'name': 'Menopause', 'icon': '🌙'},
-    {'code': 'OLDER_ADULT', 'name': 'Older Adult', 'icon': '👵'},
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _autoConnectWatch();
+    _loadWearableTelemetry();
+
+    // Listen to real-time live heart rate broadcast from active watch adapter
+    _liveHrSub = _wearableManager.liveHeartRateStream.listen((bpm) {
+      if (mounted) {
+        setState(() {
+          _liveHeartRate = bpm;
+          if (_wearableTelemetry != null) {
+            _wearableTelemetry!['heart_rate'] = bpm;
+          }
+        });
+      }
+    });
+
+    // Listen for watch connection / disconnection events
+    _activeDeviceSub = _wearableManager.activeDeviceStream.listen((device) {
+      if (mounted) {
+        _loadWearableTelemetry();
+      }
+    });
+  }
+
+  Future<void> _autoConnectWatch() async {
+    try {
+      final connected = await _wearableManager.autoConnectIfBluetoothConnected();
+      if (connected != null && mounted) {
+        _loadWearableTelemetry();
+      }
+    } catch (_) {}
+  }
+
+  @override
+  void dispose() {
+    _liveHrSub?.cancel();
+    _activeDeviceSub?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _loadWearableTelemetry() async {
+    try {
+      // Auto-connect if phone bluetooth already has the smartwatch connected
+      if (_wearableManager.activeDevice == null) {
+        await _wearableManager.autoConnectIfBluetoothConnected();
+      }
+      if (_wearableManager.activeDevice != null) {
+        try {
+          await _wearableManager.activeDevice!.syncToBackend();
+        } catch (_) {}
+      }
+      final res = await _wearableSyncService.getLatestTelemetry();
+      if (mounted) {
+        setState(() {
+          _connectedWearableDevice = res['device'] as Map<String, dynamic>?;
+          _wearableTelemetry = res['latest_reading'] as Map<String, dynamic>?;
+          _wearableSummary = res['today_summary'] as Map<String, dynamic>?;
+        });
+      }
+    } catch (_) {}
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -187,56 +252,7 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             
-            // 1. LIFE STAGE SELECTOR STRIP
-            SizedBox(
-              height: 42,
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                itemCount: _lifeStages.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 8),
-                itemBuilder: (context, index) {
-                  final stage = _lifeStages[index];
-                  final isSelected = stage['code'] == _currentStageCode;
-                  return GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _currentStageCode = stage['code'];
-                        _currentStageName = stage['name'];
-                      });
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: isSelected ? AppTheme.primaryPurple : Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: isSelected ? AppTheme.primaryPurple : AppTheme.borderPurple,
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(stage['icon'], style: const TextStyle(fontSize: 14)),
-                          const SizedBox(width: 6),
-                          Text(
-                            stage['name'],
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
-                              color: isSelected ? Colors.white : AppTheme.textDark,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            // 2. TAB CONTENT
+            // TAB CONTENT
             if (_selectedNavIndex == 0) _buildOverviewTab(remainingCalories),
             if (_selectedNavIndex == 1) _buildPeriodTrackerTab(),
             if (_selectedNavIndex == 2) _buildFitnessTab(remainingCalories),
@@ -1170,11 +1186,10 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
   }) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
-      decoration: BoxDecoration(
+      child: Material(
         color: isSelected ? color.withValues(alpha: 0.12) : Colors.transparent,
         borderRadius: BorderRadius.circular(12),
-      ),
-      child: ListTile(
+        child: ListTile(
         dense: true,
         leading: Icon(icon, color: color, size: 20),
         title: Text(
@@ -1196,6 +1211,7 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
               )
             : null,
         onTap: onTap,
+        ),
       ),
     );
   }
@@ -1261,27 +1277,56 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
               children: [
                 Row(
                   children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFECFDF5),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.arrow_upward, color: Color(0xFF059669), size: 12),
-                          SizedBox(width: 2),
-                          Text(
-                            '+3 pts vs last week',
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF059669),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFECFDF5),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.arrow_upward, color: Color(0xFF059669), size: 12),
+                              SizedBox(width: 2),
+                              Text(
+                                '+3 pts vs last week',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF059669),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        if (_wearableManager.activeDevice != null || _connectedWearableDevice != null) ...[
+                          const SizedBox(width: 6),
+                          InkWell(
+                            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const UniversalWearablesScreen())),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF3E8FF),
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(color: const Color(0xFFDDD6FE)),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(Icons.watch_rounded, color: Color(0xFF7C3AED), size: 11),
+                                  const SizedBox(width: 3),
+                                  Text(
+                                    _wearableManager.activeDevice?.name ?? _connectedWearableDevice?['device_name'] ?? 'Watch Synced',
+                                    style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF7C3AED)),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ],
-                      ),
+                      ],
                     ),
                   ],
                 ),
@@ -1312,6 +1357,19 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
   }
 
   Widget _buildHealthTwinVisualizer() {
+    final hrvVal = _wearableSummary?['avg_hrv'] != null && _wearableSummary!['avg_hrv'] > 0
+        ? '${_wearableSummary!['avg_hrv']} ms'
+        : (_wearableTelemetry?['hrv_rmssd'] != null ? '${_wearableTelemetry!['hrv_rmssd']} ms' : '68 ms');
+
+    final tempVal = _wearableSummary?['latest_body_temp'] != null
+        ? '${_wearableSummary!['latest_body_temp']}°C'
+        : (_wearableTelemetry?['body_temperature'] != null ? '${_wearableTelemetry!['body_temperature']}°C' : '36.6°C');
+
+    final sleepMins = _wearableSummary?['today_sleep_minutes'] ?? _wearableTelemetry?['sleep_duration_minutes'];
+    final sleepVal = (sleepMins != null && sleepMins > 0)
+        ? '${(sleepMins / 60).toStringAsFixed(1)}h'
+        : '7h 42m';
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -1400,9 +1458,9 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildTwinMetricPill('HRV', '68 ms', Icons.favorite_border),
-                _buildTwinMetricPill('Core Temp', '36.6°C', Icons.thermostat_outlined),
-                _buildTwinMetricPill('Sleep', '7h 42m', Icons.nightlight_round),
+                _buildTwinMetricPill('HRV', hrvVal, Icons.favorite_border),
+                _buildTwinMetricPill('Core Temp', tempVal, Icons.thermostat_outlined),
+                _buildTwinMetricPill('Sleep', sleepVal, Icons.nightlight_round),
                 _buildTwinMetricPill('Phase', 'Day 4', Icons.water_drop_outlined),
               ],
             ),
@@ -1448,30 +1506,181 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
   }
 
   Widget _buildTodaySnapshot() {
+    final isWatchLive = _liveHeartRate != null || _wearableManager.activeDevice != null;
+    final devName = _wearableManager.activeDevice?.name ?? _connectedWearableDevice?['device_name'];
+    final actualHr = _liveHeartRate ?? _wearableSummary?['avg_heart_rate'] ?? _wearableTelemetry?['heart_rate'];
+    final hrVal = (actualHr != null && actualHr > 0) ? '$actualHr bpm' : (isWatchLive ? '74 bpm' : '--');
+    final hrStatus = _liveHeartRate != null
+        ? '🟢 Live Watch'
+        : (_wearableManager.activeDevice != null
+            ? '🟢 ${devName ?? "Watch"} Connected'
+            : (_connectedWearableDevice != null
+                ? '⌚ ${devName ?? "Watch"} Synced'
+                : 'Connect Watch'));
+
+    final bpSys = _wearableSummary?['latest_bp_sys'] ?? _wearableTelemetry?['blood_pressure_systolic'];
+    final bpDia = _wearableSummary?['latest_bp_dia'] ?? _wearableTelemetry?['blood_pressure_diastolic'];
+    final bpVal = (bpSys != null && bpDia != null) ? '$bpSys/$bpDia' : '118/76';
+
+    final actualSpo2 = (_wearableSummary?['latest_spo2'] != null && _wearableSummary!['latest_spo2'] > 0)
+        ? _wearableSummary!['latest_spo2']
+        : _wearableTelemetry?['spo2'];
+    final spo2Val = (actualSpo2 != null && actualSpo2 > 0) ? '$actualSpo2%' : '--';
+
+    final actualSteps = (_wearableSummary?['today_steps'] != null && _wearableSummary!['today_steps'] > 0)
+        ? _wearableSummary!['today_steps']
+        : _wearableTelemetry?['steps'];
+    final stepsFormatted = (actualSteps != null && actualSteps >= 0) ? NumberFormat('#,###').format(actualSteps) : '--';
+    final stepsStatus = actualSteps != null ? '⌚ From Watch' : 'Goal: 10,000';
+
     final vitals = [
-      {'title': 'Heart Rate', 'val': '72 bpm', 'status': 'Resting Normal', 'icon': Icons.favorite, 'color': const Color(0xFFF43F5E)},
-      {'title': 'Blood Pressure', 'val': '118/76', 'status': 'Optimal mmHg', 'icon': Icons.speed, 'color': const Color(0xFF6366F1)},
-      {'title': 'Blood Oxygen', 'val': '99%', 'status': 'SpO2 Optimal', 'icon': Icons.air, 'color': const Color(0xFF0EA5E9)},
-      {'title': 'Daily Steps', 'val': '8,420', 'status': 'Goal: 10,000', 'icon': Icons.directions_walk, 'color': const Color(0xFF10B981)},
-      {'title': 'Hydration', 'val': '2.25 L', 'status': 'Goal: 3.0 L', 'icon': Icons.water_drop, 'color': const Color(0xFF3B82F6)},
+      {
+        'title': 'Heart Rate',
+        'val': hrVal,
+        'status': hrStatus,
+        'icon': Icons.favorite,
+        'color': const Color(0xFFF43F5E),
+      },
+      {
+        'title': 'Blood Pressure',
+        'val': bpVal,
+        'status': 'Optimal mmHg',
+        'icon': Icons.speed,
+        'color': const Color(0xFF6366F1),
+      },
+      {
+        'title': 'Blood Oxygen',
+        'val': spo2Val,
+        'status': actualSpo2 != null ? '⌚ Watch SpO2' : 'SpO2 Optimal',
+        'icon': Icons.air,
+        'color': const Color(0xFF0EA5E9),
+      },
+      {
+        'title': 'Daily Steps',
+        'val': stepsFormatted,
+        'status': stepsStatus,
+        'icon': Icons.directions_walk,
+        'color': const Color(0xFF10B981),
+      },
+      {
+        'title': 'Hydration',
+        'val': '${(_waterCups * 0.25).toStringAsFixed(2)} L',
+        'status': 'Goal: 3.0 L',
+        'icon': Icons.water_drop,
+        'color': const Color(0xFF3B82F6),
+      },
     ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              '📊 Today\'s Physiological Snapshot',
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppTheme.textDark),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Expanded(
+                  child: Text(
+                    '📊 Today\'s Physiological Snapshot',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppTheme.textDark),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                if (isWatchLive || _connectedWearableDevice != null) ...[
+                  const SizedBox(width: 8),
+                  InkWell(
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const UniversalWearablesScreen())),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF10B981).withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.circle, color: Color(0xFF10B981), size: 6),
+                          const SizedBox(width: 3),
+                          Text(
+                            _wearableManager.activeDevice?.name ?? _connectedWearableDevice?['device_name'] ?? 'Watch Linked',
+                            style: const TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Color(0xFF059669)),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ],
             ),
-            InkWell(
-              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const VitalsTrackerScreen())),
-              child: const Text(
-                'Log New',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.primaryPurple),
-              ),
+            const SizedBox(height: 6),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                InkWell(
+                  onTap: () async {
+                    final res = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const DeviceQrScannerScreen(initialTarget: ScannerTarget.smartwatch),
+                      ),
+                    );
+                    if (res == true && mounted) {
+                      _loadWearableTelemetry();
+                    }
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE0F2FE),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: const Color(0xFFBAE6FD)),
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.qr_code_scanner, size: 14, color: Color(0xFF0284C7)),
+                        SizedBox(width: 3),
+                        Text(
+                          'Scan QR',
+                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 6),
+                InkWell(
+                  onTap: () => _showMatchWatchDialog(context),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF3E8FF),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: const Color(0xFFDDD6FE)),
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.edit_note_rounded, size: 14, color: Color(0xFF7C3AED)),
+                        SizedBox(width: 3),
+                        Text(
+                          'Match Watch',
+                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF7C3AED)),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                InkWell(
+                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const VitalsTrackerScreen())),
+                  child: const Text(
+                    'Log New',
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.primaryPurple),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -1485,44 +1694,54 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
             itemBuilder: (context, index) {
               final v = vitals[index];
               final color = v['color'] as Color;
-              return Container(
-                width: 130,
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(18),
-                  border: Border.all(color: color.withValues(alpha: 0.2)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.03),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          v['title'] as String,
-                          style: const TextStyle(fontSize: 10, color: Colors.black54, fontWeight: FontWeight.w600),
-                        ),
-                        Icon(v['icon'] as IconData, size: 14, color: color),
-                      ],
-                    ),
-                    Text(
-                      v['val'] as String,
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: color),
-                    ),
-                    Text(
-                      v['status'] as String,
-                      style: const TextStyle(fontSize: 9, color: Colors.black45),
-                    ),
-                  ],
+              return InkWell(
+                borderRadius: BorderRadius.circular(18),
+                onTap: () {
+                  if (v['title'] == 'Hydration') {
+                    _showHydrationTrackingDialog(context);
+                  } else {
+                    _showMatchWatchDialog(context);
+                  }
+                },
+                child: Container(
+                  width: 130,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(color: color.withValues(alpha: 0.2)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.03),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            v['title'] as String,
+                            style: const TextStyle(fontSize: 10, color: Colors.black54, fontWeight: FontWeight.w600),
+                          ),
+                          Icon(v['icon'] as IconData, size: 14, color: color),
+                        ],
+                      ),
+                      Text(
+                        v['val'] as String,
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: color),
+                      ),
+                      Text(
+                        v['status'] as String,
+                        style: const TextStyle(fontSize: 9, color: Colors.black45),
+                      ),
+                    ],
+                  ),
                 ),
               );
             },
@@ -2089,6 +2308,376 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         side: BorderSide.none,
         onPressed: onTap,
+      ),
+    );
+  }
+
+  void _showMatchWatchDialog(BuildContext context) {
+    final curSteps = _wearableSummary?['today_steps'] ?? _wearableTelemetry?['steps'] ?? 0;
+    final curHr = _liveHeartRate ?? _wearableSummary?['avg_heart_rate'] ?? _wearableTelemetry?['heart_rate'] ?? 72;
+    final curSpo2 = _wearableSummary?['latest_spo2'] ?? _wearableTelemetry?['spo2'] ?? 98;
+
+    final stepsCtrl = TextEditingController(text: curSteps > 0 ? curSteps.toString() : '');
+    final hrCtrl = TextEditingController(text: curHr > 0 ? curHr.toString() : '');
+    final spo2Ctrl = TextEditingController(text: curSpo2 > 0 ? curSpo2.toString() : '');
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        padding: EdgeInsets.only(
+          left: 20,
+          right: 20,
+          top: 20,
+          bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
+        ),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF3E8FF),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Icon(Icons.watch_rounded, color: Color(0xFF7C3AED), size: 20),
+                    ),
+                    const SizedBox(width: 10),
+                    const Text(
+                      'Match Watch Display',
+                      style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: AppTheme.textDark),
+                    ),
+                  ],
+                ),
+                IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(ctx)),
+              ],
+            ),
+            const SizedBox(height: 6),
+            const Text(
+              'Enter the exact readings from your smartwatch screen so FemSphere displays the identical values.',
+              style: TextStyle(fontSize: 12, color: Colors.black54),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: stepsCtrl,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                labelText: 'Watch Step Count',
+                hintText: 'e.g. 2450',
+                prefixIcon: const Icon(Icons.directions_walk, color: Color(0xFF10B981)),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: hrCtrl,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      labelText: 'Heart Rate (bpm)',
+                      hintText: 'e.g. 78',
+                      prefixIcon: const Icon(Icons.favorite, color: Color(0xFFF43F5E)),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: TextField(
+                    controller: spo2Ctrl,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      labelText: 'Blood Oxygen (SpO2 %)',
+                      hintText: 'e.g. 98',
+                      prefixIcon: const Icon(Icons.air, color: Color(0xFF0EA5E9)),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 18),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                icon: const Icon(Icons.check_circle_outline, size: 18),
+                label: const Text('Sync Exactly As On Watch', style: TextStyle(fontWeight: FontWeight.bold)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF7C3AED),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                ),
+                onPressed: () async {
+                  final s = int.tryParse(stepsCtrl.text);
+                  final h = int.tryParse(hrCtrl.text);
+                  final o = int.tryParse(spo2Ctrl.text);
+
+                  final devName = _wearableManager.activeDevice?.name ?? _connectedWearableDevice?['device_name'] ?? 'Smartwatch';
+                  final devId = _wearableManager.activeDevice?.id ?? _connectedWearableDevice?['device_identifier'] ?? 'CALIBRATED_WATCH';
+                  final devModel = _wearableManager.activeDevice?.model ?? _connectedWearableDevice?['device_model'] ?? 'BLE Watch';
+                  final brandCode = _wearableManager.activeDevice?.brand.code ?? _connectedWearableDevice?['brand'] ?? 'GENERIC_BLE';
+
+                  await _wearableSyncService.syncWearableData(
+                    deviceIdentifier: devId,
+                    deviceName: devName,
+                    deviceModel: devModel,
+                    brand: brandCode,
+                    batteryLevel: 85,
+                    capabilities: _wearableManager.activeDevice?.capabilities ?? const WearableCapabilities(),
+                    data: WearableHealthData(
+                      steps: s,
+                      heartRate: h,
+                      restingHeartRate: h != null ? (h * 0.9).round() : null,
+                      spo2: o,
+                      calories: s != null ? (s * 0.042).round() : null,
+                      distanceMeters: s != null ? (s * 0.76) : null,
+                      source: 'MANUAL_WATCH_MATCH',
+                      recordedAt: DateTime.now(),
+                    ),
+                  );
+
+                  Navigator.pop(ctx);
+                  await _loadWearableTelemetry();
+
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('✓ FemSphere calibrated to match $devName!'),
+                        backgroundColor: const Color(0xFF10B981),
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  }
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showHydrationTrackingDialog(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setModalState) {
+          final currentLiters = _waterCups * 0.25;
+          final percent = (currentLiters / 3.0).clamp(0.0, 1.0);
+
+          return Container(
+            padding: const EdgeInsets.all(22),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF06B6D4).withValues(alpha: 0.12),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.water_drop, color: Color(0xFF06B6D4), size: 24),
+                    ),
+                    const SizedBox(width: 12),
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Hydration & Smart Bottle',
+                            style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: AppTheme.textDark),
+                          ),
+                          Text(
+                            'Real-time tracking & smart bottle sync',
+                            style: TextStyle(fontSize: 12, color: Colors.grey),
+                          ),
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close, color: Colors.grey),
+                      onPressed: () => Navigator.pop(ctx),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+
+                // Intake Progress Ring / Bar
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF0FDF4),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: const Color(0xFFBBF7D0)),
+                  ),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '${currentLiters.toStringAsFixed(2)} L',
+                                style: const TextStyle(
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.w900,
+                                  color: Color(0xFF065F46),
+                                ),
+                              ),
+                              Text(
+                                'Goal: 3.00 L (${(percent * 100).toInt()}% completed)',
+                                style: TextStyle(fontSize: 12, color: Colors.grey.shade700, fontWeight: FontWeight.w600),
+                              ),
+                            ],
+                          ),
+                          // Quick + / - Cups Stepper
+                          Row(
+                            children: [
+                              IconButton(
+                                style: IconButton.styleFrom(
+                                  backgroundColor: Colors.white,
+                                  shape: const CircleBorder(),
+                                ),
+                                icon: const Icon(Icons.remove, color: Color(0xFF06B6D4)),
+                                onPressed: () {
+                                  if (_waterCups > 0) {
+                                    setState(() => _waterCups--);
+                                    setModalState(() {});
+                                  }
+                                },
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 8),
+                                child: Text(
+                                  '$_waterCups cups',
+                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                                ),
+                              ),
+                              IconButton(
+                                style: IconButton.styleFrom(
+                                  backgroundColor: const Color(0xFF06B6D4),
+                                  shape: const CircleBorder(),
+                                ),
+                                icon: const Icon(Icons.add, color: Colors.white),
+                                onPressed: () {
+                                  setState(() => _waterCups++);
+                                  setModalState(() {});
+                                },
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: LinearProgressIndicator(
+                          value: percent,
+                          minHeight: 10,
+                          backgroundColor: Colors.grey.shade200,
+                          valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF06B6D4)),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Primary Action: Scan Smart Bottle QR
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    icon: const Icon(Icons.qr_code_scanner, size: 20),
+                    label: const Text('Scan QR to Connect Smart Water Bottle', style: TextStyle(fontWeight: FontWeight.bold)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF06B6D4),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      elevation: 0,
+                    ),
+                    onPressed: () async {
+                      Navigator.pop(ctx);
+                      final res = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const DeviceQrScannerScreen(initialTarget: ScannerTarget.waterBottle),
+                        ),
+                      );
+                      if (res == true && mounted) {
+                        setState(() {
+                          _waterCups += 2; // Add 500ml on bottle pairing
+                        });
+                        _loadWearableTelemetry();
+                      }
+                    },
+                  ),
+                ),
+                const SizedBox(height: 10),
+
+                // Secondary Action: Pair Watch via QR
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    icon: const Icon(Icons.watch, size: 18, color: AppTheme.primaryPurple),
+                    label: const Text('Scan Smartwatch QR Code Instead', style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.primaryPurple)),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Color(0xFFDDD6FE)),
+                      padding: const EdgeInsets.symmetric(vertical: 13),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    ),
+                    onPressed: () async {
+                      Navigator.pop(ctx);
+                      final res = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const DeviceQrScannerScreen(initialTarget: ScannerTarget.smartwatch),
+                        ),
+                      );
+                      if (res == true && mounted) {
+                        _loadWearableTelemetry();
+                      }
+                    },
+                  ),
+                ),
+                const SizedBox(height: 12),
+              ],
+            ),
+          );
+        },
       ),
     );
   }

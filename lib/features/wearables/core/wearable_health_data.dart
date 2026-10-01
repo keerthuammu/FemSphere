@@ -15,6 +15,7 @@ class WearableHealthData {
   final String activityType;
   final String source;
   final DateTime recordedAt;
+  final int? waterIntakeMl;
 
   const WearableHealthData({
     this.heartRate,
@@ -30,6 +31,7 @@ class WearableHealthData {
     this.bloodPressureSystolic,
     this.bloodPressureDiastolic,
     this.respiratoryRate,
+    this.waterIntakeMl,
     this.activityType = 'General',
     required this.source,
     required this.recordedAt,
@@ -58,6 +60,7 @@ class WearableHealthData {
       'activity_type': activityType,
       'source': source,
       'recorded_at': recordedAt.toIso8601String(),
+      if (waterIntakeMl != null) 'water_intake_ml': waterIntakeMl,
     };
   }
 
@@ -76,6 +79,7 @@ class WearableHealthData {
       bloodPressureSystolic: json['blood_pressure_systolic'] as int?,
       bloodPressureDiastolic: json['blood_pressure_diastolic'] as int?,
       respiratoryRate: json['respiratory_rate'] != null ? (json['respiratory_rate'] as num).toDouble() : null,
+      waterIntakeMl: json['water_intake_ml'] as int?,
       activityType: (json['activity_type'] as String?) ?? 'General',
       source: (json['source'] as String?) ?? 'WEARABLE',
       recordedAt: json['recorded_at'] != null ? DateTime.parse(json['recorded_at'] as String) : DateTime.now(),

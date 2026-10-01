@@ -280,6 +280,17 @@ export const syncData = async (req, res) => {
       `, [userId, sleepHours]);
     }
 
+    // 4. Keep standard FemSphere health_tracker daily log in sync if water intake was recorded
+    const waterIntakeLiters = req.body.water_intake_liters || (req.body.water_intake_ml ? (req.body.water_intake_ml / 1000.0) : null);
+    if (waterIntakeLiters !== null && waterIntakeLiters > 0) {
+      await client.query(`
+        INSERT INTO health_tracker (user_id, log_date, water_intake_liters)
+        VALUES ($1, CURRENT_DATE, $2)
+        ON CONFLICT (user_id, log_date)
+        DO UPDATE SET water_intake_liters = EXCLUDED.water_intake_liters;
+      `, [userId, parseFloat(waterIntakeLiters.toFixed(2))]);
+    }
+
     await client.query('COMMIT');
 
     return res.status(201).json({
@@ -417,20 +428,58 @@ export const getLatestData = async (req, res) => {
 
     const todayRes = await pool.query(todayAggQuery, todayParams);
 
+    const todaySummary = todayRes.rows[0] || {
+      today_steps: 0,
+      avg_heart_rate: 0,
+      today_calories: 0,
+      today_distance_meters: 0,
+      today_sleep_minutes: 0,
+      latest_spo2: 0,
+      avg_hrv: 0,
+      avg_stress: 0
+    };
+
+    const latest = latestRes.rows[0] || null;
+
+    // If today hasn't recorded yet, populate from latest real reading
+    if ((!todaySummary.today_steps || parseInt(todaySummary.today_steps) === 0) && latest?.steps) {
+      todaySummary.today_steps = latest.steps;
+    }
+    if ((!todaySummary.avg_heart_rate || parseInt(todaySummary.avg_heart_rate) === 0) && latest?.heart_rate) {
+      todaySummary.avg_heart_rate = latest.heart_rate;
+    }
+    if ((!todaySummary.latest_spo2 || parseInt(todaySummary.latest_spo2) === 0) && latest?.spo2) {
+      todaySummary.latest_spo2 = latest.spo2;
+    }
+    if ((!todaySummary.today_calories || parseInt(todaySummary.today_calories) === 0) && latest?.calories) {
+      todaySummary.today_calories = latest.calories;
+    }
+    if ((!todaySummary.avg_hrv || parseInt(todaySummary.avg_hrv) === 0) && latest?.hrv_rmssd) {
+      todaySummary.avg_hrv = latest.hrv_rmssd;
+    }
+    if (!todaySummary.latest_body_temp && latest?.body_temperature) {
+      todaySummary.latest_body_temp = latest.body_temperature;
+    }
+    if (!todaySummary.latest_bp_sys && latest?.blood_pressure_systolic) {
+      todaySummary.latest_bp_sys = latest.blood_pressure_systolic;
+      todaySummary.latest_bp_dia = latest.blood_pressure_diastolic;
+    }
+
+    try {
+      const htWaterRes = await pool.query(
+        `SELECT water_intake_liters FROM health_tracker WHERE user_id = $1 AND log_date = CURRENT_DATE LIMIT 1`,
+        [userId]
+      );
+      if (htWaterRes.rows[0]?.water_intake_liters) {
+        todaySummary.today_water_liters = parseFloat(htWaterRes.rows[0].water_intake_liters);
+      }
+    } catch (_) {}
+
     return res.json({
       success: true,
       device: deviceRes.rows[0] || null,
-      latest_reading: latestRes.rows[0] || null,
-      today_summary: todayRes.rows[0] || {
-        today_steps: 0,
-        avg_heart_rate: 0,
-        today_calories: 0,
-        today_distance_meters: 0,
-        today_sleep_minutes: 0,
-        latest_spo2: 0,
-        avg_hrv: 0,
-        avg_stress: 0
-      }
+      latest_reading: latest,
+      today_summary: todaySummary
     });
   } catch (err) {
     console.error('Error in getLatestData:', err);
