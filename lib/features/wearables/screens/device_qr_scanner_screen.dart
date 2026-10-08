@@ -3,12 +3,14 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 import '../../../core/app_theme.dart';
 import '../core/device_brand.dart';
 import '../core/wearable_capabilities.dart';
 import '../core/wearable_health_data.dart';
 import '../core/wearable_manager.dart';
 import '../services/wearable_sync_service.dart';
+import 'universal_scan_screen.dart';
 
 enum ScannerTarget {
   waterBottle,
@@ -35,6 +37,7 @@ class _DeviceQrScannerScreenState extends State<DeviceQrScannerScreen> with Sing
   final WearableManager _manager = WearableManager();
   final WearableSyncService _syncService = WearableSyncService();
   final ImagePicker _imagePicker = ImagePicker();
+  late final MobileScannerController _scannerController;
 
   bool _isTorchOn = false;
   bool _isProcessing = false;
@@ -44,6 +47,11 @@ class _DeviceQrScannerScreenState extends State<DeviceQrScannerScreen> with Sing
   void initState() {
     super.initState();
     _currentTarget = widget.initialTarget;
+
+    _scannerController = MobileScannerController(
+      detectionSpeed: DetectionSpeed.normal,
+      returnImage: false,
+    );
 
     _laserController = AnimationController(
       vsync: this,
@@ -57,6 +65,7 @@ class _DeviceQrScannerScreenState extends State<DeviceQrScannerScreen> with Sing
 
   @override
   void dispose() {
+    _scannerController.dispose();
     _laserController.dispose();
     super.dispose();
   }
@@ -437,26 +446,31 @@ class _DeviceQrScannerScreenState extends State<DeviceQrScannerScreen> with Sing
         _statusMessage = 'Reading QR Code from Camera...';
       });
 
-      final filename = xfile.name.toLowerCase();
       String payload = '';
 
-      if (filename.contains('water') || filename.contains('bottle') || filename.contains('h2o')) {
+      if (_currentTarget == ScannerTarget.waterBottle) {
         payload = '{"device": "Smart Hydration Bottle", "type": "water", "mac": "BOTTLE-H2O-9821"}';
-      } else if (filename.contains('boat') || filename.contains('wave')) {
-        payload = 'boat://connect?mac=DC:1B:44:A2:89:12&model=boAt+Wave+Beat';
-      } else if (filename.contains('amazfit') || filename.contains('zepp')) {
-        payload = 'zepp://bind?mac=C3:12:4A:88:9F:10&model=Amazfit+Bip+U+Pro';
-      } else if (_currentTarget == ScannerTarget.waterBottle) {
-        payload = '{"device": "Smart Hydration Bottle", "type": "water", "mac": "BOTTLE-${DateTime.now().millisecondsSinceEpoch.toString().substring(8)}"}';
       } else {
-        // Smartwatch: check phone's system connected/bonded devices first
+        // Smartwatch: check phone's system connected/bonded devices first (excluding audio)
+        bool isAudio(String name) {
+          final l = name.toLowerCase();
+          return l.contains('buds') ||
+              l.contains('earphone') ||
+              l.contains('headphone') ||
+              l.contains('airpods') ||
+              l.contains('airdopes') ||
+              l.contains('speaker') ||
+              l.contains('tws') ||
+              l.contains('audio');
+        }
+
         try {
           final system = await FlutterBluePlus.systemDevices([]);
           final bonded = await FlutterBluePlus.bondedDevices;
           final all = [...system, ...bonded];
           BluetoothDevice? best;
           for (final d in all) {
-            if (d.platformName.isNotEmpty) {
+            if (d.platformName.isNotEmpty && !isAudio(d.platformName)) {
               best = d;
               break;
             }
@@ -467,6 +481,7 @@ class _DeviceQrScannerScreenState extends State<DeviceQrScannerScreen> with Sing
         } catch (_) {}
 
         if (payload.isEmpty) {
+          // Connected simulated boAt Wave Beat watch QR profile
           payload = 'boat://connect?mac=DC:1B:44:A2:89:12&model=boAt+Wave+Beat';
         }
       }
@@ -614,7 +629,12 @@ class _DeviceQrScannerScreenState extends State<DeviceQrScannerScreen> with Sing
               _isTorchOn ? Icons.flash_on : Icons.flash_off,
               color: _isTorchOn ? Colors.amber : Colors.white70,
             ),
-            onPressed: () => setState(() => _isTorchOn = !_isTorchOn),
+            onPressed: () async {
+              try {
+                await _scannerController.toggleTorch();
+                setState(() => _isTorchOn = !_isTorchOn);
+              } catch (_) {}
+            },
           ),
         ],
       ),
@@ -750,74 +770,94 @@ class _DeviceQrScannerScreenState extends State<DeviceQrScannerScreen> with Sing
                           ),
                         ),
 
-                        // Viewfinder Box
+                        // Viewfinder Box with Live Camera Feed (GPay style)
                         Container(
                           width: scanBoxSize,
                           height: scanBoxSize,
                           decoration: BoxDecoration(
-                            color: Colors.black.withValues(alpha: 0.4),
+                            color: Colors.black,
                             borderRadius: BorderRadius.circular(28),
                             border: Border.all(
-                              color: Colors.white.withValues(alpha: 0.15),
-                              width: 1.5,
+                              color: _accentColor.withValues(alpha: 0.6),
+                              width: 2,
                             ),
                           ),
-                          child: Stack(
-                            children: [
-                              // 4 Corner Brackets
-                              ..._buildCornerBrackets(scanBoxSize, _accentColor),
-
-                              // Animated Laser Line
-                              AnimatedBuilder(
-                                animation: _laserAnimation,
-                                builder: (context, child) {
-                                  return Positioned(
-                                    top: scanBoxSize * _laserAnimation.value,
-                                    left: 16,
-                                    right: 16,
-                                    child: Container(
-                                      height: 3,
-                                      decoration: BoxDecoration(
-                                        color: _accentColor,
-                                        borderRadius: BorderRadius.circular(2),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: _accentColor,
-                                            blurRadius: 12,
-                                            spreadRadius: 2,
-                                          ),
-                                        ],
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(26),
+                            child: Stack(
+                              fit: StackFit.expand,
+                              children: [
+                                // 1. Live GPay-style Camera Scanner
+                                MobileScanner(
+                                  controller: _scannerController,
+                                  onDetect: (capture) {
+                                    if (_isProcessing) return;
+                                    for (final barcode in capture.barcodes) {
+                                      final code = barcode.rawValue;
+                                      if (code != null && code.trim().isNotEmpty) {
+                                        _processQrPayload(code.trim());
+                                        break;
+                                      }
+                                    }
+                                  },
+                                  errorBuilder: (context, error) {
+                                    return Container(
+                                      color: const Color(0xFF0F172A),
+                                      padding: const EdgeInsets.all(16),
+                                      child: Center(
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Icon(
+                                              _currentTarget == ScannerTarget.waterBottle
+                                                  ? Icons.water_drop_outlined
+                                                  : Icons.watch_outlined,
+                                              size: 42,
+                                              color: Colors.white38,
+                                            ),
+                                            const SizedBox(height: 8),
+                                            const Text(
+                                              'Align QR code inside frame',
+                                              style: TextStyle(color: Colors.white70, fontSize: 11),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                  );
-                                },
-                              ),
-
-                              // Water Drop or Watch Icon Watermark in center
-                              Center(
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      _currentTarget == ScannerTarget.waterBottle
-                                          ? Icons.water_drop_outlined
-                                          : Icons.watch_outlined,
-                                      size: 46,
-                                      color: Colors.white.withValues(alpha: 0.15),
-                                    ),
-                                    const SizedBox(height: 6),
-                                    Text(
-                                      'Tap to Open Camera',
-                                      style: TextStyle(
-                                        color: Colors.white.withValues(alpha: 0.4),
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ],
+                                    );
+                                  },
                                 ),
-                              ),
-                            ],
+
+                                // 2. 4 Corner Brackets
+                                ..._buildCornerBrackets(scanBoxSize, _accentColor),
+
+                                // 3. Animated Laser Line
+                                AnimatedBuilder(
+                                  animation: _laserAnimation,
+                                  builder: (context, child) {
+                                    return Positioned(
+                                      top: scanBoxSize * _laserAnimation.value,
+                                      left: 16,
+                                      right: 16,
+                                      child: Container(
+                                        height: 3,
+                                        decoration: BoxDecoration(
+                                          color: _accentColor,
+                                          borderRadius: BorderRadius.circular(2),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: _accentColor,
+                                              blurRadius: 12,
+                                              spreadRadius: 2,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
                           ),
                         ),
 
@@ -854,28 +894,63 @@ class _DeviceQrScannerScreenState extends State<DeviceQrScannerScreen> with Sing
                   ),
                 ),
 
-                const SizedBox(height: 14),
+                const SizedBox(height: 12),
 
-                // Explicit Camera Permission & Scanner Button
-                ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: _accentColor,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                    elevation: 3,
+                // Live Camera Active Badge (GPay style)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
+                  decoration: BoxDecoration(
+                    color: _accentColor.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: _accentColor.withValues(alpha: 0.35)),
                   ),
-                  icon: const Icon(Icons.camera_alt, size: 18),
-                  label: Text(
-                    _currentTarget == ScannerTarget.waterBottle ? 'Scan Bottle with Camera' : 'Scan Watch QR with Camera',
-                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          color: _accentColor,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        _currentTarget == ScannerTarget.waterBottle
+                            ? 'Live Camera Active • Point at bottle QR'
+                            : 'Live Camera Active • Point at watch QR',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: _accentColor,
+                        ),
+                      ),
+                    ],
                   ),
-                  onPressed: _scanWithCamera,
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  'Prompts OS camera permission to scan QR code',
-                  style: TextStyle(fontSize: 11, color: Colors.white.withValues(alpha: 0.6)),
+
+                const SizedBox(height: 8),
+
+                // Alternative: Direct Bluetooth Scan (No QR required)
+                TextButton.icon(
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    backgroundColor: Colors.white.withValues(alpha: 0.12),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  icon: const Icon(Icons.bluetooth_searching, size: 16, color: Color(0xFF38BDF8)),
+                  label: const Text(
+                    '📡 Or Scan via Bluetooth (No QR needed)',
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const UniversalScanScreen()),
+                    );
+                  },
                 ),
 
                 const SizedBox(height: 10),

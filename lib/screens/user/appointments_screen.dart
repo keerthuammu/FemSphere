@@ -145,7 +145,8 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> with SingleTick
                     const Text('Select Doctor', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
                     const SizedBox(height: 6),
                     DropdownButtonFormField<String>(
-                      value: selectedDoctor,
+                      isExpanded: true,
+                      initialValue: selectedDoctor,
                       decoration: InputDecoration(
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -153,7 +154,11 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> with SingleTick
                       items: _availableDoctors.map((d) {
                         return DropdownMenuItem<String>(
                           value: d['name'],
-                          child: Text('${d['name']} (${d['specialty']})', style: const TextStyle(fontSize: 13)),
+                          child: Text(
+                            '${d['name']} (${d['specialty']})',
+                            style: const TextStyle(fontSize: 13),
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         );
                       }).toList(),
                       onChanged: (val) {
@@ -239,24 +244,25 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> with SingleTick
                             'reason': reasonController.text.trim().isEmpty ? 'General Consultation' : reasonController.text.trim(),
                           };
 
+                          final messenger = ScaffoldMessenger.of(context);
                           try {
                             await ApiService.bookAppointment(payload);
-                            if (mounted) {
+                            if (ctx.mounted) {
                               Navigator.pop(ctx);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('Appointment booked successfully with $selectedDoctor!'),
-                                  backgroundColor: AppTheme.secondaryTeal,
-                                ),
-                              );
+                            }
+                            messenger.showSnackBar(
+                              SnackBar(
+                                content: Text('Appointment booked successfully with $selectedDoctor!'),
+                                backgroundColor: AppTheme.secondaryTeal,
+                              ),
+                            );
+                            if (mounted) {
                               _loadAppointments();
                             }
                           } catch (e) {
-                            if (mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('Failed to book: $e'), backgroundColor: Colors.red),
-                              );
-                            }
+                            messenger.showSnackBar(
+                              SnackBar(content: Text('Failed to book: $e'), backgroundColor: Colors.red),
+                            );
                           }
                         },
                         child: const Text('Confirm Booking', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),

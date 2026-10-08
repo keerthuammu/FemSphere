@@ -52,6 +52,9 @@ abstract class BaseBleAdapter implements WearableDevice {
   @override
   Stream<int> get heartRateStream => _hrController.stream;
 
+  bool _explicitlyDisconnected = false;
+  Timer? _reconnectTimer;
+
   void setConnectionState(DeviceConnectionState state) {
     _state = state;
   }
@@ -61,23 +64,53 @@ abstract class BaseBleAdapter implements WearableDevice {
     return bluetoothDevice.isConnected;
   }
 
+  void _scheduleAutoReconnect() {
+    _reconnectTimer?.cancel();
+    if (_explicitlyDisconnected) return;
+
+    _reconnectTimer = Timer(const Duration(seconds: 4), () async {
+      if (_explicitlyDisconnected || bluetoothDevice.isConnected) return;
+      debugPrint('🔄 FemSphere Persistent Keepalive: Auto-reconnecting to ${bluetoothDevice.platformName}...');
+      try {
+        final ok = await connect();
+        if (ok) {
+          debugPrint('✅ FemSphere: Successfully re-established link with ${bluetoothDevice.platformName}!');
+        } else {
+          _scheduleAutoReconnect();
+        }
+      } catch (e) {
+        debugPrint('Auto-reconnect note: $e');
+        _scheduleAutoReconnect();
+      }
+    });
+  }
+
   @override
   Future<bool> connect() async {
     try {
+      _explicitlyDisconnected = false;
+      _reconnectTimer?.cancel();
       _state = DeviceConnectionState.connecting;
 
       if (!bluetoothDevice.isConnected) {
         await bluetoothDevice.connect(
           timeout: const Duration(seconds: 15),
-          autoConnect: false,
+          autoConnect: true,
         );
       }
 
+      await _deviceStateSub?.cancel();
       _deviceStateSub = bluetoothDevice.connectionState.listen((state) {
         if (state == BluetoothConnectionState.connected) {
           _state = DeviceConnectionState.connected;
+          _reconnectTimer?.cancel();
+          debugPrint('📡 FemSphere BLE Link Active: ${bluetoothDevice.platformName}');
         } else if (state == BluetoothConnectionState.disconnected) {
           _state = DeviceConnectionState.disconnected;
+          debugPrint('⚠️ FemSphere BLE Link Dropped: ${bluetoothDevice.platformName}. Triggering auto-reconnect...');
+          if (!_explicitlyDisconnected) {
+            _scheduleAutoReconnect();
+          }
         }
       });
 
@@ -103,12 +136,17 @@ abstract class BaseBleAdapter implements WearableDevice {
         return true;
       }
       _state = DeviceConnectionState.error;
+      if (!_explicitlyDisconnected) {
+        _scheduleAutoReconnect();
+      }
       return false;
     }
   }
 
   @override
   Future<void> disconnect() async {
+    _explicitlyDisconnected = true;
+    _reconnectTimer?.cancel();
     try {
       await _deviceStateSub?.cancel();
       _deviceStateSub = null;

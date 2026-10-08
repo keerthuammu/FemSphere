@@ -276,10 +276,24 @@ class WearableManager {
       BluetoothDevice? targetDevice;
       DeviceBrand? targetBrand;
 
-      // 1a. Match by saved ID or saved name
+      bool isAudioDevice(String name) {
+        final lower = name.toLowerCase();
+        return lower.contains('buds') ||
+            lower.contains('earphone') ||
+            lower.contains('headphone') ||
+            lower.contains('airpods') ||
+            lower.contains('airdopes') ||
+            lower.contains('neckband') ||
+            lower.contains('speaker') ||
+            lower.contains('tws') ||
+            lower.contains('audio');
+      }
+
+      // 1a. Match by saved ID or saved name (excluding audio devices)
       for (final dev in systemDevs) {
         final devId = dev.remoteId.str.toUpperCase();
         final devName = dev.platformName.toLowerCase();
+        if (isAudioDevice(dev.platformName)) continue;
 
         if (savedId != null && devId == savedId.toUpperCase()) {
           targetDevice = dev;
@@ -294,6 +308,7 @@ class WearableManager {
       // 1b. If no saved match, check if ANY system device is an active smartwatch
       if (targetDevice == null) {
         for (final dev in systemDevs) {
+          if (isAudioDevice(dev.platformName)) continue;
           final brand = detectBrand(dev.platformName, []);
           final nameLower = dev.platformName.toLowerCase();
           final isWatch = brand != DeviceBrand.genericBle ||
@@ -322,6 +337,7 @@ class WearableManager {
         } catch (_) {}
 
         for (final dev in bondedDevs) {
+          if (isAudioDevice(dev.platformName)) continue;
           final devId = dev.remoteId.str.toUpperCase();
           final devName = dev.platformName.toLowerCase();
 
@@ -337,6 +353,7 @@ class WearableManager {
 
         if (targetDevice == null) {
           for (final dev in bondedDevs) {
+            if (isAudioDevice(dev.platformName)) continue;
             final brand = detectBrand(dev.platformName, []);
             final nameLower = dev.platformName.toLowerCase();
             final isWatch = brand != DeviceBrand.genericBle ||
@@ -358,18 +375,22 @@ class WearableManager {
         final adapter = createBleAdapter(targetDevice, forceBrand: brand);
 
         try {
-          await adapter.connect();
-          setActiveDevice(adapter);
-          await saveLastConnectedDevice(
-            id: targetDevice.remoteId.str,
-            name: targetDevice.platformName.isNotEmpty ? targetDevice.platformName : 'Smartwatch',
-            brand: brand.code,
-          );
-          try {
-            await adapter.syncToBackend();
-          } catch (_) {}
-          debugPrint('Successfully auto-connected to watch: ${targetDevice.platformName}');
-          return adapter;
+          final connected = await adapter.connect();
+          if (connected && adapter.connectionState == DeviceConnectionState.connected) {
+            setActiveDevice(adapter);
+            await saveLastConnectedDevice(
+              id: targetDevice.remoteId.str,
+              name: targetDevice.platformName.isNotEmpty ? targetDevice.platformName : 'Smartwatch',
+              brand: brand.code,
+            );
+            try {
+              await adapter.syncToBackend();
+            } catch (_) {}
+            debugPrint('Successfully auto-connected to watch: ${targetDevice.platformName}');
+            return adapter;
+          } else {
+            debugPrint('Auto-connect attempt did not establish BLE link for: ${targetDevice.platformName}');
+          }
         } catch (e) {
           debugPrint('Auto-connect BLE link attempt note: $e');
         }

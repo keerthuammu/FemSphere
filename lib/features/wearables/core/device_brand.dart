@@ -175,6 +175,21 @@ enum DeviceBrand {
 
   static DeviceBrand detectFromName(String name) {
     final lower = name.toLowerCase();
+
+    // Audio earbuds, headphones, speakers should NOT be identified as wearable health trackers
+    if (lower.contains('buds') ||
+        lower.contains('earbuds') ||
+        lower.contains('headphone') ||
+        lower.contains('earphone') ||
+        lower.contains('airpods') ||
+        lower.contains('airdopes') ||
+        lower.contains('neckband') ||
+        lower.contains('speaker') ||
+        lower.contains('tws') ||
+        lower.contains('audio')) {
+      return DeviceBrand.genericBle;
+    }
+
     if (lower.contains('bottle') || lower.contains('water') || lower.contains('hidrate') || lower.contains('hydration') || lower.contains('h2o')) {
       return DeviceBrand.smartBottle;
     }
