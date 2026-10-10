@@ -10,7 +10,11 @@
     "build": "vite build",
     "preview": "vite preview",
     "clean": "rm -rf dist",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "test": "node --test tests/api/api.test.js",
+    "test:all": "node --test tests/api/api.test.js && flutter test",
+    "seed": "node scripts/seed_demo_data.js",
+    "init-db": "node init_db.js"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",
@@ -21,6 +25,8 @@
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^4.21.2",
+    "express-rate-limit": "^8.7.1",
+    "helmet": "^8.3.0",
     "jsonwebtoken": "^9.0.3",
     "lucide-react": "^1.27.0",
     "motion": "^12.23.24",

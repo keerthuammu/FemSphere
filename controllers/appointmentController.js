@@ -201,6 +201,22 @@ export const updateAppointmentStatus = async (req, res) => {
   }
 };
 
+export const cancelAppointment = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await pool.query(
+      'UPDATE appointments SET status = $1 WHERE id = $2 RETURNING *',
+      ['Cancelled', id]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Appointment not found.' });
+    }
+    res.json({ success: true, message: 'Appointment cancelled successfully.', appointment: result.rows[0] });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
 export const deleteAppointment = async (req, res) => {
   try {
     const { id } = req.params;
@@ -318,7 +334,33 @@ export const startAppointmentCall = async (req, res) => {
       return res.status(400).json({ success: false, message: slotCheck.reason });
     }
 
+    // Persist active call session to PostgreSQL telehealth_sessions table
+    const roomId = `femsphere-room-${id}-${Date.now()}`;
+    const insertSession = await pool.query(`
+      INSERT INTO telehealth_sessions (
+        appointment_id, doctor_id, doctor_user_id, doctor_name,
+        patient_id, patient_name, specialization,
+        appointment_date, appointment_time, status, room_id, started_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'calling', $10, NOW())
+      RETURNING *
+    `, [
+      apt.id,
+      apt.doctor_id,
+      apt.doctor_user_id,
+      apt.doctor_name || `Dr. ${apt.doctor_username}`,
+      apt.patient_id,
+      apt.patient_name || apt.patient_username,
+      apt.specialization || 'Gynecology & Women’s Health',
+      String(apt.appointment_date || ''),
+      String(apt.appointment_time || ''),
+      roomId
+    ]);
+
+    const sessionRow = insertSession.rows[0];
+
     const callData = {
+      sessionId: sessionRow.id,
+      roomId: sessionRow.room_id,
       appointmentId: parseInt(id, 10),
       doctorId: apt.doctor_id,
       doctorUserId: apt.doctor_user_id,
@@ -360,15 +402,51 @@ export const getActiveCallForUser = async (req, res) => {
   try {
     const userId = req.user.id;
 
+    // Check in-memory cache first
     for (const [appId, call] of activeCalls.entries()) {
       if (call.patientId === userId && (call.status === 'calling' || call.status === 'connected')) {
         // Auto-expire calls older than 5 minutes if still in 'calling'
         if (call.status === 'calling' && Date.now() - call.startedAt > 300000) {
           activeCalls.delete(appId);
+          await pool.query("UPDATE telehealth_sessions SET status = 'ended', ended_at = NOW() WHERE appointment_id = $1 AND status = 'calling'", [appId]).catch(() => {});
           continue;
         }
         return res.json({ success: true, activeCall: call });
       }
+    }
+
+    // Check PostgreSQL telehealth_sessions for persistent active call (survives restarts)
+    const dbCall = await pool.query(`
+      SELECT * FROM telehealth_sessions
+      WHERE patient_id = $1 AND status IN ('calling', 'connected')
+      ORDER BY id DESC LIMIT 1
+    `, [userId]);
+
+    if (dbCall.rows.length > 0) {
+      const row = dbCall.rows[0];
+      const started = new Date(row.started_at).getTime();
+      if (row.status === 'calling' && Date.now() - started > 300000) {
+        await pool.query("UPDATE telehealth_sessions SET status = 'ended', ended_at = NOW() WHERE id = $1", [row.id]);
+        return res.json({ success: true, activeCall: null });
+      }
+
+      const restoredCall = {
+        sessionId: row.id,
+        roomId: row.room_id,
+        appointmentId: row.appointment_id,
+        doctorId: row.doctor_id,
+        doctorUserId: row.doctor_user_id,
+        doctorName: row.doctor_name,
+        specialization: row.specialization,
+        patientId: row.patient_id,
+        patientName: row.patient_name,
+        appointmentDate: row.appointment_date,
+        appointmentTime: row.appointment_time,
+        status: row.status,
+        startedAt: started
+      };
+      activeCalls.set(String(row.appointment_id), restoredCall);
+      return res.json({ success: true, activeCall: restoredCall });
     }
 
     res.json({ success: true, activeCall: null });
@@ -383,7 +461,31 @@ export const answerAppointmentCall = async (req, res) => {
     const userId = req.user.id;
     const { id } = req.params;
 
-    const call = activeCalls.get(String(id));
+    let call = activeCalls.get(String(id));
+    if (!call) {
+      const dbRes = await pool.query(`
+        SELECT * FROM telehealth_sessions 
+        WHERE appointment_id = $1 AND status = 'calling' 
+        ORDER BY id DESC LIMIT 1
+      `, [id]);
+
+      if (dbRes.rows.length > 0) {
+        const row = dbRes.rows[0];
+        call = {
+          sessionId: row.id,
+          roomId: row.room_id,
+          appointmentId: row.appointment_id,
+          doctorId: row.doctor_id,
+          doctorUserId: row.doctor_user_id,
+          doctorName: row.doctor_name,
+          patientId: row.patient_id,
+          patientName: row.patient_name,
+          status: row.status,
+          startedAt: new Date(row.started_at).getTime()
+        };
+      }
+    }
+
     if (!call) {
       return res.status(404).json({ success: false, message: 'Call has ended or is not active.' });
     }
@@ -395,6 +497,12 @@ export const answerAppointmentCall = async (req, res) => {
     call.status = 'connected';
     call.connectedAt = Date.now();
     activeCalls.set(String(id), call);
+
+    await pool.query(`
+      UPDATE telehealth_sessions 
+      SET status = 'connected', connected_at = NOW() 
+      WHERE appointment_id = $1 AND status = 'calling'
+    `, [id]);
 
     res.json({ success: true, message: 'Call connected.', call });
   } catch (err) {
@@ -414,6 +522,12 @@ export const declineAppointmentCall = async (req, res) => {
       activeCalls.set(String(id), call);
     }
 
+    await pool.query(`
+      UPDATE telehealth_sessions 
+      SET status = 'declined', ended_at = NOW() 
+      WHERE appointment_id = $1 AND status = 'calling'
+    `, [id]);
+
     res.json({ success: true, message: 'Call declined.' });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -429,6 +543,13 @@ export const endAppointmentCall = async (req, res) => {
       call.status = 'ended';
       activeCalls.delete(String(id));
     }
+
+    await pool.query(`
+      UPDATE telehealth_sessions 
+      SET status = 'ended', ended_at = NOW() 
+      WHERE appointment_id = $1 AND status IN ('calling', 'connected')
+    `, [id]);
+
     res.json({ success: true, message: 'Call ended.' });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -439,11 +560,36 @@ export const endAppointmentCall = async (req, res) => {
 export const getAppointmentCallStatus = async (req, res) => {
   try {
     const { id } = req.params;
-    const call = activeCalls.get(String(id));
+    let call = activeCalls.get(String(id));
+    
     if (!call) {
-      return res.json({ success: true, status: 'ended' });
+      const dbRes = await pool.query(`
+        SELECT * FROM telehealth_sessions 
+        WHERE appointment_id = $1 
+        ORDER BY id DESC LIMIT 1
+      `, [id]);
+
+      if (dbRes.rows.length === 0) {
+        return res.json({ success: true, status: 'ended' });
+      }
+
+      const row = dbRes.rows[0];
+      return res.json({ 
+        success: true, 
+        status: row.status, 
+        call: {
+          sessionId: row.id,
+          roomId: row.room_id,
+          appointmentId: row.appointment_id,
+          status: row.status,
+          startedAt: new Date(row.started_at).getTime(),
+          connectedAt: row.connected_at ? new Date(row.connected_at).getTime() : null,
+          endedAt: row.ended_at ? new Date(row.ended_at).getTime() : null
+        }
+      });
     }
-    res.json({ success: true, call });
+
+    res.json({ success: true, call, status: call.status });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }

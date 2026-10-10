@@ -33,19 +33,14 @@ export const createRelationship = async (req, res) => {
       [relatedEmail, relatedEmail]
     );
 
-    let targetId;
     if (targetUser.rows.length === 0) {
-      // Auto create mock partner/caregiver account if demoing
-      const targetUsername = relatedEmail.split('@')[0];
-      const newTarget = await pool.query(
-        `INSERT INTO users (username, email, password_hash, role, status)
-         VALUES ($1, $2, 'demo_hash_2026', 'Caregiver', 'Active') RETURNING id`,
-        [targetUsername, relatedEmail]
-      );
-      targetId = newTarget.rows[0].id;
-    } else {
-      targetId = targetUser.rows[0].id;
+      return res.status(404).json({
+        success: false,
+        message: 'No registered user found with that email or username. Please ask them to register on FemSphere first.'
+      });
     }
+
+    const targetId = targetUser.rows[0].id;
 
     if (targetId === userId) {
       return res.status(400).json({ success: false, message: 'Cannot add yourself as a related user.' });

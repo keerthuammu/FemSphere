@@ -23,6 +23,9 @@ import smartwatchRoutes from './routes/smartwatchRoutes.js';
 import wearableRoutes from './routes/wearableRoutes.js';
 import partnerRoutes from './routes/partnerRoutes.js';
 
+import helmet from 'helmet';
+import { apiLimiter } from './middleware/rateLimiter.js';
+
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
@@ -31,11 +34,39 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 5001;
 
-// CORS & Middleware
-app.use(cors());
+// Production Security Headers with Helmet
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+  contentSecurityPolicy: false // Allows Three.js WebGL canvases, inline assets, and Vite dev server
+}));
+
+// Restrict CORS in production to trusted origins with fallback for mobile and dev clients
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  'http://localhost:3000',
+  'http://127.0.0.1:3000',
+  'http://localhost:5173',
+  'http://127.0.0.1:5173'
+].filter(Boolean);
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV !== 'production') {
+      return callback(null, true);
+    }
+    return callback(new Error(`CORS policy violation for origin: ${origin}`));
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+}));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// General API rate limiter protection
+app.use('/api/', apiLimiter);
 
 // Health Check API Endpoint
 app.get('/api/health', async (req, res) => {
@@ -78,10 +109,17 @@ app.use((err, req, res, next) => {
   res.status(500).json({ success: false, message: 'Internal Server Error: ' + err.message });
 });
 
-app.listen(PORT, () => {
-  console.log(`=======================================================`);
-  console.log(`🌸 FemSphere Node.js + Express REST API Server Running`);
-  console.log(`📡 URL: http://localhost:${PORT}`);
-  console.log(`🗄️ Database: PostgreSQL (femsphere_db)`);
-  console.log(`=======================================================`);
-});
+let server;
+const isTestEnv = process.env.NODE_ENV === 'test' || process.argv.some(arg => arg.includes('test'));
+if (!isTestEnv) {
+  server = app.listen(PORT, () => {
+    console.log(`=======================================================`);
+    console.log(`🌸 FemSphere Node.js + Express REST API Server Running`);
+    console.log(`📡 URL: http://localhost:${PORT}`);
+    console.log(`🗄️ Database: PostgreSQL (femsphere_db)`);
+    console.log(`=======================================================`);
+  });
+}
+
+export { app, server };
+export default app;

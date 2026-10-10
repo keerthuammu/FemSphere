@@ -14,12 +14,16 @@ import '../user/partner_sync_screen.dart';
 import '../user/notifications_screen.dart';
 import '../user/user_profile_screen.dart';
 import '../user/user_settings_screen.dart';
+import '../user/specialty_journeys_screen.dart';
+import '../../providers/life_stage_provider.dart';
 import '../../features/wearables/core/wearable_manager.dart';
 import '../../features/wearables/core/wearable_capabilities.dart';
 import '../../features/wearables/core/wearable_health_data.dart';
 import '../../features/wearables/services/wearable_sync_service.dart';
 import '../../features/wearables/screens/universal_wearables_screen.dart';
 import '../../features/wearables/screens/device_qr_scanner_screen.dart';
+import '../../services/api_service.dart';
+import '../user/medical_records_screen.dart';
 
 class UserDashboardScreen extends StatefulWidget {
   const UserDashboardScreen({super.key});
@@ -30,7 +34,7 @@ class UserDashboardScreen extends StatefulWidget {
 
 class _UserDashboardScreenState extends State<UserDashboardScreen> {
   int _selectedNavIndex = 0; // 0: Overview, 1: Period Tracker, 2: Fitness, 3: Vault
-  final int _healthScore = 92;
+  int _healthScore = 92;
   String _currentStageName = 'Reproductive Age (25–39)';
 
   // Wearables & Smartwatch Integration State
@@ -44,18 +48,22 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
   StreamSubscription? _activeDeviceSub;
 
   // Period Tracker State
-  final int _cycleDay = 4;
-  final int _totalCycleDays = 28;
-  final String _cyclePhase = 'Menstrual Phase 🩸';
-  final String _nextPeriodDate = 'Sep 18, 2026';
-  final String _fertileWindow = 'Sep 01 – Sep 06';
+  int _cycleDay = 4;
+  int _totalCycleDays = 28;
+  String _cyclePhase = 'Menstrual Phase 🩸';
+  String _nextPeriodDate = 'Sep 18, 2026';
+  String _fertileWindow = 'Sep 01 – Sep 06';
   String _selectedFlow = 'Medium';
 
   // Fitness & Healthify State
   final int _calorieBudget = 2000;
-  final int _foodCalories = 1340;
+  int _foodCalories = 1340;
   int _burnedCalories = 420;
   int _waterCups = 9; // 250ml per cup
+
+  // Live Vault & Dashboard sync state
+  List<dynamic> _medicalRecords = [];
+  bool _isLoadingDashboard = false;
 
   static const Color _roseColor = Color(0xFFF43F5E);
   static const Color _emeraldColor = Color(0xFF10B981);
@@ -66,6 +74,7 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
     super.initState();
     _autoConnectWatch();
     _loadWearableTelemetry();
+    _fetchLiveDashboardData();
 
     // Listen to real-time live heart rate broadcast from active watch adapter
     _liveHrSub = _wearableManager.liveHeartRateStream.listen((bpm) {
@@ -125,6 +134,90 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
     } catch (_) {}
   }
 
+  Future<void> _fetchLiveDashboardData() async {
+    if (!mounted) return;
+    setState(() => _isLoadingDashboard = true);
+    try {
+      final results = await Future.wait([
+        ApiService.getProfile().catchError((_) => <String, dynamic>{}),
+        ApiService.getVitals().catchError((_) => <dynamic>[]),
+        ApiService.getPeriodOverview().catchError((_) => <String, dynamic>{}),
+        ApiService.getMedicalRecords().catchError((_) => <dynamic>[]),
+      ]);
+
+      if (!mounted) return;
+
+      final profile = results[0] as Map<String, dynamic>;
+      final vitals = results[1] as List<dynamic>;
+      final period = results[2] as Map<String, dynamic>;
+      final records = results[3] as List<dynamic>;
+
+      setState(() {
+        if (profile.isNotEmpty) {
+          if (profile['life_stage'] != null) {
+            _currentStageName = profile['life_stage'].toString();
+          } else if (profile['lifeStage'] != null) {
+            _currentStageName = profile['lifeStage'].toString();
+          }
+          if (profile['health_score'] != null) {
+            _healthScore = int.tryParse(profile['health_score'].toString()) ?? _healthScore;
+          }
+        }
+
+        if (vitals.isNotEmpty) {
+          final latestVital = vitals.first as Map<String, dynamic>;
+          if (latestVital['water_intake_ml'] != null) {
+            final ml = (latestVital['water_intake_ml'] as num).toDouble();
+            _waterCups = (ml / 250).round();
+          }
+          if (latestVital['calories_consumed'] != null) {
+            _foodCalories = (latestVital['calories_consumed'] as num).toInt();
+          }
+          if (latestVital['calories_burned'] != null) {
+            _burnedCalories = (latestVital['calories_burned'] as num).toInt();
+          }
+        }
+
+        if (period.isNotEmpty) {
+          if (period['current_day'] != null) {
+            _cycleDay = int.tryParse(period['current_day'].toString()) ?? _cycleDay;
+          } else if (period['currentDay'] != null) {
+            _cycleDay = int.tryParse(period['currentDay'].toString()) ?? _cycleDay;
+          }
+          if (period['cycle_length'] != null) {
+            _totalCycleDays = int.tryParse(period['cycle_length'].toString()) ?? _totalCycleDays;
+          } else if (period['cycleLength'] != null) {
+            _totalCycleDays = int.tryParse(period['cycleLength'].toString()) ?? _totalCycleDays;
+          }
+          if (period['current_phase'] != null) {
+            _cyclePhase = period['current_phase'].toString();
+          } else if (period['currentPhase'] != null) {
+            _cyclePhase = period['currentPhase'].toString();
+          }
+          if (period['next_period_date'] != null) {
+            _nextPeriodDate = period['next_period_date'].toString();
+          } else if (period['nextPeriodDate'] != null) {
+            _nextPeriodDate = period['nextPeriodDate'].toString();
+          }
+          if (period['fertile_window'] != null) {
+            _fertileWindow = period['fertile_window'].toString();
+          } else if (period['fertileWindow'] != null) {
+            _fertileWindow = period['fertileWindow'].toString();
+          }
+        }
+
+        if (records.isNotEmpty) {
+          _medicalRecords = records;
+        }
+      });
+    } catch (_) {
+    } finally {
+      if (mounted) {
+        setState(() => _isLoadingDashboard = false);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final auth = Provider.of<AuthProvider>(context);
@@ -170,18 +263,29 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
               ),
             ),
             const SizedBox(width: 8),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF3E8FF),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Text(
-                '🌸 Patient',
-                style: TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF7C3AED),
+            GestureDetector(
+              onTap: () => _showLifeStageSelectionModal(context),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF3E8FF),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFE9D5FF)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: const [
+                    Text(
+                      '🌸 Stage',
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF7C3AED),
+                      ),
+                    ),
+                    SizedBox(width: 2),
+                    Icon(Icons.arrow_drop_down, size: 14, color: Color(0xFF7C3AED)),
+                  ],
                 ),
               ),
             ),
@@ -246,19 +350,28 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            
-            // TAB CONTENT
-            if (_selectedNavIndex == 0) _buildOverviewTab(remainingCalories),
-            if (_selectedNavIndex == 1) _buildPeriodTrackerTab(),
-            if (_selectedNavIndex == 2) _buildFitnessTab(remainingCalories),
-            if (_selectedNavIndex == 3) _buildVaultTab(),
-            if (_selectedNavIndex == 4) _buildProfileTab(user),
-          ],
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await Future.wait([
+            _fetchLiveDashboardData(),
+            _loadWearableTelemetry(),
+          ]);
+        },
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              
+              // TAB CONTENT
+              if (_selectedNavIndex == 0) _buildOverviewTab(remainingCalories),
+              if (_selectedNavIndex == 1) _buildPeriodTrackerTab(),
+              if (_selectedNavIndex == 2) _buildFitnessTab(remainingCalories),
+              if (_selectedNavIndex == 3) _buildVaultTab(),
+              if (_selectedNavIndex == 4) _buildProfileTab(user),
+            ],
+          ),
         ),
       ),
     );
@@ -902,13 +1015,65 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('📁 Encrypted Health Vault', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppTheme.textDark)),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('📁 Encrypted Health Vault', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppTheme.textDark)),
+              TextButton.icon(
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const MedicalRecordsScreen()));
+                },
+                icon: const Icon(Icons.open_in_new, size: 16, color: AppTheme.primaryPurple),
+                label: const Text('View All', style: TextStyle(color: AppTheme.primaryPurple, fontSize: 13, fontWeight: FontWeight.bold)),
+              ),
+            ],
+          ),
           const SizedBox(height: 14),
-          _buildVaultItem('Q3_Longitudinal_Blood_Panel.pdf', 'Lab Report • July 29, 2026', Icons.picture_as_pdf, Colors.red),
-          const SizedBox(height: 10),
-          _buildVaultItem('Pelvic_Ultrasound_Scan_Results.pdf', 'Imaging • June 14, 2026', Icons.document_scanner, Colors.purple),
-          const SizedBox(height: 10),
-          _buildVaultItem('OBGYN_Annual_Wellness_Consult.pdf', 'Clinical Note • May 02, 2026', Icons.medical_services, Colors.teal),
+          if (_medicalRecords.isNotEmpty)
+            ..._medicalRecords.take(4).map((rec) {
+              final title = (rec['title'] ?? rec['file_name'] ?? 'Medical Document').toString();
+              final category = (rec['category'] ?? 'Lab Report').toString();
+              final date = rec['uploaded_at'] != null ? rec['uploaded_at'].toString().split('T')[0] : (rec['date'] ?? 'Recent');
+              final isPdf = (rec['file_type'] ?? 'PDF').toString().toUpperCase().contains('PDF');
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: InkWell(
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const MedicalRecordsScreen()));
+                  },
+                  borderRadius: BorderRadius.circular(16),
+                  child: _buildVaultItem(
+                    title,
+                    '$category • $date',
+                    isPdf ? Icons.picture_as_pdf : Icons.document_scanner,
+                    isPdf ? Colors.red : Colors.purple,
+                  ),
+                ),
+              );
+            })
+          else ...[
+            _buildVaultItem('Q3_Longitudinal_Blood_Panel.pdf', 'Lab Report • July 29, 2026', Icons.picture_as_pdf, Colors.red),
+            const SizedBox(height: 10),
+            _buildVaultItem('Pelvic_Ultrasound_Scan_Results.pdf', 'Imaging • June 14, 2026', Icons.document_scanner, Colors.purple),
+            const SizedBox(height: 10),
+            _buildVaultItem('OBGYN_Annual_Wellness_Consult.pdf', 'Clinical Note • May 02, 2026', Icons.medical_services, Colors.teal),
+          ],
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const MedicalRecordsScreen()));
+              },
+              icon: const Icon(Icons.upload_file, size: 18),
+              label: const Text('Upload & Scan New Report'),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppTheme.primaryPurple,
+                side: const BorderSide(color: AppTheme.primaryPurple),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -1052,6 +1217,25 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
                   onTap: () {
                     Navigator.pop(context);
                     setState(() => _selectedNavIndex = 0);
+                  },
+                ),
+                _buildDrawerTile(
+                  title: 'Specialty Health Journeys',
+                  icon: Icons.auto_awesome,
+                  color: const Color(0xFFEC4899),
+                  badge: '7 Modes',
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const SpecialtyJourneysScreen()));
+                  },
+                ),
+                _buildDrawerTile(
+                  title: 'Switch Life Stage',
+                  icon: Icons.swap_horiz_rounded,
+                  color: const Color(0xFF8B5CF6),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _showLifeStageSelectionModal(context);
                   },
                 ),
                 _buildDrawerTile(
@@ -1856,46 +2040,57 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
           itemBuilder: (context, index) {
             final m = modes[index];
             final color = m['color'] as Color;
-            return Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: color.withValues(alpha: 0.2)),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.02),
-                    blurRadius: 6,
-                    offset: const Offset(0, 2),
+            return InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => SpecialtyJourneysScreen(initialJourney: m['title'] as String),
                   ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  Text(m['icon'] as String, style: const TextStyle(fontSize: 22)),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          m['title'] as String,
-                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppTheme.textDark),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          m['sub'] as String,
-                          style: const TextStyle(fontSize: 9, color: Colors.black45),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
+                );
+              },
+              borderRadius: BorderRadius.circular(16),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: color.withValues(alpha: 0.2)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.02),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
                     ),
-                  ),
-                ],
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Text(m['icon'] as String, style: const TextStyle(fontSize: 22)),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            m['title'] as String,
+                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppTheme.textDark),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            m['sub'] as String,
+                            style: const TextStyle(fontSize: 9, color: Colors.black45),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             );
           },
@@ -1985,6 +2180,134 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  void _showLifeStageSelectionModal(BuildContext context) {
+    final stages = [
+      {'code': 'EARLY_CHILDHOOD', 'name': 'Early Childhood (0–5 yrs)', 'icon': '👶'},
+      {'code': 'PRE_PUBERTY', 'name': 'Pre-Puberty (6–10 yrs)', 'icon': '👧'},
+      {'code': 'PUBERTY', 'name': 'Puberty & Development (11–13 yrs)', 'icon': '🌱'},
+      {'code': 'MENSTRUATING_ADOLESCENT', 'name': 'Adolescent Health (14–17 yrs)', 'icon': '🩸'},
+      {'code': 'YOUNG_ADULT', 'name': 'Young Adult (18–24 yrs)', 'icon': '✨'},
+      {'code': 'REPRODUCTIVE_AGE', 'name': 'Reproductive Age (25–39 yrs)', 'icon': '🌸'},
+      {'code': 'PREGNANCY', 'name': 'Pregnancy Journey', 'icon': '🤰'},
+      {'code': 'POSTPARTUM', 'name': 'Postpartum Recovery', 'icon': '🤱'},
+      {'code': 'PERIMENOPAUSE', 'name': 'Perimenopause', 'icon': '🌿'},
+      {'code': 'MENOPAUSE', 'name': 'Menopause Transition', 'icon': '🌙'},
+      {'code': 'OLDER_ADULT', 'name': 'Healthy Aging (60+ yrs)', 'icon': '👵'},
+    ];
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.all(24),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        ),
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF3E8FF),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(Icons.auto_awesome, color: AppTheme.primaryPurple, size: 20),
+                  ),
+                  const SizedBox(width: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: const [
+                      Text(
+                        'Select Active Life Stage',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.textDark),
+                      ),
+                      Text(
+                        'Dynamically adjusts AI insights & digital health twin',
+                        style: TextStyle(fontSize: 11, color: Colors.black54),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.of(context).size.height * 0.55,
+                ),
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  itemCount: stages.length,
+                  separatorBuilder: (_, __) => const Divider(height: 1),
+                  itemBuilder: (context, index) {
+                    final st = stages[index];
+                    final isCurrent = _currentStageName.toLowerCase().contains(st['code']!.toLowerCase()) ||
+                        _currentStageName.toLowerCase().contains(st['name']!.toLowerCase().split('(').first.trim());
+
+                    return ListTile(
+                      dense: true,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                      leading: Text(st['icon']!, style: const TextStyle(fontSize: 22)),
+                      title: Text(
+                        st['name']!,
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: isCurrent ? FontWeight.bold : FontWeight.w500,
+                          color: isCurrent ? AppTheme.primaryPurple : AppTheme.textDark,
+                        ),
+                      ),
+                      trailing: isCurrent
+                          ? const Icon(Icons.check_circle, color: AppTheme.primaryPurple, size: 18)
+                          : null,
+                      onTap: () async {
+                        Navigator.pop(ctx);
+                        setState(() {
+                          _currentStageName = st['name']!;
+                        });
+
+                        final auth = Provider.of<AuthProvider>(context, listen: false);
+                        final token = auth.token;
+                        if (token != null && token.isNotEmpty) {
+                          try {
+                            final lsp = Provider.of<LifeStageProvider>(context, listen: false);
+                            await lsp.setLifeStage(token, st['code']!);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Switched to ${st['name']} successfully!'),
+                                backgroundColor: AppTheme.primaryPurple,
+                              ),
+                            );
+                          } catch (_) {}
+                        }
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 

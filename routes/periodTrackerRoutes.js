@@ -11,6 +11,7 @@ import { authenticateToken } from '../middleware/auth.js';
 const router = express.Router();
 
 // User Period Tracking Routes
+router.get('/overview', authenticateToken, getPeriodSettings);
 router.get('/settings', authenticateToken, getPeriodSettings);
 router.post('/setup', authenticateToken, savePeriodSetup);
 router.post('/log', authenticateToken, logPeriodCycle);

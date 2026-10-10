@@ -4,9 +4,14 @@ import '../../models/medical_record_model.dart';
 import '../../services/api_service.dart';
 
 class CaregiverRecordsScreen extends StatefulWidget {
+  final int? dependentId;
   final String dependentName;
 
-  const CaregiverRecordsScreen({super.key, this.dependentName = 'Dependent'});
+  const CaregiverRecordsScreen({
+    super.key,
+    this.dependentId,
+    this.dependentName = 'Dependent',
+  });
 
   @override
   State<CaregiverRecordsScreen> createState() => _CaregiverRecordsScreenState();

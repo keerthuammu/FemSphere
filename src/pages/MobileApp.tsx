@@ -165,10 +165,16 @@ export default function MobileApp() {
   };
 
   return (
-    <MobileFrame>
-      <div className="min-h-full flex flex-col justify-between">
-        {/* Top App Bar with Search, SOS, Notifications & Theme Toggle */}
-        <TopAppBar />
+    <div className="flex flex-col items-center">
+      <div className="py-1 px-3 mb-2 rounded-full bg-purple-100/80 border border-purple-200 text-[11px] text-[#7C3AED] font-semibold flex items-center gap-2">
+        <span>📱 Interactive Mobile Simulator</span>
+        <span>•</span>
+        <a href="/dashboard" className="font-bold underline hover:text-[#6D28D9]">Desktop Portal ↗</a>
+      </div>
+      <MobileFrame>
+        <div className="min-h-full flex flex-col justify-between">
+          {/* Top App Bar with Search, SOS, Notifications & Theme Toggle */}
+          <TopAppBar />
 
         {/* Dynamic App Content Body */}
         <main className="flex-1 w-full pb-6">
@@ -190,5 +196,6 @@ export default function MobileApp() {
         <TelehealthView />
       </div>
     </MobileFrame>
+    </div>
   );
 }

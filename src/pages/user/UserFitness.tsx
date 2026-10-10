@@ -38,6 +38,7 @@ export default function UserFitness() {
   } = useUser();
 
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [streakDays, setStreakDays] = useState(0);
   const [completedExercises, setCompletedExercises] = useState<Record<string, boolean>>(() => {
     try {
       const todayKey = new Date().toISOString().slice(0, 10);
@@ -48,9 +49,37 @@ export default function UserFitness() {
     }
   });
 
-  const handleToggleComplete = (uniqueKey: string) => {
+  const fetchExerciseLogs = async () => {
+    try {
+      const token = localStorage.getItem('femsphere_token');
+      if (!token) return;
+      const res = await fetch('/api/users/exercises/logs', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success) {
+          if (data.completedMap && Object.keys(data.completedMap).length > 0) {
+            setCompletedExercises(prev => ({ ...prev, ...data.completedMap }));
+          }
+          if (data.streakDays !== undefined) {
+            setStreakDays(data.streakDays);
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('Error fetching exercise logs:', e);
+    }
+  };
+
+  React.useEffect(() => {
+    fetchExerciseLogs();
+  }, []);
+
+  const handleToggleComplete = async (uniqueKey: string, exName?: string, noteId?: number) => {
+    const nextState = !completedExercises[uniqueKey];
     setCompletedExercises((prev) => {
-      const updated = { ...prev, [uniqueKey]: !prev[uniqueKey] };
+      const updated = { ...prev, [uniqueKey]: nextState };
       try {
         const todayKey = new Date().toISOString().slice(0, 10);
         localStorage.setItem(`femsphere_completed_rx_exercises_${todayKey}`, JSON.stringify(updated));
@@ -59,12 +88,33 @@ export default function UserFitness() {
       }
       return updated;
     });
+
+    try {
+      const token = localStorage.getItem('femsphere_token');
+      if (token) {
+        await fetch('/api/users/exercises/toggle', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            exerciseKey: uniqueKey,
+            exerciseName: exName || uniqueKey,
+            consultationId: noteId || null,
+            completed: nextState
+          })
+        });
+      }
+    } catch (e) {
+      console.warn('Error syncing exercise toggle to backend:', e);
+    }
   };
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
     try {
-      await fetchConsultationNotes();
+      await Promise.all([fetchConsultationNotes(), fetchExerciseLogs()]);
     } finally {
       setTimeout(() => setIsRefreshing(false), 500);
     }
@@ -124,6 +174,13 @@ export default function UserFitness() {
 
         {/* Minimal Summary & Sync */}
         <div className="flex items-center gap-3 shrink-0">
+          <div className="bg-[#FAF8FC] px-4 py-2.5 rounded-2xl border border-[#EDE9FE] text-right">
+            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Compliance Streak</span>
+            <span className="text-sm font-bold text-emerald-600 flex items-center justify-end gap-1">
+              <Sparkles className="w-3.5 h-3.5 text-emerald-500" /> {streakDays} {streakDays === 1 ? 'Day' : 'Days'}
+            </span>
+          </div>
+
           <div className="bg-[#FAF8FC] px-4 py-2.5 rounded-2xl border border-[#EDE9FE] text-right">
             <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Active Orders</span>
             <span className="text-sm font-bold text-[#7C3AED]">
@@ -293,7 +350,7 @@ export default function UserFitness() {
                               {/* Toggle Completion */}
                               <button
                                 type="button"
-                                onClick={() => handleToggleComplete(itemKey)}
+                                onClick={() => handleToggleComplete(itemKey, ex.name, note.id)}
                                 className={`p-1.5 rounded-xl text-xs font-bold flex items-center gap-1 cursor-pointer transition-colors ${
                                   isCompleted 
                                     ? 'bg-emerald-600 text-white shadow-xs' 

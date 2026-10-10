@@ -84,6 +84,7 @@ CREATE TABLE IF NOT EXISTS doctors (
     hospital_clinic VARCHAR(200),
     years_experience INT DEFAULT 0 CHECK (years_experience >= 0 AND years_experience <= 70),
     approval_status VARCHAR(30) DEFAULT 'Pending' CHECK (approval_status IN ('Pending', 'Approved', 'Rejected', 'Suspended')),
+    schedule JSONB DEFAULT '{}'::jsonb,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -328,33 +329,6 @@ CREATE INDEX IF NOT EXISTS idx_ai_insights_user ON ai_insights(user_id, created_
 CREATE INDEX IF NOT EXISTS idx_audit_logs_user ON audit_logs(user_id, accessed_at DESC);
 
 -- ==============================================================================
--- MASTER REFERENCE SEED DATA (LIFE STAGES)
--- ==============================================================================
-INSERT INTO life_stages (code, name, description, min_age, max_age) VALUES
-('EARLY_CHILDHOOD', 'Early Childhood', '0-5 years pediatric growth, vaccination & milestone care', 0, 5),
-('PRE_PUBERTY', 'Pre-Puberty', '6-10 years growing & physical development phase', 6, 10),
-('PUBERTY', 'Puberty & Development', '11-13 years growing & changing, menstrual readiness', 11, 13),
-('MENSTRUATING_ADOLESCENT', 'Adolescent Health', '14-17 years cycle tracking, symptom & mood logging', 14, 17),
-('YOUNG_ADULT', 'Young Adult', '18-24 years holistic wellness, reproductive education', 18, 24),
-('REPRODUCTIVE_AGE', 'Reproductive Age', '25-39 years cycle intelligence, fertility & wellness', 25, 39),
-('PREGNANCY', 'Pregnancy Journey', 'Gestational age timeline, prenatal care & doctor checklist', 18, 50),
-('POSTPARTUM', 'Postpartum Recovery', 'Fourth trimester recovery, newborn support & mood logs', 18, 50),
-('PERIMENOPAUSE', 'Perimenopause', 'Hormonal shift tracking, hot flash & sleep pattern analysis', 40, 55),
-('MENOPAUSE', 'Menopause Transition', 'Midlife health support, bone density & heart wellness', 45, 65),
-('OLDER_ADULT', 'Healthy Aging', '60+ years vitals, medication adherence & elder support', 60, 120)
-ON CONFLICT (code) DO NOTHING;
-
--- ==============================================================================
--- INITIAL CORE SEED USERS & PROFILES
--- ==============================================================================
-INSERT INTO users (id, username, email, password_hash, role, status) VALUES
-(1, 'admin', 'admin@femsphere.health', 'admin_hash_2026', 'Admin (Superuser)', 'Active'),
-(2, 'elena_health', 'elena.rostova@femsphere.health', 'user_hash_2026', 'User (Female)', 'Active'),
-(3, 'marcus_cg', 'caregiver@femsphere.health', 'caregiver_hash_2026', 'Caregiver', 'Active'),
-(4, 'dr_jenkins', 'dr.jenkins@femsphere.health', 'doctor_hash_2026', 'Doctor', 'Active')
-ON CONFLICT (id) DO UPDATE SET email = EXCLUDED.email;
-
--- ==============================================================================
 -- DOMAIN 8: PERIOD & MENSTRUAL CYCLE TRACKING
 -- ==============================================================================
 CREATE TABLE IF NOT EXISTS period_settings (
@@ -383,4 +357,283 @@ CREATE TABLE IF NOT EXISTS period_cycles (
     notes TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+
+-- ==============================================================================
+-- DOMAIN 9: NOTIFICATIONS & UNIVERSAL WEARABLE TELEMETRY
+-- ==============================================================================
+-- 23. NOTIFICATIONS TABLE
+CREATE TABLE IF NOT EXISTS notifications (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    title VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL,
+    type VARCHAR(50) DEFAULT 'system',
+    is_read BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 24. SMARTWATCH_DEVICES TABLE (Universal Wearables Registry)
+CREATE TABLE IF NOT EXISTS smartwatch_devices (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    device_name VARCHAR(150) NOT NULL DEFAULT 'Smartwatch',
+    device_model VARCHAR(150) DEFAULT 'Unknown Model',
+    device_identifier VARCHAR(255) NOT NULL,
+    brand VARCHAR(50) DEFAULT 'AMAZFIT',
+    device_type VARCHAR(50) DEFAULT 'SMARTWATCH',
+    capabilities JSONB DEFAULT '{"heart_rate": true, "steps": true, "calories": true, "distance": true, "sleep": false, "spo2": false, "battery": true}'::jsonb,
+    mac_address VARCHAR(50),
+    firmware_version VARCHAR(50),
+    connection_status VARCHAR(50) DEFAULT 'DISCONNECTED',
+    battery_level INT CHECK (battery_level IS NULL OR (battery_level >= 0 AND battery_level <= 100)),
+    last_connected_at TIMESTAMP WITH TIME ZONE,
+    last_synced_at TIMESTAMP WITH TIME ZONE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT uq_user_device_identifier UNIQUE (user_id, device_identifier)
+);
+
+-- 25. SMARTWATCH_HEALTH_DATA TABLE (High-Frequency Biometric Ingestion)
+CREATE TABLE IF NOT EXISTS smartwatch_health_data (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    device_id INT REFERENCES smartwatch_devices(id) ON DELETE SET NULL,
+    recorded_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    heart_rate INT CHECK (heart_rate IS NULL OR (heart_rate >= 30 AND heart_rate <= 240)),
+    resting_heart_rate INT CHECK (resting_heart_rate IS NULL OR (resting_heart_rate >= 30 AND resting_heart_rate <= 150)),
+    steps INT CHECK (steps IS NULL OR steps >= 0),
+    calories NUMERIC(8,2) CHECK (calories IS NULL OR calories >= 0),
+    distance NUMERIC(8,2),
+    distance_meters NUMERIC(8,2),
+    sleep_duration INT,
+    sleep_duration_minutes INT,
+    spo2 INT CHECK (spo2 IS NULL OR (spo2 >= 50 AND spo2 <= 100)),
+    hrv_rmssd INT CHECK (hrv_rmssd IS NULL OR (hrv_rmssd >= 0 AND hrv_rmssd <= 300)),
+    stress_score INT CHECK (stress_score IS NULL OR (stress_score >= 0 AND stress_score <= 100)),
+    body_temperature NUMERIC(4,2) CHECK (body_temperature IS NULL OR (body_temperature >= 30.0 AND body_temperature <= 45.0)),
+    blood_pressure_systolic INT CHECK (blood_pressure_systolic IS NULL OR (blood_pressure_systolic >= 50 AND blood_pressure_systolic <= 250)),
+    blood_pressure_diastolic INT CHECK (blood_pressure_diastolic IS NULL OR (blood_pressure_diastolic >= 30 AND blood_pressure_diastolic <= 150)),
+    respiratory_rate NUMERIC(4,1) CHECK (respiratory_rate IS NULL OR (respiratory_rate >= 5.0 AND respiratory_rate <= 60.0)),
+    activity_type VARCHAR(100) DEFAULT 'General',
+    source VARCHAR(100) CHECK (length(source) > 0),
+    raw_payload JSONB DEFAULT '{}'::jsonb,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Wearable Views for Universal Compatibility
+CREATE OR REPLACE VIEW wearable_devices AS SELECT * FROM smartwatch_devices;
+CREATE OR REPLACE VIEW wearable_health_data AS SELECT * FROM smartwatch_health_data;
+
+-- ==============================================================================
+-- DOMAIN 10: PARTNER SHARING & COLLABORATIVE CARE
+-- ==============================================================================
+-- 26. PARTNER_CONNECTIONS TABLE
+CREATE TABLE IF NOT EXISTS partner_connections (
+    id SERIAL PRIMARY KEY,
+    patient_user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    partner_user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    status VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'accepted', 'rejected', 'revoked')),
+    relationship_type VARCHAR(50) DEFAULT 'Spouse / Partner',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    accepted_at TIMESTAMP WITH TIME ZONE,
+    revoked_at TIMESTAMP WITH TIME ZONE,
+    CONSTRAINT uq_patient_partner UNIQUE (patient_user_id, partner_user_id),
+    CONSTRAINT chk_different_users CHECK (patient_user_id <> partner_user_id)
+);
+
+-- 27. PARTNER_SHARING_PERMISSIONS TABLE
+CREATE TABLE IF NOT EXISTS partner_sharing_permissions (
+    id SERIAL PRIMARY KEY,
+    connection_id INT NOT NULL REFERENCES partner_connections(id) ON DELETE CASCADE,
+    data_type VARCHAR(50) NOT NULL,
+    permission VARCHAR(20) NOT NULL DEFAULT 'none' CHECK (permission IN ('none', 'view')),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT uq_connection_data_type UNIQUE (connection_id, data_type)
+);
+
+-- 28. PARTNER_TASKS TABLE
+CREATE TABLE IF NOT EXISTS partner_tasks (
+    id SERIAL PRIMARY KEY,
+    connection_id INT NOT NULL REFERENCES partner_connections(id) ON DELETE CASCADE,
+    created_by INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    assigned_to INT REFERENCES users(id) ON DELETE SET NULL,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    due_date TIMESTAMP WITH TIME ZONE,
+    status VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'in_progress', 'completed', 'cancelled')),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    completed_at TIMESTAMP WITH TIME ZONE
+);
+
+-- 29. SHARED_HEALTH_GOALS TABLE
+CREATE TABLE IF NOT EXISTS shared_health_goals (
+    id SERIAL PRIMARY KEY,
+    connection_id INT NOT NULL REFERENCES partner_connections(id) ON DELETE CASCADE,
+    created_by INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    title VARCHAR(255) NOT NULL,
+    target NUMERIC(10,2) NOT NULL,
+    current_value NUMERIC(10,2) DEFAULT 0,
+    unit VARCHAR(50) NOT NULL,
+    start_date DATE DEFAULT CURRENT_DATE,
+    end_date DATE,
+    status VARCHAR(20) NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'completed', 'paused')),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 32. TELEHEALTH_SESSIONS TABLE (Persistent Clinical Video Call Sessions)
+CREATE TABLE IF NOT EXISTS telehealth_sessions (
+    id SERIAL PRIMARY KEY,
+    appointment_id INT NOT NULL REFERENCES appointments(id) ON DELETE CASCADE,
+    doctor_id INT,
+    doctor_user_id INT,
+    doctor_name VARCHAR(255),
+    patient_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    patient_name VARCHAR(255),
+    specialization VARCHAR(255),
+    appointment_date VARCHAR(50),
+    appointment_time VARCHAR(50),
+    status VARCHAR(50) DEFAULT 'calling' CHECK (status IN ('calling', 'connected', 'declined', 'ended')),
+    started_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    connected_at TIMESTAMP WITH TIME ZONE,
+    ended_at TIMESTAMP WITH TIME ZONE,
+    room_id VARCHAR(255),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ==============================================================================
+-- INDEXES FOR DOMAINS 8, 9, 10, 11
+-- ==============================================================================
+CREATE INDEX IF NOT EXISTS idx_period_cycles_user_start ON period_cycles(user_id, start_date DESC);
+CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON notifications(user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_smartwatch_devices_user ON smartwatch_devices(user_id);
+CREATE INDEX IF NOT EXISTS idx_smartwatch_health_user_date ON smartwatch_health_data(user_id, recorded_at DESC);
+CREATE INDEX IF NOT EXISTS idx_partner_conn_patient ON partner_connections(patient_user_id, status);
+CREATE INDEX IF NOT EXISTS idx_partner_conn_partner ON partner_connections(partner_user_id, status);
+CREATE INDEX IF NOT EXISTS idx_partner_perm_conn ON partner_sharing_permissions(connection_id);
+CREATE INDEX IF NOT EXISTS idx_partner_tasks_conn ON partner_tasks(connection_id);
+CREATE INDEX IF NOT EXISTS idx_partner_goals_conn ON shared_health_goals(connection_id);
+CREATE INDEX IF NOT EXISTS idx_telehealth_apt ON telehealth_sessions(appointment_id);
+CREATE INDEX IF NOT EXISTS idx_telehealth_patient ON telehealth_sessions(patient_id, status);
+
+-- ==============================================================================
+-- MASTER REFERENCE SEED DATA (LIFE STAGES)
+-- ==============================================================================
+INSERT INTO life_stages (code, name, description, min_age, max_age) VALUES
+('EARLY_CHILDHOOD', 'Early Childhood', '0-5 years pediatric growth, vaccination & milestone care', 0, 5),
+('PRE_PUBERTY', 'Pre-Puberty', '6-10 years growing & physical development phase', 6, 10),
+('PUBERTY', 'Puberty & Development', '11-13 years growing & changing, menstrual readiness', 11, 13),
+('MENSTRUATING_ADOLESCENT', 'Adolescent Health', '14-17 years cycle tracking, symptom & mood logging', 14, 17),
+('YOUNG_ADULT', 'Young Adult', '18-24 years holistic wellness, reproductive education', 18, 24),
+('REPRODUCTIVE_AGE', 'Reproductive Age', '25-39 years cycle intelligence, fertility & wellness', 25, 39),
+('PREGNANCY', 'Pregnancy Journey', 'Gestational age timeline, prenatal care & doctor checklist', 18, 50),
+('POSTPARTUM', 'Postpartum Recovery', 'Fourth trimester recovery, newborn support & mood logs', 18, 50),
+('PERIMENOPAUSE', 'Perimenopause', 'Hormonal shift tracking, hot flash & sleep pattern analysis', 40, 55),
+('MENOPAUSE', 'Menopause Transition', 'Midlife health support, bone density & heart wellness', 45, 65),
+('OLDER_ADULT', 'Healthy Aging', '60+ years vitals, medication adherence & elder support', 60, 120)
+ON CONFLICT (code) DO NOTHING;
+
+-- ==============================================================================
+-- INITIAL CORE SEED USERS (Password: Password123!)
+-- Bcrypt Hash: $2b$10$po6K.4ZuAGnP6Lv.nIhc/Ocdyl9cwdDLXKU1qZewWAlFSFTTYvmke
+-- ==============================================================================
+INSERT INTO users (id, username, email, password_hash, role, status) VALUES
+(1, 'admin', 'admin@femsphere.health', '$2b$10$po6K.4ZuAGnP6Lv.nIhc/Ocdyl9cwdDLXKU1qZewWAlFSFTTYvmke', 'Admin (Superuser)', 'Active'),
+(2, 'elena_health', 'elena.rostova@femsphere.health', '$2b$10$po6K.4ZuAGnP6Lv.nIhc/Ocdyl9cwdDLXKU1qZewWAlFSFTTYvmke', 'User (Female)', 'Active'),
+(3, 'marcus_cg', 'caregiver@femsphere.health', '$2b$10$po6K.4ZuAGnP6Lv.nIhc/Ocdyl9cwdDLXKU1qZewWAlFSFTTYvmke', 'Caregiver', 'Active'),
+(4, 'dr_jenkins', 'dr.jenkins@femsphere.health', '$2b$10$po6K.4ZuAGnP6Lv.nIhc/Ocdyl9cwdDLXKU1qZewWAlFSFTTYvmke', 'Doctor', 'Active')
+ON CONFLICT (id) DO UPDATE SET 
+    email = EXCLUDED.email, 
+    password_hash = EXCLUDED.password_hash, 
+    role = EXCLUDED.role, 
+    status = EXCLUDED.status;
+
+-- USER PROFILES
+INSERT INTO user_profiles (id, user_id, full_name, dob, gender, blood_group, height_cm, weight_kg, marital_status, life_stage, wearable_device, emergency_contact_name, emergency_contact_phone) VALUES
+(1, 1, 'System Administrator', '1990-01-01', 'Other', 'O+', 175.0, 70.0, 'Single', 'Young Adult', 'None', 'Emergency Admin', '+1-555-0100'),
+(2, 2, 'Elena Rostova', '1996-04-12', 'Female', 'O+', 168.0, 58.0, 'Partnered', 'Reproductive Age', 'Apple Watch Series 9', 'Marcus Vance', '+1-555-0199'),
+(3, 3, 'Marcus Vance', '1992-08-20', 'Other', 'A+', 182.0, 78.0, 'Partnered', 'Reproductive Age', 'Amazfit GTR 4', 'Elena Rostova', '+1-555-0144'),
+(4, 4, 'Dr. Sarah Jenkins, MD', '1984-11-03', 'Female', 'B+', 165.0, 60.0, 'Married', 'Reproductive Age', 'Apple Watch Ultra', 'Hospital Security', '+1-555-0111')
+ON CONFLICT (user_id) DO UPDATE SET full_name = EXCLUDED.full_name;
+
+-- CAREGIVERS PROFILE
+INSERT INTO caregivers (id, user_id, caregiver_type, organization_name, emergency_phone) VALUES
+(1, 3, 'Partner / Spouse', 'Family Caregiver', '+1-555-0199')
+ON CONFLICT (user_id) DO UPDATE SET caregiver_type = EXCLUDED.caregiver_type;
+
+-- DEPENDENTS
+INSERT INTO dependents (id, caregiver_id, full_name, dob, relationship, blood_group, medical_notes) VALUES
+(1, 1, 'Maya Vance', '2021-06-15', 'Child / Daughter', 'A+', 'Mild eczema; up to date on pediatric vaccinations.')
+ON CONFLICT (id) DO UPDATE SET full_name = EXCLUDED.full_name;
+
+-- DOCTORS PROFILE
+INSERT INTO doctors (id, user_id, license_number, specialization, hospital_clinic, years_experience, approval_status, schedule) VALUES
+(1, 4, 'MD-948201', 'Obstetrics & Gynecology', 'Metropolitan Women’s Health Center', 14, 'Approved', '{"shifts": [{"day": "Monday", "startTime": "09:00 AM", "endTime": "05:00 PM", "maxPatients": 5}, {"day": "Tuesday", "startTime": "09:00 AM", "endTime": "05:00 PM", "maxPatients": 5}, {"day": "Wednesday", "startTime": "09:00 AM", "endTime": "05:00 PM", "maxPatients": 5}, {"day": "Thursday", "startTime": "09:00 AM", "endTime": "05:00 PM", "maxPatients": 5}, {"day": "Friday", "startTime": "09:00 AM", "endTime": "05:00 PM", "maxPatients": 5}], "slotDuration": "30 Minutes", "teleconsultFee": 75, "isUrgentCareOpen": true, "workingHours": "09:00 AM - 05:00 PM"}'::jsonb)
+ON CONFLICT (user_id) DO UPDATE SET 
+    license_number = EXCLUDED.license_number,
+    specialization = EXCLUDED.specialization,
+    approval_status = EXCLUDED.approval_status,
+    schedule = EXCLUDED.schedule;
+
+-- PERIOD SETTINGS & INITIAL CYCLE FOR ELENA
+INSERT INTO period_settings (id, user_id, last_period_start, period_duration, cycle_length, is_configured) VALUES
+(1, 2, CURRENT_DATE - INTERVAL '14 days', 5, 28, TRUE)
+ON CONFLICT (user_id) DO UPDATE SET last_period_start = EXCLUDED.last_period_start;
+
+INSERT INTO period_cycles (user_id, start_date, end_date, duration_days, cycle_length_days, status, flow_intensity, symptoms, mood, notes) VALUES
+(2, CURRENT_DATE - INTERVAL '14 days', CURRENT_DATE - INTERVAL '9 days', 5, 28, 'On Time', 'Medium', '["Mild Cramps", "Normal Energy"]'::jsonb, 'Calm', 'Regular cycle onset, tracking well with twin predictions.')
+ON CONFLICT DO NOTHING;
+
+-- PARTNER CONNECTION BETWEEN ELENA (PATIENT) AND MARCUS (PARTNER/CAREGIVER)
+INSERT INTO partner_connections (id, patient_user_id, partner_user_id, status, relationship_type, accepted_at) VALUES
+(1, 2, 3, 'accepted', 'Spouse', CURRENT_TIMESTAMP)
+ON CONFLICT (patient_user_id, partner_user_id) DO UPDATE SET status = 'accepted';
+
+-- PARTNER SHARING PERMISSIONS
+INSERT INTO partner_sharing_permissions (connection_id, data_type, permission) VALUES
+(1, 'cycle_information', 'view'),
+(1, 'fertility_information', 'view'),
+(1, 'pregnancy_information', 'view'),
+(1, 'appointments', 'view'),
+(1, 'health_goals', 'view'),
+(1, 'health_tracker', 'view'),
+(1, 'ai_health_insights', 'none'),
+(1, 'medications', 'none'),
+(1, 'medical_records', 'none'),
+(1, 'doctor_notes', 'none'),
+(1, 'vaccinations', 'none'),
+(1, 'prescriptions', 'none'),
+(1, 'physical_therapy', 'none')
+ON CONFLICT (connection_id, data_type) DO UPDATE SET permission = EXCLUDED.permission;
+
+-- SHARED PARTNER TASKS & GOALS
+INSERT INTO partner_tasks (id, connection_id, created_by, assigned_to, title, description, due_date, status) VALUES
+(1, 1, 2, 3, 'Attend ultrasound appointment together', 'OB-GYN prenatal scan with Dr. Jenkins', CURRENT_TIMESTAMP + INTERVAL '1 day', 'pending'),
+(2, 1, 2, 3, 'Evening walk together', '45 min relaxed walk to reach daily step goal', CURRENT_TIMESTAMP + INTERVAL '8 hours', 'pending'),
+(3, 1, 3, 2, 'Hydration reminder check-in', 'Help achieve 8 glasses target today', CURRENT_TIMESTAMP + INTERVAL '4 hours', 'completed')
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO shared_health_goals (id, connection_id, created_by, title, target, current_value, unit, status) VALUES
+(1, 1, 2, 'Daily Hydration Goal', 8.0, 6.0, 'glasses', 'active'),
+(2, 1, 3, 'Daily Steps Together', 8000.0, 6200.0, 'steps', 'active'),
+(3, 1, 2, 'Weekly Healthy Home Cooking', 5.0, 3.0, 'meals', 'active')
+ON CONFLICT (id) DO NOTHING;
+
+-- ==============================================================================
+-- DOMAIN 11: PATIENT PRESCRIBED PHYSICAL THERAPY & EXERCISE COMPLIANCE
+-- ==============================================================================
+CREATE TABLE IF NOT EXISTS patient_exercise_logs (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    consultation_id INT REFERENCES consultation_notes(id) ON DELETE SET NULL,
+    exercise_name VARCHAR(255) NOT NULL,
+    exercise_key VARCHAR(255) NOT NULL,
+    completed_date DATE NOT NULL DEFAULT CURRENT_DATE,
+    completed BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT uq_user_exercise_day UNIQUE (user_id, exercise_key, completed_date)
+);
+
+CREATE INDEX IF NOT EXISTS idx_exercise_logs_user_date ON patient_exercise_logs(user_id, completed_date DESC);
+
 

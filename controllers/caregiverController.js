@@ -79,11 +79,79 @@ export const getVaccinations = async (req, res) => {
   }
 };
 
+export const addVaccination = async (req, res) => {
+  try {
+    const dependentId = req.params.dependentId;
+    const { vaccineName, name, vaccine, administeredDate, date, nextDueDate, nextDue, dueDate } = req.body;
+    const vName = vaccineName || name || vaccine;
+    const vDate = administeredDate || date || new Date().toISOString().split('T')[0];
+    const vNextDue = nextDueDate || nextDue || dueDate || null;
+
+    if (!vName) {
+      return res.status(400).json({ success: false, message: 'Vaccine name is required.' });
+    }
+
+    const result = await pool.query(
+      `INSERT INTO vaccinations (dependent_id, vaccine_name, administered_date, next_due_date)
+       VALUES ($1, $2, $3, $4) RETURNING *`,
+      [dependentId, vName, vDate, vNextDue]
+    );
+
+    res.status(201).json({ success: true, message: 'Vaccination recorded successfully.', vaccination: result.rows[0] });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+export const deleteVaccination = async (req, res) => {
+  try {
+    const { dependentId, vacId } = req.params;
+    await pool.query('DELETE FROM vaccinations WHERE id = $1 AND dependent_id = $2', [vacId, dependentId]);
+    res.json({ success: true, message: 'Vaccination record deleted.' });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
 export const getMedications = async (req, res) => {
   try {
     const dependentId = req.params.dependentId;
     const result = await pool.query('SELECT * FROM medications WHERE dependent_id = $1 ORDER BY id DESC', [dependentId]);
     res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+export const addMedication = async (req, res) => {
+  try {
+    const dependentId = req.params.dependentId;
+    const { medicineName, name, medicine, dosage, scheduleTime, time, frequency } = req.body;
+    const mName = medicineName || name || medicine;
+    const mDosage = dosage || '1 tablet';
+    const mTime = scheduleTime || time || frequency || '08:00 AM Daily';
+
+    if (!mName) {
+      return res.status(400).json({ success: false, message: 'Medicine name is required.' });
+    }
+
+    const result = await pool.query(
+      `INSERT INTO medications (dependent_id, medicine_name, dosage, schedule_time)
+       VALUES ($1, $2, $3, $4) RETURNING *`,
+      [dependentId, mName, mDosage, mTime]
+    );
+
+    res.status(201).json({ success: true, message: 'Medication added successfully.', medication: result.rows[0] });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+export const deleteMedication = async (req, res) => {
+  try {
+    const { dependentId, medId } = req.params;
+    await pool.query('DELETE FROM medications WHERE id = $1 AND dependent_id = $2', [medId, dependentId]);
+    res.json({ success: true, message: 'Medication removed.' });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }

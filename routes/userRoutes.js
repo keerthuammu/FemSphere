@@ -8,7 +8,9 @@ import {
   markNotificationAsRead,
   markAllNotificationsAsRead,
   deleteNotification,
-  getUserConsultationNotes
+  getUserConsultationNotes,
+  getExerciseLogs,
+  toggleExerciseLog
 } from '../controllers/userController.js';
 import { authenticateToken } from '../middleware/auth.js';
 
@@ -20,6 +22,10 @@ router.put('/profile', authenticateToken, updateUserProfile);
 
 // User Consultations & Prescriptions
 router.get('/consultations', authenticateToken, getUserConsultationNotes);
+
+// Physical Therapy & Exercise Logs
+router.get('/exercises/logs', authenticateToken, getExerciseLogs);
+router.post('/exercises/toggle', authenticateToken, toggleExerciseLog);
 
 // User Notifications
 router.get('/notifications', authenticateToken, getUserNotifications);

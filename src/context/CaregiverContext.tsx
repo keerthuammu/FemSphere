@@ -440,32 +440,49 @@ export function CaregiverProvider({ children }: { children: React.ReactNode }) {
     };
 
     let serverRecordId: string | null = null;
+    let serverScanResults = scanResultsObj;
     try {
       const token = localStorage.getItem('femsphere_token');
       if (token) {
-        const res = await fetch('/api/medical-records/upload', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({
-            title: cleanName,
-            fileName: form.fileName || `${cleanName.replace(/\s+/g, '_')}.${fileExt.toLowerCase()}`,
-            fileType: fileExt,
-            category: form.category || 'Lab Diagnostics',
-            description: form.description || `Medical report for ${form.dependent}`,
-            dependentName: form.dependent,
-            fileData: form.fileData || null,
-            fileSize: form.file ? form.file.size : 1600000,
-            isScanned: true,
-            scanResults: scanResultsObj
-          })
-        });
+        let res;
+        if (form.file) {
+          const formData = new FormData();
+          formData.append('file', form.file);
+          formData.append('title', cleanName);
+          formData.append('category', form.category || 'Lab Diagnostics');
+          formData.append('description', form.description || `Medical report for ${form.dependent}`);
+          formData.append('dependentName', form.dependent);
+          res = await fetch('/api/medical-records/upload', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` },
+            body: formData
+          });
+        } else {
+          res = await fetch('/api/medical-records/upload', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              title: cleanName,
+              fileName: form.fileName || `${cleanName.replace(/\s+/g, '_')}.${fileExt.toLowerCase()}`,
+              fileType: fileExt,
+              category: form.category || 'Lab Diagnostics',
+              description: form.description || `Medical report for ${form.dependent}`,
+              dependentName: form.dependent,
+              fileData: form.fileData || null,
+              fileSize: 1600000
+            })
+          });
+        }
         if (res.ok) {
           const data = await res.json();
           if (data.success && data.record) {
             serverRecordId = String(data.record.id);
+            if (data.record.scan_results) {
+              serverScanResults = typeof data.record.scan_results === 'string' ? JSON.parse(data.record.scan_results) : data.record.scan_results;
+            }
           }
         }
       }
@@ -485,7 +502,7 @@ export function CaregiverProvider({ children }: { children: React.ReactNode }) {
       fileData: form.fileData,
       fileName: form.fileName || `${cleanName.replace(/\s+/g, '_')}.${fileExt.toLowerCase()}`,
       isScanned: true,
-      scanResults: scanResultsObj
+      scanResults: serverScanResults
     };
 
     const updated = [added, ...records];
@@ -522,7 +539,100 @@ export function CaregiverProvider({ children }: { children: React.ReactNode }) {
     }
   });
 
-  const addVaccination = (vac: { dependent: string; vaccineName: string; date: string; nextDueDate: string }) => {
+  const fetchDependentMedicalSchedules = async (deps: Dependent[]) => {
+    const token = localStorage.getItem('femsphere_token');
+    if (!token || !deps.length) return;
+    try {
+      const allVacs: Vaccination[] = [];
+      const allMeds: Medication[] = [];
+      for (const d of deps) {
+        if (d.id.startsWith('DEP-')) continue;
+        const [vacRes, medRes] = await Promise.all([
+          fetch(`/api/caregivers/dependents/${d.id}/vaccinations`, { headers: { 'Authorization': `Bearer ${token}` } }),
+          fetch(`/api/caregivers/dependents/${d.id}/medications`, { headers: { 'Authorization': `Bearer ${token}` } })
+        ]);
+        if (vacRes.ok) {
+          const vData = await vacRes.json();
+          if (Array.isArray(vData) && vData.length > 0) {
+            vData.forEach((v: any) => {
+              allVacs.push({
+                id: String(v.id),
+                dependent: d.name,
+                vaccineName: v.vaccine_name,
+                date: String(v.administered_date).split('T')[0],
+                nextDueDate: v.next_due_date ? String(v.next_due_date).split('T')[0] : ''
+              });
+            });
+          }
+        }
+        if (medRes.ok) {
+          const mData = await medRes.json();
+          if (Array.isArray(mData) && mData.length > 0) {
+            mData.forEach((m: any) => {
+              allMeds.push({
+                id: String(m.id),
+                dependent: d.name,
+                medicineName: m.medicine_name,
+                dosage: m.dosage,
+                time: m.schedule_time
+              });
+            });
+          }
+        }
+      }
+      if (allVacs.length > 0) {
+        setVaccinations(allVacs);
+        try { localStorage.setItem('femsphere_caregiver_vaccinations', JSON.stringify(allVacs)); } catch (e) {}
+      }
+      if (allMeds.length > 0) {
+        setMedications(allMeds);
+        try { localStorage.setItem('femsphere_caregiver_medications', JSON.stringify(allMeds)); } catch (e) {}
+      }
+    } catch (e) {
+      console.warn('Error fetching dependent schedules:', e);
+    }
+  };
+
+  useEffect(() => {
+    if (dependents.length > 0) {
+      fetchDependentMedicalSchedules(dependents);
+    }
+  }, [dependents]);
+
+  const addVaccination = async (vac: { dependent: string; vaccineName: string; date: string; nextDueDate: string }) => {
+    try {
+      const token = localStorage.getItem('femsphere_token');
+      const targetDep = dependents.find(d => d.name === vac.dependent) || dependents[0];
+      const depId = targetDep?.id && !targetDep.id.startsWith('DEP-') ? targetDep.id : '1';
+      if (token) {
+        const res = await fetch(`/api/caregivers/dependents/${depId}/vaccinations`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({
+            vaccineName: vac.vaccineName,
+            administeredDate: vac.date,
+            nextDueDate: vac.nextDueDate
+          })
+        });
+        const data = await res.json();
+        if (data.success && data.vaccination) {
+          const added: Vaccination = {
+            id: String(data.vaccination.id),
+            dependent: vac.dependent,
+            vaccineName: data.vaccination.vaccine_name,
+            date: String(data.vaccination.administered_date).split('T')[0],
+            nextDueDate: data.vaccination.next_due_date ? String(data.vaccination.next_due_date).split('T')[0] : vac.nextDueDate
+          };
+          const updated = [...vaccinations, added];
+          setVaccinations(updated);
+          try { localStorage.setItem('femsphere_caregiver_vaccinations', JSON.stringify(updated)); } catch (e) {}
+          return;
+        }
+      }
+    } catch (e) {
+      console.warn('API error recording vaccination:', e);
+    }
+
     const added: Vaccination = { ...vac, id: `VAC-0${vaccinations.length + 1}` };
     const updated = [...vaccinations, added];
     setVaccinations(updated);
@@ -531,7 +641,21 @@ export function CaregiverProvider({ children }: { children: React.ReactNode }) {
     } catch (e) {}
   };
 
-  const deleteVaccination = (id: string) => {
+  const deleteVaccination = async (id: string) => {
+    try {
+      const token = localStorage.getItem('femsphere_token');
+      if (token && !id.startsWith('VAC-')) {
+        const targetDep = dependents[0];
+        const depId = targetDep?.id && !targetDep.id.startsWith('DEP-') ? targetDep.id : '1';
+        await fetch(`/api/caregivers/dependents/${depId}/vaccinations/${id}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+      }
+    } catch (e) {
+      console.warn('API error deleting vaccination:', e);
+    }
+
     const updated = vaccinations.filter(v => v.id !== id);
     setVaccinations(updated);
     try {
@@ -549,7 +673,40 @@ export function CaregiverProvider({ children }: { children: React.ReactNode }) {
     }
   });
 
-  const addMedication = (med: { dependent: string; medicineName: string; dosage: string; time: string }) => {
+  const addMedication = async (med: { dependent: string; medicineName: string; dosage: string; time: string }) => {
+    try {
+      const token = localStorage.getItem('femsphere_token');
+      const targetDep = dependents.find(d => d.name === med.dependent) || dependents[0];
+      const depId = targetDep?.id && !targetDep.id.startsWith('DEP-') ? targetDep.id : '1';
+      if (token) {
+        const res = await fetch(`/api/caregivers/dependents/${depId}/medications`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({
+            medicineName: med.medicineName,
+            dosage: med.dosage,
+            scheduleTime: med.time
+          })
+        });
+        const data = await res.json();
+        if (data.success && data.medication) {
+          const added: Medication = {
+            id: String(data.medication.id),
+            dependent: med.dependent,
+            medicineName: data.medication.medicine_name,
+            dosage: data.medication.dosage,
+            time: data.medication.schedule_time
+          };
+          const updated = [...medications, added];
+          setMedications(updated);
+          try { localStorage.setItem('femsphere_caregiver_medications', JSON.stringify(updated)); } catch (e) {}
+          return;
+        }
+      }
+    } catch (e) {
+      console.warn('API error recording medication:', e);
+    }
+
     const added: Medication = { ...med, id: `MED-0${medications.length + 1}` };
     const updated = [...medications, added];
     setMedications(updated);
@@ -558,7 +715,21 @@ export function CaregiverProvider({ children }: { children: React.ReactNode }) {
     } catch (e) {}
   };
 
-  const deleteMedication = (id: string) => {
+  const deleteMedication = async (id: string) => {
+    try {
+      const token = localStorage.getItem('femsphere_token');
+      if (token && !id.startsWith('MED-')) {
+        const targetDep = dependents[0];
+        const depId = targetDep?.id && !targetDep.id.startsWith('DEP-') ? targetDep.id : '1';
+        await fetch(`/api/caregivers/dependents/${depId}/medications/${id}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+      }
+    } catch (e) {
+      console.warn('API error deleting medication:', e);
+    }
+
     const updated = medications.filter(m => m.id !== id);
     setMedications(updated);
     try {

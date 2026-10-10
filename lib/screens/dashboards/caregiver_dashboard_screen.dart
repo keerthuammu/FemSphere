@@ -173,13 +173,22 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
 
   Widget _buildSelectedBody(String caregiverName) {
     if (_selectedNavIndex == 1) {
-      return MedicationsScreen(dependentName: _activeDependent.fullName);
+      return MedicationsScreen(
+        dependentId: _activeDependent.id,
+        dependentName: _activeDependent.fullName,
+      );
     }
     if (_selectedNavIndex == 2) {
-      return VaccinationsScreen(dependentName: _activeDependent.fullName);
+      return VaccinationsScreen(
+        dependentId: _activeDependent.id,
+        dependentName: _activeDependent.fullName,
+      );
     }
     if (_selectedNavIndex == 3) {
-      return CaregiverRecordsScreen(dependentName: _activeDependent.fullName);
+      return CaregiverRecordsScreen(
+        dependentId: _activeDependent.id,
+        dependentName: _activeDependent.fullName,
+      );
     }
 
     // Default: Tab 0 Overview

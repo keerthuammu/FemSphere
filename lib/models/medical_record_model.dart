@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class MedicalRecordModel {
   final int id;
   final String title;
@@ -9,6 +11,7 @@ class MedicalRecordModel {
   final String? summary;
   final bool isSharedWithDoctor;
   final int? dependentId;
+  final Map<String, dynamic>? scanResults;
 
   MedicalRecordModel({
     required this.id,
@@ -21,6 +24,7 @@ class MedicalRecordModel {
     this.summary,
     this.isSharedWithDoctor = true,
     this.dependentId,
+    this.scanResults,
   });
 
   factory MedicalRecordModel.fromJson(Map<String, dynamic> json) {
@@ -39,6 +43,18 @@ class MedicalRecordModel {
       sizeStr = '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
     }
 
+    Map<String, dynamic>? parsedScan;
+    if (json['scan_results'] is Map) {
+      parsedScan = Map<String, dynamic>.from(json['scan_results'] as Map);
+    } else if (json['scanResults'] is Map) {
+      parsedScan = Map<String, dynamic>.from(json['scanResults'] as Map);
+    } else if (json['scan_results'] is String && (json['scan_results'] as String).isNotEmpty) {
+      try {
+        final decoded = jsonDecode(json['scan_results'] as String);
+        if (decoded is Map) parsedScan = Map<String, dynamic>.from(decoded);
+      } catch (_) {}
+    }
+
     return MedicalRecordModel(
       id: json['id'] is int ? json['id'] : int.tryParse(json['id'].toString()) ?? 0,
       title: json['title'] ?? json['file_name'] ?? 'Medical Document',
@@ -50,6 +66,7 @@ class MedicalRecordModel {
       summary: json['summary'] ?? json['description'] ?? json['notes'],
       isSharedWithDoctor: json['isSharedWithDoctor'] ?? json['is_shared'] ?? true,
       dependentId: json['dependentId'] ?? json['dependent_id'],
+      scanResults: parsedScan,
     );
   }
 
@@ -65,6 +82,7 @@ class MedicalRecordModel {
       'summary': summary,
       'isSharedWithDoctor': isSharedWithDoctor,
       'dependentId': dependentId,
+      'scanResults': scanResults,
     };
   }
 
@@ -79,6 +97,7 @@ class MedicalRecordModel {
     String? summary,
     bool? isSharedWithDoctor,
     int? dependentId,
+    Map<String, dynamic>? scanResults,
   }) {
     return MedicalRecordModel(
       id: id ?? this.id,
@@ -91,6 +110,7 @@ class MedicalRecordModel {
       summary: summary ?? this.summary,
       isSharedWithDoctor: isSharedWithDoctor ?? this.isSharedWithDoctor,
       dependentId: dependentId ?? this.dependentId,
+      scanResults: scanResults ?? this.scanResults,
     );
   }
 }

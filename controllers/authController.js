@@ -334,3 +334,111 @@ export const getMe = async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
+
+export const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email || !email.trim()) {
+      return res.status(400).json({ success: false, message: 'Valid email address is required.' });
+    }
+
+    const userRes = await pool.query(
+      'SELECT id, username, email FROM users WHERE LOWER(email) = LOWER($1)',
+      [email.trim()]
+    );
+
+    if (userRes.rows.length === 0) {
+      // Obfuscated response to prevent email harvesting
+      return res.json({
+        success: true,
+        message: 'If an account exists with that email address, a password reset authorization has been generated.'
+      });
+    }
+
+    const user = userRes.rows[0];
+    const resetToken = jwt.sign(
+      { id: user.id, email: user.email, type: 'pwd_reset' },
+      JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+
+    res.json({
+      success: true,
+      message: 'Password reset token generated successfully. Valid for 60 minutes.',
+      resetToken,
+      instructions: 'Submit this resetToken and newPassword to POST /api/auth/reset-password.'
+    });
+  } catch (err) {
+    console.error('Forgot Password Error:', err);
+    res.status(500).json({ success: false, message: 'Server error during forgot-password: ' + err.message });
+  }
+};
+
+export const resetPassword = async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+    if (!token || !newPassword) {
+      return res.status(400).json({ success: false, message: 'Reset token and newPassword are required.' });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({ success: false, message: 'Password must be at least 6 characters long.' });
+    }
+
+    let decoded;
+    try {
+      decoded = jwt.verify(token, JWT_SECRET);
+    } catch (jwtErr) {
+      return res.status(400).json({ success: false, message: 'Invalid or expired password reset token: ' + jwtErr.message });
+    }
+
+    if (decoded.type !== 'pwd_reset') {
+      return res.status(400).json({ success: false, message: 'Invalid token type for password reset.' });
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, 10);
+    const updateRes = await pool.query(
+      'UPDATE users SET password_hash = $1 WHERE id = $2 RETURNING id, username, email',
+      [passwordHash, decoded.id]
+    );
+
+    if (updateRes.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'User not found.' });
+    }
+
+    res.json({
+      success: true,
+      message: 'Password has been successfully updated. You may now log in with your new credentials.'
+    });
+  } catch (err) {
+    console.error('Reset Password Error:', err);
+    res.status(500).json({ success: false, message: 'Server error during reset-password: ' + err.message });
+  }
+};
+
+export const refreshToken = async (req, res) => {
+  try {
+    const authHeader = req.headers['authorization'];
+    const currentToken = authHeader && authHeader.split(' ')[1];
+    if (!currentToken) {
+      return res.status(401).json({ success: false, message: 'Authorization token required.' });
+    }
+
+    const decoded = jwt.verify(currentToken, JWT_SECRET);
+    const userRes = await pool.query('SELECT id, username, email, role, status FROM users WHERE id = $1', [decoded.id]);
+    if (userRes.rows.length === 0 || (userRes.rows[0].status && userRes.rows[0].status.toLowerCase() !== 'active')) {
+      return res.status(403).json({ success: false, message: 'User account is invalid or suspended.' });
+    }
+
+    const user = userRes.rows[0];
+    const newToken = jwt.sign(
+      { id: user.id, username: user.username, email: user.email, role: user.role },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    res.json({ success: true, token: newToken, user });
+  } catch (err) {
+    res.status(401).json({ success: false, message: 'Token refresh failed: ' + err.message });
+  }
+};

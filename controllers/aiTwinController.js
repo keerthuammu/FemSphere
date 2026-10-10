@@ -1,5 +1,5 @@
 import pool from '../config/db.js';
-import { generateAIHealthTwinInsights } from '../services/aiHealthTwinService.js';
+import { generateAIHealthTwinInsights, chatWithHealthTwin } from '../services/aiHealthTwinService.js';
 
 export const getAIInsights = async (req, res) => {
   try {
@@ -26,6 +26,26 @@ export const generateInsights = async (req, res) => {
     const userId = req.user.id;
     const insights = await generateAIHealthTwinInsights(userId);
     res.json({ success: true, insights });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+export const chatWithTwin = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { message, history } = req.body;
+
+    if (!message || !message.trim()) {
+      return res.status(400).json({ success: false, message: 'Message query is required.' });
+    }
+
+    const response = await chatWithHealthTwin(userId, message.trim(), history || []);
+    res.json({
+      success: true,
+      reply: response.text,
+      suggestedQuestions: response.suggestedQuestions
+    });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }

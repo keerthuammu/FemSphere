@@ -46,14 +46,17 @@ async function initPostgreSQL() {
     'life_stages', 'user_life_stages', 'health_tracker', 'symptoms',
     'medical_records', 'appointments', 'health_reports', 'consultation_notes',
     'health_articles', 'vaccinations', 'medications', 'relationships',
-    'consents', 'permissions', 'health_events', 'ai_insights', 'audit_logs'
+    'consents', 'permissions', 'health_events', 'ai_insights', 'audit_logs',
+    'period_settings', 'period_cycles', 'notifications', 'smartwatch_devices',
+    'smartwatch_health_data', 'partner_connections', 'partner_sharing_permissions',
+    'partner_tasks', 'shared_health_goals', 'patient_exercise_logs', 'telehealth_sessions'
   ];
   for (const t of tables) {
     try {
       await client.query(`SELECT setval('${t}_id_seq', COALESCE((SELECT MAX(id) FROM ${t}), 1))`);
     } catch (e) {}
   }
-  console.log('PostgreSQL sequences synchronized for all 22 tables!');
+  console.log(`PostgreSQL sequences synchronized for all ${tables.length} tables!`);
 
   const tablesResult = await client.query(`
     SELECT table_name 

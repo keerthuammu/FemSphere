@@ -101,31 +101,83 @@ The database schema (`config/db.js`) includes full relational integrity:
 ### Environment Configuration (`.env`)
 ```env
 PORT=5001
+NODE_ENV=development
+CLIENT_URL=http://localhost:3000
 DB_HOST=127.0.0.1
 DB_PORT=5432
 DB_NAME=femsphere_db
 DB_USER=postgres
 DB_PASSWORD=postgres
-JWT_SECRET=femsphere_secret_key_2026
+JWT_SECRET=femsphere_production_secret_key_2026
+GEMINI_API_KEY=your_gemini_api_key_here
 ```
 
-### Installation & Run
+### Option A: Quickstart with Docker Compose (Recommended)
+Spin up PostgreSQL 16, Node.js Express REST API, and React Vite Frontend with a single command:
+```bash
+docker-compose up --build
+```
+- **Web Application:** `http://localhost:3000`
+- **Backend API:** `http://localhost:5001/api`
+- **PostgreSQL Database:** Port `5432` (`femsphere_db`)
+
+### Option B: Local Development Setup
 
 ```bash
-# 1. Install dependencies
+# 1. Install Node.js dependencies
 npm install
 
-# 2. Start the Express REST API backend (Port 5001)
+# 2. Initialize PostgreSQL Schema and Master Demo Seeds
+node init_db.js
+
+# 3. Start Express REST API Server (Port 5001)
 npm run server
 
-# 3. In a separate terminal, start the Vite frontend (Port 3000)
+# 4. In a separate terminal, start Vite Web Application (Port 3000)
 npm run dev
 
-# 4. Build for production
+# 5. Build for production
 npm run build
 ```
 
-The web application will be accessible at **`http://localhost:3000`**.
+---
+
+## 📱 Flutter Mobile Application
+
+The native cross-platform mobile client for Android and iOS is located directly in the workspace (`lib/`):
+
+```bash
+# 1. Get Flutter dependencies
+flutter pub get
+
+# 2. Run automated Flutter smoke & widget tests
+flutter test
+
+# 3. Launch on connected Android device or iOS simulator
+flutter run
+```
+
+---
+
+## 🧪 Automated Testing & QA
+
+### 1. Backend REST API Tests (Node.js Native Test Runner)
+```bash
+npm test
+```
+Runs 11 automated test cases verifying `/api/health`, auth tokens, password reset flows, appointments, period tracker metrics, and HIPAA audit trails.
+
+### 2. Full Test Suite (Backend + Flutter)
+```bash
+npm run test:all
+```
+
+### 3. Mobile End-to-End Appium Automated Test Suite (Python)
+Automated UI test suite for Android 14 containing 40 end-to-end test cases across 7 suites:
+```bash
+pip install -r tests/appium/requirements.txt
+pytest tests/appium --html=tests/appium/reports/test_report.html -v
+```
 
 ---
 

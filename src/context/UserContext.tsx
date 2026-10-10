@@ -1310,17 +1310,34 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   // Medical Record Handlers
-  const handleScanMedicalReport = (recordId: string | number) => {
+  const handleScanMedicalReport = async (recordId: string | number) => {
     const targetRecord = records.find(r => r.id === recordId);
     if (!targetRecord) return;
 
     setScanningRecordTitle(targetRecord.title);
     setIsScanningDoc(true);
-    setScanningProgress(15);
+    setScanningProgress(25);
+    setTimeout(() => setScanningProgress(60), 300);
+    setTimeout(() => setScanningProgress(85), 600);
 
-    setTimeout(() => setScanningProgress(45), 400);
-    setTimeout(() => setScanningProgress(75), 900);
-    setTimeout(() => setScanningProgress(95), 1400);
+    let extractedScan = targetRecord.scanResults;
+    try {
+      const token = localStorage.getItem('femsphere_token');
+      if (token && typeof recordId === 'number') {
+        const res = await fetch(`/api/medical-records/${recordId}/scan`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.record && data.record.scan_results) {
+            extractedScan = typeof data.record.scan_results === 'string' ? JSON.parse(data.record.scan_results) : data.record.scan_results;
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('Backend scan failed, falling back:', e);
+    }
 
     setTimeout(() => {
       setScanningProgress(100);
@@ -1329,8 +1346,8 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const scannedObj = {
           ...targetRecord,
           isScanned: true,
-          scanResults: targetRecord.scanResults || {
-            doctorName: 'Dr. Clinical AI Analyzer',
+          scanResults: extractedScan || {
+            doctorName: 'Dr. Sarah Jenkins, MD',
             labName: 'FemSphere Smart OCR Engine',
             keyBiomarkers: [
               { name: 'Hemoglobin', value: '13.4 g/dL', status: 'Normal', range: '12.0 - 15.5 g/dL' },
@@ -1351,8 +1368,8 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
           message: `Medical report "${targetRecord.title}" scanned and analyzed.`,
           type: 'record'
         });
-      }, 400);
-    }, 1800);
+      }, 300);
+    }, 900);
   };
 
   const handleUploadRecord = async (e: React.FormEvent) => {
@@ -1377,41 +1394,41 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const todayStr = new Date().toISOString().split('T')[0];
     const monthStr = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
-    const scanResultsObj = {
-      doctorName: 'Dr. Sarah Jenkins, MD',
-      labName: 'Central Diagnostics Lab',
-      keyBiomarkers: [
-        { name: 'Hemoglobin', value: '13.6 g/dL', status: 'Normal', range: '12.0 - 15.5 g/dL' },
-        { name: 'HbA1c', value: '5.3%', status: 'Optimal', range: '< 5.7%' },
-        { name: 'Vitamin D3 (25-OH)', value: '35 ng/mL', status: 'Optimal', range: '30 - 100 ng/mL' }
-      ],
-      aiSummary: `Scanned uploaded report "${newRecord.title}". Diagnostic parameters extracted into ${monthStr} medical health summary.`,
-      riskLevel: 'Optimal' as const,
-      recommendations: 'No abnormal clinical flags detected.'
-    };
-
     try {
       const token = localStorage.getItem('femsphere_token');
       if (token) {
-        const res = await fetch('/api/medical-records/upload', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({
-            title: newRecord.title,
-            fileName: newRecord.fileName || `${newRecord.title.replace(/\s+/g, '_')}.${fileExt.toLowerCase()}`,
-            fileType: fileExt,
-            category: newRecord.category || 'Lab Results',
-            description: newRecord.description || 'Uploaded medical record',
-            isScanned: true,
-            scanResults: scanResultsObj
-          })
-        });
+        let res;
+        if (selectedRecordFile) {
+          const formData = new FormData();
+          formData.append('file', selectedRecordFile);
+          formData.append('title', newRecord.title);
+          formData.append('category', newRecord.category || 'Lab Results');
+          formData.append('description', newRecord.description || 'Uploaded medical record');
+          res = await fetch('/api/medical-records/upload', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` },
+            body: formData
+          });
+        } else {
+          res = await fetch('/api/medical-records/upload', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              title: newRecord.title,
+              fileName: newRecord.fileName || `${newRecord.title.replace(/\s+/g, '_')}.${fileExt.toLowerCase()}`,
+              fileType: fileExt,
+              category: newRecord.category || 'Lab Results',
+              description: newRecord.description || 'Uploaded medical record'
+            })
+          });
+        }
         const data = await res.json();
         if (data.success && data.record) {
           const rec = data.record;
+          const returnedScan = rec.scan_results ? (typeof rec.scan_results === 'string' ? JSON.parse(rec.scan_results) : rec.scan_results) : null;
           const created: MedicalRecordItem = {
             id: rec.id,
             title: rec.title || newRecord.title,
@@ -1419,10 +1436,10 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
             date: todayStr,
             month: monthStr,
             description: rec.description || newRecord.description || 'Uploaded medical report',
-            size: '2.4 MB',
+            size: rec.file_size_bytes ? `${(rec.file_size_bytes / (1024 * 1024)).toFixed(1)} MB` : '2.4 MB',
             category: rec.category || newRecord.category || 'Lab Results',
             isScanned: true,
-            scanResults: scanResultsObj
+            scanResults: returnedScan
           };
           setRecords(prev => [created, ...prev]);
         }

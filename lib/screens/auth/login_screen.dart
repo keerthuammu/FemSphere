@@ -75,7 +75,7 @@ class _LoginScreenState extends State<LoginScreen> {
   void _quickFillDemo(String email, String role) {
     setState(() {
       _emailController.text = email;
-      _passwordController.text = 'password123';
+      _passwordController.text = 'Password123!';
       _validationError = null;
     });
   }
@@ -286,21 +286,21 @@ class _LoginScreenState extends State<LoginScreen> {
                               icon: Icons.person_rounded,
                               color: AppTheme.primaryPurple,
                               bg: const Color(0xFFF3E8FF),
-                              onTap: () => _quickFillDemo('elena@femsphere.health', 'User'),
+                              onTap: () => _quickFillDemo('elena.rostova@femsphere.health', 'User'),
                             ),
                             _buildDemoChip(
-                              label: 'Dr. Sarah (Doctor)',
+                              label: 'Dr. Jenkins (Doctor)',
                               icon: Icons.medical_services_rounded,
                               color: AppTheme.secondaryTeal,
                               bg: const Color(0xFFCCFBF1),
-                              onTap: () => _quickFillDemo('doctor.sarah@femsphere.health', 'Doctor'),
+                              onTap: () => _quickFillDemo('dr.jenkins@femsphere.health', 'Doctor'),
                             ),
                             _buildDemoChip(
-                              label: 'Marcus (Caregiver)',
+                              label: 'Caregiver',
                               icon: Icons.family_restroom_rounded,
                               color: AppTheme.accentPink,
                               bg: const Color(0xFFFCE7F3),
-                              onTap: () => _quickFillDemo('marcus.caregiver@femsphere.health', 'Caregiver'),
+                              onTap: () => _quickFillDemo('caregiver@femsphere.health', 'Caregiver'),
                             ),
                             _buildDemoChip(
                               label: 'Admin',

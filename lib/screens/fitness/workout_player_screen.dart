@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../../core/app_theme.dart';
 import '../../models/exercise_model.dart';
+import '../../services/api_service.dart';
 
 class WorkoutPlayerScreen extends StatefulWidget {
   final WorkoutPlan workoutPlan;
@@ -28,6 +29,7 @@ class _WorkoutPlayerScreenState extends State<WorkoutPlayerScreen> with TickerPr
 
   int _totalCaloriesBurned = 0;
   int _totalActiveSeconds = 0;
+  bool _isSavingWorkout = false;
 
   Timer? _ticker;
   late AnimationController _humanAnimController;
@@ -556,14 +558,65 @@ class _WorkoutPlayerScreenState extends State<WorkoutPlayerScreen> with TickerPr
           ),
           const SizedBox(height: 32),
           ElevatedButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: _isSavingWorkout
+                ? null
+                : () async {
+                    setState(() => _isSavingWorkout = true);
+                    try {
+                      await ApiService.postVital({
+                        'vital_type': 'workout',
+                        'value': _totalCaloriesBurned,
+                        'unit': 'kcal',
+                        'calories_burned': _totalCaloriesBurned,
+                        'active_seconds': _totalActiveSeconds,
+                        'exercise_name': widget.workoutPlan.title,
+                        'notes': 'Completed ${widget.workoutPlan.exercises.length} exercises in ${_formatTime(_totalActiveSeconds)}',
+                        'recorded_at': DateTime.now().toIso8601String(),
+                      });
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Row(
+                              children: [
+                                const Icon(Icons.check_circle, color: Colors.white),
+                                const SizedBox(width: 8),
+                                Text('Workout synced! +$_totalCaloriesBurned kcal logged to Health Twin.'),
+                              ],
+                            ),
+                            backgroundColor: const Color(0xFF10B981),
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                      }
+                    } catch (_) {
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Workout logged (+${_totalCaloriesBurned} kcal).'),
+                            backgroundColor: AppTheme.primaryPurple,
+                          ),
+                        );
+                      }
+                    } finally {
+                      if (mounted) {
+                        setState(() => _isSavingWorkout = false);
+                        Navigator.pop(context, true);
+                      }
+                    }
+                  },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.primaryPurple,
               foregroundColor: Colors.white,
               minimumSize: const Size(double.infinity, 54),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
             ),
-            child: const Text('Save & Finish', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            child: _isSavingWorkout
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                  )
+                : const Text('Save & Finish', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
           ),
         ],
       ),

@@ -316,6 +316,8 @@ export const getPeriodSettings = async (req, res) => {
   }
 };
 
+export const getPeriodOverview = getPeriodSettings;
+
 // ==============================================================================
 // 2. SETUP OR UPDATE PERIOD CYCLE SETTINGS
 // ==============================================================================

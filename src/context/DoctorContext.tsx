@@ -150,6 +150,7 @@ export interface ScheduleSettings {
   teleconsultFee: number;
   isUrgentCareOpen: boolean;
   maxPatientsPerSlot: number;
+  blackoutDates?: string[];
 }
 
 export interface DoctorProfile {
@@ -573,7 +574,8 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
       slotDuration: '30 Minutes',
       teleconsultFee: 75,
       isUrgentCareOpen: true,
-      maxPatientsPerSlot: 1
+      maxPatientsPerSlot: 1,
+      blackoutDates: []
     };
     try {
       const stored = localStorage.getItem('femsphere_doctor_schedule');

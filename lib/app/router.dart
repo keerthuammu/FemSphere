@@ -14,9 +14,22 @@ import '../screens/dashboards/caregiver_dashboard_screen.dart';
 import '../screens/dashboards/doctor_dashboard_screen.dart';
 import '../screens/dashboards/admin_dashboard_screen.dart';
 import '../screens/doctor/doctor_pending_screen.dart';
+import '../screens/user/medical_records_screen.dart';
+import '../services/api_service.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/',
+  redirect: (context, state) {
+    final loc = state.matchedLocation;
+    final publicRoutes = ['/', '/login', '/register', '/home'];
+    final isPublic = publicRoutes.contains(loc);
+
+    // If attempting to navigate to a protected route directly without auth token
+    if (!isPublic && (ApiService.authToken == null || ApiService.authToken!.isEmpty)) {
+      return '/login';
+    }
+    return null;
+  },
   routes: [
     GoRoute(
       path: '/',
@@ -42,6 +55,11 @@ final appRouter = GoRouter(
       path: '/patient',
       name: 'patient_dashboard',
       builder: (context, state) => const UserDashboardScreen(),
+    ),
+    GoRoute(
+      path: '/medical-records',
+      name: 'medical_records',
+      builder: (context, state) => const MedicalRecordsScreen(),
     ),
     GoRoute(
       path: '/caregiver',
@@ -128,6 +146,7 @@ class _SplashScreenState extends State<_SplashScreen> {
       final role = prefs.getString('user_role');
 
       if (token != null && token.isNotEmpty) {
+        ApiService.authToken = token;
         if (role == 'Caregiver') {
           context.go('/caregiver');
           return;
@@ -145,7 +164,7 @@ class _SplashScreenState extends State<_SplashScreen> {
     } catch (_) {}
 
     if (mounted) {
-      context.go('/patient');
+      context.go('/login');
     }
   }
 

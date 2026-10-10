@@ -4,9 +4,14 @@ import '../../models/medication_model.dart';
 import '../../services/api_service.dart';
 
 class MedicationsScreen extends StatefulWidget {
+  final int dependentId;
   final String dependentName;
 
-  const MedicationsScreen({super.key, this.dependentName = 'Dependent'});
+  const MedicationsScreen({
+    super.key,
+    this.dependentId = 1,
+    this.dependentName = 'Dependent',
+  });
 
   @override
   State<MedicationsScreen> createState() => _MedicationsScreenState();
@@ -30,7 +35,7 @@ class _MedicationsScreenState extends State<MedicationsScreen> {
     });
 
     try {
-      final raw = await ApiService.getMedications(1);
+      final raw = await ApiService.getMedications(widget.dependentId);
       final List<MedicationModel> list = [];
       for (var item in raw) {
         if (item is Map<String, dynamic>) {

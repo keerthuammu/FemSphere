@@ -44,6 +44,27 @@ export default function DoctorAvailability() {
   const [slotGenerationStep, setSlotGenerationStep] = useState<number>(30);
   const [newSlotTime, setNewSlotTime] = useState<string>('09:00 AM');
   const [isSaving, setIsSaving] = useState(false);
+  const [leaveDateInput, setLeaveDateInput] = useState<string>('');
+
+  const handleAddLeaveDate = () => {
+    if (!leaveDateInput) return;
+    const existing = scheduleSettings.blackoutDates || [];
+    if (!existing.includes(leaveDateInput)) {
+      setScheduleSettings({
+        ...scheduleSettings,
+        blackoutDates: [...existing, leaveDateInput].sort()
+      });
+    }
+    setLeaveDateInput('');
+  };
+
+  const handleRemoveLeaveDate = (dateToRemove: string) => {
+    const existing = scheduleSettings.blackoutDates || [];
+    setScheduleSettings({
+      ...scheduleSettings,
+      blackoutDates: existing.filter(d => d !== dateToRemove)
+    });
+  };
 
   // Group active slots into time of day
   const morningSlots = scheduleSettings.availableSlots.filter(s => parseTimeToMinutes(s) < 12 * 60);
@@ -612,6 +633,53 @@ export default function DoctorAvailability() {
             />
           </div>
           <p className="text-[11px] text-[#7a6f75]">Per-session rate for virtual video consultations</p>
+        </div>
+      </div>
+
+      {/* 5. On Leave & Blackout Dates Engine */}
+      <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#EDE9FE] shadow-sm space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#EDE9FE] pb-4">
+          <div>
+            <h4 className="font-bold text-base text-[#3a3135] flex items-center gap-2">
+              <Calendar className="w-4 h-4 text-rose-500" /> On Leave & Blackout Dates
+            </h4>
+            <p className="text-xs text-[#7a6f75]">Mark upcoming dates when you are unavailable for clinical or telehealth appointments.</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <input
+              type="date"
+              min={new Date().toISOString().split('T')[0]}
+              value={leaveDateInput}
+              onChange={(e) => setLeaveDateInput(e.target.value)}
+              className="px-3 py-1.5 bg-[#FAF8FC] border border-[#EDE9FE] rounded-xl text-xs font-semibold text-[#3a3135]"
+            />
+            <button
+              type="button"
+              onClick={handleAddLeaveDate}
+              className="px-3.5 py-1.5 bg-rose-500 hover:bg-rose-600 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1 cursor-pointer"
+            >
+              <Plus className="w-3.5 h-3.5" /> Mark Leave
+            </button>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          {(scheduleSettings.blackoutDates || []).length === 0 ? (
+            <p className="text-xs text-gray-400 italic">No leave dates scheduled. Your practice is fully available on configured days.</p>
+          ) : (
+            (scheduleSettings.blackoutDates || []).map(d => (
+              <span key={d} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold">
+                <span>{d} (Unavailable)</span>
+                <button
+                  type="button"
+                  onClick={() => handleRemoveLeaveDate(d)}
+                  className="hover:text-rose-900 cursor-pointer"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </span>
+            ))
+          )}
         </div>
       </div>
 

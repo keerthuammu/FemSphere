@@ -3,6 +3,7 @@ import {
   getAppointments, 
   createAppointment, 
   updateAppointmentStatus, 
+  cancelAppointment,
   deleteAppointment,
   startAppointmentCall,
   getActiveCallForUser,
@@ -18,6 +19,7 @@ const router = express.Router();
 router.get('/', authenticateToken, getAppointments);
 router.post('/', authenticateToken, createAppointment);
 router.put('/:id/status', authenticateToken, updateAppointmentStatus);
+router.post('/:id/cancel', authenticateToken, cancelAppointment);
 router.delete('/:id', authenticateToken, deleteAppointment);
 
 // Video Calling & Telehealth Routes

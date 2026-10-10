@@ -117,6 +117,45 @@ class ApiService {
     return jsonDecode(response.body);
   }
 
+  static Future<Map<String, dynamic>> uploadMedicalRecordMultipart({
+    required String title,
+    required String category,
+    String? description,
+    String? filePath,
+    List<int>? fileBytes,
+    String? fileName,
+  }) async {
+    try {
+      final uri = Uri.parse('${ApiConstants.medicalRecords}/upload');
+      final request = http.MultipartRequest('POST', uri);
+      if (authToken != null && authToken!.isNotEmpty) {
+        request.headers['Authorization'] = 'Bearer $authToken';
+      }
+      request.fields['title'] = title;
+      request.fields['category'] = category;
+      if (description != null) request.fields['description'] = description;
+
+      if (fileBytes != null && fileName != null) {
+        request.files.add(http.MultipartFile.fromBytes('file', fileBytes, filename: fileName));
+      } else if (filePath != null && filePath.isNotEmpty) {
+        request.files.add(await http.MultipartFile.fromPath('file', filePath));
+      }
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+      return jsonDecode(response.body);
+    } catch (e) {
+      // Fallback to standard JSON upload
+      return await uploadMedicalRecord({
+        'title': title,
+        'category': category,
+        'description': description ?? '',
+        'file_name': fileName ?? '$title.pdf',
+        'file_type': 'PDF',
+      });
+    }
+  }
+
   static Future<Map<String, dynamic>> deleteMedicalRecord(int id) async {
     final response = await http.delete(
       Uri.parse('${ApiConstants.medicalRecords}/$id'),

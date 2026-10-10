@@ -3,6 +3,9 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+// Parse PostgreSQL NUMERIC/DECIMAL (OID 1700) as Float to prevent Flutter string casting errors
+pg.types.setTypeParser(1700, (val) => parseFloat(val));
+
 const pool = new pg.Pool({
   host: process.env.DB_HOST || '127.0.0.1',
   port: parseInt(process.env.DB_PORT || '5432'),

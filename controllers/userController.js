@@ -257,4 +257,72 @@ export const getUserConsultationNotes = async (req, res) => {
   }
 };
 
+// ==============================================================================
+// PHYSICAL THERAPY & PRESCRIBED EXERCISE TRACKING
+// ==============================================================================
+
+export const getExerciseLogs = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const targetDate = req.query.date || new Date().toISOString().split('T')[0];
+
+    const logs = await pool.query(
+      `SELECT * FROM patient_exercise_logs WHERE user_id = $1 AND completed_date = $2::date`,
+      [userId, targetDate]
+    );
+
+    const streakRes = await pool.query(
+      `SELECT DISTINCT completed_date 
+       FROM patient_exercise_logs 
+       WHERE user_id = $1 AND completed = TRUE
+       ORDER BY completed_date DESC LIMIT 30`,
+      [userId]
+    );
+
+    const completedMap = {};
+    logs.rows.forEach(r => {
+      completedMap[r.exercise_key] = r.completed;
+    });
+
+    res.json({
+      success: true,
+      date: targetDate,
+      completedMap,
+      logs: logs.rows,
+      streakDays: streakRes.rows.length
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+export const toggleExerciseLog = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { exerciseKey, exerciseName, consultationId, completed, date } = req.body;
+    const targetDate = date || new Date().toISOString().split('T')[0];
+
+    if (!exerciseKey) {
+      return res.status(400).json({ success: false, message: 'exerciseKey is required.' });
+    }
+
+    const result = await pool.query(
+      `INSERT INTO patient_exercise_logs (user_id, consultation_id, exercise_name, exercise_key, completed_date, completed)
+       VALUES ($1, $2, $3, $4, $5::date, $6)
+       ON CONFLICT (user_id, exercise_key, completed_date)
+       DO UPDATE SET completed = EXCLUDED.completed
+       RETURNING *`,
+      [userId, consultationId || null, exerciseName || exerciseKey, exerciseKey, targetDate, completed !== undefined ? completed : true]
+    );
+
+    res.json({
+      success: true,
+      message: 'Exercise status updated successfully.',
+      log: result.rows[0]
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
 
