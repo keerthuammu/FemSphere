@@ -61,10 +61,14 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         elevation: 0.5,
         title: Row(
           children: [
-            const CircleAvatar(
-              radius: 14,
-              backgroundColor: Color(0xFFEDE9FE),
-              child: Icon(Icons.shield, size: 16, color: Color(0xFF6366F1)),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(14),
+              child: Image.asset(
+                'assets/images/femsphere_logo.png',
+                width: 28,
+                height: 28,
+                fit: BoxFit.contain,
+              ),
             ),
             const SizedBox(width: 8),
             Column(

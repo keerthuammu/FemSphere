@@ -7,7 +7,6 @@ import {
   ChevronLeft, 
   ChevronRight, 
   ArrowUpRight,
-  Sparkles,
   Shield,
   Activity,
   Heart
@@ -67,14 +66,7 @@ function EyedO() {
   );
 }
 
-// 4-Point Concave Sparkle Star matching reference aesthetic
-function SparkleStar({ className, fill = "#F5D0FE" }: { className?: string; fill?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" className={className} fill={fill}>
-      <path d="M12 0C12 6.627 6.627 12 0 12C6.627 12 12 17.373 12 24C12 17.373 17.373 12 24 12C17.373 12 12 6.627 12 0Z" />
-    </svg>
-  );
-}
+
 
 // 9-Piece Organic Pebble Continuous Mosaic Component
 interface OrganicMosaicProps {
@@ -253,8 +245,8 @@ export default function Hero() {
         <header className="relative z-20 flex items-center justify-between pb-6 sm:pb-8 border-b border-stone-100/80">
           {/* Left Brand Logo */}
           <Link to="/" className="flex items-center gap-1.5 group">
-            <span className="font-extrabold text-2xl tracking-tight text-stone-900 group-hover:text-[#7C3AED] transition-colors">
-              femsphere<span className="text-[#7C3AED] font-black">:</span>me
+            <span className="font-extrabold text-2xl tracking-tight text-stone-900 group-hover:text-[#936DA2] transition-colors">
+              femsphere<span className="text-[#936DA2] font-black">:</span>me
             </span>
           </Link>
 
@@ -267,7 +259,7 @@ export default function Hero() {
                 target="_blank"
                 rel="noreferrer"
                 aria-label="Community"
-                className="w-6 h-6 rounded-full bg-stone-900 hover:bg-[#7C3AED] text-white flex items-center justify-center transition-all duration-200 hover:scale-110 shadow-xs"
+                className="w-6 h-6 rounded-full bg-stone-900 hover:bg-[#936DA2] text-white flex items-center justify-center transition-all duration-200 hover:scale-110 shadow-xs"
               >
                 <VkIcon className="w-3.5 h-3.5" />
               </a>
@@ -276,7 +268,7 @@ export default function Hero() {
                 target="_blank"
                 rel="noreferrer"
                 aria-label="Instagram"
-                className="w-6 h-6 rounded-full bg-stone-900 hover:bg-[#7C3AED] text-white flex items-center justify-center transition-all duration-200 hover:scale-110 shadow-xs"
+                className="w-6 h-6 rounded-full bg-stone-900 hover:bg-[#936DA2] text-white flex items-center justify-center transition-all duration-200 hover:scale-110 shadow-xs"
               >
                 <InstagramIcon className="w-3.5 h-3.5" />
               </a>
@@ -285,7 +277,7 @@ export default function Hero() {
                 target="_blank"
                 rel="noreferrer"
                 aria-label="Telegram"
-                className="w-6 h-6 rounded-full bg-stone-900 hover:bg-[#7C3AED] text-white flex items-center justify-center transition-all duration-200 hover:scale-110 shadow-xs"
+                className="w-6 h-6 rounded-full bg-stone-900 hover:bg-[#936DA2] text-white flex items-center justify-center transition-all duration-200 hover:scale-110 shadow-xs"
               >
                 <TelegramIcon className="w-3.5 h-3.5" />
               </a>
@@ -314,7 +306,7 @@ export default function Hero() {
             
             <Link
               to="/login"
-              className="flex items-center gap-1 text-xs font-bold text-stone-900 hover:text-[#7C3AED] transition-colors py-1.5 px-2 rounded-lg hover:bg-purple-50"
+              className="flex items-center gap-1 text-xs font-bold text-stone-900 hover:text-[#936DA2] transition-colors py-1.5 px-2 rounded-lg hover:bg-purple-50"
             >
               <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
               <span>Login</span>
@@ -323,7 +315,7 @@ export default function Hero() {
             {/* Profile Avatar Thumbnail with Lavender ring */}
             <Link
               to="/dashboard"
-              className="relative w-8 h-8 rounded-full overflow-hidden border-2 border-purple-200 hover:border-[#7C3AED] transition-colors shrink-0 shadow-xs"
+              className="relative w-8 h-8 rounded-full overflow-hidden border-2 border-purple-200 hover:border-[#936DA2] transition-colors shrink-0 shadow-xs"
               title="FemSphere Portal"
             >
               <img
@@ -347,7 +339,7 @@ export default function Hero() {
             {/* 2-Column Links Menu */}
             <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-xs tracking-tight">
               <div className="space-y-2">
-                <Link to="/" className="block font-bold text-stone-950 hover:text-[#7C3AED] transition-colors">
+                <Link to="/" className="block font-bold text-stone-950 hover:text-[#936DA2] transition-colors">
                   Home
                 </Link>
                 <a href="#services" className="block font-medium text-stone-500 hover:text-stone-900 transition-colors">
@@ -373,7 +365,7 @@ export default function Hero() {
             {/* Brand statement / Tagline */}
             <div className="space-y-1">
               <h3 className="font-extrabold text-base md:text-lg text-stone-900 leading-tight">
-                femsphere<span className="text-[#7C3AED]">:</span>me -
+                femsphere<span className="text-[#936DA2]">:</span>me -
               </h3>
               <p className="text-sm md:text-base font-medium text-stone-800 leading-snug">
                 a companion for <br />
@@ -387,7 +379,7 @@ export default function Hero() {
                 type="button"
                 onClick={handlePrevSlide}
                 aria-label="Previous portrait"
-                className="w-9 h-9 rounded-full border border-stone-300 hover:border-[#7C3AED] text-stone-700 hover:text-[#7C3AED] hover:bg-purple-50 flex items-center justify-center transition-all cursor-pointer shadow-xs active:scale-95"
+                className="w-9 h-9 rounded-full border border-stone-300 hover:border-[#936DA2] text-stone-700 hover:text-[#936DA2] hover:bg-purple-50 flex items-center justify-center transition-all cursor-pointer shadow-xs active:scale-95"
               >
                 <ChevronLeft className="w-4 h-4 stroke-[2.2]" />
               </button>
@@ -395,7 +387,7 @@ export default function Hero() {
                 type="button"
                 onClick={handleNextSlide}
                 aria-label="Next portrait"
-                className="w-9 h-9 rounded-full border border-stone-300 hover:border-[#7C3AED] text-stone-700 hover:text-[#7C3AED] hover:bg-purple-50 flex items-center justify-center transition-all cursor-pointer shadow-xs active:scale-95"
+                className="w-9 h-9 rounded-full border border-stone-300 hover:border-[#936DA2] text-stone-700 hover:text-[#936DA2] hover:bg-purple-50 flex items-center justify-center transition-all cursor-pointer shadow-xs active:scale-95"
               >
                 <ChevronRight className="w-4 h-4 stroke-[2.2]" />
               </button>
@@ -415,7 +407,7 @@ export default function Hero() {
               {/* Card 2: Full preview of alternate portrait */}
               <div 
                 onClick={handleNextSlide}
-                className="w-24 sm:w-28 h-28 sm:h-32 rounded-2xl overflow-hidden bg-purple-50 border border-purple-100 shadow-sm shrink-0 cursor-pointer relative group hover:border-[#7C3AED] transition-colors"
+                className="w-24 sm:w-28 h-28 sm:h-32 rounded-2xl overflow-hidden bg-purple-50 border border-purple-100 shadow-sm shrink-0 cursor-pointer relative group hover:border-[#936DA2] transition-colors"
                 title="Click to toggle center hero"
               >
                 <img
@@ -440,16 +432,6 @@ export default function Hero() {
           {/* ----------------------------------------------------------------------- */}
           <div className="lg:col-span-6 flex flex-col items-center text-center relative">
             
-            {/* Decorative Sparkle Star: Top-Right of Headline */}
-            <div className="absolute -top-2 sm:top-0 right-4 sm:right-10 pointer-events-none">
-              <SparkleStar className="w-6 sm:w-8 h-6 sm:h-8 animate-pulse" fill="#E9D5FF" />
-            </div>
-
-            {/* Decorative Sparkle Star: Middle-Left near tagline */}
-            <div className="absolute top-36 sm:top-40 -left-4 sm:-left-8 pointer-events-none">
-              <SparkleStar className="w-5 sm:w-6 h-5 sm:h-6" fill="#DDD6FE" />
-            </div>
-
             {/* MAIN HEADLINE WITH BESPOKE TYPOGRAPHY */}
             <div className="mb-6 sm:mb-8 relative">
               <h1 className="font-extrabold text-3xl sm:text-4xl md:text-5xl lg:text-[3.25rem] tracking-tight text-stone-900 leading-[1.08] uppercase select-none">
@@ -480,16 +462,6 @@ export default function Hero() {
             <div className="relative my-2 sm:my-4">
               <OrganicMosaic imageSrc={currentHeroImage} />
             </div>
-
-            {/* Decorative Sparkle Star: Lower-Left */}
-            <div className="absolute bottom-6 sm:bottom-10 left-2 sm:left-6 pointer-events-none">
-              <SparkleStar className="w-5 sm:w-6 h-5 sm:h-6" fill="#FED7AA" />
-            </div>
-
-            {/* Decorative Sparkle Star: Lower-Right */}
-            <div className="absolute bottom-10 sm:bottom-14 right-2 sm:right-6 pointer-events-none">
-              <SparkleStar className="w-5 sm:w-6 h-5 sm:h-6" fill="#F5D0FE" />
-            </div>
           </div>
 
           {/* ----------------------------------------------------------------------- */}
@@ -503,7 +475,7 @@ export default function Hero() {
                 <h4 className="text-xs font-extrabold tracking-tight text-stone-900 uppercase">
                   Individual Care
                 </h4>
-                <div className="w-5 h-5 rounded-full bg-purple-100/70 text-[#7C3AED] flex items-center justify-center text-[10px]">
+                <div className="w-5 h-5 rounded-full bg-purple-100/70 text-[#936DA2] flex items-center justify-center text-[10px]">
                   ✦
                 </div>
               </div>
@@ -519,7 +491,7 @@ export default function Hero() {
                   alt="Individual Therapy Guidance"
                   className="w-full h-full object-cover object-top hover:scale-105 transition-transform duration-300"
                 />
-                <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-xs rounded-full px-2 py-0.5 text-[9px] font-bold text-[#7C3AED] shadow-2xs">
+                <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-xs rounded-full px-2 py-0.5 text-[9px] font-bold text-[#936DA2] shadow-2xs">
                   Live
                 </div>
               </div>

@@ -5,7 +5,6 @@ import {
   Moon,
   Sun,
   ShieldAlert,
-  Sparkles,
   ChevronDown
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
@@ -38,10 +37,12 @@ export default function TopAppBar() {
       <div className="flex items-center justify-between gap-2 max-w-7xl mx-auto">
         {/* Left: Brand & Role Switcher */}
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-purple-600 via-rose-500 to-purple-400 flex items-center justify-center text-white shadow-sm shadow-purple-500/20">
-              <Sparkles className="w-4 h-4 text-white" />
-            </div>
+          <div className="flex items-center gap-2 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+            <img
+              src="/femsphere_logo.png"
+              alt="FemSphere"
+              className="w-8 h-8 rounded-full object-contain shadow-xs"
+            />
             <span className="font-serif text-lg font-bold tracking-tight text-slate-900 dark:text-white">
               FemSphere
             </span>

@@ -271,6 +271,54 @@ export interface MenstrualTip {
   icon: string;
 }
 
+export interface CyclePrediction {
+  lastPeriodStartDate: string;
+  nextPeriodStartDate: string;
+  nextPeriodRangeStartDate: string;
+  nextPeriodRangeEndDate: string;
+  ovulationDate: string;
+  fertileWindowStartDate: string;
+  fertileWindowEndDate: string;
+  estimatedPeriodDuration: number;
+  cycleDaysElapsed: number;
+  daysUntilPeriod: number;
+  isDelayed: boolean;
+  daysDelayed: number;
+  predictionDisclaimer: string;
+}
+
+export interface CycleStatistics {
+  recordedCyclesCount: number;
+  averageCycleLength: number;
+  averagePeriodDuration: number;
+  cycleVariabilityDays: number;
+  minCycleLength: number;
+  maxCycleLength: number;
+  isIrregular: boolean;
+  confidenceLevel: string;
+}
+
+export interface DailyLogItem {
+  id?: number;
+  date: string;
+  isPeriodDay: boolean;
+  flowIntensity: string;
+  symptoms: string[];
+  mood: string;
+  energyLevel?: string;
+  sleepQuality?: string;
+  cervicalMucus?: string;
+  notes?: string;
+  updatedAt?: string;
+}
+
+export interface PeriodReminders {
+  periodDaysBefore: number;
+  periodEnabled: boolean;
+  ovulationEnabled: boolean;
+  dailyLoggingEnabled: boolean;
+}
+
 
 interface UserContextType {
   // Profile
@@ -442,6 +490,11 @@ interface UserContextType {
   isPeriodTrackerConfigured: boolean;
   periodSettings: PeriodSettings | null;
   periodMetrics: PeriodMetrics | null;
+  predictions: CyclePrediction | null;
+  historicalStats: CycleStatistics | null;
+  dailyLogs: DailyLogItem[];
+  todayDailyLog: DailyLogItem | null;
+  periodReminders: PeriodReminders;
   cycleHistory: CycleHistoryItem[];
   menstrualAffirmation: string;
   menstrualTips: MenstrualTip[];
@@ -449,8 +502,14 @@ interface UserContextType {
   periodErrorMsg: string | null;
   setPeriodErrorMsg: (val: string | null) => void;
   fetchPeriodData: () => Promise<void>;
+  fetchDailyLogs: (monthOrDate?: string) => Promise<void>;
   handleSavePeriodSetup: (data: { lastPeriodStart: string; periodDuration: number; cycleLength: number }) => Promise<boolean>;
   handleLogPeriodEntry: (data: { startDate: string; endDate?: string; durationDays?: number; flowIntensity: string; symptoms: string[]; mood: string; notes?: string }) => Promise<boolean>;
+  handleUpdatePeriodCycle: (id: number | string, data: any) => Promise<boolean>;
+  handleDeletePeriodCycle: (id: number | string) => Promise<boolean>;
+  handleSaveDailyLog: (logData: DailyLogItem) => Promise<boolean>;
+  handleDeleteDailyLog: (date: string) => Promise<boolean>;
+  handleUpdatePeriodSettings: (settingsData: any) => Promise<boolean>;
   handleAdjustCycleDelay: (newCycleLength?: number, delayDays?: number) => Promise<boolean>;
   handleActivatePregnancy: (lmpDate?: string) => Promise<boolean>;
   handleDeactivatePregnancy: (resumePeriodDate?: string) => Promise<boolean>;
@@ -484,7 +543,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const defaults: UserProfile = {
       fullName: '',
       avatarUrl: null,
-      avatarBg: '#7C3AED',
+      avatarBg: '#936DA2',
       dob: '',
       age: 0,
       bloodGroup: '',
@@ -504,7 +563,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
           ...defaults,
           fullName: parsed.fullName || p.full_name || p.fullName || defaults.fullName,
           avatarUrl: parsed.avatarUrl || null,
-          avatarBg: parsed.avatarBg || '#7C3AED',
+          avatarBg: parsed.avatarBg || '#936DA2',
           email: parsed.email || p.email || defaults.email,
           phone: p.mobile || p.mobileNumber || p.emergency_contact_phone || defaults.phone,
           dob: p.dob || defaults.dob,
@@ -528,7 +587,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Avatar Modal State
   const [showPhotoModal, setShowPhotoModal] = useState(false);
   const [tempAvatarUrl, setTempAvatarUrl] = useState<string | null>(null);
-  const [tempAvatarBg, setTempAvatarBg] = useState('#7C3AED');
+  const [tempAvatarBg, setTempAvatarBg] = useState('#936DA2');
 
   // Password Modal State
   const [showPasswordModal, setShowPasswordModal] = useState(false);
@@ -650,6 +709,16 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [periodSettings, setPeriodSettings] = useState<PeriodSettings | null>(null);
   const [periodMetrics, setPeriodMetrics] = useState<PeriodMetrics | null>(null);
   const [cycleHistory, setCycleHistory] = useState<CycleHistoryItem[]>([]);
+  const [predictions, setPredictions] = useState<CyclePrediction | null>(null);
+  const [historicalStats, setHistoricalStats] = useState<CycleStatistics | null>(null);
+  const [dailyLogs, setDailyLogs] = useState<DailyLogItem[]>([]);
+  const [todayDailyLog, setTodayDailyLog] = useState<DailyLogItem | null>(null);
+  const [periodReminders, setPeriodReminders] = useState<PeriodReminders>({
+    periodDaysBefore: 2,
+    periodEnabled: true,
+    ovulationEnabled: false,
+    dailyLoggingEnabled: false
+  });
   const [menstrualAffirmation, setMenstrualAffirmation] = useState('');
   const [menstrualTips, setMenstrualTips] = useState<MenstrualTip[]>([]);
   const [isLoadingPeriodData, setIsLoadingPeriodData] = useState(false);
@@ -1023,7 +1092,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const token = localStorage.getItem('femsphere_token');
       if (!token) return;
-      const res = await fetch('/api/period-tracker/settings', {
+      const res = await fetch('/api/period-tracker/overview', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await res.json();
@@ -1031,6 +1100,18 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsPeriodTrackerConfigured(true);
         setPeriodSettings(data.settings);
         setPeriodMetrics(data.metrics);
+        if (data.prediction || data.predictions) {
+          setPredictions(data.prediction || data.predictions);
+        }
+        if (data.historicalStats) {
+          setHistoricalStats(data.historicalStats);
+        }
+        if (data.todayLog !== undefined) {
+          setTodayDailyLog(data.todayLog);
+        }
+        if (data.reminders) {
+          setPeriodReminders(data.reminders);
+        }
         setCycleHistory(data.cycleHistory || []);
         if (data.affirmation) setMenstrualAffirmation(data.affirmation);
         if (data.tips) setMenstrualTips(data.tips);
@@ -1038,6 +1119,8 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsPeriodTrackerConfigured(false);
         setPeriodSettings(null);
         setPeriodMetrics(null);
+        setPredictions(null);
+        setHistoricalStats(null);
       }
     } catch (err) {
       console.error('Error fetching period tracking data:', err);
@@ -1045,6 +1128,148 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsLoadingPeriodData(false);
     }
   }, []);
+
+  const fetchDailyLogs = useCallback(async (monthOrDate?: string) => {
+    try {
+      const token = localStorage.getItem('femsphere_token');
+      if (!token) return;
+      let url = '/api/period-tracker/daily';
+      if (monthOrDate) {
+        if (monthOrDate.length === 7) {
+          url += `?month=${monthOrDate}`;
+        } else {
+          url += `?date=${monthOrDate}`;
+        }
+      }
+      const res = await fetch(url, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.success && Array.isArray(data.logs)) {
+        setDailyLogs(data.logs);
+      }
+    } catch (err) {
+      console.error('Error fetching daily logs:', err);
+    }
+  }, []);
+
+  const handleSaveDailyLog = async (logData: DailyLogItem): Promise<boolean> => {
+    setPeriodErrorMsg(null);
+    try {
+      const token = localStorage.getItem('femsphere_token');
+      if (!token) return false;
+      const res = await fetch('/api/period-tracker/daily', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify(logData)
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        await fetchDailyLogs(logData.date ? logData.date.slice(0, 7) : undefined);
+        await fetchPeriodData();
+        return true;
+      } else {
+        setPeriodErrorMsg(data.message || 'Failed to save daily log.');
+        return false;
+      }
+    } catch (e: any) {
+      setPeriodErrorMsg(e.message || 'Error communicating with server.');
+      return false;
+    }
+  };
+
+  const handleDeleteDailyLog = async (date: string): Promise<boolean> => {
+    setPeriodErrorMsg(null);
+    try {
+      const token = localStorage.getItem('femsphere_token');
+      if (!token) return false;
+      const res = await fetch(`/api/period-tracker/daily/${date}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        await fetchDailyLogs(date.slice(0, 7));
+        await fetchPeriodData();
+        return true;
+      }
+      return false;
+    } catch (e: any) {
+      setPeriodErrorMsg(e.message || 'Error deleting daily log.');
+      return false;
+    }
+  };
+
+  const handleUpdatePeriodCycle = async (id: number | string, updateData: any): Promise<boolean> => {
+    setPeriodErrorMsg(null);
+    try {
+      const token = localStorage.getItem('femsphere_token');
+      if (!token) return false;
+      const res = await fetch(`/api/period-tracker/cycles/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify(updateData)
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        await fetchPeriodData();
+        return true;
+      } else {
+        setPeriodErrorMsg(data.message || 'Failed to update cycle record.');
+        return false;
+      }
+    } catch (e: any) {
+      setPeriodErrorMsg(e.message || 'Error updating cycle record.');
+      return false;
+    }
+  };
+
+  const handleDeletePeriodCycle = async (id: number | string): Promise<boolean> => {
+    setPeriodErrorMsg(null);
+    try {
+      const token = localStorage.getItem('femsphere_token');
+      if (!token) return false;
+      const res = await fetch(`/api/period-tracker/cycles/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        await fetchPeriodData();
+        return true;
+      } else {
+        setPeriodErrorMsg(data.message || 'Failed to delete cycle record.');
+        return false;
+      }
+    } catch (e: any) {
+      setPeriodErrorMsg(e.message || 'Error deleting cycle record.');
+      return false;
+    }
+  };
+
+  const handleUpdatePeriodSettings = async (settingsData: any): Promise<boolean> => {
+    setPeriodErrorMsg(null);
+    try {
+      const token = localStorage.getItem('femsphere_token');
+      if (!token) return false;
+      const res = await fetch('/api/period-tracker/settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify(settingsData)
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        await fetchPeriodData();
+        return true;
+      } else {
+        setPeriodErrorMsg(data.message || 'Failed to update settings.');
+        return false;
+      }
+    } catch (e: any) {
+      setPeriodErrorMsg(e.message || 'Error updating settings.');
+      return false;
+    }
+  };
 
   const handleSavePeriodSetup = async (setupData: { lastPeriodStart: string; periodDuration: number; cycleLength: number }): Promise<boolean> => {
     setPeriodErrorMsg(null);
@@ -2363,6 +2588,11 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isPeriodTrackerConfigured,
         periodSettings,
         periodMetrics,
+        predictions,
+        historicalStats,
+        dailyLogs,
+        todayDailyLog,
+        periodReminders,
         cycleHistory,
         menstrualAffirmation,
         menstrualTips,
@@ -2370,8 +2600,14 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         periodErrorMsg,
         setPeriodErrorMsg,
         fetchPeriodData,
+        fetchDailyLogs,
         handleSavePeriodSetup,
         handleLogPeriodEntry,
+        handleUpdatePeriodCycle,
+        handleDeletePeriodCycle,
+        handleSaveDailyLog,
+        handleDeleteDailyLog,
+        handleUpdatePeriodSettings,
         handleAdjustCycleDelay,
         handleActivatePregnancy,
         handleDeactivatePregnancy,

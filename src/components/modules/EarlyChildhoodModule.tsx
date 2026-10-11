@@ -73,9 +73,9 @@ export default function EarlyChildhoodModule() {
   };
 
   return (
-    <div className="bg-white rounded-3xl p-6 border border-[#EDE9FE] shadow-sm space-y-6 font-inter">
+    <div className="bg-white rounded-3xl p-6 border border-[#F4DDE2] shadow-sm space-y-6 font-inter">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#EDE9FE] pb-4 gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#F4DDE2] pb-4 gap-4">
         <div className="flex items-center gap-3">
           <div className="w-11 h-11 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center font-bold text-xl shadow-xs">
             👶
@@ -96,19 +96,19 @@ export default function EarlyChildhoodModule() {
 
       <div className="grid md:grid-cols-2 gap-5">
         {/* Growth & Milestones Records */}
-        <div className="bg-[#FAF8FC] p-5 rounded-2xl border border-[#EDE9FE] space-y-4">
+        <div className="bg-[#FCF4F5] p-5 rounded-2xl border border-[#F4DDE2] space-y-4">
           <div className="flex items-center justify-between">
-            <h4 className="font-bold text-xs text-[#7C3AED] uppercase tracking-wider flex items-center gap-1.5">
-              <Baby className="w-4 h-4 text-[#7C3AED]" /> WHO Growth & Milestone Timeline
+            <h4 className="font-bold text-xs text-[#936DA2] uppercase tracking-wider flex items-center gap-1.5">
+              <Baby className="w-4 h-4 text-[#936DA2]" /> WHO Growth & Milestone Timeline
             </h4>
-            <span className="text-[11px] font-bold text-[#7C3AED]">
+            <span className="text-[11px] font-bold text-[#936DA2]">
               {growthLogs.length} Checkpoints Logged
             </span>
           </div>
 
           <div className="space-y-2.5">
             {growthLogs.map((g, idx) => (
-              <div key={idx} className="bg-white p-3.5 rounded-xl border border-[#EDE9FE] flex items-center justify-between text-xs shadow-2xs">
+              <div key={idx} className="bg-white p-3.5 rounded-xl border border-[#F4DDE2] flex items-center justify-between text-xs shadow-2xs">
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="font-bold text-sm text-[#3a3135]">{g.age}</span>
@@ -120,7 +120,7 @@ export default function EarlyChildhoodModule() {
                     Height: <span className="font-semibold text-gray-800">{g.height}</span> • Weight: <span className="font-semibold text-gray-800">{g.weight}</span> • Head: <span className="font-semibold text-gray-800">{g.headCirc}</span>
                   </p>
                 </div>
-                <span className="text-[11px] bg-purple-50 text-[#7C3AED] px-2.5 py-1 rounded-lg font-bold border border-purple-100 max-w-[140px] truncate text-right">
+                <span className="text-[11px] bg-purple-50 text-[#936DA2] px-2.5 py-1 rounded-lg font-bold border border-purple-100 max-w-[140px] truncate text-right">
                   {g.milestone}
                 </span>
               </div>
@@ -129,7 +129,7 @@ export default function EarlyChildhoodModule() {
         </div>
 
         {/* Immunization & Routine Checkups */}
-        <div className="bg-[#FAF8FC] p-5 rounded-2xl border border-[#EDE9FE] space-y-4">
+        <div className="bg-[#FCF4F5] p-5 rounded-2xl border border-[#F4DDE2] space-y-4">
           <div className="flex items-center justify-between">
             <h4 className="font-bold text-xs text-[#14B8A6] uppercase tracking-wider flex items-center gap-1.5">
               <Syringe className="w-4 h-4 text-[#14B8A6]" /> Pediatric Immunization Schedule
@@ -140,7 +140,7 @@ export default function EarlyChildhoodModule() {
           </div>
 
           <div className="space-y-2.5 text-xs">
-            <div className="bg-white p-3.5 rounded-xl border border-[#EDE9FE] flex items-center justify-between">
+            <div className="bg-white p-3.5 rounded-xl border border-[#F4DDE2] flex items-center justify-between">
               <div>
                 <span className="font-bold text-[#3a3135]">MMR Vaccine (Measles, Mumps, Rubella)</span>
                 <p className="text-[11px] text-gray-500">Administered at 12 Months • Batch: MMR-2026-X1</p>
@@ -148,7 +148,7 @@ export default function EarlyChildhoodModule() {
               <CheckCircle2 className="w-5 h-5 text-emerald-500" />
             </div>
 
-            <div className="bg-white p-3.5 rounded-xl border border-[#EDE9FE] flex items-center justify-between">
+            <div className="bg-white p-3.5 rounded-xl border border-[#F4DDE2] flex items-center justify-between">
               <div>
                 <span className="font-bold text-[#3a3135]">Varicella (Chickenpox Dose 1)</span>
                 <p className="text-[11px] text-gray-500">Administered at 15 Months</p>
@@ -156,7 +156,7 @@ export default function EarlyChildhoodModule() {
               <CheckCircle2 className="w-5 h-5 text-emerald-500" />
             </div>
 
-            <div className="bg-white p-3.5 rounded-xl border border-[#EDE9FE] flex items-center justify-between">
+            <div className="bg-white p-3.5 rounded-xl border border-[#F4DDE2] flex items-center justify-between">
               <div>
                 <span className="font-bold text-[#3a3135]">DTaP Booster (Dose 4)</span>
                 <p className="text-[11px] text-amber-600 font-semibold">Next Scheduled Dose: Sep 2026</p>
@@ -172,8 +172,8 @@ export default function EarlyChildhoodModule() {
       {/* WHO Calculator Modal */}
       {showCalcModal && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-3xl p-6 max-w-lg w-full border border-[#EDE9FE] shadow-2xl space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-[#EDE9FE]">
+          <div className="bg-white rounded-3xl p-6 max-w-lg w-full border border-[#F4DDE2] shadow-2xl space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-[#F4DDE2]">
               <div>
                 <h3 className="font-bold text-base text-[#3a3135]">WHO Child Growth Calculator</h3>
                 <p className="text-xs text-[#7a6f75]">World Health Organization growth standards computation</p>
@@ -253,13 +253,13 @@ export default function EarlyChildhoodModule() {
 
               {/* Live Computed Percentile Box */}
               <div className="p-3 bg-purple-50 rounded-xl border border-purple-200 text-xs">
-                <span className="font-bold text-[#7C3AED] block mb-1">Calculated WHO Percentile:</span>
+                <span className="font-bold text-[#936DA2] block mb-1">Calculated WHO Percentile:</span>
                 <span className={`px-2.5 py-1 rounded-md text-[11px] font-extrabold ${computeWhoPercentiles().badgeColor}`}>
                   {computeWhoPercentiles().percentile}
                 </span>
               </div>
 
-              <div className="flex justify-end gap-2 pt-2 border-t border-[#EDE9FE]">
+              <div className="flex justify-end gap-2 pt-2 border-t border-[#F4DDE2]">
                 <button
                   type="button"
                   onClick={() => setShowCalcModal(false)}
@@ -269,7 +269,7 @@ export default function EarlyChildhoodModule() {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
+                  className="px-5 py-2 bg-[#936DA2] hover:bg-[#835A92] text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
                 >
                   Save to Growth Record
                 </button>

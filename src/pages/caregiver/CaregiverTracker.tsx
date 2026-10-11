@@ -115,7 +115,7 @@ export default function CaregiverTracker() {
   return (
     <div className="space-y-6 animate-in fade-in duration-200 font-inter">
       {/* Header */}
-      <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#EDE9FE] shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#F4DDE2] shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 text-[#F472B6] mb-1">
             <Heart className="w-5 h-5" />
@@ -138,9 +138,9 @@ export default function CaregiverTracker() {
           ) : (
             <button
               onClick={() => setShowBluetoothModal(true)}
-              className="px-4 py-2.5 bg-purple-50 text-[#7C3AED] border border-[#EDE9FE] rounded-xl text-xs font-bold flex items-center gap-2 hover:bg-purple-100 cursor-pointer transition-all"
+              className="px-4 py-2.5 bg-purple-50 text-[#936DA2] border border-[#F4DDE2] rounded-xl text-xs font-bold flex items-center gap-2 hover:bg-purple-100 cursor-pointer transition-all"
             >
-              <Watch className="w-4 h-4 text-[#7C3AED]" /> Connect Watch
+              <Watch className="w-4 h-4 text-[#936DA2]" /> Connect Watch
             </button>
           )}
         </div>
@@ -155,9 +155,9 @@ export default function CaregiverTracker() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Form Column */}
-        <div className="lg:col-span-2 bg-white rounded-3xl p-6 md:p-8 border border-[#EDE9FE] shadow-sm space-y-5">
+        <div className="lg:col-span-2 bg-white rounded-3xl p-6 md:p-8 border border-[#F4DDE2] shadow-sm space-y-5">
           <h4 className="font-bold text-lg text-[#3a3135] flex items-center gap-2">
-            <Activity className="w-5 h-5 text-[#7C3AED]" /> Log Daily Health Metrics
+            <Activity className="w-5 h-5 text-[#936DA2]" /> Log Daily Health Metrics
           </h4>
 
           {errorMsg && (
@@ -173,7 +173,7 @@ export default function CaregiverTracker() {
                 <select
                   value={trackerInput.dependent}
                   onChange={(e) => setTrackerInput({ ...trackerInput, dependent: e.target.value })}
-                  className="w-full p-3 rounded-xl border border-[#EDE9FE] bg-white font-bold text-xs"
+                  className="w-full p-3 rounded-xl border border-[#F4DDE2] bg-white font-bold text-xs"
                 >
                   {dependents.map((d) => (
                     <option key={d.id} value={d.name}>
@@ -189,7 +189,7 @@ export default function CaregiverTracker() {
                   type="date"
                   value={trackerInput.date}
                   onChange={(e) => setTrackerInput({ ...trackerInput, date: e.target.value })}
-                  className="w-full p-3 rounded-xl border border-[#EDE9FE] text-xs font-bold"
+                  className="w-full p-3 rounded-xl border border-[#F4DDE2] text-xs font-bold"
                   required
                 />
               </div>
@@ -197,17 +197,17 @@ export default function CaregiverTracker() {
 
             {/* Vitals Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
-              <div className="p-3 bg-[#FAF8FC] rounded-2xl border border-[#EDE9FE]">
+              <div className="p-3 bg-[#FCF4F5] rounded-2xl border border-[#F4DDE2]">
                 <label className="text-[10px] font-bold text-[#7a6f75] uppercase block mb-1">Weight (kg)</label>
                 <input
                   type="text"
                   value={trackerInput.weight}
                   onChange={(e) => setTrackerInput({ ...trackerInput, weight: e.target.value })}
-                  className="w-full bg-white p-2 rounded-lg border border-[#EDE9FE] font-bold text-xs"
+                  className="w-full bg-white p-2 rounded-lg border border-[#F4DDE2] font-bold text-xs"
                 />
               </div>
 
-              <div className="p-3 bg-[#FAF8FC] rounded-2xl border border-[#EDE9FE]">
+              <div className="p-3 bg-[#FCF4F5] rounded-2xl border border-[#F4DDE2]">
                 <label className="text-[10px] font-bold text-[#7a6f75] uppercase block mb-1 flex items-center gap-1">
                   <Droplet className="w-3 h-3 text-cyan-600" /> Water (L)
                 </label>
@@ -215,11 +215,11 @@ export default function CaregiverTracker() {
                   type="text"
                   value={trackerInput.water}
                   onChange={(e) => setTrackerInput({ ...trackerInput, water: e.target.value })}
-                  className="w-full bg-white p-2 rounded-lg border border-[#EDE9FE] font-bold text-xs"
+                  className="w-full bg-white p-2 rounded-lg border border-[#F4DDE2] font-bold text-xs"
                 />
               </div>
 
-              <div className="p-3 bg-[#FAF8FC] rounded-2xl border border-[#EDE9FE]">
+              <div className="p-3 bg-[#FCF4F5] rounded-2xl border border-[#F4DDE2]">
                 <label className="text-[10px] font-bold text-[#7a6f75] uppercase block mb-1 flex items-center gap-1">
                   <Moon className="w-3 h-3 text-indigo-600" /> Sleep (hrs)
                 </label>
@@ -227,11 +227,11 @@ export default function CaregiverTracker() {
                   type="text"
                   value={trackerInput.sleep}
                   onChange={(e) => setTrackerInput({ ...trackerInput, sleep: e.target.value })}
-                  className="w-full bg-white p-2 rounded-lg border border-[#EDE9FE] font-bold text-xs"
+                  className="w-full bg-white p-2 rounded-lg border border-[#F4DDE2] font-bold text-xs"
                 />
               </div>
 
-              <div className="p-3 bg-[#FAF8FC] rounded-2xl border border-[#EDE9FE]">
+              <div className="p-3 bg-[#FCF4F5] rounded-2xl border border-[#F4DDE2]">
                 <label className="text-[10px] font-bold text-[#7a6f75] uppercase block mb-1 flex items-center gap-1">
                   <Heart className="w-3 h-3 text-red-500" /> Heart Rate (bpm)
                 </label>
@@ -239,7 +239,7 @@ export default function CaregiverTracker() {
                   type="text"
                   value={trackerInput.heartRate}
                   onChange={(e) => setTrackerInput({ ...trackerInput, heartRate: e.target.value })}
-                  className="w-full bg-white p-2 rounded-lg border border-[#EDE9FE] font-bold text-xs"
+                  className="w-full bg-white p-2 rounded-lg border border-[#F4DDE2] font-bold text-xs"
                 />
               </div>
             </div>
@@ -255,7 +255,7 @@ export default function CaregiverTracker() {
                   value={trackerInput.bloodPressure}
                   onChange={(e) => setTrackerInput({ ...trackerInput, bloodPressure: e.target.value })}
                   placeholder="e.g. 115/75"
-                  className="w-full p-3 rounded-xl border border-[#EDE9FE] font-medium text-xs"
+                  className="w-full p-3 rounded-xl border border-[#F4DDE2] font-medium text-xs"
                 />
               </div>
 
@@ -268,7 +268,7 @@ export default function CaregiverTracker() {
                   value={trackerInput.steps}
                   onChange={(e) => setTrackerInput({ ...trackerInput, steps: e.target.value })}
                   placeholder="e.g. 5400"
-                  className="w-full p-3 rounded-xl border border-[#EDE9FE] font-medium text-xs"
+                  className="w-full p-3 rounded-xl border border-[#F4DDE2] font-medium text-xs"
                 />
               </div>
             </div>
@@ -286,8 +286,8 @@ export default function CaregiverTracker() {
                       onClick={() => toggleSymptom(sym)}
                       className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
                         isSelected
-                          ? 'bg-[#7C3AED] text-white shadow-xs'
-                          : 'bg-[#FAF8FC] border border-[#EDE9FE] text-[#7a6f75] hover:border-[#7C3AED]/40'
+                          ? 'bg-[#936DA2] text-white shadow-xs'
+                          : 'bg-[#FCF4F5] border border-[#F4DDE2] text-[#7a6f75] hover:border-[#936DA2]/40'
                       }`}
                     >
                       {sym}
@@ -304,13 +304,13 @@ export default function CaregiverTracker() {
                 onChange={(e) => setTrackerInput({ ...trackerInput, notes: e.target.value })}
                 placeholder="Observed slight temperature rise after outdoor play, restful sleep..."
                 rows={2}
-                className="w-full p-3 rounded-xl border border-[#EDE9FE] text-xs font-medium"
+                className="w-full p-3 rounded-xl border border-[#F4DDE2] text-xs font-medium"
               ></textarea>
             </div>
 
             <button
               type="submit"
-              className="w-full py-3.5 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl font-bold text-xs shadow-md transition-all cursor-pointer"
+              className="w-full py-3.5 bg-[#936DA2] hover:bg-[#835A92] text-white rounded-xl font-bold text-xs shadow-md transition-all cursor-pointer"
             >
               Save Dependent Health Log
             </button>
@@ -318,21 +318,21 @@ export default function CaregiverTracker() {
         </div>
 
         {/* Recent Logs Timeline */}
-        <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#EDE9FE] shadow-sm space-y-4">
+        <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#F4DDE2] shadow-sm space-y-4">
           <h4 className="font-bold text-lg text-[#3a3135]">Historical Health Logs</h4>
 
           {dependentTrackerLogs.length === 0 ? (
-            <div className="p-8 text-center bg-[#FAF8FC] rounded-2xl border border-dashed border-[#EDE9FE] space-y-2">
-              <Activity className="w-8 h-8 text-[#7C3AED] mx-auto opacity-50" />
+            <div className="p-8 text-center bg-[#FCF4F5] rounded-2xl border border-dashed border-[#F4DDE2] space-y-2">
+              <Activity className="w-8 h-8 text-[#936DA2] mx-auto opacity-50" />
               <p className="text-xs font-bold text-[#3a3135]">No Health Logs Recorded</p>
               <p className="text-[11px] text-[#7a6f75]">Log daily biometric metrics and observed symptoms using the form.</p>
             </div>
           ) : (
             <div className="space-y-3">
               {dependentTrackerLogs.map((log) => (
-                <div key={log.id} className="p-4 rounded-2xl border border-[#EDE9FE] bg-[#FAF8FC] space-y-2">
+                <div key={log.id} className="p-4 rounded-2xl border border-[#F4DDE2] bg-[#FCF4F5] space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-xs text-[#7C3AED]">{log.dependent}</span>
+                  <span className="font-bold text-xs text-[#936DA2]">{log.dependent}</span>
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] text-gray-500 font-mono">{log.date}</span>
                     <button

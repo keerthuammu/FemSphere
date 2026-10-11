@@ -25,7 +25,6 @@ import UserProfilePage from './pages/user/UserProfilePage';
 import UserSettings from './pages/user/UserSettings';
 import UserPeriodTracker from './pages/user/UserPeriodTracker';
 import ConnectDevices from './pages/user/ConnectDevices';
-import SmartwatchDashboard from './pages/user/SmartwatchDashboard';
 
 // Admin Sub-Pages & Layout
 import { AdminProvider } from './context/AdminContext';

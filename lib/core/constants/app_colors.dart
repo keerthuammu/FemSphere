@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  // Brand Primary & Accents
-  static const Color primary = Color(0xFF7C3AED); // FemSphere Purple
-  static const Color primaryLight = Color(0xFFEDE9FE);
-  static const Color primaryDark = Color(0xFF5B21B6);
+  // Brand Primary & Accents (Synchronized with official FemSphere Logo)
+  static const Color primary = Color(0xFF936DA2); // Signature Plum Mauve from logo
+  static const Color primaryLight = Color(0xFFF9E8EC);
+  static const Color primaryDark = Color(0xFF6E437C);
   
-  static const Color secondary = Color(0xFFE11D48); // Rose Pink Accent
-  static const Color secondaryLight = Color(0xFFFFE4E6);
+  static const Color secondary = Color(0xFFF4BDCA); // Soft Rose Petal Accent
+  static const Color secondaryLight = Color(0xFFFCF4F5); // Whisper Blush
   
   // Neutral Canvas & Surfaces
-  static const Color canvas = Color(0xFFFAF7F4); // Warm canvas
+  static const Color canvas = Color(0xFFFCF4F5); // Warm Whisper Blush canvas
   static const Color surface = Colors.white;
-  static const Color surfaceMuted = Color(0xFFF2EBE5); // Stone neutral
-  static const Color border = Color(0xFFE5CDBC); // Accent border
-  static const Color borderLight = Color(0xFFF0E5DC);
+  static const Color surfaceMuted = Color(0xFFFDF5F6); // Soft blush neutral
+  static const Color border = Color(0xFFF4DDE2); // Soft logo border
+  static const Color borderLight = Color(0xFFFAF0F3);
 
   // Status & Semantic Colors
   static const Color success = Color(0xFF10B981); // Emerald

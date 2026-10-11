@@ -159,7 +159,7 @@ export const BRAND_REGISTRY: Record<DeviceBrandType, BrandMeta> = {
   NOISE: {
     code: 'NOISE',
     displayName: 'Noise',
-    color: '#7c3aed',
+    color: '#936da2',
     bgLight: '#faf5ff',
     borderColor: '#e9d5ff',
   },

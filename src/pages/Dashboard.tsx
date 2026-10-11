@@ -205,7 +205,7 @@ export default function Dashboard() {
     const defaults = {
       fullName: '',
       avatarUrl: null as string | null,
-      avatarBg: '#7C3AED',
+      avatarBg: '#936DA2',
       dob: '',
       age: 0,
       bloodGroup: '',
@@ -241,7 +241,7 @@ export default function Dashboard() {
 
   const [showPhotoModal, setShowPhotoModal] = useState(false);
   const [tempAvatarUrl, setTempAvatarUrl] = useState<string | null>(null);
-  const [tempAvatarBg, setTempAvatarBg] = useState('#7C3AED');
+  const [tempAvatarBg, setTempAvatarBg] = useState('#936DA2');
 
   const [editProfileForm, setEditProfileForm] = useState({ ...userProfile });
   const [isEditingProfile, setIsEditingProfile] = useState(false);
@@ -968,9 +968,13 @@ export default function Dashboard() {
       {/* SIDEBAR NAVIGATION MENU */}
       <aside className="w-72 bg-[#F4E0D1] border-r border-[#E5CDBC] hidden lg:flex flex-col flex-shrink-0 fixed top-0 left-0 h-screen z-40 overflow-y-auto font-inter print:hidden">
         <div className="p-6 border-b border-[#E5CDBC] flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2.5">
-            <h1 className="font-serif text-3xl font-bold text-[#7C3AED] tracking-tight">FemSphere</h1>
-            <Sparkles className="w-5 h-5 text-[#14B8A6]" />
+          <Link to="/" className="flex items-center gap-3 group">
+            <img
+              src="/femsphere_logo.png"
+              alt="FemSphere Logo"
+              className="w-9 h-9 rounded-full object-contain shadow-xs transition-transform group-hover:scale-105"
+            />
+            <h1 className="font-serif text-3xl font-bold text-[#936DA2] tracking-tight">FemSphere</h1>
           </Link>
         </div>
         
@@ -981,10 +985,10 @@ export default function Dashboard() {
           <button 
             onClick={() => setActiveTab('Dashboard')} 
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-base transition-all ${
-              activeTab === 'Dashboard' ? 'bg-white text-[#7C3AED] shadow-sm border border-[#E5CDBC]' : 'text-[#4A3B42] hover:bg-white/40 hover:text-[#2E2428]'
+              activeTab === 'Dashboard' ? 'bg-white text-[#936DA2] shadow-sm border border-[#E5CDBC]' : 'text-[#4A3B42] hover:bg-white/40 hover:text-[#2E2428]'
             }`}
           >
-            <Activity className="w-5 h-5 text-[#7C3AED]" /> Dashboard
+            <Activity className="w-5 h-5 text-[#936DA2]" /> Dashboard
           </button>
 
 
@@ -992,17 +996,17 @@ export default function Dashboard() {
           <button 
             onClick={() => setActiveTab('Medical Records')} 
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-base transition-all ${
-              activeTab === 'Medical Records' ? 'bg-white text-[#7C3AED] shadow-sm border border-[#E5CDBC]' : 'text-[#4A3B42] hover:bg-white/40 hover:text-[#2E2428]'
+              activeTab === 'Medical Records' ? 'bg-white text-[#936DA2] shadow-sm border border-[#E5CDBC]' : 'text-[#4A3B42] hover:bg-white/40 hover:text-[#2E2428]'
             }`}
           >
-            <FileText className="w-5 h-5 text-[#7C3AED]" /> Medical Records
+            <FileText className="w-5 h-5 text-[#936DA2]" /> Medical Records
           </button>
 
           {/* 3. Health Tracker */}
           <button 
             onClick={() => setActiveTab('Health Tracker')} 
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-base transition-all ${
-              activeTab === 'Health Tracker' ? 'bg-white text-[#7C3AED] shadow-sm border border-[#E5CDBC]' : 'text-[#4A3B42] hover:bg-white/40 hover:text-[#2E2428]'
+              activeTab === 'Health Tracker' ? 'bg-white text-[#936DA2] shadow-sm border border-[#E5CDBC]' : 'text-[#4A3B42] hover:bg-white/40 hover:text-[#2E2428]'
             }`}
           >
             <Heart className="w-5 h-5 text-[#F472B6]" /> Health Tracker
@@ -1022,24 +1026,24 @@ export default function Dashboard() {
                 : 'text-[#4A3B42] hover:bg-white/40 hover:text-[#2E2428]'
             }`}
           >
-            <Watch className={`w-5 h-5 ${bluetoothConnected ? 'text-emerald-600' : 'text-[#7C3AED]'}`} /> Connect Watch
+            <Watch className={`w-5 h-5 ${bluetoothConnected ? 'text-emerald-600' : 'text-[#936DA2]'}`} /> Connect Watch
           </button>
 
           {/* 5. Appointments */}
           <button 
             onClick={() => setActiveTab('Appointments')} 
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-base transition-all ${
-              activeTab === 'Appointments' ? 'bg-white text-[#7C3AED] shadow-sm border border-[#E5CDBC]' : 'text-[#4A3B42] hover:bg-white/40 hover:text-[#2E2428]'
+              activeTab === 'Appointments' ? 'bg-white text-[#936DA2] shadow-sm border border-[#E5CDBC]' : 'text-[#4A3B42] hover:bg-white/40 hover:text-[#2E2428]'
             }`}
           >
-            <Calendar className="w-5 h-5 text-[#7C3AED]" /> Appointments
+            <Calendar className="w-5 h-5 text-[#936DA2]" /> Appointments
           </button>
 
           {/* 6. Health Reports */}
           <button 
             onClick={() => setActiveTab('Health Reports')} 
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-base transition-all ${
-              activeTab === 'Health Reports' ? 'bg-white text-[#7C3AED] shadow-sm border border-[#E5CDBC]' : 'text-[#4A3B42] hover:bg-white/40 hover:text-[#2E2428]'
+              activeTab === 'Health Reports' ? 'bg-white text-[#936DA2] shadow-sm border border-[#E5CDBC]' : 'text-[#4A3B42] hover:bg-white/40 hover:text-[#2E2428]'
             }`}
           >
             <Printer className="w-5 h-5 text-[#14B8A6]" /> Health Reports
@@ -1059,7 +1063,7 @@ export default function Dashboard() {
           <button 
             onClick={() => setActiveTab('Partner Mode')} 
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-base transition-all ${
-              activeTab === 'Partner Mode' ? 'bg-white text-[#7C3AED] shadow-sm border border-[#E5CDBC]' : 'text-[#4A3B42] hover:bg-white/40 hover:text-[#2E2428]'
+              activeTab === 'Partner Mode' ? 'bg-white text-[#936DA2] shadow-sm border border-[#E5CDBC]' : 'text-[#4A3B42] hover:bg-white/40 hover:text-[#2E2428]'
             }`}
           >
             <Heart className="w-5 h-5 text-rose-500" /> Partner Mode
@@ -1069,10 +1073,10 @@ export default function Dashboard() {
           <button 
             onClick={() => setActiveTab('Notifications')} 
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-base transition-all ${
-              activeTab === 'Notifications' ? 'bg-white text-[#7C3AED] shadow-sm border border-[#E5CDBC]' : 'text-[#4A3B42] hover:bg-white/40 hover:text-[#2E2428]'
+              activeTab === 'Notifications' ? 'bg-white text-[#936DA2] shadow-sm border border-[#E5CDBC]' : 'text-[#4A3B42] hover:bg-white/40 hover:text-[#2E2428]'
             }`}
           >
-            <Bell className="w-5 h-5 text-[#7C3AED]" /> Notifications
+            <Bell className="w-5 h-5 text-[#936DA2]" /> Notifications
           </button>
         </div>
       </aside>
@@ -1087,7 +1091,7 @@ export default function Dashboard() {
               Welcome, {userProfile.fullName}!
             </h2>
             <p className="text-xs md:text-sm text-[#635259] flex items-center gap-2 mt-1 font-medium">
-              <Clock className="w-4 h-4 text-[#7C3AED]" />
+              <Clock className="w-4 h-4 text-[#936DA2]" />
               {currentTime.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} • {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
             </p>
           </div>
@@ -1104,11 +1108,11 @@ export default function Dashboard() {
             <div className="relative">
               <button 
                 onClick={() => setShowProfileDropdown(!showProfileDropdown)} 
-                className="p-1 rounded-full border border-[#E5CDBC] bg-white/90 hover:bg-white hover:scale-105 transition-all cursor-pointer shadow-2xs focus:ring-2 focus:ring-[#7C3AED]"
+                className="p-1 rounded-full border border-[#E5CDBC] bg-white/90 hover:bg-white hover:scale-105 transition-all cursor-pointer shadow-2xs focus:ring-2 focus:ring-[#936DA2]"
                 title="Profile Menu"
               >
                 {/* Profile Photo Avatar Circle */}
-                <div className="w-10 h-10 rounded-full text-white flex items-center justify-center font-bold text-base shadow-inner relative overflow-hidden shrink-0" style={{ backgroundColor: userProfile.avatarBg || '#7C3AED' }}>
+                <div className="w-10 h-10 rounded-full text-white flex items-center justify-center font-bold text-base shadow-inner relative overflow-hidden shrink-0" style={{ backgroundColor: userProfile.avatarBg || '#936DA2' }}>
                   {userProfile.avatarUrl ? (
                     <img src={userProfile.avatarUrl} alt={userProfile.fullName} className="w-full h-full object-cover rounded-full" />
                   ) : (
@@ -1127,9 +1131,9 @@ export default function Dashboard() {
                     onClick={() => setShowProfileDropdown(false)}
                   ></div>
 
-                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl border border-[#EDE9FE] shadow-xl z-40 py-2 font-inter animate-in fade-in slide-in-from-top-2 duration-200">
+                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl border border-[#F4DDE2] shadow-xl z-40 py-2 font-inter animate-in fade-in slide-in-from-top-2 duration-200">
                     {/* User Profile Header */}
-                    <div className="px-4 py-2.5 border-b border-[#EDE9FE] bg-[#FAF8FC]">
+                    <div className="px-4 py-2.5 border-b border-[#F4DDE2] bg-[#FCF4F5]">
                       <p className="text-xs font-bold text-[#3a3135] truncate">{userProfile.fullName}</p>
                       <p className="text-[10px] text-[#7a6f75] truncate">{userProfile.email}</p>
                     </div>
@@ -1140,9 +1144,9 @@ export default function Dashboard() {
                         setActiveTab('My Profile');
                         setShowProfileDropdown(false);
                       }} 
-                      className="w-full flex items-center gap-2.5 px-4 py-2.5 text-xs font-bold text-[#3a3135] hover:bg-[#F5F3FF] hover:text-[#7C3AED] transition-colors"
+                      className="w-full flex items-center gap-2.5 px-4 py-2.5 text-xs font-bold text-[#3a3135] hover:bg-[#F9E8EC] hover:text-[#936DA2] transition-colors"
                     >
-                      <User className="w-4 h-4 text-[#7C3AED]" /> My Profile
+                      <User className="w-4 h-4 text-[#936DA2]" /> My Profile
                     </button>
 
                     {/* Settings Option */}
@@ -1151,12 +1155,12 @@ export default function Dashboard() {
                         setActiveTab('Settings');
                         setShowProfileDropdown(false);
                       }} 
-                      className="w-full flex items-center gap-2.5 px-4 py-2.5 text-xs font-bold text-[#3a3135] hover:bg-[#F5F3FF] hover:text-[#7C3AED] transition-colors"
+                      className="w-full flex items-center gap-2.5 px-4 py-2.5 text-xs font-bold text-[#3a3135] hover:bg-[#F9E8EC] hover:text-[#936DA2] transition-colors"
                     >
-                      <Sliders className="w-4 h-4 text-[#7C3AED]" /> Settings
+                      <Sliders className="w-4 h-4 text-[#936DA2]" /> Settings
                     </button>
 
-                    <div className="my-1 border-t border-[#EDE9FE]"></div>
+                    <div className="my-1 border-t border-[#F4DDE2]"></div>
 
                     {/* Logout Option */}
                     <button 
@@ -1185,7 +1189,7 @@ export default function Dashboard() {
               {/* TOP 4 SUMMARY STAT CARDS */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                 {/* Card 1: User Profile Summary */}
-                <div className="bg-[#7C3AED] text-white p-6 rounded-3xl shadow-md flex flex-col justify-between relative overflow-hidden">
+                <div className="bg-[#936DA2] text-white p-6 rounded-3xl shadow-md flex flex-col justify-between relative overflow-hidden">
                   <div className="absolute right-3 top-3 opacity-10">
                     <User className="w-24 h-24" />
                   </div>
@@ -1207,10 +1211,10 @@ export default function Dashboard() {
                 </div>
 
                 {/* Card 2: Total Uploaded Medical Records */}
-                <div className="bg-white p-6 rounded-3xl border border-[#EDE9FE] shadow-sm flex flex-col justify-between">
+                <div className="bg-white p-6 rounded-3xl border border-[#F4DDE2] shadow-sm flex flex-col justify-between">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-[#7a6f75] uppercase tracking-wider">Medical Records</span>
-                    <div className="p-2.5 rounded-2xl bg-[#F5F3FF] text-[#7C3AED]">
+                    <div className="p-2.5 rounded-2xl bg-[#F9E8EC] text-[#936DA2]">
                       <FileText className="w-6 h-6" />
                     </div>
                   </div>
@@ -1220,36 +1224,36 @@ export default function Dashboard() {
                   </div>
                   <button 
                     onClick={() => setActiveTab('Medical Records')} 
-                    className="mt-3 text-sm font-bold text-[#7C3AED] hover:underline flex items-center gap-1"
+                    className="mt-3 text-sm font-bold text-[#936DA2] hover:underline flex items-center gap-1"
                   >
                     Manage Records →
                   </button>
                 </div>
 
                 {/* Card 3: Total Appointments */}
-                <div className="bg-white p-6 rounded-3xl border border-[#EDE9FE] shadow-sm flex flex-col justify-between">
+                <div className="bg-white p-6 rounded-3xl border border-[#F4DDE2] shadow-sm flex flex-col justify-between">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-[#7a6f75] uppercase tracking-wider">Appointments</span>
-                    <div className="p-2.5 rounded-2xl bg-[#F5F3FF] text-[#7C3AED]">
+                    <div className="p-2.5 rounded-2xl bg-[#F9E8EC] text-[#936DA2]">
                       <Calendar className="w-6 h-6" />
                     </div>
                   </div>
                   <div className="mt-2">
                     <h3 className="text-4xl font-bold text-[#3a3135]">{appointments.length}</h3>
-                    <p className="text-sm text-[#7C3AED] font-bold mt-1">
+                    <p className="text-sm text-[#936DA2] font-bold mt-1">
                       {appointments.filter(a => a.status === 'Scheduled').length} Scheduled
                     </p>
                   </div>
                   <button 
                     onClick={() => setActiveTab('Appointments')} 
-                    className="mt-3 text-sm font-bold text-[#7C3AED] hover:underline flex items-center gap-1"
+                    className="mt-3 text-sm font-bold text-[#936DA2] hover:underline flex items-center gap-1"
                   >
                     View Appointments →
                   </button>
                 </div>
 
                 {/* Card 4: Latest Vitals Update */}
-                <div className="bg-white p-6 rounded-3xl border border-[#EDE9FE] shadow-sm flex flex-col justify-between">
+                <div className="bg-white p-6 rounded-3xl border border-[#F4DDE2] shadow-sm flex flex-col justify-between">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-[#7a6f75] uppercase tracking-wider">Latest Vitals</span>
                     <div className="p-2.5 rounded-2xl bg-emerald-50 text-emerald-600">
@@ -1266,7 +1270,7 @@ export default function Dashboard() {
                   </div>
                   <button 
                     onClick={() => setActiveTab('Health Tracker')} 
-                    className="mt-3 text-sm font-bold text-[#7C3AED] hover:underline flex items-center gap-1"
+                    className="mt-3 text-sm font-bold text-[#936DA2] hover:underline flex items-center gap-1"
                   >
                     Open Health Tracker →
                   </button>
@@ -1307,8 +1311,8 @@ export default function Dashboard() {
 
           {/* 2. TAB: MY PROFILE */}
           {activeTab === 'My Profile' && (
-            <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#EDE9FE] shadow-sm space-y-6 max-w-3xl mx-auto">
-              <div className="flex items-center justify-between border-b border-[#EDE9FE] pb-4">
+            <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#F4DDE2] shadow-sm space-y-6 max-w-3xl mx-auto">
+              <div className="flex items-center justify-between border-b border-[#F4DDE2] pb-4">
                 <div>
                   <h3 className="font-bold text-xl text-[#3a3135]">My Profile Information</h3>
                   <p className="text-xs text-[#7a6f75]">Manage your personal profile details and profile avatar photo</p>
@@ -1316,14 +1320,14 @@ export default function Dashboard() {
                 {!isEditingProfile ? (
                   <button 
                     onClick={() => { setEditProfileForm({ ...userProfile }); setIsEditingProfile(true); }} 
-                    className="flex items-center gap-2 px-4 py-2 bg-[#7C3AED] text-white rounded-xl text-xs font-bold cursor-pointer"
+                    className="flex items-center gap-2 px-4 py-2 bg-[#936DA2] text-white rounded-xl text-xs font-bold cursor-pointer"
                   >
                     <Edit3 className="w-4 h-4" /> Edit Profile
                   </button>
                 ) : (
                   <button 
                     onClick={() => setIsEditingProfile(false)} 
-                    className="flex items-center gap-2 px-4 py-2 border border-[#EDE9FE] text-[#7a6f75] rounded-xl text-xs font-bold cursor-pointer"
+                    className="flex items-center gap-2 px-4 py-2 border border-[#F4DDE2] text-[#7a6f75] rounded-xl text-xs font-bold cursor-pointer"
                   >
                     <X className="w-4 h-4" /> Cancel
                   </button>
@@ -1331,17 +1335,17 @@ export default function Dashboard() {
               </div>
 
               {/* PROFILE PHOTO AVATAR HEADER CARD */}
-              <div className="bg-[#FAF8FC] p-6 rounded-3xl border border-[#EDE9FE] flex flex-col sm:flex-row items-center justify-between gap-6">
+              <div className="bg-[#FCF4F5] p-6 rounded-3xl border border-[#F4DDE2] flex flex-col sm:flex-row items-center justify-between gap-6">
                 <div className="flex flex-col sm:flex-row items-center gap-5 text-center sm:text-left">
                   {/* Photo Avatar Circle with Edit Badge */}
                   <div className="relative group cursor-pointer" onClick={() => {
                     setTempAvatarUrl(userProfile.avatarUrl);
-                    setTempAvatarBg(userProfile.avatarBg || '#7C3AED');
+                    setTempAvatarBg(userProfile.avatarBg || '#936DA2');
                     setShowPhotoModal(true);
                   }}>
                     <div 
                       className="w-24 h-24 rounded-full text-white flex items-center justify-center font-bold text-3xl shadow-md border-4 border-white overflow-hidden relative"
-                      style={{ backgroundColor: userProfile.avatarBg || '#7C3AED' }}
+                      style={{ backgroundColor: userProfile.avatarBg || '#936DA2' }}
                     >
                       {userProfile.avatarUrl ? (
                         <img src={userProfile.avatarUrl} alt={userProfile.fullName} className="w-full h-full object-cover rounded-full" />
@@ -1352,7 +1356,7 @@ export default function Dashboard() {
                     {/* Camera Overlay Badge */}
                     <button 
                       type="button" 
-                      className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-[#7C3AED] text-white flex items-center justify-center shadow-lg border-2 border-white hover:bg-[#6D28D9] transition-transform group-hover:scale-110 cursor-pointer"
+                      className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-[#936DA2] text-white flex items-center justify-center shadow-lg border-2 border-white hover:bg-[#835A92] transition-transform group-hover:scale-110 cursor-pointer"
                       title="Edit Profile Photo"
                     >
                       <Camera className="w-4 h-4" />
@@ -1362,7 +1366,7 @@ export default function Dashboard() {
                   <div>
                     <h4 className="font-bold text-xl text-[#3a3135]">{userProfile.fullName}</h4>
                     <p className="text-xs text-[#7a6f75] mt-0.5">{userProfile.email} • {userProfile.phone}</p>
-                    <span className="inline-block text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-purple-100 text-[#7C3AED] border border-purple-200 mt-2">
+                    <span className="inline-block text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-purple-100 text-[#936DA2] border border-purple-200 mt-2">
                       FemSphere Verified Account
                     </span>
                   </div>
@@ -1372,12 +1376,12 @@ export default function Dashboard() {
                   type="button"
                   onClick={() => {
                     setTempAvatarUrl(userProfile.avatarUrl);
-                    setTempAvatarBg(userProfile.avatarBg || '#7C3AED');
+                    setTempAvatarBg(userProfile.avatarBg || '#936DA2');
                     setShowPhotoModal(true);
                   }}
-                  className="px-5 py-2.5 bg-white border border-[#EDE9FE] hover:bg-[#F5F3FF] text-[#7C3AED] rounded-2xl font-bold text-xs flex items-center gap-2 shadow-2xs transition-all cursor-pointer shrink-0"
+                  className="px-5 py-2.5 bg-white border border-[#F4DDE2] hover:bg-[#F9E8EC] text-[#936DA2] rounded-2xl font-bold text-xs flex items-center gap-2 shadow-2xs transition-all cursor-pointer shrink-0"
                 >
-                  <Camera className="w-4 h-4 text-[#7C3AED]" /> Change Profile Photo
+                  <Camera className="w-4 h-4 text-[#936DA2]" /> Change Profile Photo
                 </button>
               </div>
 
@@ -1385,51 +1389,51 @@ export default function Dashboard() {
                 // View Mode
                 <div className="space-y-6">
                   <div className="grid md:grid-cols-2 gap-5 text-xs">
-                    <div className="p-4 rounded-2xl bg-[#FAF8FC] border border-[#EDE9FE]">
+                    <div className="p-4 rounded-2xl bg-[#FCF4F5] border border-[#F4DDE2]">
                       <span className="block font-bold text-[#7a6f75] uppercase text-[10px] mb-1">Full Name</span>
                       <p className="font-bold text-[#3a3135] text-base">{userProfile.fullName}</p>
                     </div>
 
-                    <div className="p-4 rounded-2xl bg-[#FAF8FC] border border-[#EDE9FE]">
+                    <div className="p-4 rounded-2xl bg-[#FCF4F5] border border-[#F4DDE2]">
                       <span className="block font-bold text-[#7a6f75] uppercase text-[10px] mb-1">Date of Birth & Age</span>
                       <p className="font-bold text-[#3a3135] text-base">{userProfile.dob} ({calculateAge(userProfile.dob)} yrs)</p>
                     </div>
 
-                    <div className="p-4 rounded-2xl bg-[#FAF8FC] border border-[#EDE9FE]">
+                    <div className="p-4 rounded-2xl bg-[#FCF4F5] border border-[#F4DDE2]">
                       <span className="block font-bold text-[#7a6f75] uppercase text-[10px] mb-1">Blood Group</span>
                       <p className="font-bold text-[#3a3135] text-base">{userProfile.bloodGroup}</p>
                     </div>
 
-                    <div className="p-4 rounded-2xl bg-[#FAF8FC] border border-[#EDE9FE]">
+                    <div className="p-4 rounded-2xl bg-[#FCF4F5] border border-[#F4DDE2]">
                       <span className="block font-bold text-[#7a6f75] uppercase text-[10px] mb-1">Height & Weight</span>
                       <p className="font-bold text-[#3a3135] text-base">{userProfile.height} cm / {userProfile.weight} kg</p>
                     </div>
 
-                    <div className="p-4 rounded-2xl bg-[#FAF8FC] border border-[#EDE9FE]">
+                    <div className="p-4 rounded-2xl bg-[#FCF4F5] border border-[#F4DDE2]">
                       <span className="block font-bold text-[#7a6f75] uppercase text-[10px] mb-1">Phone Number</span>
                       <p className="font-bold text-[#3a3135] text-base">{userProfile.phone}</p>
                     </div>
 
-                    <div className="p-4 rounded-2xl bg-[#FAF8FC] border border-[#EDE9FE]">
+                    <div className="p-4 rounded-2xl bg-[#FCF4F5] border border-[#F4DDE2]">
                       <span className="block font-bold text-[#7a6f75] uppercase text-[10px] mb-1">Email Address</span>
                       <p className="font-bold text-[#3a3135] text-base">{userProfile.email}</p>
                     </div>
 
-                    <div className="p-4 rounded-2xl bg-[#FAF8FC] border border-[#EDE9FE] md:col-span-2">
+                    <div className="p-4 rounded-2xl bg-[#FCF4F5] border border-[#F4DDE2] md:col-span-2">
                       <span className="block font-bold text-[#7a6f75] uppercase text-[10px] mb-1">Street Address</span>
                       <p className="font-bold text-[#3a3135] text-base">{userProfile.address}</p>
                     </div>
 
-                    <div className="p-4 rounded-2xl bg-[#FAF8FC] border border-[#EDE9FE] md:col-span-2">
+                    <div className="p-4 rounded-2xl bg-[#FCF4F5] border border-[#F4DDE2] md:col-span-2">
                       <span className="block font-bold text-[#7a6f75] uppercase text-[10px] mb-1">Emergency Contact</span>
                       <p className="font-bold text-[#3a3135] text-base">{userProfile.emergencyContact}</p>
                     </div>
                   </div>
 
-                  <div className="pt-4 border-t border-[#EDE9FE] flex justify-between items-center">
+                  <div className="pt-4 border-t border-[#F4DDE2] flex justify-between items-center">
                     <button 
                       onClick={() => setShowPasswordModal(true)} 
-                      className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-[#EDE9FE] text-xs font-bold text-[#7C3AED] hover:bg-[#F5F3FF]"
+                      className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-[#F4DDE2] text-xs font-bold text-[#936DA2] hover:bg-[#F9E8EC]"
                     >
                       <Lock className="w-4 h-4" /> Change Password
                     </button>
@@ -1454,7 +1458,7 @@ export default function Dashboard() {
                         className={`w-full p-3 rounded-xl border ${
                           editProfileForm.fullName.trim() && !isValidName(editProfileForm.fullName)
                             ? 'border-red-400 focus:border-red-500'
-                            : 'border-[#EDE9FE]'
+                            : 'border-[#F4DDE2]'
                         }`} 
                         required 
                       />
@@ -1472,7 +1476,7 @@ export default function Dashboard() {
                         className={`w-full p-3 rounded-xl border ${
                           editProfileForm.dob && !isPastOrToday(editProfileForm.dob)
                             ? 'border-red-400 focus:border-red-500'
-                            : 'border-[#EDE9FE]'
+                            : 'border-[#F4DDE2]'
                         }`} 
                         required 
                       />
@@ -1486,7 +1490,7 @@ export default function Dashboard() {
                       <select 
                         value={editProfileForm.bloodGroup} 
                         onChange={(e) => setEditProfileForm({...editProfileForm, bloodGroup: e.target.value})} 
-                        className="w-full p-3 rounded-xl border border-[#EDE9FE] bg-white"
+                        className="w-full p-3 rounded-xl border border-[#F4DDE2] bg-white"
                       >
                         <option value="A Positive (A+)">A Positive (A+)</option>
                         <option value="A Negative (A-)">A Negative (A-)</option>
@@ -1506,7 +1510,7 @@ export default function Dashboard() {
                           type="number" 
                           value={editProfileForm.height} 
                           onChange={(e) => setEditProfileForm({...editProfileForm, height: e.target.value})} 
-                          className="w-full p-3 rounded-xl border border-[#EDE9FE]" 
+                          className="w-full p-3 rounded-xl border border-[#F4DDE2]" 
                         />
                       </div>
                       <div>
@@ -1515,7 +1519,7 @@ export default function Dashboard() {
                           type="number" 
                           value={editProfileForm.weight} 
                           onChange={(e) => setEditProfileForm({...editProfileForm, weight: e.target.value})} 
-                          className="w-full p-3 rounded-xl border border-[#EDE9FE]" 
+                          className="w-full p-3 rounded-xl border border-[#F4DDE2]" 
                         />
                       </div>
                     </div>
@@ -1529,7 +1533,7 @@ export default function Dashboard() {
                         className={`w-full p-3 rounded-xl border ${
                           editProfileForm.phone.trim() && !isValidPhone(editProfileForm.phone)
                             ? 'border-red-400 focus:border-red-500'
-                            : 'border-[#EDE9FE]'
+                            : 'border-[#F4DDE2]'
                         }`} 
                         required 
                       />
@@ -1547,7 +1551,7 @@ export default function Dashboard() {
                         className={`w-full p-3 rounded-xl border ${
                           editProfileForm.email.trim() && !isValidEmail(editProfileForm.email)
                             ? 'border-red-400 focus:border-red-500'
-                            : 'border-[#EDE9FE]'
+                            : 'border-[#F4DDE2]'
                         }`} 
                         required 
                       />
@@ -1562,7 +1566,7 @@ export default function Dashboard() {
                         type="text" 
                         value={editProfileForm.address} 
                         onChange={(e) => setEditProfileForm({...editProfileForm, address: e.target.value})} 
-                        className="w-full p-3 rounded-xl border border-[#EDE9FE]" 
+                        className="w-full p-3 rounded-xl border border-[#F4DDE2]" 
                       />
                     </div>
 
@@ -1572,7 +1576,7 @@ export default function Dashboard() {
                         type="text" 
                         value={editProfileForm.emergencyContact} 
                         onChange={(e) => setEditProfileForm({...editProfileForm, emergencyContact: e.target.value})} 
-                        className="w-full p-3 rounded-xl border border-[#EDE9FE]" 
+                        className="w-full p-3 rounded-xl border border-[#F4DDE2]" 
                       />
                     </div>
                   </div>
@@ -1581,13 +1585,13 @@ export default function Dashboard() {
                     <button 
                       type="button" 
                       onClick={() => setIsEditingProfile(false)} 
-                      className="px-5 py-2.5 rounded-xl border border-[#EDE9FE] font-bold text-xs"
+                      className="px-5 py-2.5 rounded-xl border border-[#F4DDE2] font-bold text-xs"
                     >
                       Cancel
                     </button>
                     <button 
                       type="submit" 
-                      className="px-6 py-2.5 bg-[#7C3AED] text-white rounded-xl font-bold text-xs"
+                      className="px-6 py-2.5 bg-[#936DA2] text-white rounded-xl font-bold text-xs"
                     >
                       Save Profile Changes
                     </button>
@@ -1601,11 +1605,11 @@ export default function Dashboard() {
           {activeTab === 'Medical Records' && (
             <div className="space-y-8 animate-in fade-in duration-200 font-inter">
               {/* TOP HEADER */}
-              <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#EDE9FE] shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+              <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#F4DDE2] shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#EDE9FE] text-[#7C3AED] uppercase tracking-wider flex items-center gap-1">
-                      <Sparkles className="w-3 h-3 text-[#7C3AED]" /> AI Medical OCR Engine
+                    <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#F4DDE2] text-[#936DA2] uppercase tracking-wider flex items-center gap-1">
+                      <Sparkles className="w-3 h-3 text-[#936DA2]" /> AI Medical OCR Engine
                     </span>
                     <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 uppercase tracking-wider">
                       AUTO-SCAN ENABLED
@@ -1616,17 +1620,17 @@ export default function Dashboard() {
                 </div>
                 <button 
                   onClick={() => setShowUploadModal(true)} 
-                  className="flex items-center gap-2 px-6 py-3 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-2xl font-bold text-xs shadow-md transition-all cursor-pointer shrink-0"
+                  className="flex items-center gap-2 px-6 py-3 bg-[#936DA2] hover:bg-[#835A92] text-white rounded-2xl font-bold text-xs shadow-md transition-all cursor-pointer shrink-0"
                 >
                   <Upload className="w-4 h-4" /> Upload New Medical Report
                 </button>
               </div>
 
               {/* MONTHLY OVERALL HEALTH SUMMARY CARD */}
-              <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#EDE9FE] shadow-sm space-y-6">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-[#EDE9FE] pb-4 gap-4">
+              <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#F4DDE2] shadow-sm space-y-6">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-[#F4DDE2] pb-4 gap-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-2xl bg-[#F5F3FF] border border-[#EDE9FE] flex items-center justify-center text-[#7C3AED]">
+                    <div className="w-10 h-10 rounded-2xl bg-[#F9E8EC] border border-[#F4DDE2] flex items-center justify-center text-[#936DA2]">
                       <FileCheck className="w-5 h-5" />
                     </div>
                     <div>
@@ -1636,14 +1640,14 @@ export default function Dashboard() {
                   </div>
 
                   {/* MONTH SELECTOR DROPDOWN */}
-                  <div className="flex items-center gap-2 bg-[#FAF8FC] p-1.5 rounded-2xl border border-[#EDE9FE]">
+                  <div className="flex items-center gap-2 bg-[#FCF4F5] p-1.5 rounded-2xl border border-[#F4DDE2]">
                     <span className="text-xs font-bold text-[#7a6f75] px-2 flex items-center gap-1">
-                      <Calendar className="w-3.5 h-3.5 text-[#7C3AED]" /> Month:
+                      <Calendar className="w-3.5 h-3.5 text-[#936DA2]" /> Month:
                     </span>
                     <select 
                       value={selectedMonthFilter} 
                       onChange={(e) => setSelectedMonthFilter(e.target.value)}
-                      className="bg-white border border-[#EDE9FE] rounded-xl px-3 py-1.5 font-bold text-xs text-[#3a3135] focus:outline-hidden cursor-pointer"
+                      className="bg-white border border-[#F4DDE2] rounded-xl px-3 py-1.5 font-bold text-xs text-[#3a3135] focus:outline-hidden cursor-pointer"
                     >
                       <option value="August 2026">August 2026 (Latest)</option>
                       <option value="July 2026">July 2026</option>
@@ -1668,15 +1672,15 @@ export default function Dashboard() {
                   return (
                     <div className="space-y-6">
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div className="p-4 rounded-2xl bg-[#FAF8FC] border border-[#EDE9FE]">
+                        <div className="p-4 rounded-2xl bg-[#FCF4F5] border border-[#F4DDE2]">
                           <span className="text-[10px] font-bold uppercase tracking-wider text-[#7a6f75] block mb-1">Scanned Reports</span>
                           <div className="flex items-baseline gap-2">
-                            <span className="text-2xl font-bold text-[#7C3AED]">{scannedCount}</span>
+                            <span className="text-2xl font-bold text-[#936DA2]">{scannedCount}</span>
                             <span className="text-xs text-[#7a6f75] font-medium">in {selectedMonthFilter}</span>
                           </div>
                         </div>
 
-                        <div className="p-4 rounded-2xl bg-[#FAF8FC] border border-[#EDE9FE]">
+                        <div className="p-4 rounded-2xl bg-[#FCF4F5] border border-[#F4DDE2]">
                           <span className="text-[10px] font-bold uppercase tracking-wider text-[#7a6f75] block mb-1">Lab Biomarkers</span>
                           <div className="flex items-baseline gap-2">
                             <span className="text-2xl font-bold text-emerald-600">{allBiomarkers.length}</span>
@@ -1684,7 +1688,7 @@ export default function Dashboard() {
                           </div>
                         </div>
 
-                        <div className="p-4 rounded-2xl bg-[#FAF8FC] border border-[#EDE9FE]">
+                        <div className="p-4 rounded-2xl bg-[#FCF4F5] border border-[#F4DDE2]">
                           <span className="text-[10px] font-bold uppercase tracking-wider text-[#7a6f75] block mb-1">Clinical Status</span>
                           <div className="flex items-center gap-1.5 mt-0.5">
                             {watchCount > 0 ? (
@@ -1699,7 +1703,7 @@ export default function Dashboard() {
                           </div>
                         </div>
 
-                        <div className="p-4 rounded-2xl bg-[#FAF8FC] border border-[#EDE9FE]">
+                        <div className="p-4 rounded-2xl bg-[#FCF4F5] border border-[#F4DDE2]">
                           <span className="text-[10px] font-bold uppercase tracking-wider text-[#7a6f75] block mb-1">Monthly Clinical Score</span>
                           <div className="flex items-baseline gap-1">
                             <span className="text-2xl font-bold text-[#3a3135]">{watchCount > 0 ? '88' : '96'}</span>
@@ -1709,12 +1713,12 @@ export default function Dashboard() {
                       </div>
 
                       {/* EXECUTIVE SYNTHESIS BOX */}
-                      <div className="p-5 rounded-2xl bg-[#F5F3FF] border border-[#EDE9FE] space-y-3">
+                      <div className="p-5 rounded-2xl bg-[#F9E8EC] border border-[#F4DDE2] space-y-3">
                         <div className="flex items-center justify-between">
-                          <h5 className="font-bold text-xs uppercase tracking-wider text-[#7C3AED] flex items-center gap-1.5">
-                            <Sparkles className="w-4 h-4 text-[#7C3AED]" /> Monthly AI Clinical Overview ({selectedMonthFilter})
+                          <h5 className="font-bold text-xs uppercase tracking-wider text-[#936DA2] flex items-center gap-1.5">
+                            <Sparkles className="w-4 h-4 text-[#936DA2]" /> Monthly AI Clinical Overview ({selectedMonthFilter})
                           </h5>
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white text-[#7C3AED] border border-[#EDE9FE]">
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white text-[#936DA2] border border-[#F4DDE2]">
                             AI Synthesized Summary
                           </span>
                         </div>
@@ -1741,9 +1745,9 @@ export default function Dashboard() {
                         {allBiomarkers.length > 0 && (
                           <div className="pt-2">
                             <h6 className="font-bold text-xs text-[#64595e] uppercase tracking-wider mb-2">Scanned Biomarkers Table ({selectedMonthFilter})</h6>
-                            <div className="overflow-x-auto rounded-xl border border-[#EDE9FE] bg-white">
+                            <div className="overflow-x-auto rounded-xl border border-[#F4DDE2] bg-white">
                               <table className="w-full text-left text-xs">
-                                <thead className="bg-[#FAF8FC] border-b border-[#EDE9FE] text-[#7a6f75] font-bold text-[11px] uppercase">
+                                <thead className="bg-[#FCF4F5] border-b border-[#F4DDE2] text-[#7a6f75] font-bold text-[11px] uppercase">
                                   <tr>
                                     <th className="p-3">Biomarker / Test</th>
                                     <th className="p-3">Scanned Value</th>
@@ -1751,9 +1755,9 @@ export default function Dashboard() {
                                     <th className="p-3">Status</th>
                                   </tr>
                                 </thead>
-                                <tbody className="divide-y divide-[#EDE9FE] text-[#3a3135]">
+                                <tbody className="divide-y divide-[#F4DDE2] text-[#3a3135]">
                                   {allBiomarkers.map((b, idx) => (
-                                    <tr key={idx} className="hover:bg-[#FAF8FC]">
+                                    <tr key={idx} className="hover:bg-[#FCF4F5]">
                                       <td className="p-3 font-bold">{b.name}</td>
                                       <td className="p-3 font-semibold">{b.value}</td>
                                       <td className="p-3 text-[#7a6f75]">{b.range}</td>
@@ -1778,8 +1782,8 @@ export default function Dashboard() {
               </div>
 
               {/* UPLOADED MEDICAL REPORTS LIST */}
-              <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#EDE9FE] shadow-sm space-y-6">
-                <div className="flex items-center justify-between border-b border-[#EDE9FE] pb-4">
+              <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#F4DDE2] shadow-sm space-y-6">
+                <div className="flex items-center justify-between border-b border-[#F4DDE2] pb-4">
                   <h4 className="font-bold text-lg text-[#3a3135]">Scanned Reports Vault</h4>
                   <span className="text-xs text-[#7a6f75] font-medium">Total Reports: {records.length}</span>
                 </div>
@@ -1788,10 +1792,10 @@ export default function Dashboard() {
                   {records
                     .filter(r => selectedMonthFilter === 'All Months' || r.month === selectedMonthFilter || r.date.startsWith(selectedMonthFilter === 'August 2026' ? '2026-08' : selectedMonthFilter === 'July 2026' ? '2026-07' : selectedMonthFilter === 'June 2026' ? '2026-06' : '2026-05'))
                     .map((r) => (
-                      <div key={r.id} className="p-5 rounded-2xl border border-[#EDE9FE] bg-[#FAF8FC] hover:bg-white hover:border-[#7C3AED]/40 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 text-xs transition-all shadow-2xs">
+                      <div key={r.id} className="p-5 rounded-2xl border border-[#F4DDE2] bg-[#FCF4F5] hover:bg-white hover:border-[#936DA2]/40 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 text-xs transition-all shadow-2xs">
                         <div className="space-y-2 flex-1">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <span className="px-2.5 py-0.5 rounded-md bg-[#EDE9FE] text-[#7C3AED] font-bold text-[10px]">
+                            <span className="px-2.5 py-0.5 rounded-md bg-[#F4DDE2] text-[#936DA2] font-bold text-[10px]">
                               {r.type}
                             </span>
                             <span className="px-2.5 py-0.5 rounded-md bg-purple-100 text-purple-800 font-bold text-[10px]">
@@ -1813,7 +1817,7 @@ export default function Dashboard() {
                           <p className="text-[#64595e] text-xs">{r.description}</p>
                           
                           {r.scanResults && (
-                            <p className="text-xs text-[#7C3AED] font-medium bg-[#F5F3FF] p-2.5 rounded-xl border border-[#EDE9FE]">
+                            <p className="text-xs text-[#936DA2] font-medium bg-[#F9E8EC] p-2.5 rounded-xl border border-[#F4DDE2]">
                               💡 <b>AI Summary:</b> {r.scanResults.aiSummary}
                             </p>
                           )}
@@ -1824,14 +1828,14 @@ export default function Dashboard() {
                           {r.isScanned ? (
                             <button 
                               onClick={() => setViewingScanRecordModal(r)} 
-                              className="px-4 py-2.5 bg-[#EDE9FE] text-[#7C3AED] hover:bg-[#7C3AED] hover:text-white font-bold rounded-xl transition-all cursor-pointer flex items-center gap-1.5"
+                              className="px-4 py-2.5 bg-[#F4DDE2] text-[#936DA2] hover:bg-[#936DA2] hover:text-white font-bold rounded-xl transition-all cursor-pointer flex items-center gap-1.5"
                             >
                               <Eye className="w-3.5 h-3.5" /> View Analysis
                             </button>
                           ) : (
                             <button 
                               onClick={() => handleScanMedicalReport(r.id)} 
-                              className="px-4 py-2.5 bg-[#7C3AED] text-white hover:bg-[#6D28D9] font-bold rounded-xl transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs"
+                              className="px-4 py-2.5 bg-[#936DA2] text-white hover:bg-[#835A92] font-bold rounded-xl transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs"
                             >
                               <Scan className="w-3.5 h-3.5" /> Scan Report
                             </button>
@@ -1839,7 +1843,7 @@ export default function Dashboard() {
 
                           <button 
                             onClick={() => alert(`Downloading report "${r.title}.${r.type.toLowerCase()}"...`)} 
-                            className="p-2.5 bg-[#FAF8FC] text-[#4A3B42] border border-[#EDE9FE] rounded-xl hover:bg-gray-100 transition-colors"
+                            className="p-2.5 bg-[#FCF4F5] text-[#4A3B42] border border-[#F4DDE2] rounded-xl hover:bg-gray-100 transition-colors"
                             title="Download Report"
                           >
                             <Download className="w-4 h-4" />
@@ -1856,7 +1860,7 @@ export default function Dashboard() {
                     ))}
 
                   {records.length === 0 && (
-                    <div className="text-center py-12 border border-dashed border-[#EDE9FE] rounded-3xl text-[#7a6f75] text-xs">
+                    <div className="text-center py-12 border border-dashed border-[#F4DDE2] rounded-3xl text-[#7a6f75] text-xs">
                       No medical reports uploaded yet. Click "Upload New Medical Report" above to scan your first lab result.
                     </div>
                   )}
@@ -1867,23 +1871,23 @@ export default function Dashboard() {
 
           {/* 4. TAB: HEALTH TRACKER */}
           {activeTab === 'Health Tracker' && (
-            <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#EDE9FE] shadow-sm space-y-8">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-[#EDE9FE] pb-4 gap-4">
+            <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#F4DDE2] shadow-sm space-y-8">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-[#F4DDE2] pb-4 gap-4">
                 <div>
                   <h3 className="font-bold text-xl text-[#3a3135]">Health Tracker</h3>
                   <p className="text-xs text-[#7a6f75]">Manually log Food meals, Exercise workouts, Steps count, Water, Sleep, Vitals & Symptoms experienced</p>
                 </div>
-                <span className="text-xs font-bold px-3.5 py-1.5 rounded-full bg-[#F5F3FF] text-[#7C3AED] border border-[#EDE9FE] flex items-center gap-1.5 shadow-2xs">
-                  <Activity className="w-4 h-4 text-[#7C3AED]" /> Complete Health Logging Mode
+                <span className="text-xs font-bold px-3.5 py-1.5 rounded-full bg-[#F9E8EC] text-[#936DA2] border border-[#F4DDE2] flex items-center gap-1.5 shadow-2xs">
+                  <Activity className="w-4 h-4 text-[#936DA2]" /> Complete Health Logging Mode
                 </span>
               </div>
 
               <div className="space-y-8">
                   {/* Health Input Form */}
-                  <form onSubmit={handleSaveTrackerLog} className="bg-[#FAF8FC] p-6 rounded-3xl border border-[#EDE9FE] space-y-6">
-                    <div className="flex items-center justify-between border-b border-[#EDE9FE] pb-3">
+                  <form onSubmit={handleSaveTrackerLog} className="bg-[#FCF4F5] p-6 rounded-3xl border border-[#F4DDE2] space-y-6">
+                    <div className="flex items-center justify-between border-b border-[#F4DDE2] pb-3">
                       <h4 className="font-bold text-base text-[#3a3135] flex items-center gap-2">
-                        <Edit3 className="w-4 h-4 text-[#7C3AED]" />
+                        <Edit3 className="w-4 h-4 text-[#936DA2]" />
                         {editingTrackerId ? 'Edit Health Entry' : 'Manual & Watch Health Log Entry'}
                       </h4>
                       <span className="text-xs text-[#7a6f75] font-medium">Date: {new Date().toLocaleDateString()}</span>
@@ -1928,7 +1932,7 @@ export default function Dashboard() {
 
                     {/* SECTION 1: FOOD & NUTRITION */}
                     <div className="space-y-3">
-                      <h5 className="font-bold text-xs uppercase tracking-wider text-[#7C3AED] flex items-center gap-1.5">
+                      <h5 className="font-bold text-xs uppercase tracking-wider text-[#936DA2] flex items-center gap-1.5">
                         <Utensils className="w-4 h-4" /> 1. Food & Calorie Intake
                       </h5>
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
@@ -1939,7 +1943,7 @@ export default function Dashboard() {
                             placeholder="e.g. Oatmeal & Fruits (Breakfast), Salad (Lunch), Grilled Salmon (Dinner)" 
                             value={trackerInput.foodMeals} 
                             onChange={(e) => setTrackerInput({...trackerInput, foodMeals: e.target.value})} 
-                            className="w-full p-3 rounded-xl border border-[#EDE9FE] bg-white focus:ring-2 focus:ring-[#7C3AED] focus:outline-hidden" 
+                            className="w-full p-3 rounded-xl border border-[#F4DDE2] bg-white focus:ring-2 focus:ring-[#936DA2] focus:outline-hidden" 
                           />
                         </div>
                         <div>
@@ -1949,7 +1953,7 @@ export default function Dashboard() {
                             placeholder="e.g. 1850" 
                             value={trackerInput.caloriesIntake} 
                             onChange={(e) => setTrackerInput({...trackerInput, caloriesIntake: e.target.value})} 
-                            className="w-full p-3 rounded-xl border border-[#EDE9FE] bg-white focus:ring-2 focus:ring-[#7C3AED] focus:outline-hidden" 
+                            className="w-full p-3 rounded-xl border border-[#F4DDE2] bg-white focus:ring-2 focus:ring-[#936DA2] focus:outline-hidden" 
                           />
                         </div>
                       </div>
@@ -1968,7 +1972,7 @@ export default function Dashboard() {
                             placeholder="e.g. Yoga, Morning Jog, Pilates, Gym" 
                             value={trackerInput.exerciseType} 
                             onChange={(e) => setTrackerInput({...trackerInput, exerciseType: e.target.value})} 
-                            className="w-full p-3 rounded-xl border border-[#EDE9FE] bg-white focus:ring-2 focus:ring-[#7C3AED] focus:outline-hidden" 
+                            className="w-full p-3 rounded-xl border border-[#F4DDE2] bg-white focus:ring-2 focus:ring-[#936DA2] focus:outline-hidden" 
                           />
                         </div>
                         <div>
@@ -1978,7 +1982,7 @@ export default function Dashboard() {
                             placeholder="e.g. 35" 
                             value={trackerInput.exercise} 
                             onChange={(e) => setTrackerInput({...trackerInput, exercise: e.target.value})} 
-                            className="w-full p-3 rounded-xl border border-[#EDE9FE] bg-white focus:ring-2 focus:ring-[#7C3AED] focus:outline-hidden" 
+                            className="w-full p-3 rounded-xl border border-[#F4DDE2] bg-white focus:ring-2 focus:ring-[#936DA2] focus:outline-hidden" 
                             required 
                           />
                         </div>
@@ -1996,7 +2000,7 @@ export default function Dashboard() {
                             placeholder="e.g. 250" 
                             value={trackerInput.caloriesBurned} 
                             onChange={(e) => setTrackerInput({...trackerInput, caloriesBurned: e.target.value})} 
-                            className={`w-full p-3 rounded-xl border bg-white focus:ring-2 focus:ring-[#7C3AED] focus:outline-hidden ${bluetoothConnected ? 'border-emerald-300 bg-emerald-50/30' : 'border-[#EDE9FE]'}`} 
+                            className={`w-full p-3 rounded-xl border bg-white focus:ring-2 focus:ring-[#936DA2] focus:outline-hidden ${bluetoothConnected ? 'border-emerald-300 bg-emerald-50/30' : 'border-[#F4DDE2]'}`} 
                           />
                         </div>
                       </div>
@@ -2022,7 +2026,7 @@ export default function Dashboard() {
                             placeholder="e.g. 8420" 
                             value={trackerInput.steps} 
                             onChange={(e) => setTrackerInput({...trackerInput, steps: e.target.value})} 
-                            className={`w-full p-3 rounded-xl border bg-white focus:ring-2 focus:ring-[#7C3AED] focus:outline-hidden ${bluetoothConnected ? 'border-emerald-300 bg-emerald-50/30' : 'border-[#EDE9FE]'}`} 
+                            className={`w-full p-3 rounded-xl border bg-white focus:ring-2 focus:ring-[#936DA2] focus:outline-hidden ${bluetoothConnected ? 'border-emerald-300 bg-emerald-50/30' : 'border-[#F4DDE2]'}`} 
                           />
                         </div>
                         <div>
@@ -2040,7 +2044,7 @@ export default function Dashboard() {
                             placeholder="e.g. 5.6" 
                             value={trackerInput.distanceKm} 
                             onChange={(e) => setTrackerInput({...trackerInput, distanceKm: e.target.value})} 
-                            className={`w-full p-3 rounded-xl border bg-white focus:ring-2 focus:ring-[#7C3AED] focus:outline-hidden ${bluetoothConnected ? 'border-emerald-300 bg-emerald-50/30' : 'border-[#EDE9FE]'}`} 
+                            className={`w-full p-3 rounded-xl border bg-white focus:ring-2 focus:ring-[#936DA2] focus:outline-hidden ${bluetoothConnected ? 'border-emerald-300 bg-emerald-50/30' : 'border-[#F4DDE2]'}`} 
                           />
                         </div>
                       </div>
@@ -2059,7 +2063,7 @@ export default function Dashboard() {
                             step="0.1" 
                             value={trackerInput.weight} 
                             onChange={(e) => setTrackerInput({...trackerInput, weight: e.target.value})} 
-                            className="w-full p-3 rounded-xl border border-[#EDE9FE] bg-white" 
+                            className="w-full p-3 rounded-xl border border-[#F4DDE2] bg-white" 
                             required 
                           />
                         </div>
@@ -2070,7 +2074,7 @@ export default function Dashboard() {
                             step="0.1" 
                             value={trackerInput.water} 
                             onChange={(e) => setTrackerInput({...trackerInput, water: e.target.value})} 
-                            className="w-full p-3 rounded-xl border border-[#EDE9FE] bg-white" 
+                            className="w-full p-3 rounded-xl border border-[#F4DDE2] bg-white" 
                             required 
                           />
                         </div>
@@ -2081,7 +2085,7 @@ export default function Dashboard() {
                             step="0.5" 
                             value={trackerInput.sleep} 
                             onChange={(e) => setTrackerInput({...trackerInput, sleep: e.target.value})} 
-                            className="w-full p-3 rounded-xl border border-[#EDE9FE] bg-white" 
+                            className="w-full p-3 rounded-xl border border-[#F4DDE2] bg-white" 
                             required 
                           />
                         </div>
@@ -2092,7 +2096,7 @@ export default function Dashboard() {
                             placeholder="e.g. 120/78" 
                             value={trackerInput.bloodPressure} 
                             onChange={(e) => setTrackerInput({...trackerInput, bloodPressure: e.target.value})} 
-                            className="w-full p-3 rounded-xl border border-[#EDE9FE] bg-white" 
+                            className="w-full p-3 rounded-xl border border-[#F4DDE2] bg-white" 
                           />
                         </div>
                         <div>
@@ -2109,7 +2113,7 @@ export default function Dashboard() {
                             placeholder="e.g. 72" 
                             value={trackerInput.heartRate} 
                             onChange={(e) => setTrackerInput({...trackerInput, heartRate: e.target.value})} 
-                            className={`w-full p-3 rounded-xl border bg-white ${bluetoothConnected ? 'border-emerald-300 bg-emerald-50/30' : 'border-[#EDE9FE]'}`} 
+                            className={`w-full p-3 rounded-xl border bg-white ${bluetoothConnected ? 'border-emerald-300 bg-emerald-50/30' : 'border-[#F4DDE2]'}`} 
                           />
                         </div>
                       </div>
@@ -2120,7 +2124,7 @@ export default function Dashboard() {
                           <select 
                             value={trackerInput.mood} 
                             onChange={(e) => setTrackerInput({...trackerInput, mood: e.target.value})}
-                            className="w-full p-3 rounded-xl border border-[#EDE9FE] bg-white font-medium"
+                            className="w-full p-3 rounded-xl border border-[#F4DDE2] bg-white font-medium"
                           >
                             <option value="Energetic">✨ Energetic & Vibrant</option>
                             <option value="Good">😊 Good / Positive</option>
@@ -2137,7 +2141,7 @@ export default function Dashboard() {
                             placeholder="e.g. Completed hydration target, felt energized post morning workout..." 
                             value={trackerInput.notes} 
                             onChange={(e) => setTrackerInput({...trackerInput, notes: e.target.value})} 
-                            className="w-full p-3 rounded-xl border border-[#EDE9FE] bg-white" 
+                            className="w-full p-3 rounded-xl border border-[#F4DDE2] bg-white" 
                           />
                         </div>
                       </div>
@@ -2156,7 +2160,7 @@ export default function Dashboard() {
                             placeholder="e.g. Headache, Fatigue, Abdominal Cramps, Nausea" 
                             value={trackerInput.symptomName} 
                             onChange={(e) => setTrackerInput({...trackerInput, symptomName: e.target.value})} 
-                            className="w-full p-3 rounded-xl border border-[#EDE9FE] bg-white focus:ring-2 focus:ring-[#7C3AED]" 
+                            className="w-full p-3 rounded-xl border border-[#F4DDE2] bg-white focus:ring-2 focus:ring-[#936DA2]" 
                           />
                         </div>
                         <div>
@@ -2164,7 +2168,7 @@ export default function Dashboard() {
                           <select 
                             value={trackerInput.symptomSeverity} 
                             onChange={(e) => setTrackerInput({...trackerInput, symptomSeverity: e.target.value})}
-                            className="w-full p-3 rounded-xl border border-[#EDE9FE] bg-white font-medium"
+                            className="w-full p-3 rounded-xl border border-[#F4DDE2] bg-white font-medium"
                           >
                             <option value="Low">Low Severity</option>
                             <option value="Medium">Medium Severity</option>
@@ -2174,7 +2178,7 @@ export default function Dashboard() {
                       </div>
                     </div>
 
-                    <div className="flex justify-end gap-3 pt-4 border-t border-[#EDE9FE]">
+                    <div className="flex justify-end gap-3 pt-4 border-t border-[#F4DDE2]">
                       {editingTrackerId && (
                         <button 
                           type="button" 
@@ -2197,12 +2201,12 @@ export default function Dashboard() {
                               notes: ''
                             });
                           }}
-                          className="px-5 py-3 border border-[#EDE9FE] rounded-2xl font-bold text-xs hover:bg-gray-50 cursor-pointer"
+                          className="px-5 py-3 border border-[#F4DDE2] rounded-2xl font-bold text-xs hover:bg-gray-50 cursor-pointer"
                         >
                           Cancel Edit
                         </button>
                       )}
-                      <button type="submit" className="px-7 py-3 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-2xl text-xs font-bold shadow-md transition-all cursor-pointer">
+                      <button type="submit" className="px-7 py-3 bg-[#936DA2] hover:bg-[#835A92] text-white rounded-2xl text-xs font-bold shadow-md transition-all cursor-pointer">
                         {editingTrackerId ? 'Update Health Record' : 'Save Daily Health Record'}
                       </button>
                     </div>
@@ -2212,10 +2216,10 @@ export default function Dashboard() {
                   <div className="space-y-4">
                     <h4 className="font-bold text-base text-[#3a3135]">Vitals & Activity History Logs</h4>
                     {trackerLogs.map((log) => (
-                      <div key={log.id} className="p-5 rounded-2xl border border-[#EDE9FE] bg-white hover:bg-[#FAF8FC] flex flex-col md:flex-row items-start md:items-center justify-between gap-4 text-xs transition-all shadow-2xs">
+                      <div key={log.id} className="p-5 rounded-2xl border border-[#F4DDE2] bg-white hover:bg-[#FCF4F5] flex flex-col md:flex-row items-start md:items-center justify-between gap-4 text-xs transition-all shadow-2xs">
                         <div className="space-y-2 flex-1">
                           <div className="flex items-center gap-3 flex-wrap">
-                            <span className="font-bold text-[#7C3AED] text-sm bg-[#F5F3FF] px-3 py-1 rounded-xl border border-[#EDE9FE]">
+                            <span className="font-bold text-[#936DA2] text-sm bg-[#F9E8EC] px-3 py-1 rounded-xl border border-[#F4DDE2]">
                               {log.date}
                             </span>
                             {log.mood && (
@@ -2260,7 +2264,7 @@ export default function Dashboard() {
                         </div>
 
                         <div className="flex items-center gap-2 self-end md:self-center">
-                          <button onClick={() => handleEditTrackerLog(log)} className="px-3.5 py-2 bg-[#EDE9FE] text-[#7C3AED] hover:bg-[#7C3AED] hover:text-white font-bold rounded-xl transition-all cursor-pointer">
+                          <button onClick={() => handleEditTrackerLog(log)} className="px-3.5 py-2 bg-[#F4DDE2] text-[#936DA2] hover:bg-[#936DA2] hover:text-white font-bold rounded-xl transition-all cursor-pointer">
                             Edit
                           </button>
                           <button onClick={() => handleDeleteTrackerLog(log.id)} className="p-2 text-red-500 hover:bg-red-50 rounded-xl transition-colors cursor-pointer" title="Delete Log">
@@ -2276,15 +2280,15 @@ export default function Dashboard() {
 
           {/* 6. TAB: APPOINTMENTS */}
           {activeTab === 'Appointments' && (
-            <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#EDE9FE] shadow-sm space-y-6">
-              <div className="flex items-center justify-between border-b border-[#EDE9FE] pb-4">
+            <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#F4DDE2] shadow-sm space-y-6">
+              <div className="flex items-center justify-between border-b border-[#F4DDE2] pb-4">
                 <div>
                   <h3 className="font-bold text-xl text-[#3a3135]">Appointments Management</h3>
                   <p className="text-xs text-[#7a6f75]">Book doctor consultations and review appointment history</p>
                 </div>
                 <button 
                   onClick={() => setShowBookModal(true)} 
-                  className="flex items-center gap-2 px-5 py-2.5 bg-[#7C3AED] text-white rounded-xl font-bold text-xs shadow-xs"
+                  className="flex items-center gap-2 px-5 py-2.5 bg-[#936DA2] text-white rounded-xl font-bold text-xs shadow-xs"
                 >
                   <Plus className="w-4 h-4" /> Book Appointment
                 </button>
@@ -2293,11 +2297,11 @@ export default function Dashboard() {
               {/* Appointments List */}
               <div className="space-y-3">
                 {appointments.map((a) => (
-                  <div key={a.id} className="p-4.5 rounded-2xl border border-[#EDE9FE] bg-[#FAF8FC] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs">
+                  <div key={a.id} className="p-4.5 rounded-2xl border border-[#F4DDE2] bg-[#FCF4F5] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs">
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
                         <span className={`px-2.5 py-0.5 rounded-full font-bold text-[10px] ${
-                          a.status === 'Scheduled' ? 'bg-purple-100 text-[#7C3AED]' : a.status === 'Completed' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-600'
+                          a.status === 'Scheduled' ? 'bg-purple-100 text-[#936DA2]' : a.status === 'Completed' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-600'
                         }`}>
                           {a.status}
                         </span>
@@ -2323,8 +2327,8 @@ export default function Dashboard() {
 
           {/* 7. TAB: HEALTH REPORTS */}
           {activeTab === 'Health Reports' && (
-            <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#EDE9FE] shadow-sm space-y-6">
-              <div className="flex items-center justify-between border-b border-[#EDE9FE] pb-4">
+            <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#F4DDE2] shadow-sm space-y-6">
+              <div className="flex items-center justify-between border-b border-[#F4DDE2] pb-4">
                 <div>
                   <h3 className="font-bold text-xl text-[#3a3135]">Health Reports Generator</h3>
                   <p className="text-xs text-[#7a6f75]">Consolidate personal profile, health vitals, symptoms, medical records & appointments into a PDF report</p>
@@ -2332,13 +2336,13 @@ export default function Dashboard() {
                 <div className="flex gap-2">
                   <button 
                     onClick={() => setShowReportPreview(true)} 
-                    className="flex items-center gap-2 px-4 py-2.5 bg-[#EDE9FE] text-[#7C3AED] rounded-xl text-xs font-bold"
+                    className="flex items-center gap-2 px-4 py-2.5 bg-[#F4DDE2] text-[#936DA2] rounded-xl text-xs font-bold"
                   >
                     <Eye className="w-4 h-4" /> View Report
                   </button>
                   <button 
                     onClick={handlePrintPDFReport} 
-                    className="flex items-center gap-2 px-5 py-2.5 bg-[#7C3AED] text-white rounded-xl text-xs font-bold"
+                    className="flex items-center gap-2 px-5 py-2.5 bg-[#936DA2] text-white rounded-xl text-xs font-bold"
                   >
                     <Printer className="w-4 h-4" /> Download PDF Report
                   </button>
@@ -2346,10 +2350,10 @@ export default function Dashboard() {
               </div>
 
               {/* REPORT PREVIEW CONTAINER */}
-              <div className="bg-[#FAF8FC] p-6 rounded-3xl border border-[#EDE9FE] space-y-6 text-xs font-inter">
-                <div className="flex justify-between items-center pb-4 border-b border-[#EDE9FE]">
+              <div className="bg-[#FCF4F5] p-6 rounded-3xl border border-[#F4DDE2] space-y-6 text-xs font-inter">
+                <div className="flex justify-between items-center pb-4 border-b border-[#F4DDE2]">
                   <div>
-                    <h2 className="font-serif text-2xl font-bold text-[#7C3AED]">FemSphere Health Report</h2>
+                    <h2 className="font-serif text-2xl font-bold text-[#936DA2]">FemSphere Health Report</h2>
                     <p className="text-xs text-[#7a6f75]">Generated on {new Date().toLocaleDateString()} for {userProfile.fullName}</p>
                   </div>
                   <span className="px-3 py-1 bg-emerald-100 text-emerald-800 font-bold rounded-full text-[10px]">
@@ -2360,7 +2364,7 @@ export default function Dashboard() {
                 {/* 1. Personal Profile Section */}
                 <div className="space-y-2">
                   <h4 className="font-bold text-sm text-[#3a3135] uppercase tracking-wider">1. Personal Profile</h4>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-3.5 bg-white rounded-xl border border-[#EDE9FE]">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-3.5 bg-white rounded-xl border border-[#F4DDE2]">
                     <div><span className="text-[#7a6f75]">Name:</span> <b>{userProfile.fullName}</b></div>
                     <div><span className="text-[#7a6f75]">DOB:</span> <b>{userProfile.dob}</b></div>
                     <div><span className="text-[#7a6f75]">Blood Group:</span> <b>{userProfile.bloodGroup}</b></div>
@@ -2371,7 +2375,7 @@ export default function Dashboard() {
                 {/* 2. Health Tracker Summary */}
                 <div className="space-y-2">
                   <h4 className="font-bold text-sm text-[#3a3135] uppercase tracking-wider">2. Health Vitals Summary (Latest Entry)</h4>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-3.5 bg-white rounded-xl border border-[#EDE9FE]">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-3.5 bg-white rounded-xl border border-[#F4DDE2]">
                     <div><span className="text-[#7a6f75]">Water Intake:</span> <b>{trackerLogs[0]?.water || 0} L</b></div>
                     <div><span className="text-[#7a6f75]">Sleep Duration:</span> <b>{trackerLogs[0]?.sleep || 0} hrs</b></div>
                     <div><span className="text-[#7a6f75]">Exercise:</span> <b>{trackerLogs[0]?.exercise || 0} mins</b></div>
@@ -2384,9 +2388,9 @@ export default function Dashboard() {
                   <h4 className="font-bold text-sm text-[#3a3135] uppercase tracking-wider">3. Logged Symptom History</h4>
                   <div className="space-y-2">
                     {symptomLogs.map((s) => (
-                      <div key={s.id} className="p-3 bg-white rounded-xl border border-[#EDE9FE] flex justify-between">
+                      <div key={s.id} className="p-3 bg-white rounded-xl border border-[#F4DDE2] flex justify-between">
                         <span><b>{s.symptomName}</b> ({s.description})</span>
-                        <span className="font-bold text-[#7C3AED]">{s.severity} • {s.date}</span>
+                        <span className="font-bold text-[#936DA2]">{s.severity} • {s.date}</span>
                       </div>
                     ))}
                   </div>
@@ -2397,7 +2401,7 @@ export default function Dashboard() {
                   <h4 className="font-bold text-sm text-[#3a3135] uppercase tracking-wider">4. Medical Records Vault</h4>
                   <div className="space-y-2">
                     {records.map((r) => (
-                      <div key={r.id} className="p-3 bg-white rounded-xl border border-[#EDE9FE] flex justify-between">
+                      <div key={r.id} className="p-3 bg-white rounded-xl border border-[#F4DDE2] flex justify-between">
                         <span><b>{r.title}</b> ({r.type})</span>
                         <span className="text-[#7a6f75]">{r.date}</span>
                       </div>
@@ -2410,7 +2414,7 @@ export default function Dashboard() {
                   <h4 className="font-bold text-sm text-[#3a3135] uppercase tracking-wider">5. Appointment History</h4>
                   <div className="space-y-2">
                     {appointments.map((a) => (
-                      <div key={a.id} className="p-3 bg-white rounded-xl border border-[#EDE9FE] flex justify-between">
+                      <div key={a.id} className="p-3 bg-white rounded-xl border border-[#F4DDE2] flex justify-between">
                         <span><b>{a.doctor}</b> - {a.reason}</span>
                         <span className="font-bold text-purple-700">{a.status} ({a.date})</span>
                       </div>
@@ -2423,8 +2427,8 @@ export default function Dashboard() {
 
           {/* 8. TAB: NOTIFICATIONS */}
           {activeTab === 'Notifications' && (
-            <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#EDE9FE] shadow-sm space-y-6">
-              <div className="flex items-center justify-between border-b border-[#EDE9FE] pb-4">
+            <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#F4DDE2] shadow-sm space-y-6">
+              <div className="flex items-center justify-between border-b border-[#F4DDE2] pb-4">
                 <div>
                   <h3 className="font-bold text-xl text-[#3a3135]">System Notifications</h3>
                   <p className="text-xs text-[#7a6f75]">Appointment reminders, medical record updates and report alerts</p>
@@ -2432,7 +2436,7 @@ export default function Dashboard() {
                 {unreadCount > 0 && (
                   <button 
                     onClick={markAllNotificationsRead} 
-                    className="text-xs font-bold text-[#7C3AED] hover:underline"
+                    className="text-xs font-bold text-[#936DA2] hover:underline"
                   >
                     Mark All as Read
                   </button>
@@ -2444,12 +2448,12 @@ export default function Dashboard() {
                   <div 
                     key={n.id} 
                     className={`p-4 rounded-2xl border flex items-center justify-between gap-4 text-xs transition-all ${
-                      n.read ? 'bg-white border-[#EDE9FE]' : 'bg-[#F5F3FF] border-[#7C3AED]/30 font-semibold'
+                      n.read ? 'bg-white border-[#F4DDE2]' : 'bg-[#F9E8EC] border-[#936DA2]/30 font-semibold'
                     }`}
                   >
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <Bell className="w-4 h-4 text-[#7C3AED]" />
+                        <Bell className="w-4 h-4 text-[#936DA2]" />
                         <p className="font-bold text-[#3a3135] text-sm">{n.title}</p>
                       </div>
                       <p className="text-[#64595e]">{n.message}</p>
@@ -2460,7 +2464,7 @@ export default function Dashboard() {
                       {!n.read && (
                         <button 
                           onClick={() => markNotificationRead(n.id)} 
-                          className="px-3 py-1.5 bg-[#EDE9FE] text-[#7C3AED] font-bold rounded-lg"
+                          className="px-3 py-1.5 bg-[#F4DDE2] text-[#936DA2] font-bold rounded-lg"
                         >
                           Mark Read
                         </button>
@@ -2486,8 +2490,8 @@ export default function Dashboard() {
 
           {/* 9. TAB: SETTINGS */}
           {activeTab === 'Settings' && (
-            <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#EDE9FE] shadow-sm space-y-6 max-w-2xl mx-auto">
-              <div className="border-b border-[#EDE9FE] pb-4">
+            <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#F4DDE2] shadow-sm space-y-6 max-w-2xl mx-auto">
+              <div className="border-b border-[#F4DDE2] pb-4">
                 <h3 className="font-bold text-xl text-[#3a3135]">Account & System Settings</h3>
                 <p className="text-xs text-[#7a6f75]">Manage notifications, security credentials & preferences</p>
               </div>
@@ -2497,7 +2501,7 @@ export default function Dashboard() {
                 <div className="space-y-4">
                   <h4 className="font-bold text-sm text-[#3a3135]">Notification Preferences</h4>
                   
-                  <div className="flex items-center justify-between p-4 rounded-2xl bg-[#FAF8FC] border border-[#EDE9FE]">
+                  <div className="flex items-center justify-between p-4 rounded-2xl bg-[#FCF4F5] border border-[#F4DDE2]">
                     <div>
                       <p className="font-bold text-[#3a3135]">Email Notifications</p>
                       <p className="text-[#7a6f75] text-[11px]">Receive appointment confirmations & health report alerts via email</p>
@@ -2506,11 +2510,11 @@ export default function Dashboard() {
                       type="checkbox" 
                       checked={settings.emailAlerts} 
                       onChange={(e) => setSettings({...settings, emailAlerts: e.target.checked})} 
-                      className="w-5 h-5 text-[#7C3AED] rounded border-[#EDE9FE] focus:ring-[#7C3AED]"
+                      className="w-5 h-5 text-[#936DA2] rounded border-[#F4DDE2] focus:ring-[#936DA2]"
                     />
                   </div>
 
-                  <div className="flex items-center justify-between p-4 rounded-2xl bg-[#FAF8FC] border border-[#EDE9FE]">
+                  <div className="flex items-center justify-between p-4 rounded-2xl bg-[#FCF4F5] border border-[#F4DDE2]">
                     <div>
                       <p className="font-bold text-[#3a3135]">SMS Health Reminders</p>
                       <p className="text-[#7a6f75] text-[11px]">Receive daily vital logging reminders on mobile</p>
@@ -2519,17 +2523,17 @@ export default function Dashboard() {
                       type="checkbox" 
                       checked={settings.smsAlerts} 
                       onChange={(e) => setSettings({...settings, smsAlerts: e.target.checked})} 
-                      className="w-5 h-5 text-[#7C3AED] rounded border-[#EDE9FE] focus:ring-[#7C3AED]"
+                      className="w-5 h-5 text-[#936DA2] rounded border-[#F4DDE2] focus:ring-[#936DA2]"
                     />
                   </div>
                 </div>
 
                 {/* Password & Credentials */}
-                <div className="pt-4 border-t border-[#EDE9FE] space-y-3">
+                <div className="pt-4 border-t border-[#F4DDE2] space-y-3">
                   <h4 className="font-bold text-sm text-[#3a3135]">Security & Password</h4>
                   <button 
                     onClick={() => setShowPasswordModal(true)} 
-                    className="px-5 py-2.5 rounded-xl border border-[#EDE9FE] text-xs font-bold text-[#7C3AED] hover:bg-[#F5F3FF] flex items-center gap-2"
+                    className="px-5 py-2.5 rounded-xl border border-[#F4DDE2] text-xs font-bold text-[#936DA2] hover:bg-[#F9E8EC] flex items-center gap-2"
                   >
                     <Lock className="w-4 h-4" /> Change Account Password
                   </button>
@@ -2546,8 +2550,8 @@ export default function Dashboard() {
       {/* 1. UPLOAD MEDICAL RECORD MODAL */}
       {showUploadModal && (
         <div className="fixed inset-0 bg-slate-900/40 flex items-center justify-center p-4 z-50 font-inter">
-          <div className="bg-white rounded-3xl p-6 max-w-md w-full border border-[#EDE9FE] shadow-2xl space-y-4">
-            <div className="flex items-center justify-between pb-2 border-b border-[#EDE9FE]">
+          <div className="bg-white rounded-3xl p-6 max-w-md w-full border border-[#F4DDE2] shadow-2xl space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-[#F4DDE2]">
               <h3 className="font-bold text-base text-[#3a3135]">Upload Medical Report</h3>
               <button onClick={() => setShowUploadModal(false)} className="text-[#7a6f75] hover:text-black">
                 <X className="w-5 h-5" />
@@ -2568,7 +2572,7 @@ export default function Dashboard() {
                   placeholder="e.g. Lipid Profile Lab Test" 
                   value={newRecord.title} 
                   onChange={(e) => setNewRecord({...newRecord, title: e.target.value})} 
-                  className="w-full p-2.5 rounded-xl border border-[#EDE9FE]" 
+                  className="w-full p-2.5 rounded-xl border border-[#F4DDE2]" 
                   required 
                 />
               </div>
@@ -2578,7 +2582,7 @@ export default function Dashboard() {
                 <select 
                   value={newRecord.type} 
                   onChange={(e) => setNewRecord({...newRecord, type: e.target.value})} 
-                  className="w-full p-2.5 rounded-xl border border-[#EDE9FE] bg-white font-medium"
+                  className="w-full p-2.5 rounded-xl border border-[#F4DDE2] bg-white font-medium"
                 >
                   <option value="PDF">PDF Document</option>
                   <option value="JPG">JPG Image Scan</option>
@@ -2596,7 +2600,7 @@ export default function Dashboard() {
                     setSelectedRecordFile(file);
                     setNewRecord({...newRecord, fileName: file?.name || ''});
                   }}
-                  className="w-full text-xs text-[#7a6f75] file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-[#EDE9FE] file:text-[#7C3AED]"
+                  className="w-full text-xs text-[#7a6f75] file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-[#F4DDE2] file:text-[#936DA2]"
                   required
                 />
               </div>
@@ -2608,12 +2612,12 @@ export default function Dashboard() {
                   placeholder="e.g. Routine blood analysis from Lab Diagnostics" 
                   value={newRecord.description} 
                   onChange={(e) => setNewRecord({...newRecord, description: e.target.value})} 
-                  className="w-full p-2.5 rounded-xl border border-[#EDE9FE]" 
+                  className="w-full p-2.5 rounded-xl border border-[#F4DDE2]" 
                 />
               </div>
 
               <div className="flex gap-2 pt-2">
-                <button type="submit" className="flex-1 py-2.5 bg-[#7C3AED] text-white font-bold rounded-xl">
+                <button type="submit" className="flex-1 py-2.5 bg-[#936DA2] text-white font-bold rounded-xl">
                   Upload Record
                 </button>
                 <button type="button" onClick={() => setShowUploadModal(false)} className="py-2.5 px-4 border rounded-xl font-bold">
@@ -2628,8 +2632,8 @@ export default function Dashboard() {
       {/* 2. BOOK APPOINTMENT MODAL */}
       {showBookModal && (
         <div className="fixed inset-0 bg-slate-900/40 flex items-center justify-center p-4 z-50 font-inter">
-          <div className="bg-white rounded-3xl p-6 max-w-md w-full border border-[#EDE9FE] shadow-2xl space-y-4">
-            <div className="flex items-center justify-between pb-2 border-b border-[#EDE9FE]">
+          <div className="bg-white rounded-3xl p-6 max-w-md w-full border border-[#F4DDE2] shadow-2xl space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-[#F4DDE2]">
               <h3 className="font-bold text-base text-[#3a3135]">Book Doctor Appointment</h3>
               <button onClick={() => setShowBookModal(false)} className="text-[#7a6f75] hover:text-black">
                 <X className="w-5 h-5" />
@@ -2648,7 +2652,7 @@ export default function Dashboard() {
                 <select 
                   value={newAppointment.doctor} 
                   onChange={(e) => setNewAppointment({...newAppointment, doctor: e.target.value})} 
-                  className="w-full p-2.5 rounded-xl border border-[#EDE9FE] bg-white font-medium"
+                  className="w-full p-2.5 rounded-xl border border-[#F4DDE2] bg-white font-medium"
                 >
                   <option value="">Select a Doctor</option>
                   <option value="Dr. Sarah Jenkins (OB/GYN)">Dr. Sarah Jenkins (Obstetrics & Gynecology)</option>
@@ -2667,7 +2671,7 @@ export default function Dashboard() {
                   className={`w-full p-2.5 rounded-xl border ${
                     newAppointment.date && !isFutureDate(newAppointment.date)
                       ? 'border-red-400 focus:border-red-500'
-                      : 'border-[#EDE9FE]'
+                      : 'border-[#F4DDE2]'
                   }`} 
                   required 
                 />
@@ -2681,7 +2685,7 @@ export default function Dashboard() {
                 <select 
                   value={newAppointment.time} 
                   onChange={(e) => setNewAppointment({...newAppointment, time: e.target.value})} 
-                  className="w-full p-2.5 rounded-xl border border-[#EDE9FE] bg-white font-medium"
+                  className="w-full p-2.5 rounded-xl border border-[#F4DDE2] bg-white font-medium"
                 >
                   <option value="09:00 AM">09:00 AM</option>
                   <option value="10:00 AM">10:00 AM</option>
@@ -2701,7 +2705,7 @@ export default function Dashboard() {
                   className={`w-full p-2.5 rounded-xl border ${
                     newAppointment.reason.trim() && newAppointment.reason.trim().length < 5
                       ? 'border-red-400 focus:border-red-500'
-                      : 'border-[#EDE9FE]'
+                      : 'border-[#F4DDE2]'
                   }`} 
                   required 
                 />
@@ -2711,7 +2715,7 @@ export default function Dashboard() {
               </div>
 
               <div className="flex gap-2 pt-2">
-                <button type="submit" className="flex-1 py-2.5 bg-[#7C3AED] text-white font-bold rounded-xl">
+                <button type="submit" className="flex-1 py-2.5 bg-[#936DA2] text-white font-bold rounded-xl">
                   Confirm Booking
                 </button>
                 <button type="button" onClick={() => setShowBookModal(false)} className="py-2.5 px-4 border rounded-xl font-bold">
@@ -2726,8 +2730,8 @@ export default function Dashboard() {
       {/* 3. CHANGE PASSWORD MODAL */}
       {showPasswordModal && (
         <div className="fixed inset-0 bg-slate-900/40 flex items-center justify-center p-4 z-50 font-inter">
-          <div className="bg-white rounded-3xl p-6 max-w-sm w-full border border-[#EDE9FE] shadow-2xl space-y-4">
-            <div className="flex items-center justify-between pb-2 border-b border-[#EDE9FE]">
+          <div className="bg-white rounded-3xl p-6 max-w-sm w-full border border-[#F4DDE2] shadow-2xl space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-[#F4DDE2]">
               <h3 className="font-bold text-base text-[#3a3135]">Change Account Password</h3>
               <button onClick={() => setShowPasswordModal(false)} className="text-[#7a6f75] hover:text-black">
                 <X className="w-5 h-5" />
@@ -2748,7 +2752,7 @@ export default function Dashboard() {
                   placeholder="••••••••••••" 
                   value={passwordData.oldPassword} 
                   onChange={(e) => setPasswordData({...passwordData, oldPassword: e.target.value})} 
-                  className="w-full p-2.5 rounded-xl border border-[#EDE9FE]" 
+                  className="w-full p-2.5 rounded-xl border border-[#F4DDE2]" 
                   required 
                 />
               </div>
@@ -2760,7 +2764,7 @@ export default function Dashboard() {
                   placeholder="Enter new password" 
                   value={passwordData.newPassword} 
                   onChange={(e) => setPasswordData({...passwordData, newPassword: e.target.value})} 
-                  className="w-full p-2.5 rounded-xl border border-[#EDE9FE]" 
+                  className="w-full p-2.5 rounded-xl border border-[#F4DDE2]" 
                   required 
                 />
               </div>
@@ -2772,13 +2776,13 @@ export default function Dashboard() {
                   placeholder="Confirm new password" 
                   value={passwordData.confirmPassword} 
                   onChange={(e) => setPasswordData({...passwordData, confirmPassword: e.target.value})} 
-                  className="w-full p-2.5 rounded-xl border border-[#EDE9FE]" 
+                  className="w-full p-2.5 rounded-xl border border-[#F4DDE2]" 
                   required 
                 />
               </div>
 
               <div className="flex gap-2 pt-2">
-                <button type="submit" className="flex-1 py-2.5 bg-[#7C3AED] text-white font-bold rounded-xl">
+                <button type="submit" className="flex-1 py-2.5 bg-[#936DA2] text-white font-bold rounded-xl">
                   Update Password
                 </button>
                 <button type="button" onClick={() => setShowPasswordModal(false)} className="py-2.5 px-4 border rounded-xl font-bold">
@@ -2793,13 +2797,13 @@ export default function Dashboard() {
       {/* 4. HEALTH REPORT FULL PREVIEW MODAL */}
       {showReportPreview && (
         <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center p-4 z-50 font-inter">
-          <div className="bg-white rounded-3xl p-6 md:p-8 max-w-3xl w-full max-h-[90vh] overflow-y-auto border border-[#EDE9FE] shadow-2xl space-y-6">
-            <div className="flex items-center justify-between pb-4 border-b border-[#EDE9FE]">
+          <div className="bg-white rounded-3xl p-6 md:p-8 max-w-3xl w-full max-h-[90vh] overflow-y-auto border border-[#F4DDE2] shadow-2xl space-y-6">
+            <div className="flex items-center justify-between pb-4 border-b border-[#F4DDE2]">
               <h3 className="font-bold text-lg text-[#3a3135]">Generated Health Report Preview</h3>
               <div className="flex items-center gap-2">
                 <button 
                   onClick={handlePrintPDFReport} 
-                  className="flex items-center gap-1.5 px-4 py-2 bg-[#7C3AED] text-white rounded-xl text-xs font-bold"
+                  className="flex items-center gap-1.5 px-4 py-2 bg-[#936DA2] text-white rounded-xl text-xs font-bold"
                 >
                   <Printer className="w-4 h-4" /> Download / Print PDF
                 </button>
@@ -2810,35 +2814,35 @@ export default function Dashboard() {
             </div>
 
             <div className="space-y-5 text-xs">
-              <div className="p-4 bg-[#FAF8FC] rounded-2xl border border-[#EDE9FE]">
-                <h4 className="font-bold text-sm text-[#7C3AED] mb-2">1. Personal Profile</h4>
+              <div className="p-4 bg-[#FCF4F5] rounded-2xl border border-[#F4DDE2]">
+                <h4 className="font-bold text-sm text-[#936DA2] mb-2">1. Personal Profile</h4>
                 <p><b>Name:</b> {userProfile.fullName} | <b>DOB:</b> {userProfile.dob} ({userProfile.age} yrs)</p>
                 <p><b>Blood Group:</b> {userProfile.bloodGroup} | <b>Height/Weight:</b> {userProfile.height}cm / {userProfile.weight}kg</p>
                 <p><b>Contact:</b> {userProfile.phone} | {userProfile.email}</p>
               </div>
 
-              <div className="p-4 bg-[#FAF8FC] rounded-2xl border border-[#EDE9FE]">
-                <h4 className="font-bold text-sm text-[#7C3AED] mb-2">2. Health Vitals Log</h4>
+              <div className="p-4 bg-[#FCF4F5] rounded-2xl border border-[#F4DDE2]">
+                <h4 className="font-bold text-sm text-[#936DA2] mb-2">2. Health Vitals Log</h4>
                 <p><b>Latest Weight:</b> {trackerLogs[0]?.weight} kg | <b>Water:</b> {trackerLogs[0]?.water} L | <b>Sleep:</b> {trackerLogs[0]?.sleep} hrs</p>
                 <p><b>Exercise:</b> {trackerLogs[0]?.exercise} mins | <b>Blood Pressure:</b> {trackerLogs[0]?.bloodPressure || '120/78'}</p>
               </div>
 
-              <div className="p-4 bg-[#FAF8FC] rounded-2xl border border-[#EDE9FE]">
-                <h4 className="font-bold text-sm text-[#7C3AED] mb-2">3. Symptom History</h4>
+              <div className="p-4 bg-[#FCF4F5] rounded-2xl border border-[#F4DDE2]">
+                <h4 className="font-bold text-sm text-[#936DA2] mb-2">3. Symptom History</h4>
                 {symptomLogs.map(s => (
                   <p key={s.id}>• <b>{s.symptomName}</b> ({s.severity} severity) - {s.description} [{s.date}]</p>
                 ))}
               </div>
 
-              <div className="p-4 bg-[#FAF8FC] rounded-2xl border border-[#EDE9FE]">
-                <h4 className="font-bold text-sm text-[#7C3AED] mb-2">4. Medical Vault Records</h4>
+              <div className="p-4 bg-[#FCF4F5] rounded-2xl border border-[#F4DDE2]">
+                <h4 className="font-bold text-sm text-[#936DA2] mb-2">4. Medical Vault Records</h4>
                 {records.map(r => (
                   <p key={r.id}>• <b>{r.title}</b> ({r.type}) - {r.description} [{r.date}]</p>
                 ))}
               </div>
 
-              <div className="p-4 bg-[#FAF8FC] rounded-2xl border border-[#EDE9FE]">
-                <h4 className="font-bold text-sm text-[#7C3AED] mb-2">5. Appointments Summary</h4>
+              <div className="p-4 bg-[#FCF4F5] rounded-2xl border border-[#F4DDE2]">
+                <h4 className="font-bold text-sm text-[#936DA2] mb-2">5. Appointments Summary</h4>
                 {appointments.map(a => (
                   <p key={a.id}>• <b>{a.doctor}</b> - {a.reason} [{a.status} on {a.date} at {a.time}]</p>
                 ))}
@@ -2851,10 +2855,10 @@ export default function Dashboard() {
       {/* BLUETOOTH PAIRING & SYNC MODAL */}
       {showBluetoothModal && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 z-50 font-inter animate-in fade-in duration-200">
-          <div className="bg-white rounded-3xl p-6 md:p-8 max-w-lg w-full shadow-2xl border border-[#EDE9FE] space-y-6">
-            <div className="flex items-center justify-between border-b border-[#EDE9FE] pb-4">
+          <div className="bg-white rounded-3xl p-6 md:p-8 max-w-lg w-full shadow-2xl border border-[#F4DDE2] space-y-6">
+            <div className="flex items-center justify-between border-b border-[#F4DDE2] pb-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-[#F5F3FF] text-[#7C3AED] flex items-center justify-center border border-[#EDE9FE]">
+                <div className="w-10 h-10 rounded-2xl bg-[#F9E8EC] text-[#936DA2] flex items-center justify-center border border-[#F4DDE2]">
                   <Bluetooth className="w-5 h-5" />
                 </div>
                 <div>
@@ -2915,9 +2919,9 @@ export default function Dashboard() {
               </div>
             ) : (
               <div className="space-y-4">
-                <div className="p-4 rounded-2xl bg-[#FAF8FC] border border-[#EDE9FE] flex items-center justify-between">
+                <div className="p-4 rounded-2xl bg-[#FCF4F5] border border-[#F4DDE2] flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <Watch className="w-6 h-6 text-[#7C3AED]" />
+                    <Watch className="w-6 h-6 text-[#936DA2]" />
                     <div>
                       <p className="font-bold text-sm text-[#3a3135]">Scan Nearby Bluetooth Wearables</p>
                       <p className="text-xs text-[#7a6f75]">Enable Bluetooth on Apple Watch, Fitbit, or Garmin</p>
@@ -2926,7 +2930,7 @@ export default function Dashboard() {
                   <button 
                     onClick={handleScanBluetoothDevices} 
                     disabled={isScanning}
-                    className="px-4 py-2 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl font-bold text-xs flex items-center gap-1.5 disabled:opacity-50 cursor-pointer shadow-xs"
+                    className="px-4 py-2 bg-[#936DA2] hover:bg-[#835A92] text-white rounded-xl font-bold text-xs flex items-center gap-1.5 disabled:opacity-50 cursor-pointer shadow-xs"
                   >
                     <RefreshCw className={`w-3.5 h-3.5 ${isScanning ? 'animate-spin' : ''}`} />
                     {isScanning ? 'Scanning...' : 'Scan Devices'}
@@ -2938,16 +2942,16 @@ export default function Dashboard() {
                   <p className="text-xs uppercase font-bold tracking-wider text-[#7a6f75]">Discovered Devices ({foundDevices.length})</p>
                   
                   {isScanning ? (
-                    <div className="p-8 text-center space-y-3 border border-dashed border-[#EDE9FE] rounded-2xl">
-                      <div className="w-10 h-10 rounded-full border-4 border-[#7C3AED] border-t-transparent animate-spin mx-auto"></div>
+                    <div className="p-8 text-center space-y-3 border border-dashed border-[#F4DDE2] rounded-2xl">
+                      <div className="w-10 h-10 rounded-full border-4 border-[#936DA2] border-t-transparent animate-spin mx-auto"></div>
                       <p className="text-xs text-[#7a6f75] font-medium">Searching for Bluetooth Low Energy (BLE 5.3) fitness trackers & smartwatches...</p>
                     </div>
                   ) : (
                     <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
                       {foundDevices.map((dev, idx) => (
-                        <div key={idx} className="p-3.5 rounded-2xl border border-[#EDE9FE] bg-white hover:bg-[#F5F3FF] flex items-center justify-between transition-colors">
+                        <div key={idx} className="p-3.5 rounded-2xl border border-[#F4DDE2] bg-white hover:bg-[#F9E8EC] flex items-center justify-between transition-colors">
                           <div className="flex items-center gap-3">
-                            <Watch className="w-5 h-5 text-[#7C3AED]" />
+                            <Watch className="w-5 h-5 text-[#936DA2]" />
                             <div>
                               <p className="font-bold text-sm text-[#3a3135]">{dev.name}</p>
                               <p className="text-xs text-[#7a6f75]">{dev.type} • Signal: {dev.rssi} dBm • Battery: {dev.battery}%</p>
@@ -2955,7 +2959,7 @@ export default function Dashboard() {
                           </div>
                           <button 
                             onClick={() => handlePairDevice(dev.name)} 
-                            className="px-4 py-2 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl font-bold text-xs shadow-2xs transition-colors cursor-pointer"
+                            className="px-4 py-2 bg-[#936DA2] hover:bg-[#835A92] text-white rounded-xl font-bold text-xs shadow-2xs transition-colors cursor-pointer"
                           >
                             Pair & Connect
                           </button>
@@ -2963,8 +2967,8 @@ export default function Dashboard() {
                       ))}
 
                       {foundDevices.length === 0 && !isScanning && (
-                        <div className="p-6 text-center text-xs text-[#7a6f75] bg-[#FAF8FC] rounded-2xl border border-[#EDE9FE]">
-                          Click <span className="font-bold text-[#7C3AED]">Scan Devices</span> to discover nearby Apple Watch, Fitbit, Samsung Galaxy Watch, or Garmin devices.
+                        <div className="p-6 text-center text-xs text-[#7a6f75] bg-[#FCF4F5] rounded-2xl border border-[#F4DDE2]">
+                          Click <span className="font-bold text-[#936DA2]">Scan Devices</span> to discover nearby Apple Watch, Fitbit, Samsung Galaxy Watch, or Garmin devices.
                         </div>
                       )}
                     </div>
@@ -2973,11 +2977,11 @@ export default function Dashboard() {
               </div>
             )}
 
-            <div className="pt-2 border-t border-[#EDE9FE] flex items-center justify-between text-xs text-[#7a6f75]">
+            <div className="pt-2 border-t border-[#F4DDE2] flex items-center justify-between text-xs text-[#7a6f75]">
               <span className="flex items-center gap-1.5">
                 <Wifi className="w-3.5 h-3.5 text-emerald-500" /> Web Bluetooth API • Encrypted Stream
               </span>
-              <button onClick={() => setShowBluetoothModal(false)} className="font-bold text-[#7C3AED] hover:underline cursor-pointer">
+              <button onClick={() => setShowBluetoothModal(false)} className="font-bold text-[#936DA2] hover:underline cursor-pointer">
                 Close
               </button>
             </div>
@@ -2988,9 +2992,9 @@ export default function Dashboard() {
       {/* 5. AI DOCUMENT SCANNING PROGRESS MODAL */}
       {isScanningDoc && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 font-inter">
-          <div className="bg-white rounded-3xl p-8 max-w-md w-full border border-[#EDE9FE] shadow-2xl space-y-6 text-center animate-in zoom-in-95 duration-200">
-            <div className="w-16 h-16 rounded-3xl bg-[#F5F3FF] border border-[#EDE9FE] mx-auto flex items-center justify-center text-[#7C3AED]">
-              <Scan className="w-8 h-8 text-[#7C3AED] animate-pulse" />
+          <div className="bg-white rounded-3xl p-8 max-w-md w-full border border-[#F4DDE2] shadow-2xl space-y-6 text-center animate-in zoom-in-95 duration-200">
+            <div className="w-16 h-16 rounded-3xl bg-[#F9E8EC] border border-[#F4DDE2] mx-auto flex items-center justify-center text-[#936DA2]">
+              <Scan className="w-8 h-8 text-[#936DA2] animate-pulse" />
             </div>
 
             <div className="space-y-2">
@@ -3003,9 +3007,9 @@ export default function Dashboard() {
 
             {/* Progress Bar */}
             <div className="space-y-2">
-              <div className="w-full h-3 rounded-full bg-[#FAF8FC] border border-[#EDE9FE] overflow-hidden">
+              <div className="w-full h-3 rounded-full bg-[#FCF4F5] border border-[#F4DDE2] overflow-hidden">
                 <div 
-                  className="h-full bg-gradient-to-r from-[#7C3AED] to-purple-500 rounded-full transition-all duration-300"
+                  className="h-full bg-gradient-to-r from-[#936DA2] to-purple-500 rounded-full transition-all duration-300"
                   style={{ width: `${scanningProgress}%` }}
                 ></div>
               </div>
@@ -3021,11 +3025,11 @@ export default function Dashboard() {
       {/* 6. DETAILED SCANNED REPORT MODAL */}
       {viewingScanRecordModal && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 z-50 font-inter overflow-y-auto">
-          <div className="bg-white rounded-3xl p-6 md:p-8 max-w-2xl w-full border border-[#EDE9FE] shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto my-auto">
-            <div className="flex items-center justify-between pb-4 border-b border-[#EDE9FE]">
+          <div className="bg-white rounded-3xl p-6 md:p-8 max-w-2xl w-full border border-[#F4DDE2] shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto my-auto">
+            <div className="flex items-center justify-between pb-4 border-b border-[#F4DDE2]">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-[#F5F3FF] border border-[#EDE9FE] flex items-center justify-center text-[#7C3AED]">
-                  <FileCheck className="w-5 h-5 text-[#7C3AED]" />
+                <div className="w-10 h-10 rounded-2xl bg-[#F9E8EC] border border-[#F4DDE2] flex items-center justify-center text-[#936DA2]">
+                  <FileCheck className="w-5 h-5 text-[#936DA2]" />
                 </div>
                 <div>
                   <h3 className="font-bold text-lg text-[#3a3135]">{viewingScanRecordModal.title}</h3>
@@ -3042,15 +3046,15 @@ export default function Dashboard() {
 
             {/* Clinical Overview & Doctor Info */}
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
-              <div className="p-3 rounded-xl bg-[#FAF8FC] border border-[#EDE9FE]">
+              <div className="p-3 rounded-xl bg-[#FCF4F5] border border-[#F4DDE2]">
                 <span className="text-[10px] font-bold text-[#7a6f75] uppercase block">Ordering Doctor</span>
                 <span className="font-bold text-[#3a3135]">{viewingScanRecordModal.scanResults?.doctorName || 'Dr. Sarah Jenkins, MD'}</span>
               </div>
-              <div className="p-3 rounded-xl bg-[#FAF8FC] border border-[#EDE9FE]">
+              <div className="p-3 rounded-xl bg-[#FCF4F5] border border-[#F4DDE2]">
                 <span className="text-[10px] font-bold text-[#7a6f75] uppercase block">Diagnostic Lab</span>
                 <span className="font-bold text-[#3a3135]">{viewingScanRecordModal.scanResults?.labName || 'Quest Diagnostics'}</span>
               </div>
-              <div className="p-3 rounded-xl bg-[#FAF8FC] border border-[#EDE9FE] col-span-2 sm:col-span-1">
+              <div className="p-3 rounded-xl bg-[#FCF4F5] border border-[#F4DDE2] col-span-2 sm:col-span-1">
                 <span className="text-[10px] font-bold text-[#7a6f75] uppercase block">Risk Level</span>
                 <span className="font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full text-[10px] inline-block mt-0.5">
                   {viewingScanRecordModal.scanResults?.riskLevel || 'Optimal Health'}
@@ -3059,9 +3063,9 @@ export default function Dashboard() {
             </div>
 
             {/* AI Summary Banner */}
-            <div className="p-4 rounded-2xl bg-[#F5F3FF] border border-[#EDE9FE] text-xs space-y-1">
-              <span className="font-bold text-[#7C3AED] uppercase tracking-wider text-[10px] flex items-center gap-1">
-                <Sparkles className="w-3.5 h-3.5 text-[#7C3AED]" /> AI Diagnostic Summary
+            <div className="p-4 rounded-2xl bg-[#F9E8EC] border border-[#F4DDE2] text-xs space-y-1">
+              <span className="font-bold text-[#936DA2] uppercase tracking-wider text-[10px] flex items-center gap-1">
+                <Sparkles className="w-3.5 h-3.5 text-[#936DA2]" /> AI Diagnostic Summary
               </span>
               <p className="text-[#3a3135] leading-relaxed">
                 {viewingScanRecordModal.scanResults?.aiSummary}
@@ -3072,9 +3076,9 @@ export default function Dashboard() {
             {viewingScanRecordModal.scanResults?.keyBiomarkers && (
               <div className="space-y-2 text-xs">
                 <h5 className="font-bold text-[#3a3135]">Extracted Biomarkers & Test Results</h5>
-                <div className="overflow-x-auto rounded-xl border border-[#EDE9FE]">
+                <div className="overflow-x-auto rounded-xl border border-[#F4DDE2]">
                   <table className="w-full text-left text-xs">
-                    <thead className="bg-[#FAF8FC] border-b border-[#EDE9FE] text-[#7a6f75] font-bold text-[10px] uppercase">
+                    <thead className="bg-[#FCF4F5] border-b border-[#F4DDE2] text-[#7a6f75] font-bold text-[10px] uppercase">
                       <tr>
                         <th className="p-2.5">Biomarker</th>
                         <th className="p-2.5">Value</th>
@@ -3082,7 +3086,7 @@ export default function Dashboard() {
                         <th className="p-2.5">Status</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-[#EDE9FE]">
+                    <tbody className="divide-y divide-[#F4DDE2]">
                       {viewingScanRecordModal.scanResults.keyBiomarkers.map((b: any, idx: number) => (
                         <tr key={idx}>
                           <td className="p-2.5 font-bold text-[#3a3135]">{b.name}</td>
@@ -3104,15 +3108,15 @@ export default function Dashboard() {
             )}
 
             {/* Recommendations */}
-            <div className="p-3.5 rounded-xl bg-[#FAF8FC] border border-[#EDE9FE] text-xs">
+            <div className="p-3.5 rounded-xl bg-[#FCF4F5] border border-[#F4DDE2] text-xs">
               <span className="font-bold text-[#64595e] uppercase block text-[10px] mb-1">Clinical Recommendations</span>
               <p className="text-[#3a3135]">{viewingScanRecordModal.scanResults?.recommendations}</p>
             </div>
 
-            <div className="flex justify-end gap-2 pt-2 border-t border-[#EDE9FE]">
+            <div className="flex justify-end gap-2 pt-2 border-t border-[#F4DDE2]">
               <button 
                 onClick={() => setViewingScanRecordModal(null)} 
-                className="px-5 py-2.5 bg-[#7C3AED] text-white font-bold rounded-xl text-xs shadow-xs cursor-pointer"
+                className="px-5 py-2.5 bg-[#936DA2] text-white font-bold rounded-xl text-xs shadow-xs cursor-pointer"
               >
                 Close Analysis
               </button>
@@ -3124,10 +3128,10 @@ export default function Dashboard() {
       {/* 7. CHANGE PROFILE PHOTO MODAL */}
       {showPhotoModal && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 font-inter">
-          <div className="bg-white rounded-3xl p-6 md:p-8 max-w-md w-full border border-[#EDE9FE] shadow-2xl space-y-6 animate-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between pb-3 border-b border-[#EDE9FE]">
+          <div className="bg-white rounded-3xl p-6 md:p-8 max-w-md w-full border border-[#F4DDE2] shadow-2xl space-y-6 animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between pb-3 border-b border-[#F4DDE2]">
               <div className="flex items-center gap-2">
-                <Camera className="w-5 h-5 text-[#7C3AED]" />
+                <Camera className="w-5 h-5 text-[#936DA2]" />
                 <h3 className="font-bold text-lg text-[#3a3135]">Edit Profile Photo</h3>
               </div>
               <button onClick={() => setShowPhotoModal(false)} className="text-[#7a6f75] hover:text-black cursor-pointer">
@@ -3158,7 +3162,7 @@ export default function Dashboard() {
                   type="file" 
                   accept="image/png, image/jpeg, image/webp"
                   onChange={handleFilePhotoChange}
-                  className="w-full text-xs text-[#7a6f75] file:mr-3 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[#EDE9FE] file:text-[#7C3AED] hover:file:bg-[#7C3AED] hover:file:text-white transition-colors cursor-pointer"
+                  className="w-full text-xs text-[#7a6f75] file:mr-3 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[#F4DDE2] file:text-[#936DA2] hover:file:bg-[#936DA2] hover:file:text-white transition-colors cursor-pointer"
                 />
               </div>
 
@@ -3166,7 +3170,7 @@ export default function Dashboard() {
               <div className="space-y-2">
                 <label className="block font-bold text-[#3a3135] uppercase text-[10px]">2. Choose Theme Accent Color</label>
                 <div className="flex items-center justify-center gap-3">
-                  {['#7C3AED', '#14B8A6', '#EC4899', '#F59E0B', '#4F46E5', '#10B981'].map((c) => (
+                  {['#936DA2', '#14B8A6', '#EC4899', '#F59E0B', '#4F46E5', '#10B981'].map((c) => (
                     <button 
                       key={c}
                       type="button"
@@ -3190,17 +3194,17 @@ export default function Dashboard() {
                 </button>
               )}
 
-              <div className="flex gap-3 pt-3 border-t border-[#EDE9FE]">
+              <div className="flex gap-3 pt-3 border-t border-[#F4DDE2]">
                 <button 
                   type="button" 
                   onClick={() => setShowPhotoModal(false)} 
-                  className="flex-1 py-3 border border-[#EDE9FE] rounded-xl font-bold text-xs hover:bg-gray-50 cursor-pointer"
+                  className="flex-1 py-3 border border-[#F4DDE2] rounded-xl font-bold text-xs hover:bg-gray-50 cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button 
                   type="submit" 
-                  className="flex-1 py-3 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl text-xs font-bold shadow-md transition-all cursor-pointer"
+                  className="flex-1 py-3 bg-[#936DA2] hover:bg-[#835A92] text-white rounded-xl text-xs font-bold shadow-md transition-all cursor-pointer"
                 >
                   Save Photo
                 </button>
@@ -3255,10 +3259,10 @@ export default function Dashboard() {
 
         return (
           <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 z-50 font-inter animate-in fade-in duration-200">
-            <div className="bg-white rounded-3xl p-6 md:p-8 max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-[#EDE9FE] space-y-6">
-              <div className="flex items-center justify-between border-b border-[#EDE9FE] pb-4">
+            <div className="bg-white rounded-3xl p-6 md:p-8 max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-[#F4DDE2] space-y-6">
+              <div className="flex items-center justify-between border-b border-[#F4DDE2] pb-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-[#F5F3FF] text-[#7C3AED] flex items-center justify-center border border-[#EDE9FE]">
+                  <div className="w-10 h-10 rounded-2xl bg-[#F9E8EC] text-[#936DA2] flex items-center justify-center border border-[#F4DDE2]">
                     <Calendar className="w-5 h-5" />
                   </div>
                   <div>
@@ -3277,7 +3281,7 @@ export default function Dashboard() {
                   <select 
                     value={newAppointment.doctor} 
                     onChange={(e) => setNewAppointment({ ...newAppointment, doctor: e.target.value })} 
-                    className="w-full p-3 rounded-xl border border-[#EDE9FE] bg-white font-bold text-[#3a3135] text-xs"
+                    className="w-full p-3 rounded-xl border border-[#F4DDE2] bg-white font-bold text-[#3a3135] text-xs"
                   >
                     <option value="Dr. Sarah Jenkins, MD (OB/GYN & Women Health)">Dr. Sarah Jenkins, MD (OB/GYN & Women Health)</option>
                     <option value="Dr. Priya Sharma (Maternal-Fetal & Fertility)">Dr. Priya Sharma (Maternal-Fetal & Fertility)</option>
@@ -3293,7 +3297,7 @@ export default function Dashboard() {
                     value={newAppointment.date} 
                     onChange={(e) => setNewAppointment({ ...newAppointment, date: e.target.value })} 
                     min={new Date().toISOString().split('T')[0]}
-                    className="w-full p-3 rounded-xl border border-[#EDE9FE] text-xs font-bold text-[#3a3135]" 
+                    className="w-full p-3 rounded-xl border border-[#F4DDE2] text-xs font-bold text-[#3a3135]" 
                     required 
                   />
                 </div>
@@ -3304,7 +3308,7 @@ export default function Dashboard() {
                     <label className="block font-bold text-[#3a3135] uppercase text-[10px]">
                       Doctor's Consultation Shifts & Capacity for {selectedDate}
                     </label>
-                    <span className="text-[10px] font-bold text-[#7C3AED]">${docSchedule.teleconsultFee} / Session</span>
+                    <span className="text-[10px] font-bold text-[#936DA2]">${docSchedule.teleconsultFee} / Session</span>
                   </div>
 
                   <div className="space-y-2">
@@ -3335,15 +3339,15 @@ export default function Dashboard() {
                             isFull 
                               ? 'bg-red-50/60 border-red-200 opacity-70 cursor-not-allowed' 
                               : isSelected 
-                                ? 'bg-purple-50 border-[#7C3AED] ring-2 ring-[#7C3AED]/20 shadow-xs' 
-                                : 'bg-[#FAF8FC] border-[#EDE9FE] hover:border-[#7C3AED]/40'
+                                ? 'bg-purple-50 border-[#936DA2] ring-2 ring-[#936DA2]/20 shadow-xs' 
+                                : 'bg-[#FCF4F5] border-[#F4DDE2] hover:border-[#936DA2]/40'
                           }`}
                         >
                           <div className="flex items-center justify-between">
                             <div className="space-y-0.5">
                               <div className="flex items-center gap-2">
                                 <span className="font-bold text-xs text-[#3a3135]">{shift.name}</span>
-                                <span className="text-[10px] font-bold text-[#7C3AED] bg-purple-100/70 px-2 py-0.5 rounded-full">
+                                <span className="text-[10px] font-bold text-[#936DA2] bg-purple-100/70 px-2 py-0.5 rounded-full">
                                   {shift.fromTime} - {shift.toTime}
                                 </span>
                               </div>
@@ -3373,7 +3377,7 @@ export default function Dashboard() {
                   <select 
                     value={(newAppointment as any).type || 'Virtual Telehealth'} 
                     onChange={(e) => setNewAppointment({ ...newAppointment, type: e.target.value } as any)} 
-                    className="w-full p-3 rounded-xl border border-[#EDE9FE] bg-white text-xs font-bold text-[#7C3AED]"
+                    className="w-full p-3 rounded-xl border border-[#F4DDE2] bg-white text-xs font-bold text-[#936DA2]"
                   >
                     <option value="Virtual Telehealth">Virtual Telehealth (Encrypted Video Call)</option>
                     <option value="In-Clinic">In-Clinic Hospital Visit</option>
@@ -3387,22 +3391,22 @@ export default function Dashboard() {
                     value={newAppointment.reason} 
                     onChange={(e) => setNewAppointment({ ...newAppointment, reason: e.target.value })} 
                     placeholder="e.g., Annual reproductive checkup, hormone panel review, cramps"
-                    className="w-full p-3 rounded-xl border border-[#EDE9FE] text-xs" 
+                    className="w-full p-3 rounded-xl border border-[#F4DDE2] text-xs" 
                     required 
                   />
                 </div>
 
-                <div className="flex gap-3 pt-3 border-t border-[#EDE9FE]">
+                <div className="flex gap-3 pt-3 border-t border-[#F4DDE2]">
                   <button 
                     type="button" 
                     onClick={() => setShowBookModal(false)} 
-                    className="flex-1 py-3 border border-[#EDE9FE] rounded-xl font-bold text-xs hover:bg-gray-50 cursor-pointer"
+                    className="flex-1 py-3 border border-[#F4DDE2] rounded-xl font-bold text-xs hover:bg-gray-50 cursor-pointer"
                   >
                     Cancel
                   </button>
                   <button 
                     type="submit" 
-                    className="flex-1 py-3 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl text-xs font-bold shadow-md transition-all cursor-pointer"
+                    className="flex-1 py-3 bg-[#936DA2] hover:bg-[#835A92] text-white rounded-xl text-xs font-bold shadow-md transition-all cursor-pointer"
                   >
                     Confirm & Schedule
                   </button>

@@ -26,9 +26,9 @@ export default function DoctorOverview() {
   return (
     <div className="space-y-8 animate-in fade-in duration-200">
       {/* Welcome Banner */}
-      <div className="bg-gradient-to-r from-[#EDE9FE] via-[#FCE7F3] to-[#FAF8FC] p-6 md:p-8 rounded-3xl border border-[#EDE9FE] shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="bg-gradient-to-r from-[#F4DDE2] via-[#FCE7F3] to-[#FCF4F5] p-6 md:p-8 rounded-3xl border border-[#F4DDE2] shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <span className="px-3 py-1 bg-white/80 text-[#7C3AED] rounded-full text-xs font-bold uppercase tracking-wider border border-[#EDE9FE]">
+          <span className="px-3 py-1 bg-white/80 text-[#936DA2] rounded-full text-xs font-bold uppercase tracking-wider border border-[#F4DDE2]">
             Clinical Practice Command Center
           </span>
           <h2 className="font-serif text-3xl font-bold text-[#3a3135] mt-2">Doctor Overview & Vitals Hub</h2>
@@ -39,13 +39,13 @@ export default function DoctorOverview() {
         <div className="flex flex-wrap gap-2.5">
           <button
             onClick={() => setShowAddConsultationModal(true)}
-            className="px-4 py-2.5 bg-[#7C3AED] hover:bg-[#6D28D9] text-white text-xs font-bold rounded-xl shadow-sm flex items-center gap-2 transition-all cursor-pointer"
+            className="px-4 py-2.5 bg-[#936DA2] hover:bg-[#835A92] text-white text-xs font-bold rounded-xl shadow-sm flex items-center gap-2 transition-all cursor-pointer"
           >
             <Plus className="w-4 h-4" /> Issue Prescription
           </button>
           <Link
             to="/doctor-dashboard/availability"
-            className="px-4 py-2.5 bg-white text-[#7C3AED] hover:bg-purple-50 text-xs font-bold rounded-xl border border-[#EDE9FE] shadow-2xs flex items-center gap-2 transition-all"
+            className="px-4 py-2.5 bg-white text-[#936DA2] hover:bg-purple-50 text-xs font-bold rounded-xl border border-[#F4DDE2] shadow-2xs flex items-center gap-2 transition-all"
           >
             Manage Shifts
           </Link>
@@ -54,10 +54,10 @@ export default function DoctorOverview() {
 
       {/* Practice Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        <div className="bg-white p-6 rounded-3xl border border-[#EDE9FE] shadow-sm flex flex-col justify-between hover:border-[#7C3AED] transition-all">
+        <div className="bg-white p-6 rounded-3xl border border-[#F4DDE2] shadow-sm flex flex-col justify-between hover:border-[#936DA2] transition-all">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-[#7a6f75] uppercase tracking-wider">Active Patients</span>
-            <div className="w-8 h-8 rounded-xl bg-purple-50 flex items-center justify-center text-[#7C3AED]">
+            <div className="w-8 h-8 rounded-xl bg-purple-50 flex items-center justify-center text-[#936DA2]">
               <Users className="w-4 h-4" />
             </div>
           </div>
@@ -65,7 +65,7 @@ export default function DoctorOverview() {
           <p className="text-xs text-purple-600 font-bold mt-1">Health twins connected</p>
         </div>
 
-        <div className="bg-white p-6 rounded-3xl border border-[#EDE9FE] shadow-sm flex flex-col justify-between hover:border-[#14B8A6] transition-all">
+        <div className="bg-white p-6 rounded-3xl border border-[#F4DDE2] shadow-sm flex flex-col justify-between hover:border-[#14B8A6] transition-all">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-[#7a6f75] uppercase tracking-wider">Today's Appointments</span>
             <div className="w-8 h-8 rounded-xl bg-teal-50 flex items-center justify-center text-[#14B8A6]">
@@ -80,7 +80,7 @@ export default function DoctorOverview() {
           </p>
         </div>
 
-        <div className="bg-white p-6 rounded-3xl border border-[#EDE9FE] shadow-sm flex flex-col justify-between hover:border-pink-400 transition-all">
+        <div className="bg-white p-6 rounded-3xl border border-[#F4DDE2] shadow-sm flex flex-col justify-between hover:border-pink-400 transition-all">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-[#7a6f75] uppercase tracking-wider">Shared Lab Reports</span>
             <div className="w-8 h-8 rounded-xl bg-pink-50 flex items-center justify-center text-[#F472B6]">
@@ -91,7 +91,7 @@ export default function DoctorOverview() {
           <p className="text-xs text-pink-600 font-bold mt-1">AI biomarkers extracted</p>
         </div>
 
-        <div className="bg-white p-6 rounded-3xl border border-[#EDE9FE] shadow-sm flex flex-col justify-between hover:border-emerald-400 transition-all">
+        <div className="bg-white p-6 rounded-3xl border border-[#F4DDE2] shadow-sm flex flex-col justify-between hover:border-emerald-400 transition-all">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-[#7a6f75] uppercase tracking-wider">Satisfaction Rating</span>
             <div className="w-8 h-8 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600">
@@ -106,31 +106,31 @@ export default function DoctorOverview() {
       {/* 2 Columns: Today's Clinical Queue & High Attention Health Twins */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Today's Appointments Queue */}
-        <div className="bg-white rounded-3xl p-6 border border-[#EDE9FE] shadow-sm space-y-4">
+        <div className="bg-white rounded-3xl p-6 border border-[#F4DDE2] shadow-sm space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="font-serif text-xl font-bold text-[#3a3135]">Today's Clinical Roster</h3>
-            <Link to="/doctor-dashboard/appointments" className="text-xs font-bold text-[#7C3AED] hover:underline flex items-center gap-1">
+            <Link to="/doctor-dashboard/appointments" className="text-xs font-bold text-[#936DA2] hover:underline flex items-center gap-1">
               View All <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
 
           {todayAppointments.length === 0 ? (
-            <div className="p-8 text-center bg-[#FAF8FC] rounded-2xl border border-dashed border-[#EDE9FE]">
+            <div className="p-8 text-center bg-[#FCF4F5] rounded-2xl border border-dashed border-[#F4DDE2]">
               <p className="text-xs text-[#7a6f75]">No appointments scheduled for today.</p>
             </div>
           ) : (
             <div className="space-y-3">
               {todayAppointments.slice(0, 3).map((apt) => (
-                <div key={apt.id} className="p-4 rounded-2xl border border-[#EDE9FE] bg-[#FAF8FC] flex items-center justify-between gap-3 text-xs">
+                <div key={apt.id} className="p-4 rounded-2xl border border-[#F4DDE2] bg-[#FCF4F5] flex items-center justify-between gap-3 text-xs">
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
                       <span className="font-bold text-sm text-[#3a3135]">{apt.patient}</span>
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-[#7C3AED]">
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-[#936DA2]">
                         {apt.type}
                       </span>
                     </div>
                     <p className="text-[#7a6f75]">{apt.reason}</p>
-                    <p className="text-[11px] font-mono text-[#7C3AED] flex items-center gap-1">
+                    <p className="text-[11px] font-mono text-[#936DA2] flex items-center gap-1">
                       <Clock className="w-3 h-3" /> {apt.date} • {apt.time}
                     </p>
                   </div>
@@ -142,7 +142,7 @@ export default function DoctorOverview() {
                         return (
                           <button
                             onClick={() => handleStartDoctorCall(apt)}
-                            className="px-3 py-1.5 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl font-bold text-xs flex items-center gap-1 cursor-pointer animate-pulse"
+                            className="px-3 py-1.5 bg-[#936DA2] hover:bg-[#835A92] text-white rounded-xl font-bold text-xs flex items-center gap-1 cursor-pointer animate-pulse"
                             title="Start call now"
                           >
                             <Video className="w-3.5 h-3.5" /> Call Patient
@@ -167,22 +167,22 @@ export default function DoctorOverview() {
         </div>
 
         {/* Priority Patients */}
-        <div className="bg-white rounded-3xl p-6 border border-[#EDE9FE] shadow-sm space-y-4">
+        <div className="bg-white rounded-3xl p-6 border border-[#F4DDE2] shadow-sm space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="font-serif text-xl font-bold text-[#3a3135]">Patients Requiring Attention</h3>
-            <Link to="/doctor-dashboard/patients" className="text-xs font-bold text-[#7C3AED] hover:underline flex items-center gap-1">
+            <Link to="/doctor-dashboard/patients" className="text-xs font-bold text-[#936DA2] hover:underline flex items-center gap-1">
               Patient Directory <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
 
           {highRiskPatients.length === 0 ? (
-            <div className="p-8 text-center bg-[#FAF8FC] rounded-2xl border border-dashed border-[#EDE9FE]">
+            <div className="p-8 text-center bg-[#FCF4F5] rounded-2xl border border-dashed border-[#F4DDE2]">
               <p className="text-xs text-emerald-700 font-semibold">All connected patient health twins are within optimal parameters.</p>
             </div>
           ) : (
             <div className="space-y-3">
               {highRiskPatients.map((p) => (
-                <div key={p.id} className="p-4 rounded-2xl border border-[#EDE9FE] bg-[#FAF8FC] flex items-center justify-between gap-3 text-xs">
+                <div key={p.id} className="p-4 rounded-2xl border border-[#F4DDE2] bg-[#FCF4F5] flex items-center justify-between gap-3 text-xs">
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
                       <h4 className="font-bold text-sm text-[#3a3135]">{p.name}</h4>
@@ -198,7 +198,7 @@ export default function DoctorOverview() {
 
                   <button
                     onClick={() => setSelectedHealthTwin(p)}
-                    className="px-3 py-1.5 bg-white border border-[#EDE9FE] hover:bg-purple-50 text-[#7C3AED] font-bold rounded-xl flex items-center gap-1 cursor-pointer transition-colors shadow-2xs"
+                    className="px-3 py-1.5 bg-white border border-[#F4DDE2] hover:bg-purple-50 text-[#936DA2] font-bold rounded-xl flex items-center gap-1 cursor-pointer transition-colors shadow-2xs"
                   >
                     <Activity className="w-3.5 h-3.5" /> Twin
                   </button>

@@ -189,10 +189,29 @@ export const syncData = async (req, res) => {
       raw_payload = {}
     } = req.body;
 
-    if (!device_identifier) {
-      await client.query('ROLLBACK');
-      return res.status(400).json({ success: false, message: 'device_identifier is required for sync.' });
+    let targetIdentifier = device_identifier;
+    if (!targetIdentifier && (req.body.deviceId || req.body.device_id)) {
+      const devLookup = await client.query(
+        'SELECT device_identifier FROM smartwatch_devices WHERE id = $1 AND user_id = $2',
+        [req.body.deviceId || req.body.device_id, userId]
+      );
+      if (devLookup.rows.length > 0) {
+        targetIdentifier = devLookup.rows[0].device_identifier;
+      }
     }
+
+    if (!targetIdentifier) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ success: false, message: 'device_identifier or valid deviceId is required for sync.' });
+    }
+
+    const resolvedSteps = steps !== null && steps !== undefined ? steps : (req.body.steps ?? null);
+    const resolvedCalories = calories !== null && calories !== undefined ? calories : (req.body.calories ?? null);
+    const resolvedHeartRate = heart_rate !== null && heart_rate !== undefined ? heart_rate : (req.body.heartRate ?? null);
+    const resolvedDistanceM = distance_meters !== null && distance_meters !== undefined ? distance_meters : (req.body.distanceKm ? req.body.distanceKm * 1000 : null);
+    const resolvedSleepMinutes = sleep_duration_minutes !== null && sleep_duration_minutes !== undefined ? sleep_duration_minutes : (req.body.sleepDurationMinutes ?? null);
+    const resolvedSpo2 = spo2 !== null && spo2 !== undefined ? spo2 : (req.body.spo2 ?? null);
+    const resolvedBodyTemp = body_temperature !== null && body_temperature !== undefined ? body_temperature : (req.body.bodyTemp ?? null);
 
     const deviceBrand = (brand || 'GENERIC_BLE').toUpperCase();
     const dataSource = source || `${deviceBrand}_${(device_model || 'DEVICE').replace(/[\s-]/g, '_').toUpperCase()}`;
@@ -222,7 +241,7 @@ export const syncData = async (req, res) => {
       userId,
       device_name,
       device_model,
-      device_identifier.trim(),
+      targetIdentifier.trim(),
       deviceBrand,
       (device_type || 'SMARTWATCH').toUpperCase(),
       JSON.stringify(capabilities || {}),
@@ -234,9 +253,9 @@ export const syncData = async (req, res) => {
     const dataTimestamp = recorded_at ? new Date(recorded_at) : new Date();
     const finalSyncKey = req.body.sync_key || `${deviceId}_${dataTimestamp.toISOString().split('T')[0]}`;
 
-    const distM = distance_meters !== undefined && distance_meters !== null && distance_meters >= 0 ? parseFloat(distance_meters) : null;
+    const distM = resolvedDistanceM !== undefined && resolvedDistanceM !== null && resolvedDistanceM >= 0 ? parseFloat(resolvedDistanceM) : null;
     const distKm = distM !== null ? parseFloat((distM / 1000.0).toFixed(2)) : null;
-    const sleepM = sleep_duration_minutes !== undefined && sleep_duration_minutes !== null && sleep_duration_minutes >= 0 ? parseInt(sleep_duration_minutes) : null;
+    const sleepM = resolvedSleepMinutes !== undefined && resolvedSleepMinutes !== null && resolvedSleepMinutes >= 0 ? parseInt(resolvedSleepMinutes) : null;
 
     const upsertDataQuery = `
       INSERT INTO smartwatch_health_data
@@ -270,18 +289,18 @@ export const syncData = async (req, res) => {
       userId,
       deviceId,
       dataTimestamp,
-      heart_rate !== undefined && heart_rate !== null && heart_rate > 0 ? parseInt(heart_rate) : null,
+      resolvedHeartRate !== undefined && resolvedHeartRate !== null && resolvedHeartRate > 0 ? parseInt(resolvedHeartRate) : null,
       resting_heart_rate !== undefined && resting_heart_rate !== null && resting_heart_rate > 0 ? parseInt(resting_heart_rate) : null,
-      steps !== undefined && steps !== null && steps >= 0 ? parseInt(steps) : null,
-      calories !== undefined && calories !== null && calories >= 0 ? Math.round(parseFloat(calories)) : null,
+      resolvedSteps !== undefined && resolvedSteps !== null && resolvedSteps >= 0 ? parseInt(resolvedSteps) : null,
+      resolvedCalories !== undefined && resolvedCalories !== null && resolvedCalories >= 0 ? Math.round(parseFloat(resolvedCalories)) : null,
       distKm,
       distM,
       sleepM,
       sleepM,
-      spo2 !== undefined && spo2 !== null && spo2 >= 50 ? parseInt(spo2) : null,
+      resolvedSpo2 !== undefined && resolvedSpo2 !== null && resolvedSpo2 >= 50 ? parseInt(resolvedSpo2) : null,
       hrv_rmssd !== undefined && hrv_rmssd !== null && hrv_rmssd >= 0 ? parseInt(hrv_rmssd) : null,
       stress_score !== undefined && stress_score !== null && stress_score >= 0 ? parseInt(stress_score) : null,
-      body_temperature !== undefined && body_temperature !== null && body_temperature >= 30.0 ? parseFloat(body_temperature) : null,
+      resolvedBodyTemp !== undefined && resolvedBodyTemp !== null && resolvedBodyTemp >= 30.0 ? parseFloat(resolvedBodyTemp) : null,
       blood_pressure_systolic !== undefined && blood_pressure_systolic !== null ? parseInt(blood_pressure_systolic) : null,
       blood_pressure_diastolic !== undefined && blood_pressure_diastolic !== null ? parseInt(blood_pressure_diastolic) : null,
       respiratory_rate !== undefined && respiratory_rate !== null ? parseFloat(respiratory_rate) : null,

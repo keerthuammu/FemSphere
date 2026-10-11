@@ -47,7 +47,7 @@ export default function CaregiverMedications() {
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
       {/* Header */}
-      <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#EDE9FE] shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#F4DDE2] shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 text-[#F472B6] mb-1">
             <Pill className="w-5 h-5" />
@@ -69,7 +69,7 @@ export default function CaregiverMedications() {
 
       {/* Medications Grid or Empty State */}
       {medications.length === 0 ? (
-        <div className="bg-white rounded-3xl p-12 border border-[#EDE9FE] shadow-sm text-center space-y-4">
+        <div className="bg-white rounded-3xl p-12 border border-[#F4DDE2] shadow-sm text-center space-y-4">
           <div className="w-16 h-16 rounded-full bg-pink-50 text-[#F472B6] flex items-center justify-center mx-auto">
             <Pill className="w-8 h-8" />
           </div>
@@ -89,9 +89,9 @@ export default function CaregiverMedications() {
         {medications.map((m) => (
           <div
             key={m.id}
-            className="p-6 rounded-3xl border border-[#EDE9FE] bg-white hover:border-[#F472B6]/40 hover:shadow-sm transition-all space-y-4"
+            className="p-6 rounded-3xl border border-[#F4DDE2] bg-white hover:border-[#F472B6]/40 hover:shadow-sm transition-all space-y-4"
           >
-            <div className="flex items-center justify-between border-b border-[#EDE9FE] pb-3">
+            <div className="flex items-center justify-between border-b border-[#F4DDE2] pb-3">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-xl bg-pink-100 text-[#F472B6] flex items-center justify-center font-bold text-sm">
                   {m.dependent.charAt(0)}
@@ -101,7 +101,7 @@ export default function CaregiverMedications() {
                   <span className="font-bold text-sm text-[#3a3135]">{m.dependent}</span>
                 </div>
               </div>
-              <span className="px-2.5 py-0.5 rounded-full bg-purple-50 text-[#7C3AED] font-mono font-bold text-xs border border-purple-100">
+              <span className="px-2.5 py-0.5 rounded-full bg-purple-50 text-[#936DA2] font-mono font-bold text-xs border border-purple-100">
                 {m.id}
               </span>
             </div>
@@ -116,7 +116,7 @@ export default function CaregiverMedications() {
                   </span>
                 </div>
                 <p className="text-xs text-[#7a6f75] flex items-center gap-1.5 pt-1">
-                  <Clock className="w-4 h-4 text-[#7C3AED]" /> Scheduled Time:{' '}
+                  <Clock className="w-4 h-4 text-[#936DA2]" /> Scheduled Time:{' '}
                   <b className="text-pink-600 font-bold text-sm">{m.time}</b>
                 </p>
               </div>
@@ -137,8 +137,8 @@ export default function CaregiverMedications() {
       {/* Add Medication Modal */}
       {showAddMedModal && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 font-inter">
-          <div className="bg-white rounded-3xl p-6 md:p-8 max-w-md w-full border border-[#EDE9FE] shadow-2xl space-y-4">
-            <div className="flex items-center justify-between border-b border-[#EDE9FE] pb-3">
+          <div className="bg-white rounded-3xl p-6 md:p-8 max-w-md w-full border border-[#F4DDE2] shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-[#F4DDE2] pb-3">
               <h3 className="font-bold text-base text-[#3a3135]">Add Medication Reminder</h3>
               <button onClick={() => setShowAddMedModal(false)} className="p-1 text-gray-400 hover:text-gray-600">
                 <X className="w-4 h-4" />
@@ -157,7 +157,7 @@ export default function CaregiverMedications() {
                 <select
                   value={newMed.dependent}
                   onChange={(e) => setNewMed({ ...newMed, dependent: e.target.value })}
-                  className="w-full p-3 rounded-xl border border-[#EDE9FE] bg-white font-medium"
+                  className="w-full p-3 rounded-xl border border-[#F4DDE2] bg-white font-medium"
                 >
                   {dependents.map((d) => (
                     <option key={d.id} value={d.name}>
@@ -177,7 +177,7 @@ export default function CaregiverMedications() {
                   className={`w-full p-3 rounded-xl border ${
                     newMed.medicineName.trim() && newMed.medicineName.trim().length < 2
                       ? 'border-red-400 focus:border-red-500'
-                      : 'border-[#EDE9FE]'
+                      : 'border-[#F4DDE2]'
                   } text-xs font-medium`}
                   required
                 />
@@ -194,7 +194,7 @@ export default function CaregiverMedications() {
                     value={newMed.dosage}
                     onChange={(e) => setNewMed({ ...newMed, dosage: e.target.value })}
                     placeholder="e.g. 500mg, 1 Tab"
-                    className="w-full p-3 rounded-xl border border-[#EDE9FE] text-xs font-medium"
+                    className="w-full p-3 rounded-xl border border-[#F4DDE2] text-xs font-medium"
                     required
                   />
                 </div>
@@ -206,13 +206,13 @@ export default function CaregiverMedications() {
                     value={newMed.time}
                     onChange={(e) => setNewMed({ ...newMed, time: e.target.value })}
                     placeholder="e.g. 09:00 AM"
-                    className="w-full p-3 rounded-xl border border-[#EDE9FE] text-xs font-bold text-[#7C3AED]"
+                    className="w-full p-3 rounded-xl border border-[#F4DDE2] text-xs font-bold text-[#936DA2]"
                     required
                   />
                 </div>
               </div>
 
-              <div className="flex gap-2 pt-3 border-t border-[#EDE9FE]">
+              <div className="flex gap-2 pt-3 border-t border-[#F4DDE2]">
                 <button
                   type="submit"
                   className="flex-1 py-3 bg-[#F472B6] hover:bg-[#E85D9E] text-white font-bold rounded-xl cursor-pointer"
@@ -222,7 +222,7 @@ export default function CaregiverMedications() {
                 <button
                   type="button"
                   onClick={() => setShowAddMedModal(false)}
-                  className="py-3 px-5 border border-[#EDE9FE] rounded-xl font-bold hover:bg-gray-50 cursor-pointer"
+                  className="py-3 px-5 border border-[#F4DDE2] rounded-xl font-bold hover:bg-gray-50 cursor-pointer"
                 >
                   Cancel
                 </button>

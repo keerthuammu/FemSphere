@@ -95,7 +95,7 @@ abstract class BaseBleAdapter implements WearableDevice {
       if (!bluetoothDevice.isConnected) {
         await bluetoothDevice.connect(
           timeout: const Duration(seconds: 15),
-          autoConnect: true,
+          autoConnect: false,
         );
       }
 

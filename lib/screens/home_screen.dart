@@ -355,6 +355,16 @@ class _HomeScreenState extends State<HomeScreen> {
       titleSpacing: 16,
       title: Row(
         children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: Image.asset(
+              'assets/images/femsphere_logo.png',
+              width: 32,
+              height: 32,
+              fit: BoxFit.contain,
+            ),
+          ),
+          const SizedBox(width: 8),
           Text(
             'FemSphere',
             style: GoogleFonts.playfairDisplay(
@@ -364,8 +374,6 @@ class _HomeScreenState extends State<HomeScreen> {
               letterSpacing: -0.5,
             ),
           ),
-          const SizedBox(width: 6),
-          const Icon(Icons.auto_awesome, color: AppTheme.secondaryTeal, size: 18),
         ],
       ),
       actions: [
@@ -494,7 +502,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.auto_awesome, size: 14, color: AppTheme.primaryPurple),
+                const Icon(Icons.psychology_outlined, size: 14, color: AppTheme.primaryPurple),
                 const SizedBox(width: 6),
                 Text(
                   'PERSONALIZED HEALTH INTELLIGENCE',

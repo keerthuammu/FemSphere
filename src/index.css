@@ -6,12 +6,36 @@
   --font-outfit: "Outfit", sans-serif;
   --font-lora: "Lora", serif;
   --font-inter: "Inter", sans-serif;
+
+  /* Official FemSphere Logo Brand Color Tokens */
+  --color-brand-plum: #936da2;
+  --color-brand-plum-hover: #835a92;
+  --color-brand-plum-dark: #6e437c;
+  --color-brand-plum-light: #f9e8ec;
+  --color-brand-rose: #f4bdca;
+  --color-brand-rose-vibrant: #e27d95;
+  --color-brand-rose-light: #fcf4f5;
+  --color-brand-bg: #fcf4f5;
+  --color-brand-bg-alt: #fdf5f6;
+  --color-brand-border: #f4dde2;
+  --color-brand-dark: #261a2c;
+  --color-brand-muted: #7a6878;
+}
+
+:root {
+  --color-primary: #936da2;
+  --color-primary-hover: #835a92;
+  --color-primary-dark: #6e437c;
+  --color-primary-light: #f9e8ec;
+  --color-accent-rose: #f4bdca;
+  --color-ambient-bg: #fcf4f5;
+  --color-soft-border: #f4dde2;
 }
 
 body {
   font-family: var(--font-inter), var(--font-sans);
-  background-color: #fbf9f6;
-  color: #4a4145;
+  background-color: #fcf4f5;
+  color: #261a2c;
 }
 
 .font-outfit {

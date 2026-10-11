@@ -88,12 +88,14 @@ export default function DoctorLayout() {
         <div className="space-y-8">
           {/* Brand */}
           <Link to="/" className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-2xl bg-[#7C3AED] text-white flex items-center justify-center font-bold text-lg shadow-sm">
-              <Stethoscope className="w-5 h-5" />
-            </div>
+            <img
+              src="/femsphere_logo.png"
+              alt="FemSphere Logo"
+              className="w-10 h-10 rounded-full object-contain shadow-xs"
+            />
             <div>
               <span className="font-serif text-xl font-bold tracking-tight text-[#2E2428] block leading-none">FemSphere</span>
-              <span className="text-[10px] uppercase font-bold text-[#7C3AED] tracking-widest block mt-0.5">Clinical Portal</span>
+              <span className="text-[10px] uppercase font-bold text-[#936DA2] tracking-widest block mt-0.5">Clinical Portal</span>
             </div>
           </Link>
 
@@ -109,7 +111,7 @@ export default function DoctorLayout() {
                   className={({ isActive }) =>
                     `w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl font-bold text-xs transition-all ${
                       isActive
-                        ? 'bg-white text-[#7C3AED] shadow-xs border border-[#E5CDBC]'
+                        ? 'bg-white text-[#936DA2] shadow-xs border border-[#E5CDBC]'
                         : 'text-[#4A3B42] hover:bg-white/40 hover:text-[#2E2428]'
                     }`
                   }
@@ -125,7 +127,7 @@ export default function DoctorLayout() {
         {/* Doctor Identity & Logout */}
         <div className="pt-6 border-t border-[#E5CDBC] space-y-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-purple-100 text-[#7C3AED] flex items-center justify-center font-bold text-sm shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-purple-100 text-[#936DA2] flex items-center justify-center font-bold text-sm shrink-0">
               {profile.name.charAt(0)}
             </div>
             <div className="overflow-hidden">
@@ -160,7 +162,7 @@ export default function DoctorLayout() {
           {/* Quick Actions & Live Time */}
           <div className="flex items-center gap-3">
             <div className="hidden lg:flex items-center gap-2 bg-[#FAF7F4] px-3.5 py-1.5 rounded-xl border border-[#E5CDBC] text-xs font-mono font-bold text-[#7A6A72]">
-              <Clock className="w-3.5 h-3.5 text-[#7C3AED]" />
+              <Clock className="w-3.5 h-3.5 text-[#936DA2]" />
               {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
             </div>
           </div>
@@ -175,7 +177,7 @@ export default function DoctorLayout() {
               end={item.end}
               className={({ isActive }) =>
                 `px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap ${
-                  isActive ? 'bg-white text-[#7C3AED] shadow-2xs' : 'text-[#4A3B42]'
+                  isActive ? 'bg-white text-[#936DA2] shadow-2xs' : 'text-[#4A3B42]'
                 }`
               }
             >
@@ -197,10 +199,10 @@ export default function DoctorLayout() {
       {/* --- MODAL: PATIENT DIGITAL HEALTH TWIN VIEWER --- */}
       {selectedHealthTwin && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 font-inter">
-          <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 md:p-8 border border-[#EDE9FE] shadow-2xl space-y-6">
-            <div className="flex items-center justify-between border-b border-[#EDE9FE] pb-4">
+          <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 md:p-8 border border-[#F4DDE2] shadow-2xl space-y-6">
+            <div className="flex items-center justify-between border-b border-[#F4DDE2] pb-4">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#7C3AED] to-[#F472B6] text-white flex items-center justify-center font-bold text-lg">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#936DA2] to-[#F472B6] text-white flex items-center justify-center font-bold text-lg">
                   {selectedHealthTwin.name.charAt(0)}
                 </div>
                 <div>
@@ -215,19 +217,19 @@ export default function DoctorLayout() {
 
             {/* Vitals Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-              <div className="p-3.5 bg-[#FAF8FC] rounded-2xl border border-[#EDE9FE]">
+              <div className="p-3.5 bg-[#FCF4F5] rounded-2xl border border-[#F4DDE2]">
                 <span className="text-[10px] font-bold text-[#7a6f75] uppercase block">Heart Rate</span>
-                <span className="text-lg font-bold text-[#7C3AED] mt-1 block">{selectedHealthTwin.heartRate} bpm</span>
+                <span className="text-lg font-bold text-[#936DA2] mt-1 block">{selectedHealthTwin.heartRate} bpm</span>
               </div>
-              <div className="p-3.5 bg-[#FAF8FC] rounded-2xl border border-[#EDE9FE]">
+              <div className="p-3.5 bg-[#FCF4F5] rounded-2xl border border-[#F4DDE2]">
                 <span className="text-[10px] font-bold text-[#7a6f75] uppercase block">Blood Pressure</span>
                 <span className="text-lg font-bold text-[#14B8A6] mt-1 block">{selectedHealthTwin.bp}</span>
               </div>
-              <div className="p-3.5 bg-[#FAF8FC] rounded-2xl border border-[#EDE9FE]">
+              <div className="p-3.5 bg-[#FCF4F5] rounded-2xl border border-[#F4DDE2]">
                 <span className="text-[10px] font-bold text-[#7a6f75] uppercase block">Cycle Phase</span>
                 <span className="text-sm font-bold text-[#F472B6] mt-1 block truncate">{selectedHealthTwin.cyclePhase}</span>
               </div>
-              <div className="p-3.5 bg-[#FAF8FC] rounded-2xl border border-[#EDE9FE]">
+              <div className="p-3.5 bg-[#FCF4F5] rounded-2xl border border-[#F4DDE2]">
                 <span className="text-[10px] font-bold text-[#7a6f75] uppercase block">BMI / Weight</span>
                 <span className="text-lg font-bold text-[#3a3135] mt-1 block">{selectedHealthTwin.bmi} ({selectedHealthTwin.weightKg}kg)</span>
               </div>
@@ -235,12 +237,12 @@ export default function DoctorLayout() {
 
             {/* Clinical Profile Info */}
             <div className="space-y-3 text-xs">
-              <div className="p-4 rounded-2xl bg-[#FAF8FC] border border-[#EDE9FE] space-y-1">
+              <div className="p-4 rounded-2xl bg-[#FCF4F5] border border-[#F4DDE2] space-y-1">
                 <span className="font-bold text-[#7a6f75] uppercase text-[10px]">Known Allergies</span>
                 <p className="font-semibold text-rose-700">{selectedHealthTwin.allergies.join(', ')}</p>
               </div>
 
-              <div className="p-4 rounded-2xl bg-[#FAF8FC] border border-[#EDE9FE] space-y-1">
+              <div className="p-4 rounded-2xl bg-[#FCF4F5] border border-[#F4DDE2] space-y-1">
                 <span className="font-bold text-[#7a6f75] uppercase text-[10px]">Chronic Conditions & Health Twin Notes</span>
                 <p className="text-[#3a3135]">{selectedHealthTwin.chronicConditions.join(' • ')}</p>
               </div>
@@ -252,10 +254,10 @@ export default function DoctorLayout() {
                 return (
                   <div className="p-4 rounded-2xl bg-purple-50/70 border border-purple-200 space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="font-bold text-[#7C3AED] uppercase text-[10px] flex items-center gap-1.5">
+                      <span className="font-bold text-[#936DA2] uppercase text-[10px] flex items-center gap-1.5">
                         <FileCheck className="w-4 h-4 text-[#14B8A6]" /> Patient Shared Diagnostic Report
                       </span>
-                      <span className="px-2 py-0.5 rounded-full bg-purple-100 text-[#7C3AED] font-bold text-[10px]">
+                      <span className="px-2 py-0.5 rounded-full bg-purple-100 text-[#936DA2] font-bold text-[10px]">
                         {twinReport.category}
                       </span>
                     </div>
@@ -270,7 +272,7 @@ export default function DoctorLayout() {
                         onClick={() => {
                           setSelectedRecordToView(twinReport);
                         }}
-                        className="px-3.5 py-2 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
+                        className="px-3.5 py-2 bg-[#936DA2] hover:bg-[#835A92] text-white rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
                       >
                         <Eye className="w-3.5 h-3.5" /> View AI Biomarkers
                       </button>
@@ -281,20 +283,20 @@ export default function DoctorLayout() {
             </div>
 
             {/* Modal Actions */}
-            <div className="flex gap-3 pt-4 border-t border-[#EDE9FE]">
+            <div className="flex gap-3 pt-4 border-t border-[#F4DDE2]">
               <button 
                 onClick={() => {
                   setSelectedHealthTwin(null);
                   setNewConsultationForm(prev => ({ ...prev, patient: selectedHealthTwin.name, patientId: selectedHealthTwin.id }));
                   setShowAddConsultationModal(true);
                 }} 
-                className="flex-1 py-3 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 cursor-pointer"
+                className="flex-1 py-3 bg-[#936DA2] hover:bg-[#835A92] text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 cursor-pointer"
               >
                 <Plus className="w-4 h-4" /> Create Prescription Note
               </button>
               <button 
                 onClick={() => setSelectedHealthTwin(null)} 
-                className="px-5 py-3 border border-[#EDE9FE] rounded-xl text-xs font-bold text-[#7a6f75] hover:bg-gray-50 cursor-pointer"
+                className="px-5 py-3 border border-[#F4DDE2] rounded-xl text-xs font-bold text-[#7a6f75] hover:bg-gray-50 cursor-pointer"
               >
                 Close
               </button>
@@ -306,23 +308,23 @@ export default function DoctorLayout() {
       {/* --- MODAL: AI BIOMARKER & LAB REVIEWER --- */}
       {selectedRecordToView && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 font-inter">
-          <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 md:p-8 border border-[#EDE9FE] shadow-2xl space-y-6">
+          <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 md:p-8 border border-[#F4DDE2] shadow-2xl space-y-6">
             
             {/* Header: Patient Name & Report File */}
-            <div className="flex items-start justify-between border-b border-[#EDE9FE] pb-4 gap-4">
+            <div className="flex items-start justify-between border-b border-[#F4DDE2] pb-4 gap-4">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <span className="px-2.5 py-0.5 rounded-full bg-purple-100 text-[#7C3AED] font-bold text-[10px]">
+                  <span className="px-2.5 py-0.5 rounded-full bg-purple-100 text-[#936DA2] font-bold text-[10px]">
                     {selectedRecordToView.category}
                   </span>
                   <span className="text-xs text-[#7a6f75]">Uploaded {selectedRecordToView.sharedDate}</span>
                 </div>
                 <h3 className="font-bold text-xl text-[#3a3135] flex items-center gap-2">
-                  <FileText className="w-5 h-5 text-[#7C3AED]" /> {selectedRecordToView.fileName}
+                  <FileText className="w-5 h-5 text-[#936DA2]" /> {selectedRecordToView.fileName}
                 </h3>
                 <div className="flex items-center gap-2 text-xs">
                   <span className="font-bold text-[#7a6f75]">Patient:</span>
-                  <span className="font-bold text-[#7C3AED] bg-purple-50 px-2 py-0.5 rounded-md border border-purple-200">
+                  <span className="font-bold text-[#936DA2] bg-purple-50 px-2 py-0.5 rounded-md border border-purple-200">
                     {selectedRecordToView.patient} ({selectedRecordToView.patientId})
                   </span>
                 </div>
@@ -334,7 +336,7 @@ export default function DoctorLayout() {
 
             {/* AI Summary Banner */}
             <div className="p-4 rounded-2xl bg-purple-50 border border-purple-200 text-xs space-y-1.5">
-              <span className="font-bold text-[#7C3AED] uppercase tracking-wider flex items-center gap-1.5">
+              <span className="font-bold text-[#936DA2] uppercase tracking-wider flex items-center gap-1.5">
                 <Sparkles className="w-3.5 h-3.5 text-[#14B8A6]" /> AI Clinical Analysis Summary
               </span>
               <p className="text-[#3a3135] leading-relaxed">{selectedRecordToView.aiSummary}</p>
@@ -343,9 +345,9 @@ export default function DoctorLayout() {
             {/* Biomarker Table */}
             <div className="space-y-2">
               <span className="font-bold text-xs text-[#3a3135] uppercase tracking-wider">Extracted Lab Parameters</span>
-              <div className="overflow-x-auto border border-[#EDE9FE] rounded-2xl">
+              <div className="overflow-x-auto border border-[#F4DDE2] rounded-2xl">
                 <table className="w-full text-left text-xs font-inter">
-                  <thead className="bg-[#FAF8FC] border-b border-[#EDE9FE] text-[#7a6f75] uppercase text-[10px] font-bold">
+                  <thead className="bg-[#FCF4F5] border-b border-[#F4DDE2] text-[#7a6f75] uppercase text-[10px] font-bold">
                     <tr>
                       <th className="p-3">Biomarker</th>
                       <th className="p-3">Result Value</th>
@@ -353,11 +355,11 @@ export default function DoctorLayout() {
                       <th className="p-3">Standard Reference</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#EDE9FE]">
+                  <tbody className="divide-y divide-[#F4DDE2]">
                     {selectedRecordToView.biomarkers.map((bm, idx) => (
-                      <tr key={idx} className="hover:bg-[#FAF8FC]">
+                      <tr key={idx} className="hover:bg-[#FCF4F5]">
                         <td className="p-3 font-bold text-[#3a3135]">{bm.name}</td>
-                        <td className="p-3 font-mono font-bold text-[#7C3AED]">{bm.value}</td>
+                        <td className="p-3 font-mono font-bold text-[#936DA2]">{bm.value}</td>
                         <td className="p-3">
                           <span className={`px-2.5 py-0.5 rounded-full font-bold text-[10px] ${
                             bm.status === 'Optimal' || bm.status === 'Normal' ? 'bg-emerald-100 text-emerald-800' :
@@ -374,16 +376,16 @@ export default function DoctorLayout() {
               </div>
             </div>
 
-            <div className="flex gap-3 pt-4 border-t border-[#EDE9FE]">
+            <div className="flex gap-3 pt-4 border-t border-[#F4DDE2]">
               <button 
                 onClick={() => alert(`Downloading official PDF copy of ${selectedRecordToView.fileName}...`)} 
-                className="flex-1 py-3 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer"
+                className="flex-1 py-3 bg-[#936DA2] hover:bg-[#835A92] text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <Download className="w-4 h-4" /> Download Medical Report
               </button>
               <button 
                 onClick={() => setSelectedRecordToView(null)} 
-                className="px-5 py-3 border border-[#EDE9FE] rounded-xl text-xs font-bold text-[#7a6f75] hover:bg-gray-50 cursor-pointer"
+                className="px-5 py-3 border border-[#F4DDE2] rounded-xl text-xs font-bold text-[#7a6f75] hover:bg-gray-50 cursor-pointer"
               >
                 Close
               </button>
@@ -395,8 +397,8 @@ export default function DoctorLayout() {
       {/* --- MODAL: CREATE CONSULTATION NOTE & DIGITAL PRESCRIPTION --- */}
       {showAddConsultationModal && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 font-inter">
-          <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 md:p-8 border border-[#EDE9FE] shadow-2xl space-y-6">
-            <div className="flex items-center justify-between border-b border-[#EDE9FE] pb-4">
+          <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 md:p-8 border border-[#F4DDE2] shadow-2xl space-y-6">
+            <div className="flex items-center justify-between border-b border-[#F4DDE2] pb-4">
               <div>
                 <h3 className="font-bold text-xl text-[#3a3135]">New Consultation & Prescription</h3>
                 <p className="text-xs text-[#7a6f75]">Generate clinical notes and multi-medication digital prescription</p>
@@ -438,7 +440,7 @@ export default function DoctorLayout() {
                         }));
                       }
                     }}
-                    className="w-full p-3 rounded-xl border border-[#EDE9FE] bg-white font-bold text-[#3a3135]"
+                    className="w-full p-3 rounded-xl border border-[#F4DDE2] bg-white font-bold text-[#3a3135]"
                   >
                     {appointments.length > 0 ? (
                       appointments.map(a => (
@@ -463,7 +465,7 @@ export default function DoctorLayout() {
                       setNewConsultationForm({ ...newConsultationForm, followUpDate: e.target.value });
                       if (consultationErrorMsg) setConsultationErrorMsg(null);
                     }} 
-                    className={`w-full p-3 rounded-xl border ${newConsultationForm.followUpDate && !isFutureDate(newConsultationForm.followUpDate) ? 'border-rose-400 bg-rose-50/20' : 'border-[#EDE9FE]'}`} 
+                    className={`w-full p-3 rounded-xl border ${newConsultationForm.followUpDate && !isFutureDate(newConsultationForm.followUpDate) ? 'border-rose-400 bg-rose-50/20' : 'border-[#F4DDE2]'}`} 
                     required 
                   />
                   {newConsultationForm.followUpDate && !isFutureDate(newConsultationForm.followUpDate) && (
@@ -482,7 +484,7 @@ export default function DoctorLayout() {
                     if (consultationErrorMsg) setConsultationErrorMsg(null);
                   }} 
                   placeholder="e.g., Fatigue during luteal phase, cramps"
-                  className={`w-full p-3 rounded-xl border ${newConsultationForm.chiefComplaint && newConsultationForm.chiefComplaint.trim().length > 0 && newConsultationForm.chiefComplaint.trim().length < 3 ? 'border-rose-400 bg-rose-50/20' : 'border-[#EDE9FE]'}`} 
+                  className={`w-full p-3 rounded-xl border ${newConsultationForm.chiefComplaint && newConsultationForm.chiefComplaint.trim().length > 0 && newConsultationForm.chiefComplaint.trim().length < 3 ? 'border-rose-400 bg-rose-50/20' : 'border-[#F4DDE2]'}`} 
                   required 
                 />
                 {newConsultationForm.chiefComplaint && newConsultationForm.chiefComplaint.trim().length > 0 && newConsultationForm.chiefComplaint.trim().length < 3 && (
@@ -500,7 +502,7 @@ export default function DoctorLayout() {
                     if (consultationErrorMsg) setConsultationErrorMsg(null);
                   }} 
                   placeholder="e.g., Phase 3 Luteal Dysphoria with Microcytic Anemia"
-                  className={`w-full p-3 rounded-xl border ${newConsultationForm.diagnosis && newConsultationForm.diagnosis.trim().length < 3 ? 'border-rose-400 bg-rose-50/20' : 'border-[#EDE9FE]'}`} 
+                  className={`w-full p-3 rounded-xl border ${newConsultationForm.diagnosis && newConsultationForm.diagnosis.trim().length < 3 ? 'border-rose-400 bg-rose-50/20' : 'border-[#F4DDE2]'}`} 
                   required 
                 />
                 {newConsultationForm.diagnosis && newConsultationForm.diagnosis.trim().length < 3 && (
@@ -515,32 +517,32 @@ export default function DoctorLayout() {
                   onChange={(e) => setNewConsultationForm({ ...newConsultationForm, advice: e.target.value })} 
                   placeholder="e.g., 2.5L daily hydration, restorative yoga, iron-rich meals"
                   rows={2}
-                  className="w-full p-3 rounded-xl border border-[#EDE9FE]" 
+                  className="w-full p-3 rounded-xl border border-[#F4DDE2]" 
                 />
               </div>
 
               {/* Dynamic Medication Rows */}
               <div className="space-y-3 pt-2">
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-[#7C3AED] uppercase tracking-wider text-[11px]">Medications (Rx)</span>
+                  <span className="font-bold text-[#936DA2] uppercase tracking-wider text-[11px]">Medications (Rx)</span>
                   <button 
                     type="button" 
                     onClick={handleAddMedicationRow} 
-                    className="text-xs font-bold text-[#7C3AED] hover:underline flex items-center gap-1 cursor-pointer"
+                    className="text-xs font-bold text-[#936DA2] hover:underline flex items-center gap-1 cursor-pointer"
                   >
                     <Plus className="w-3.5 h-3.5" /> Add Drug Row
                   </button>
                 </div>
 
                 {newConsultationForm.medications.map((med) => (
-                  <div key={med.id} className="p-3 bg-[#FAF8FC] rounded-2xl border border-[#EDE9FE] grid grid-cols-12 gap-2 items-center">
+                  <div key={med.id} className="p-3 bg-[#FCF4F5] rounded-2xl border border-[#F4DDE2] grid grid-cols-12 gap-2 items-center">
                     <div className="col-span-4">
                       <input 
                         type="text" 
                         value={med.name} 
                         onChange={(e) => handleMedicationChange(med.id, 'name', e.target.value)} 
                         placeholder="Medicine Name (e.g. Iron)"
-                        className="w-full p-2 bg-white rounded-lg border border-[#EDE9FE] text-xs" 
+                        className="w-full p-2 bg-white rounded-lg border border-[#F4DDE2] text-xs" 
                         required 
                       />
                     </div>
@@ -550,7 +552,7 @@ export default function DoctorLayout() {
                         value={med.dosage} 
                         onChange={(e) => handleMedicationChange(med.id, 'dosage', e.target.value)} 
                         placeholder="Dosage (e.g. 500mg)"
-                        className="w-full p-2 bg-white rounded-lg border border-[#EDE9FE] text-xs" 
+                        className="w-full p-2 bg-white rounded-lg border border-[#F4DDE2] text-xs" 
                         required 
                       />
                     </div>
@@ -558,7 +560,7 @@ export default function DoctorLayout() {
                       <select 
                         value={med.frequency} 
                         onChange={(e) => handleMedicationChange(med.id, 'frequency', e.target.value)} 
-                        className="w-full p-2 bg-white rounded-lg border border-[#EDE9FE] text-xs"
+                        className="w-full p-2 bg-white rounded-lg border border-[#F4DDE2] text-xs"
                       >
                         <option value="Once Daily">Once Daily</option>
                         <option value="Twice Daily">Twice Daily</option>
@@ -573,7 +575,7 @@ export default function DoctorLayout() {
                         value={med.duration} 
                         onChange={(e) => handleMedicationChange(med.id, 'duration', e.target.value)} 
                         placeholder="14 Days"
-                        className="w-full p-2 bg-white rounded-lg border border-[#EDE9FE] text-xs" 
+                        className="w-full p-2 bg-white rounded-lg border border-[#F4DDE2] text-xs" 
                       />
                     </div>
                     <div className="col-span-1 flex justify-end">
@@ -588,7 +590,7 @@ export default function DoctorLayout() {
               </div>
 
               {/* Prescribed Clinical Exercises & Movement Regimens */}
-              <div className="space-y-3 pt-3 border-t border-[#EDE9FE]">
+              <div className="space-y-3 pt-3 border-t border-[#F4DDE2]">
                 <div>
                   <span className="font-bold text-emerald-700 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
                     <Activity className="w-3.5 h-3.5 text-emerald-600" /> Doctor-Prescribed Exercise & Physical Therapy Regimens
@@ -640,11 +642,11 @@ export default function DoctorLayout() {
                 )}
               </div>
 
-              <div className="flex gap-3 pt-4 border-t border-[#EDE9FE]">
-                <button type="submit" className="flex-1 py-3 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl font-bold shadow-md cursor-pointer">
+              <div className="flex gap-3 pt-4 border-t border-[#F4DDE2]">
+                <button type="submit" className="flex-1 py-3 bg-[#936DA2] hover:bg-[#835A92] text-white rounded-xl font-bold shadow-md cursor-pointer">
                   Save & Issue Digital Prescription
                 </button>
-                <button type="button" onClick={() => setShowAddConsultationModal(false)} className="px-5 py-3 border border-[#EDE9FE] rounded-xl font-bold text-[#7a6f75] cursor-pointer">
+                <button type="button" onClick={() => setShowAddConsultationModal(false)} className="px-5 py-3 border border-[#F4DDE2] rounded-xl font-bold text-[#7a6f75] cursor-pointer">
                   Cancel
                 </button>
               </div>
@@ -656,23 +658,23 @@ export default function DoctorLayout() {
       {/* --- MODAL: PRINTABLE OFFICIAL DIGITAL PRESCRIPTION --- */}
       {viewingPrescriptionModal && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 z-50 font-inter">
-          <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-8 border border-[#EDE9FE] shadow-2xl space-y-6">
+          <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-8 border border-[#F4DDE2] shadow-2xl space-y-6">
             
             {/* Prescription Header */}
-            <div className="border-b-2 border-[#7C3AED] pb-4 flex items-center justify-between">
+            <div className="border-b-2 border-[#936DA2] pb-4 flex items-center justify-between">
               <div>
-                <h2 className="font-serif text-2xl font-bold text-[#7C3AED]">FemSphere Clinical Health</h2>
+                <h2 className="font-serif text-2xl font-bold text-[#936DA2]">FemSphere Clinical Health</h2>
                 <p className="text-xs text-[#7a6f75]">Digital Health Twin Care & Gynecology Practice</p>
               </div>
               <div className="text-right text-xs">
                 <p className="font-bold text-[#3a3135]">{profile.name}</p>
                 <p className="text-[#7a6f75]">{profile.spec}</p>
-                <p className="font-mono text-[#7C3AED]">{profile.license}</p>
+                <p className="font-mono text-[#936DA2]">{profile.license}</p>
               </div>
             </div>
 
             {/* Patient & Date Meta */}
-            <div className="bg-[#FAF8FC] p-4 rounded-2xl border border-[#EDE9FE] grid grid-cols-2 text-xs">
+            <div className="bg-[#FCF4F5] p-4 rounded-2xl border border-[#F4DDE2] grid grid-cols-2 text-xs">
               <div>
                 <p><span className="font-bold text-[#7a6f75]">Patient:</span> <span className="font-bold text-[#3a3135]">{viewingPrescriptionModal.patient}</span></p>
                 <p><span className="font-bold text-[#7a6f75]">Chief Complaint:</span> {viewingPrescriptionModal.chiefComplaint}</p>
@@ -685,16 +687,16 @@ export default function DoctorLayout() {
 
             {/* Diagnosis */}
             <div className="text-xs space-y-1">
-              <span className="font-bold text-[#7C3AED] uppercase tracking-wider text-[10px]">Clinical Diagnosis</span>
+              <span className="font-bold text-[#936DA2] uppercase tracking-wider text-[10px]">Clinical Diagnosis</span>
               <p className="font-bold text-sm text-[#3a3135]">{viewingPrescriptionModal.diagnosis}</p>
             </div>
 
             {/* Rx Medication Table */}
             <div className="space-y-2">
-              <span className="font-serif font-bold text-lg text-[#7C3AED] block">Rx (Medication Schedule)</span>
-              <div className="border border-[#EDE9FE] rounded-2xl overflow-hidden">
+              <span className="font-serif font-bold text-lg text-[#936DA2] block">Rx (Medication Schedule)</span>
+              <div className="border border-[#F4DDE2] rounded-2xl overflow-hidden">
                 <table className="w-full text-left text-xs font-inter">
-                  <thead className="bg-[#FAF8FC] border-b border-[#EDE9FE] text-[#7a6f75] uppercase text-[10px] font-bold">
+                  <thead className="bg-[#FCF4F5] border-b border-[#F4DDE2] text-[#7a6f75] uppercase text-[10px] font-bold">
                     <tr>
                       <th className="p-3">Medication</th>
                       <th className="p-3">Dosage</th>
@@ -703,14 +705,14 @@ export default function DoctorLayout() {
                       <th className="p-3">Instructions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#EDE9FE]">
+                  <tbody className="divide-y divide-[#F4DDE2]">
                     {viewingPrescriptionModal.medications.map((med, idx) => (
                       <tr key={idx}>
                         <td className="p-3 font-bold text-[#3a3135]">{med.name}</td>
                         <td className="p-3 font-mono">{med.dosage}</td>
                         <td className="p-3">{med.frequency}</td>
                         <td className="p-3">{med.duration}</td>
-                        <td className="p-3 font-medium text-[#7C3AED]">{med.instructions}</td>
+                        <td className="p-3 font-medium text-[#936DA2]">{med.instructions}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -740,19 +742,19 @@ export default function DoctorLayout() {
             )}
 
             {/* Advice */}
-            <div className="p-4 bg-[#FAF8FC] rounded-2xl border border-[#EDE9FE] text-xs space-y-1">
+            <div className="p-4 bg-[#FCF4F5] rounded-2xl border border-[#F4DDE2] text-xs space-y-1">
               <span className="font-bold text-[#14B8A6] uppercase text-[10px]">Lifestyle & Dietary Guidance</span>
               <p className="text-[#3a3135]">{viewingPrescriptionModal.advice}</p>
               <p className="pt-2 text-[#7a6f75]"><span className="font-bold">Next Follow-up Review:</span> {viewingPrescriptionModal.followUpDate}</p>
             </div>
 
             {/* Doctor Signature Seal */}
-            <div className="flex items-center justify-between pt-4 border-t border-[#EDE9FE] text-xs">
+            <div className="flex items-center justify-between pt-4 border-t border-[#F4DDE2] text-xs">
               <div className="text-[#7a6f75]">
                 <p>Digitally signed & authenticated via FemSphere Health Twin Protocol</p>
               </div>
               <div className="text-right">
-                <div className="font-serif italic text-base text-[#7C3AED] font-bold">{profile.name}</div>
+                <div className="font-serif italic text-base text-[#936DA2] font-bold">{profile.name}</div>
                 <p className="text-[10px] text-[#7a6f75]">Authorized Medical Practitioner</p>
               </div>
             </div>
@@ -761,13 +763,13 @@ export default function DoctorLayout() {
             <div className="flex gap-3 pt-2">
               <button 
                 onClick={() => window.print()} 
-                className="flex-1 py-3 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 cursor-pointer"
+                className="flex-1 py-3 bg-[#936DA2] hover:bg-[#835A92] text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 cursor-pointer"
               >
                 <Printer className="w-4 h-4" /> Print Official Prescription
               </button>
               <button 
                 onClick={() => setViewingPrescriptionModal(null)} 
-                className="px-6 py-3 border border-[#EDE9FE] rounded-xl text-xs font-bold text-[#7a6f75] cursor-pointer"
+                className="px-6 py-3 border border-[#F4DDE2] rounded-xl text-xs font-bold text-[#7a6f75] cursor-pointer"
               >
                 Close
               </button>
@@ -901,7 +903,7 @@ export default function DoctorLayout() {
                       alert('Please enter clinical notes before generating prescription.');
                     }
                   }} 
-                  className="w-full py-3 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl text-xs font-bold shadow-md cursor-pointer"
+                  className="w-full py-3 bg-[#936DA2] hover:bg-[#835A92] text-white rounded-xl text-xs font-bold shadow-md cursor-pointer"
                 >
                   Save & Issue Prescription (Rx)
                 </button>
@@ -914,8 +916,8 @@ export default function DoctorLayout() {
       {/* --- MODAL: BOOK APPOINTMENT --- */}
       {showBookAppointmentModal && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 font-inter">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 md:p-8 border border-[#EDE9FE] shadow-2xl space-y-5">
-            <div className="flex items-center justify-between border-b border-[#EDE9FE] pb-3">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 md:p-8 border border-[#F4DDE2] shadow-2xl space-y-5">
+            <div className="flex items-center justify-between border-b border-[#F4DDE2] pb-3">
               <h3 className="font-bold text-lg text-[#3a3135]">Schedule Patient Appointment</h3>
               <button onClick={() => setShowBookAppointmentModal(false)} className="cursor-pointer">
                 <X className="w-5 h-5 text-gray-500" />
@@ -937,7 +939,7 @@ export default function DoctorLayout() {
                     const sel = patients.find(p => p.name === e.target.value);
                     setNewAppointmentForm({ ...newAppointmentForm, patient: e.target.value, patientId: sel ? sel.id : (patients[0]?.id || '') });
                   }}
-                  className="w-full p-3 rounded-xl border border-[#EDE9FE] bg-white font-bold"
+                  className="w-full p-3 rounded-xl border border-[#F4DDE2] bg-white font-bold"
                 >
                   {patients.map(p => (
                     <option key={p.id} value={p.name}>{p.name} ({p.id})</option>
@@ -955,7 +957,7 @@ export default function DoctorLayout() {
                       setNewAppointmentForm({ ...newAppointmentForm, date: e.target.value });
                       if (appointmentErrorMsg) setAppointmentErrorMsg(null);
                     }} 
-                    className={`w-full p-3 rounded-xl border ${newAppointmentForm.date && !isFutureDate(newAppointmentForm.date) ? 'border-rose-400 bg-rose-50/20' : 'border-[#EDE9FE]'}`} 
+                    className={`w-full p-3 rounded-xl border ${newAppointmentForm.date && !isFutureDate(newAppointmentForm.date) ? 'border-rose-400 bg-rose-50/20' : 'border-[#F4DDE2]'}`} 
                     required 
                   />
                   {newAppointmentForm.date && !isFutureDate(newAppointmentForm.date) && (
@@ -967,7 +969,7 @@ export default function DoctorLayout() {
                   <select 
                     value={newAppointmentForm.time} 
                     onChange={(e) => setNewAppointmentForm({ ...newAppointmentForm, time: e.target.value })} 
-                    className="w-full p-3 rounded-xl border border-[#EDE9FE] bg-white font-bold"
+                    className="w-full p-3 rounded-xl border border-[#F4DDE2] bg-white font-bold"
                   >
                     <option value="09:30 AM">09:30 AM</option>
                     <option value="10:00 AM">10:00 AM</option>
@@ -984,7 +986,7 @@ export default function DoctorLayout() {
                 <select 
                   value={newAppointmentForm.type} 
                   onChange={(e) => setNewAppointmentForm({ ...newAppointmentForm, type: e.target.value as any })} 
-                  className="w-full p-3 rounded-xl border border-[#EDE9FE] bg-white font-bold text-[#7C3AED]"
+                  className="w-full p-3 rounded-xl border border-[#F4DDE2] bg-white font-bold text-[#936DA2]"
                 >
                   <option value="Virtual Telehealth">Virtual Telehealth (Video Call)</option>
                   <option value="In-Clinic">In-Clinic Consultation</option>
@@ -1001,7 +1003,7 @@ export default function DoctorLayout() {
                     if (appointmentErrorMsg) setAppointmentErrorMsg(null);
                   }} 
                   placeholder="e.g. Hormonal Review Follow-up"
-                  className={`w-full p-3 rounded-xl border ${newAppointmentForm.reason && newAppointmentForm.reason.trim().length > 0 && newAppointmentForm.reason.trim().length < 5 ? 'border-rose-400 bg-rose-50/20' : 'border-[#EDE9FE]'}`} 
+                  className={`w-full p-3 rounded-xl border ${newAppointmentForm.reason && newAppointmentForm.reason.trim().length > 0 && newAppointmentForm.reason.trim().length < 5 ? 'border-rose-400 bg-rose-50/20' : 'border-[#F4DDE2]'}`} 
                   required 
                 />
                 {newAppointmentForm.reason && newAppointmentForm.reason.trim().length > 0 && newAppointmentForm.reason.trim().length < 5 && (
@@ -1009,11 +1011,11 @@ export default function DoctorLayout() {
                 )}
               </div>
 
-              <div className="flex gap-2 pt-3 border-t border-[#EDE9FE]">
-                <button type="submit" className="flex-1 py-3 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl font-bold cursor-pointer">
+              <div className="flex gap-2 pt-3 border-t border-[#F4DDE2]">
+                <button type="submit" className="flex-1 py-3 bg-[#936DA2] hover:bg-[#835A92] text-white rounded-xl font-bold cursor-pointer">
                   Confirm Schedule
                 </button>
-                <button type="button" onClick={() => setShowBookAppointmentModal(false)} className="px-4 py-3 border border-[#EDE9FE] rounded-xl font-bold text-[#7a6f75] cursor-pointer">
+                <button type="button" onClick={() => setShowBookAppointmentModal(false)} className="px-4 py-3 border border-[#F4DDE2] rounded-xl font-bold text-[#7a6f75] cursor-pointer">
                   Cancel
                 </button>
               </div>
@@ -1025,7 +1027,7 @@ export default function DoctorLayout() {
       {/* --- MODAL: CHANGE PASSWORD --- */}
       {showPasswordModal && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 font-inter">
-          <div className="bg-white rounded-3xl max-w-sm w-full p-6 border border-[#EDE9FE] shadow-2xl space-y-4">
+          <div className="bg-white rounded-3xl max-w-sm w-full p-6 border border-[#F4DDE2] shadow-2xl space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="font-bold text-base text-[#3a3135]">Update Security Password</h3>
               <button onClick={() => { setShowPasswordModal(false); setPasswordError(null); }} className="cursor-pointer">
@@ -1071,7 +1073,7 @@ export default function DoctorLayout() {
                   type="password" 
                   value={oldPassword} 
                   onChange={(e) => { setOldPassword(e.target.value); setPasswordError(null); }} 
-                  className="w-full p-2.5 rounded-xl border border-[#EDE9FE]" 
+                  className="w-full p-2.5 rounded-xl border border-[#F4DDE2]" 
                   required 
                 />
               </div>
@@ -1081,7 +1083,7 @@ export default function DoctorLayout() {
                   type="password" 
                   value={newPassword} 
                   onChange={(e) => { setNewPassword(e.target.value); setPasswordError(null); }} 
-                  className={`w-full p-2.5 rounded-xl border ${newPassword && (!validatePassword(newPassword).isValid || (oldPassword && oldPassword === newPassword)) ? 'border-rose-400 bg-rose-50/20' : 'border-[#EDE9FE]'}`} 
+                  className={`w-full p-2.5 rounded-xl border ${newPassword && (!validatePassword(newPassword).isValid || (oldPassword && oldPassword === newPassword)) ? 'border-rose-400 bg-rose-50/20' : 'border-[#F4DDE2]'}`} 
                   required 
                 />
                 {newPassword && !validatePassword(newPassword).isValid && (
@@ -1091,7 +1093,7 @@ export default function DoctorLayout() {
                   <p className="text-[11px] text-red-500 mt-1">New password cannot match current password</p>
                 )}
               </div>
-              <button type="submit" className="w-full py-3 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl font-bold cursor-pointer">
+              <button type="submit" className="w-full py-3 bg-[#936DA2] hover:bg-[#835A92] text-white rounded-xl font-bold cursor-pointer">
                 Update Password
               </button>
             </form>

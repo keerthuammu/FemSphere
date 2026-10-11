@@ -342,6 +342,10 @@ CREATE TABLE IF NOT EXISTS period_settings (
     is_pregnant BOOLEAN DEFAULT FALSE,
     pregnancy_start_date DATE,
     gestational_target_edd DATE,
+    reminder_period_days_before INT DEFAULT 2,
+    reminder_period_enabled BOOLEAN DEFAULT TRUE,
+    reminder_ovulation_enabled BOOLEAN DEFAULT FALSE,
+    reminder_daily_logging_enabled BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -361,6 +365,25 @@ CREATE TABLE IF NOT EXISTS period_cycles (
     notes TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS period_daily_logs (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    log_date DATE NOT NULL,
+    is_period_day BOOLEAN DEFAULT FALSE,
+    flow_intensity VARCHAR(30) DEFAULT 'None',
+    symptoms JSONB DEFAULT '[]'::jsonb,
+    mood VARCHAR(50) DEFAULT 'Calm',
+    energy_level VARCHAR(30) DEFAULT 'Normal',
+    sleep_quality VARCHAR(30) DEFAULT 'Good',
+    cervical_mucus VARCHAR(30) DEFAULT 'None',
+    notes TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (user_id, log_date)
+);
+
+CREATE INDEX IF NOT EXISTS idx_period_daily_logs_user_date ON period_daily_logs(user_id, log_date DESC);
 
 -- ==============================================================================
 -- DOMAIN 9: NOTIFICATIONS & UNIVERSAL WEARABLE TELEMETRY

@@ -2,27 +2,50 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  static const Color primaryPurple = Color(0xFF7C3AED);
-  static const Color primaryPurpleHover = Color(0xFF6D28D9);
-  static const Color primaryPurpleDark = Color(0xFF5B21B6);
+  // Brand Plum & Mauve (Extracted directly from the official logo)
+  static const Color primaryPurple = Color(0xFF936DA2); // Signature Plum Mauve from logo
+  static const Color primaryPurpleHover = Color(0xFF835A92);
+  static const Color primaryPurpleDark = Color(0xFF6E437C);
+  static const Color primaryPurpleLight = Color(0xFFF9E8EC);
+
+  // Soft Blush & Rose Petal (Extracted from logo accents)
+  static const Color accentPink = Color(0xFFF4BDCA); // Soft Rose Petal from logo
+  static const Color accentPinkVibrant = Color(0xFFE27D95);
+  static const Color accentPinkLight = Color(0xFFFCF4F5); // Whisper Blush
+
+  // Complementary Accents
   static const Color secondaryTeal = Color(0xFF14B8A6);
   static const Color secondaryTealLight = Color(0xFFCCFBF1);
-  static const Color accentPink = Color(0xFFF472B6);
-  static const Color accentPinkLight = Color(0xFFFCE7F3);
   static const Color accentRed = Color(0xFFEF4444);
   static const Color accentRedLight = Color(0xFFFEE2E2);
-  static const Color accentGreen = Color(0xFF84CC16);
-  static const Color accentGreenLight = Color(0xFFECFCCB);
+  static const Color accentGreen = Color(0xFF10B981);
+  static const Color accentGreenLight = Color(0xFFD1FAE5);
   static const Color accentAmber = Color(0xFFF59E0B);
   static const Color accentAmberLight = Color(0xFFFEF3C7);
   static const Color accentIndigo = Color(0xFF6366F1);
   static const Color accentIndigoLight = Color(0xFFE0E7FF);
   
-  static const Color backgroundLight = Color(0xFFFBF9F6);
+  // Backgrounds & Surface matching Logo Pearlescent Palette
+  static const Color backgroundLight = Color(0xFFFCF4F5); // Whisper Blush from logo
   static const Color cardBg = Colors.white;
-  static const Color borderPurple = Color(0xFFEDE9FE);
-  static const Color textDark = Color(0xFF3A3135);
-  static const Color textMuted = Color(0xFF7A6F75);
+  static const Color borderPurple = Color(0xFFF4DDE2); // Soft Rose Border
+  static const Color textDark = Color(0xFF261A2C); // Deep Plum Black
+  static const Color textMuted = Color(0xFF7A6878); // Muted Plum Gray
+
+  // Modern Uniform Logo UI Tokens
+  static const Color accentLavender = Color(0xFF936DA2); // Primary Plum from logo
+  static const Color accentLavenderHover = Color(0xFF835A92);
+  static const Color accentLavenderLight = Color(0xFFF9E8EC);
+  static const Color ambientBgStart = Color(0xFFFCF4F5); // Whisper Blush from logo
+  static const Color ambientBgEnd = Color(0xFFFDF5F6);
+  static const Color darkBubble = Color(0xFF261A2C); // Deep Plum Black
+  static const Color softBorder = Color(0xFFF4DDE2); // Soft Rose Border
+
+  static const LinearGradient ambientGradient = LinearGradient(
+    colors: [Color(0xFFFCF4F5), Color(0xFFFDF5F6), Color(0xFFFAF0F3)],
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+  );
 
   // Typography helpers matching web app
   static TextStyle serifHeading({

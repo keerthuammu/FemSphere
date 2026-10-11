@@ -70,9 +70,9 @@ export default function CaregiverAppointments() {
   return (
     <div className="space-y-6 animate-in fade-in duration-200 font-inter">
       {/* Header */}
-      <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#EDE9FE] shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#F4DDE2] shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 text-[#7C3AED] mb-1">
+          <div className="flex items-center gap-2 text-[#936DA2] mb-1">
             <Calendar className="w-5 h-5" />
             <span className="text-xs font-bold uppercase tracking-wider">Clinical Consultations</span>
           </div>
@@ -84,20 +84,20 @@ export default function CaregiverAppointments() {
 
         <button
           onClick={() => setShowAddAptModal(true)}
-          className="px-5 py-3 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm transition-all cursor-pointer w-fit"
+          className="px-5 py-3 bg-[#936DA2] hover:bg-[#835A92] text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm transition-all cursor-pointer w-fit"
         >
           <Plus className="w-4 h-4" /> Book Consultation
         </button>
       </div>
 
       {/* Shifts Capacity Banner */}
-      <div className="bg-gradient-to-br from-purple-50 via-white to-pink-50 p-6 rounded-3xl border border-[#EDE9FE] space-y-4">
+      <div className="bg-gradient-to-br from-purple-50 via-white to-pink-50 p-6 rounded-3xl border border-[#F4DDE2] space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Clock className="w-4 h-4 text-[#7C3AED]" />
+            <Clock className="w-4 h-4 text-[#936DA2]" />
             <h4 className="font-bold text-sm text-[#3a3135]">Today's Shift Capacity & Clinic Timetable</h4>
           </div>
-          <span className="text-xs font-bold text-[#7C3AED] bg-white px-3 py-1 rounded-full border border-[#EDE9FE]">
+          <span className="text-xs font-bold text-[#936DA2] bg-white px-3 py-1 rounded-full border border-[#F4DDE2]">
             Fee: ${docSchedule.teleconsultFee} / Session
           </span>
         </div>
@@ -119,7 +119,7 @@ export default function CaregiverAppointments() {
               <div
                 key={shift.id}
                 className={`p-4 rounded-2xl border bg-white flex items-center justify-between transition-all ${
-                  isFull ? 'border-red-200 bg-red-50/40' : 'border-[#EDE9FE] hover:border-[#7C3AED]/50'
+                  isFull ? 'border-red-200 bg-red-50/40' : 'border-[#F4DDE2] hover:border-[#936DA2]/50'
                 }`}
               >
                 <div>
@@ -143,8 +143,8 @@ export default function CaregiverAppointments() {
 
       {/* Appointments List or Empty State */}
       {appointments.length === 0 ? (
-        <div className="bg-white rounded-3xl p-12 border border-[#EDE9FE] shadow-sm text-center space-y-4">
-          <div className="w-16 h-16 rounded-full bg-purple-50 text-[#7C3AED] flex items-center justify-center mx-auto">
+        <div className="bg-white rounded-3xl p-12 border border-[#F4DDE2] shadow-sm text-center space-y-4">
+          <div className="w-16 h-16 rounded-full bg-purple-50 text-[#936DA2] flex items-center justify-center mx-auto">
             <Calendar className="w-8 h-8" />
           </div>
           <h4 className="font-serif text-xl font-bold text-[#3a3135]">No Consultations Scheduled</h4>
@@ -153,7 +153,7 @@ export default function CaregiverAppointments() {
           </p>
           <button
             onClick={() => setShowAddAptModal(true)}
-            className="px-6 py-2.5 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl text-xs font-bold inline-flex items-center gap-2 cursor-pointer"
+            className="px-6 py-2.5 bg-[#936DA2] hover:bg-[#835A92] text-white rounded-xl text-xs font-bold inline-flex items-center gap-2 cursor-pointer"
           >
             <Plus className="w-4 h-4" /> Book First Consultation
           </button>
@@ -163,15 +163,15 @@ export default function CaregiverAppointments() {
           {appointments.map((apt) => (
             <div
               key={apt.id}
-              className="p-6 rounded-3xl border border-[#EDE9FE] bg-white hover:shadow-sm transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+              className="p-6 rounded-3xl border border-[#F4DDE2] bg-white hover:shadow-sm transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4"
             >
             <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-purple-50 text-[#7C3AED] flex items-center justify-center font-bold">
-                <Stethoscope className="w-6 h-6 text-[#7C3AED]" />
+              <div className="w-12 h-12 rounded-2xl bg-purple-50 text-[#936DA2] flex items-center justify-center font-bold">
+                <Stethoscope className="w-6 h-6 text-[#936DA2]" />
               </div>
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <span className="px-2.5 py-0.5 rounded-full bg-purple-100 text-[#7C3AED] font-bold text-[10px]">
+                  <span className="px-2.5 py-0.5 rounded-full bg-purple-100 text-[#936DA2] font-bold text-[10px]">
                     {apt.dependent}
                   </span>
                   <span
@@ -191,7 +191,7 @@ export default function CaregiverAppointments() {
               </div>
             </div>
 
-            <div className="flex sm:flex-col items-center sm:items-end justify-between gap-2 border-t sm:border-t-0 pt-3 sm:pt-0 border-[#EDE9FE]">
+            <div className="flex sm:flex-col items-center sm:items-end justify-between gap-2 border-t sm:border-t-0 pt-3 sm:pt-0 border-[#F4DDE2]">
               <div className="sm:text-right">
                 <span className="text-xs font-bold text-[#3a3135] block">{apt.date}</span>
                 <span className="text-xs text-pink-600 font-bold block">{apt.time}</span>
@@ -213,10 +213,10 @@ export default function CaregiverAppointments() {
       {/* Book Appointment Modal */}
       {showAddAptModal && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
-          <div className="bg-white rounded-3xl p-6 md:p-8 max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-[#EDE9FE] space-y-6">
-            <div className="flex items-center justify-between border-b border-[#EDE9FE] pb-4">
+          <div className="bg-white rounded-3xl p-6 md:p-8 max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-[#F4DDE2] space-y-6">
+            <div className="flex items-center justify-between border-b border-[#F4DDE2] pb-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-[#F5F3FF] text-[#7C3AED] flex items-center justify-center border border-[#EDE9FE]">
+                <div className="w-10 h-10 rounded-2xl bg-[#F9E8EC] text-[#936DA2] flex items-center justify-center border border-[#F4DDE2]">
                   <Calendar className="w-5 h-5" />
                 </div>
                 <div>
@@ -238,7 +238,7 @@ export default function CaregiverAppointments() {
                 <select
                   value={newAptForm.dependent}
                   onChange={(e) => setNewAptForm({ ...newAptForm, dependent: e.target.value })}
-                  className="w-full p-3 rounded-xl border border-[#EDE9FE] bg-white font-bold text-[#3a3135] text-xs"
+                  className="w-full p-3 rounded-xl border border-[#F4DDE2] bg-white font-bold text-[#3a3135] text-xs"
                 >
                   {dependents.map((d) => (
                     <option key={d.id} value={d.name}>
@@ -253,7 +253,7 @@ export default function CaregiverAppointments() {
                 <select
                   value={newAptForm.doctor}
                   onChange={(e) => setNewAptForm({ ...newAptForm, doctor: e.target.value })}
-                  className="w-full p-3 rounded-xl border border-[#EDE9FE] bg-white font-bold text-[#3a3135] text-xs"
+                  className="w-full p-3 rounded-xl border border-[#F4DDE2] bg-white font-bold text-[#3a3135] text-xs"
                 >
                   <option value="Dr. Sarah Jenkins (Pediatrics & Maternal Care)">Dr. Sarah Jenkins (Pediatrics & Maternal Care)</option>
                   <option value="Dr. Alan Vance (Geriatrics & Chronic Wellness)">Dr. Alan Vance (Geriatrics & Chronic Wellness)</option>
@@ -269,7 +269,7 @@ export default function CaregiverAppointments() {
                   value={newAptForm.date}
                   onChange={(e) => setNewAptForm({ ...newAptForm, date: e.target.value })}
                   min={new Date().toISOString().split('T')[0]}
-                  className="w-full p-3 rounded-xl border border-[#EDE9FE] text-xs font-bold text-[#3a3135]"
+                  className="w-full p-3 rounded-xl border border-[#F4DDE2] text-xs font-bold text-[#3a3135]"
                   required
                 />
               </div>
@@ -280,7 +280,7 @@ export default function CaregiverAppointments() {
                   <label className="block font-bold text-[#3a3135] uppercase text-[10px]">
                     Doctor's Consultation Shifts ({selectedDate})
                   </label>
-                  <span className="text-[10px] font-bold text-[#7C3AED]">${docSchedule.teleconsultFee} / Session</span>
+                  <span className="text-[10px] font-bold text-[#936DA2]">${docSchedule.teleconsultFee} / Session</span>
                 </div>
 
                 <div className="space-y-2">
@@ -309,14 +309,14 @@ export default function CaregiverAppointments() {
                           isFull
                             ? 'bg-red-50/60 border-red-200 opacity-70 cursor-not-allowed'
                             : isSelected
-                            ? 'bg-purple-50 border-[#7C3AED] ring-2 ring-[#7C3AED]/20 shadow-xs'
-                            : 'bg-[#FAF8FC] border-[#EDE9FE] hover:border-[#7C3AED]/40'
+                            ? 'bg-purple-50 border-[#936DA2] ring-2 ring-[#936DA2]/20 shadow-xs'
+                            : 'bg-[#FCF4F5] border-[#F4DDE2] hover:border-[#936DA2]/40'
                         }`}
                       >
                         <div className="flex items-center justify-between">
                           <div>
                             <span className="font-bold text-xs text-[#3a3135]">{shift.name}</span>
-                            <span className="text-[10px] font-bold text-[#7C3AED] bg-purple-100/70 px-2 py-0.5 rounded-full ml-2">
+                            <span className="text-[10px] font-bold text-[#936DA2] bg-purple-100/70 px-2 py-0.5 rounded-full ml-2">
                               {shift.fromTime} - {shift.toTime}
                             </span>
                           </div>
@@ -348,22 +348,22 @@ export default function CaregiverAppointments() {
                   value={newAptForm.reason}
                   onChange={(e) => setNewAptForm({ ...newAptForm, reason: e.target.value })}
                   placeholder="e.g., Annual booster checkup, joint pain review"
-                  className="w-full p-3 rounded-xl border border-[#EDE9FE] text-xs"
+                  className="w-full p-3 rounded-xl border border-[#F4DDE2] text-xs"
                   required
                 />
               </div>
 
-              <div className="flex gap-3 pt-3 border-t border-[#EDE9FE]">
+              <div className="flex gap-3 pt-3 border-t border-[#F4DDE2]">
                 <button
                   type="button"
                   onClick={() => setShowAddAptModal(false)}
-                  className="flex-1 py-3 border border-[#EDE9FE] rounded-xl font-bold text-xs hover:bg-gray-50 cursor-pointer"
+                  className="flex-1 py-3 border border-[#F4DDE2] rounded-xl font-bold text-xs hover:bg-gray-50 cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-3 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl text-xs font-bold shadow-md transition-all cursor-pointer"
+                  className="flex-1 py-3 bg-[#936DA2] hover:bg-[#835A92] text-white rounded-xl text-xs font-bold shadow-md transition-all cursor-pointer"
                 >
                   Schedule Appointment
                 </button>

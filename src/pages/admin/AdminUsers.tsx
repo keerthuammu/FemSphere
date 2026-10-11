@@ -39,7 +39,7 @@ export default function AdminUsers() {
   const countMale = regularUsers.filter(u => isMale(u.role)).length;
 
   const userTypeFilters = [
-    { id: 'ALL' as const, label: 'All Users', count: regularUsers.length, icon: Users, iconColor: 'text-[#7C3AED]' },
+    { id: 'ALL' as const, label: 'All Users', count: regularUsers.length, icon: Users, iconColor: 'text-[#936DA2]' },
     { id: 'FEMALE' as const, label: 'Female Users', count: countFemale, icon: User, iconColor: 'text-pink-500' },
     { id: 'MALE' as const, label: 'Male Users', count: countMale, icon: User, iconColor: 'text-blue-500' }
   ];
@@ -108,9 +108,9 @@ export default function AdminUsers() {
   };
 
   return (
-    <div className="bg-white rounded-2xl p-5 md:p-6 border border-[#EDE9FE] shadow-xs space-y-4 font-inter">
+    <div className="bg-white rounded-2xl p-5 md:p-6 border border-[#F4DDE2] shadow-xs space-y-4 font-inter">
       {/* TOP HEADER & SEARCH / ACTIONS */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-[#EDE9FE] pb-3.5">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-[#F4DDE2] pb-3.5">
         <div>
           <h3 className="font-bold text-xl text-[#3a3135]">Manage Registered Users</h3>
           <p className="text-xs text-[#64595e]">View, update, or restrict live platform regular user accounts</p>
@@ -123,12 +123,12 @@ export default function AdminUsers() {
               placeholder="Search users..." 
               value={searchUser}
               onChange={(e) => setSearchUser(e.target.value)}
-              className="pl-8 pr-3 py-1.5 rounded-xl border border-[#EDE9FE] text-xs focus:ring-2 focus:ring-[#7C3AED] outline-none"
+              className="pl-8 pr-3 py-1.5 rounded-xl border border-[#F4DDE2] text-xs focus:ring-2 focus:ring-[#936DA2] outline-none"
             />
           </div>
           <button 
             onClick={() => setShowAddUserModal(true)} 
-            className="px-3.5 py-1.5 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
+            className="px-3.5 py-1.5 bg-[#936DA2] hover:bg-[#835A92] text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
           >
             <Plus className="w-3.5 h-3.5" /> Add User
           </button>
@@ -137,16 +137,16 @@ export default function AdminUsers() {
 
 
       {/* Users Table */}
-      <div className="overflow-x-auto rounded-xl border border-[#EDE9FE]">
+      <div className="overflow-x-auto rounded-xl border border-[#F4DDE2]">
         <table className="w-full text-left text-xs font-inter">
-          <thead className="bg-[#FAF8FC] text-[#3a3135] uppercase text-[11px] font-bold border-b border-[#EDE9FE]">
+          <thead className="bg-[#FCF4F5] text-[#3a3135] uppercase text-[11px] font-bold border-b border-[#F4DDE2]">
             <tr>
               <th className="p-3 w-10 text-center">
                 <input 
                   type="checkbox" 
                   checked={filteredUsers.length > 0 && filteredUsers.every(u => selectedUserIds.includes(String(u.id)))}
                   onChange={handleSelectAll}
-                  className="w-4 h-4 rounded text-[#7C3AED] focus:ring-[#7C3AED] cursor-pointer"
+                  className="w-4 h-4 rounded text-[#936DA2] focus:ring-[#936DA2] cursor-pointer"
                   title="Select all"
                 />
               </th>
@@ -157,17 +157,17 @@ export default function AdminUsers() {
               <th className="p-3 text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#EDE9FE]">
+          <tbody className="divide-y divide-[#F4DDE2]">
             {filteredUsers.map(u => {
               const isSelected = selectedUserIds.includes(String(u.id));
               return (
-                <tr key={u.id} className={`transition-colors ${isSelected ? 'bg-purple-50/60' : 'hover:bg-[#FAF8FC]'}`}>
+                <tr key={u.id} className={`transition-colors ${isSelected ? 'bg-purple-50/60' : 'hover:bg-[#FCF4F5]'}`}>
                   <td className="p-3 w-10 text-center">
                     <input 
                       type="checkbox" 
                       checked={isSelected}
                       onChange={() => handleToggleSelect(String(u.id))}
-                      className="w-4 h-4 rounded text-[#7C3AED] focus:ring-[#7C3AED] cursor-pointer"
+                      className="w-4 h-4 rounded text-[#936DA2] focus:ring-[#936DA2] cursor-pointer"
                     />
                   </td>
                   <td className="p-3 font-bold text-[#3a3135]">{u.name}</td>
@@ -183,7 +183,7 @@ export default function AdminUsers() {
                   <td className="p-3 text-right space-x-1.5">
                     <button 
                       onClick={() => handleToggleUserStatus(u.id, u.status)} 
-                      className="px-2.5 py-1 rounded-lg border border-[#EDE9FE] text-[11px] font-bold text-[#3a3135] hover:bg-[#F5F3FF] transition-colors cursor-pointer"
+                      className="px-2.5 py-1 rounded-lg border border-[#F4DDE2] text-[11px] font-bold text-[#3a3135] hover:bg-[#F9E8EC] transition-colors cursor-pointer"
                     >
                       Toggle Status
                     </button>
@@ -210,7 +210,7 @@ export default function AdminUsers() {
       </div>
 
       {/* BULK ACTIONS AT THE BOTTOM */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-3.5 bg-[#FAF8FC] rounded-xl border border-[#EDE9FE] text-xs font-inter">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-3.5 bg-[#FCF4F5] rounded-xl border border-[#F4DDE2] text-xs font-inter">
         <div className="flex items-center gap-2">
           <span className="font-bold text-[#3a3135]">
             {selectedUserIds.length} user{selectedUserIds.length === 1 ? '' : 's'} selected
@@ -218,7 +218,7 @@ export default function AdminUsers() {
           {selectedUserIds.length > 0 && (
             <button 
               onClick={() => setSelectedUserIds([])}
-              className="text-[#7C3AED] font-semibold hover:underline cursor-pointer ml-1 text-xs"
+              className="text-[#936DA2] font-semibold hover:underline cursor-pointer ml-1 text-xs"
             >
               Deselect All
             </button>
@@ -231,7 +231,7 @@ export default function AdminUsers() {
             disabled={selectedUserIds.length === 0}
             className={`px-3.5 py-1.5 rounded-xl font-bold text-xs transition-colors cursor-pointer ${
               selectedUserIds.length > 0
-                ? 'bg-[#EDE9FE] text-[#7C3AED] hover:bg-[#DDD6FE] shadow-xs'
+                ? 'bg-[#F4DDE2] text-[#936DA2] hover:bg-[#DDD6FE] shadow-xs'
                 : 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
             }`}
           >

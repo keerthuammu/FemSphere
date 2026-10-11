@@ -16,9 +16,9 @@ export default function CaregiverReports() {
   return (
     <div className="space-y-6 animate-in fade-in duration-200 font-inter">
       {/* Header */}
-      <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#EDE9FE] shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#F4DDE2] shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 text-[#7C3AED] mb-1">
+          <div className="flex items-center gap-2 text-[#936DA2] mb-1">
             <FileText className="w-5 h-5" />
             <span className="text-xs font-bold uppercase tracking-wider">Longitudinal Analytics</span>
           </div>
@@ -30,15 +30,15 @@ export default function CaregiverReports() {
 
         <button
           onClick={() => window.print()}
-          className="px-5 py-3 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm transition-all cursor-pointer w-fit"
+          className="px-5 py-3 bg-[#936DA2] hover:bg-[#835A92] text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm transition-all cursor-pointer w-fit"
         >
           <Printer className="w-4 h-4" /> Print / Export PDF
         </button>
       </div>
 
       {dependents.length === 0 ? (
-        <div className="bg-white rounded-3xl p-12 border border-[#EDE9FE] shadow-sm text-center space-y-4">
-          <div className="w-16 h-16 rounded-full bg-purple-50 text-[#7C3AED] flex items-center justify-center mx-auto">
+        <div className="bg-white rounded-3xl p-12 border border-[#F4DDE2] shadow-sm text-center space-y-4">
+          <div className="w-16 h-16 rounded-full bg-purple-50 text-[#936DA2] flex items-center justify-center mx-auto">
             <FileText className="w-8 h-8" />
           </div>
           <h4 className="font-serif text-xl font-bold text-[#3a3135]">No Linked Dependents</h4>
@@ -47,14 +47,14 @@ export default function CaregiverReports() {
           </p>
         </div>
       ) : (
-        <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#EDE9FE] shadow-sm space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#EDE9FE]">
+        <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#F4DDE2] shadow-sm space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#F4DDE2]">
             <div>
               <span className="text-xs font-bold text-[#7a6f75] uppercase">Select Dependent Profile</span>
               <select
                 value={selectedReportDep}
                 onChange={(e) => setSelectedReportDep(e.target.value)}
-                className="mt-1 block w-full sm:w-64 p-2.5 rounded-xl border border-[#EDE9FE] bg-white font-bold text-sm text-[#3a3135]"
+                className="mt-1 block w-full sm:w-64 p-2.5 rounded-xl border border-[#F4DDE2] bg-white font-bold text-sm text-[#3a3135]"
               >
                 {dependents.map((d) => (
                   <option key={d.id} value={d.name}>
@@ -70,7 +70,7 @@ export default function CaregiverReports() {
 
           {/* Report Overview Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-            <div className="p-5 rounded-2xl bg-[#FAF8FC] border border-[#EDE9FE]">
+            <div className="p-5 rounded-2xl bg-[#FCF4F5] border border-[#F4DDE2]">
               <span className="text-[10px] font-bold text-[#7a6f75] uppercase block mb-1">Vaccinations Tracked</span>
               <p className="font-bold text-[#3a3135] text-xl">
                 {vaccinations.filter((v) => v.dependent === selectedReportDep).length} Completed
@@ -78,7 +78,7 @@ export default function CaregiverReports() {
               <span className="text-[11px] text-teal-600 font-medium">Recorded booster immunizations</span>
             </div>
 
-            <div className="p-5 rounded-2xl bg-[#FAF8FC] border border-[#EDE9FE]">
+            <div className="p-5 rounded-2xl bg-[#FCF4F5] border border-[#F4DDE2]">
               <span className="text-[10px] font-bold text-[#7a6f75] uppercase block mb-1">Active Prescriptions</span>
               <p className="font-bold text-[#3a3135] text-xl">
                 {medications.filter((m) => m.dependent === selectedReportDep).length} Daily
@@ -86,7 +86,7 @@ export default function CaregiverReports() {
               <span className="text-[11px] text-pink-600 font-medium">Scheduled reminders</span>
             </div>
 
-            <div className="p-5 rounded-2xl bg-[#FAF8FC] border border-[#EDE9FE]">
+            <div className="p-5 rounded-2xl bg-[#FCF4F5] border border-[#F4DDE2]">
               <span className="text-[10px] font-bold text-[#7a6f75] uppercase block mb-1">Medical Vault Docs</span>
               <p className="font-bold text-[#3a3135] text-xl">
                 {records.filter((r) => r.dependent === selectedReportDep).length} Scanned
@@ -98,7 +98,7 @@ export default function CaregiverReports() {
           {/* Clinical Care Notes */}
           <div className="space-y-3 pt-2">
             <h5 className="font-bold text-xs text-[#3a3135] uppercase tracking-wider">Clinical Care Notes & Next Steps</h5>
-            <div className="p-5 rounded-2xl bg-[#FAF8FC] border border-[#EDE9FE] text-xs text-[#4a4145] leading-relaxed space-y-2">
+            <div className="p-5 rounded-2xl bg-[#FCF4F5] border border-[#F4DDE2] text-xs text-[#4a4145] leading-relaxed space-y-2">
               <p>
                 {selectedReportDep ? (
                   <>Care recipient health profile for <b>{selectedReportDep}</b>.</>

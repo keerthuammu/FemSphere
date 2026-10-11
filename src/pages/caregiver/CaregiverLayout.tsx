@@ -48,12 +48,14 @@ export default function CaregiverLayout() {
         <div className="space-y-8">
           {/* Brand */}
           <Link to="/" className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-2xl bg-[#7C3AED] text-white flex items-center justify-center font-bold text-lg shadow-sm">
-              <Users className="w-5 h-5" />
-            </div>
+            <img
+              src="/femsphere_logo.png"
+              alt="FemSphere Logo"
+              className="w-10 h-10 rounded-full object-contain shadow-xs"
+            />
             <div>
               <span className="font-serif text-xl font-bold tracking-tight text-[#2E2428] block leading-none">FemSphere</span>
-              <span className="text-[10px] uppercase font-bold text-[#7C3AED] tracking-widest block mt-0.5">Caregiver Portal</span>
+              <span className="text-[10px] uppercase font-bold text-[#936DA2] tracking-widest block mt-0.5">Caregiver Portal</span>
             </div>
           </Link>
 
@@ -69,7 +71,7 @@ export default function CaregiverLayout() {
                   className={({ isActive }) =>
                     `w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl font-bold text-xs transition-all ${
                       isActive
-                        ? 'bg-white text-[#7C3AED] shadow-xs border border-[#E5CDBC]'
+                        ? 'bg-white text-[#936DA2] shadow-xs border border-[#E5CDBC]'
                         : 'text-[#4A3B42] hover:bg-white/40 hover:text-[#2E2428]'
                     }`
                   }
@@ -94,7 +96,7 @@ export default function CaregiverLayout() {
                   : 'text-[#4A3B42] hover:bg-white/40 hover:text-[#2E2428]'
               }`}
             >
-              <Watch className={`w-4 h-4 shrink-0 ${bluetoothConnected ? 'text-emerald-600' : 'text-[#7C3AED]'}`} />
+              <Watch className={`w-4 h-4 shrink-0 ${bluetoothConnected ? 'text-emerald-600' : 'text-[#936DA2]'}`} />
               <span className="truncate">{bluetoothConnected ? 'Watch Paired' : 'Connect Watch'}</span>
             </button>
           </nav>
@@ -103,7 +105,7 @@ export default function CaregiverLayout() {
         {/* Caregiver Identity & Logout Footer */}
         <div className="pt-6 border-t border-[#E5CDBC] space-y-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-purple-100 text-[#7C3AED] flex items-center justify-center font-bold text-sm shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-purple-100 text-[#936DA2] flex items-center justify-center font-bold text-sm shrink-0">
               {profile.name ? profile.name.charAt(0) : 'C'}
             </div>
             <div className="overflow-hidden">
@@ -146,14 +148,14 @@ export default function CaregiverLayout() {
           {/* Quick Actions & Live Time */}
           <div className="flex items-center gap-3">
             <div className="hidden lg:flex items-center gap-2 bg-[#FAF7F4] px-3.5 py-1.5 rounded-xl border border-[#E5CDBC] text-xs font-mono font-bold text-[#7A6A72]">
-              <Clock className="w-3.5 h-3.5 text-[#7C3AED]" />
+              <Clock className="w-3.5 h-3.5 text-[#936DA2]" />
               {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
             </div>
             <button
               onClick={() => setShowBluetoothModal(true)}
               className="px-3.5 py-1.5 rounded-xl text-xs font-bold border border-[#E5CDBC] bg-white text-[#4A3B42] hover:bg-white/80 flex items-center gap-1.5 cursor-pointer shadow-2xs"
             >
-              <Watch className="w-3.5 h-3.5 text-[#7C3AED]" />
+              <Watch className="w-3.5 h-3.5 text-[#936DA2]" />
               {bluetoothConnected ? 'Watch Paired' : 'Connect Watch'}
             </button>
           </div>
@@ -169,7 +171,7 @@ export default function CaregiverLayout() {
               className={({ isActive }) =>
                 `px-3 py-1.5 rounded-xl font-bold text-xs whitespace-nowrap transition-all ${
                   isActive
-                    ? 'bg-white text-[#7C3AED] shadow-xs border border-[#E5CDBC]'
+                    ? 'bg-white text-[#936DA2] shadow-xs border border-[#E5CDBC]'
                     : 'text-[#4A3B42] hover:bg-white/40'
                 }`
               }
@@ -188,8 +190,8 @@ export default function CaregiverLayout() {
       {/* BLUETOOTH SMARTWATCH PAIRING MODAL */}
       {showBluetoothModal && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 font-inter">
-          <div className="bg-white rounded-3xl p-6 md:p-8 max-w-lg w-full border border-[#EDE9FE] shadow-2xl space-y-6 animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between pb-4 border-b border-[#EDE9FE]">
+          <div className="bg-white rounded-3xl p-6 md:p-8 max-w-lg w-full border border-[#F4DDE2] shadow-2xl space-y-6 animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-4 border-b border-[#F4DDE2]">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600">
                   <Watch className="w-6 h-6 text-emerald-600" />
@@ -253,7 +255,7 @@ export default function CaregiverLayout() {
                   <button
                     onClick={scanBluetoothDevices}
                     disabled={isScanning}
-                    className="text-xs font-bold text-[#7C3AED] hover:underline flex items-center gap-1 cursor-pointer disabled:opacity-50"
+                    className="text-xs font-bold text-[#936DA2] hover:underline flex items-center gap-1 cursor-pointer disabled:opacity-50"
                   >
                     <RefreshCw className={`w-3.5 h-3.5 ${isScanning ? 'animate-spin' : ''}`} />
                     {isScanning ? 'Scanning...' : 'Scan Devices'}
@@ -261,8 +263,8 @@ export default function CaregiverLayout() {
                 </div>
 
                 {isScanning ? (
-                  <div className="p-8 text-center space-y-3 bg-[#FAF8FC] rounded-2xl border border-dashed border-[#EDE9FE]">
-                    <Bluetooth className="w-8 h-8 text-[#7C3AED] mx-auto animate-pulse" />
+                  <div className="p-8 text-center space-y-3 bg-[#FCF4F5] rounded-2xl border border-dashed border-[#F4DDE2]">
+                    <Bluetooth className="w-8 h-8 text-[#936DA2] mx-auto animate-pulse" />
                     <p className="text-xs font-bold text-[#3a3135]">Searching for nearby Bluetooth Smartwatches...</p>
                     <p className="text-[11px] text-[#7a6f75]">Ensure Bluetooth is enabled on dependent's device</p>
                   </div>
@@ -271,10 +273,10 @@ export default function CaregiverLayout() {
                     {foundDevices.map((dev, idx) => (
                       <div
                         key={idx}
-                        className="p-3.5 rounded-2xl border border-[#EDE9FE] bg-[#FAF8FC] hover:border-[#7C3AED] hover:bg-purple-50/40 flex items-center justify-between transition-all"
+                        className="p-3.5 rounded-2xl border border-[#F4DDE2] bg-[#FCF4F5] hover:border-[#936DA2] hover:bg-purple-50/40 flex items-center justify-between transition-all"
                       >
                         <div className="flex items-center gap-3">
-                          <Watch className="w-5 h-5 text-[#7C3AED]" />
+                          <Watch className="w-5 h-5 text-[#936DA2]" />
                           <div>
                             <p className="font-bold text-xs text-[#3a3135]">{dev.name}</p>
                             <p className="text-[10px] text-[#7a6f75]">{dev.type} • Signal: {dev.rssi} dBm</p>
@@ -282,7 +284,7 @@ export default function CaregiverLayout() {
                         </div>
                         <button
                           onClick={() => pairDevice(dev.name)}
-                          className="px-3 py-1.5 rounded-xl bg-[#7C3AED] hover:bg-[#6D28D9] text-white text-xs font-bold cursor-pointer"
+                          className="px-3 py-1.5 rounded-xl bg-[#936DA2] hover:bg-[#835A92] text-white text-xs font-bold cursor-pointer"
                         >
                           Pair
                         </button>
@@ -293,13 +295,13 @@ export default function CaregiverLayout() {
               </div>
             )}
 
-            <div className="pt-2 border-t border-[#EDE9FE] flex items-center justify-between text-xs text-[#7a6f75]">
+            <div className="pt-2 border-t border-[#F4DDE2] flex items-center justify-between text-xs text-[#7a6f75]">
               <span className="flex items-center gap-1.5">
                 <Wifi className="w-3.5 h-3.5 text-emerald-500" /> Web Bluetooth API • Encrypted Stream
               </span>
               <button
                 onClick={() => setShowBluetoothModal(false)}
-                className="font-bold text-[#7C3AED] hover:underline cursor-pointer"
+                className="font-bold text-[#936DA2] hover:underline cursor-pointer"
               >
                 Close
               </button>

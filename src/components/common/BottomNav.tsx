@@ -80,8 +80,8 @@ export default function BottomNav() {
                   className="w-13 h-13 rounded-full bg-gradient-to-tr from-purple-600 via-rose-500 to-purple-400 p-0.5 shadow-lg shadow-purple-500/30 hover:scale-105 active:scale-95 transition-transform flex items-center justify-center group"
                   aria-label="Open Health Twin AI"
                 >
-                  <div className="w-full h-full rounded-full bg-gradient-to-tr from-purple-600 to-rose-500 flex items-center justify-center text-white">
-                    <Sparkles className="w-6 h-6 animate-pulse" />
+                  <div className="w-full h-full rounded-full bg-white dark:bg-slate-900 flex items-center justify-center p-1 overflow-hidden">
+                    <img src="/femsphere_logo.png" alt="FemSphere AI" className="w-full h-full object-contain rounded-full" />
                   </div>
                 </button>
                 <span className="text-[10px] font-semibold text-purple-700 dark:text-purple-300 mt-0.5">

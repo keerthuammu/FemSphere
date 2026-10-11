@@ -52,12 +52,14 @@ export default function AdminLayout() {
         <div className="space-y-8">
           {/* Brand */}
           <Link to="/" className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-2xl bg-[#7C3AED] text-white flex items-center justify-center font-bold text-lg shadow-sm">
-              <Shield className="w-5 h-5" />
-            </div>
+            <img
+              src="/femsphere_logo.png"
+              alt="FemSphere Logo"
+              className="w-10 h-10 rounded-full object-contain shadow-xs"
+            />
             <div>
               <span className="font-serif text-xl font-bold tracking-tight text-[#2E2428] block leading-none">FemSphere</span>
-              <span className="text-[10px] uppercase font-bold text-[#7C3AED] tracking-widest block mt-0.5">Admin Portal</span>
+              <span className="text-[10px] uppercase font-bold text-[#936DA2] tracking-widest block mt-0.5">Admin Portal</span>
             </div>
           </Link>
 
@@ -68,7 +70,7 @@ export default function AdminLayout() {
               to="/admin" 
               end
               className={({ isActive }) => `w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl font-bold text-xs transition-all ${
-                isActive ? 'bg-white text-[#7C3AED] shadow-xs border border-[#E5CDBC]' : 'text-[#4A3B42] hover:bg-white/40 hover:text-[#2E2428]'
+                isActive ? 'bg-white text-[#936DA2] shadow-xs border border-[#E5CDBC]' : 'text-[#4A3B42] hover:bg-white/40 hover:text-[#2E2428]'
               }`}
             >
               <LayoutDashboard className="w-4 h-4 shrink-0" />
@@ -79,14 +81,14 @@ export default function AdminLayout() {
             <NavLink 
               to="/admin/users" 
               className={({ isActive }) => `w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl font-bold text-xs transition-all ${
-                isActive ? 'bg-white text-[#7C3AED] shadow-xs border border-[#E5CDBC]' : 'text-[#4A3B42] hover:bg-white/40 hover:text-[#2E2428]'
+                isActive ? 'bg-white text-[#936DA2] shadow-xs border border-[#E5CDBC]' : 'text-[#4A3B42] hover:bg-white/40 hover:text-[#2E2428]'
               }`}
             >
               <div className="flex items-center gap-3 truncate">
                 <Users className="w-4 h-4 shrink-0" />
                 <span className="truncate">Users</span>
               </div>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white text-[#7C3AED] border border-[#E5CDBC]">
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white text-[#936DA2] border border-[#E5CDBC]">
                 {stats.totalUsers}
               </span>
             </NavLink>
@@ -95,14 +97,14 @@ export default function AdminLayout() {
             <NavLink 
               to="/admin/caregivers" 
               className={({ isActive }) => `w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl font-bold text-xs transition-all ${
-                isActive ? 'bg-white text-[#7C3AED] shadow-xs border border-[#E5CDBC]' : 'text-[#4A3B42] hover:bg-white/40 hover:text-[#2E2428]'
+                isActive ? 'bg-white text-[#936DA2] shadow-xs border border-[#E5CDBC]' : 'text-[#4A3B42] hover:bg-white/40 hover:text-[#2E2428]'
               }`}
             >
               <div className="flex items-center gap-3 truncate">
                 <Users className="w-4 h-4 shrink-0" />
                 <span className="truncate">Caregivers</span>
               </div>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white text-[#7C3AED] border border-[#E5CDBC]">
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white text-[#936DA2] border border-[#E5CDBC]">
                 {stats.totalCaregivers}
               </span>
             </NavLink>
@@ -111,7 +113,7 @@ export default function AdminLayout() {
             <NavLink 
               to="/admin/doctors" 
               className={({ isActive }) => `w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl font-bold text-xs transition-all ${
-                isActive ? 'bg-white text-[#7C3AED] shadow-xs border border-[#E5CDBC]' : 'text-[#4A3B42] hover:bg-white/40 hover:text-[#2E2428]'
+                isActive ? 'bg-white text-[#936DA2] shadow-xs border border-[#E5CDBC]' : 'text-[#4A3B42] hover:bg-white/40 hover:text-[#2E2428]'
               }`}
             >
               <div className="flex items-center gap-3 truncate">
@@ -129,7 +131,7 @@ export default function AdminLayout() {
             <NavLink 
               to="/admin/articles" 
               className={({ isActive }) => `w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl font-bold text-xs transition-all ${
-                isActive ? 'bg-white text-[#7C3AED] shadow-xs border border-[#E5CDBC]' : 'text-[#4A3B42] hover:bg-white/40 hover:text-[#2E2428]'
+                isActive ? 'bg-white text-[#936DA2] shadow-xs border border-[#E5CDBC]' : 'text-[#4A3B42] hover:bg-white/40 hover:text-[#2E2428]'
               }`}
             >
               <BookOpen className="w-4 h-4 shrink-0" />
@@ -141,7 +143,7 @@ export default function AdminLayout() {
         {/* Admin Identity & Logout Footer */}
         <div className="pt-6 border-t border-[#E5CDBC] space-y-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-purple-100 text-[#7C3AED] flex items-center justify-center font-bold text-sm shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-purple-100 text-[#936DA2] flex items-center justify-center font-bold text-sm shrink-0">
               {adminProfile.name ? adminProfile.name.charAt(0) : 'A'}
             </div>
             <div className="overflow-hidden">
@@ -184,14 +186,14 @@ export default function AdminLayout() {
           {/* Quick Actions & Live Time */}
           <div className="flex items-center gap-3">
             <div className="hidden lg:flex items-center gap-2 bg-[#FAF7F4] px-3.5 py-1.5 rounded-xl border border-[#E5CDBC] text-xs font-mono font-bold text-[#7A6A72]">
-              <Clock className="w-3.5 h-3.5 text-[#7C3AED]" />
+              <Clock className="w-3.5 h-3.5 text-[#936DA2]" />
               {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
             </div>
             <button
               onClick={() => setShowAddArticleModal(true)}
               className="px-3.5 py-1.5 rounded-xl text-xs font-bold border border-[#E5CDBC] bg-white text-[#4A3B42] hover:bg-white/80 flex items-center gap-1.5 cursor-pointer shadow-2xs"
             >
-              <BookOpen className="w-3.5 h-3.5 text-[#7C3AED]" />
+              <BookOpen className="w-3.5 h-3.5 text-[#936DA2]" />
               Publish Article
             </button>
           </div>
@@ -214,7 +216,7 @@ export default function AdminLayout() {
               className={({ isActive }) =>
                 `px-3 py-1.5 rounded-xl font-bold text-xs whitespace-nowrap transition-all ${
                   isActive
-                    ? 'bg-white text-[#7C3AED] shadow-xs border border-[#E5CDBC]'
+                    ? 'bg-white text-[#936DA2] shadow-xs border border-[#E5CDBC]'
                     : 'text-[#4A3B42] hover:bg-white/40'
                 }`
               }
@@ -233,7 +235,7 @@ export default function AdminLayout() {
       {/* Add User Modal */}
       {showAddUserModal && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 font-inter">
-          <div className="bg-white rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl border border-[#EDE9FE]">
+          <div className="bg-white rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl border border-[#F4DDE2]">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-bold text-xl text-[#3a3135]">Add New User</h3>
               <button onClick={() => setShowAddUserModal(false)}><X className="w-5 h-5 text-gray-400" /></button>
@@ -246,7 +248,7 @@ export default function AdminLayout() {
                   value={userForm.name} 
                   onChange={(e) => setUserForm({ ...userForm, name: e.target.value })}
                   placeholder="Enter full name"
-                  className={`w-full px-4 py-3 rounded-xl border ${userForm.name && !isValidName(userForm.name) ? 'border-rose-400 bg-rose-50/20' : 'border-[#EDE9FE]'} text-sm`} 
+                  className={`w-full px-4 py-3 rounded-xl border ${userForm.name && !isValidName(userForm.name) ? 'border-rose-400 bg-rose-50/20' : 'border-[#F4DDE2]'} text-sm`} 
                   required 
                 />
                 {userForm.name && !isValidName(userForm.name) && (
@@ -260,7 +262,7 @@ export default function AdminLayout() {
                   value={userForm.email} 
                   onChange={(e) => setUserForm({ ...userForm, email: e.target.value })}
                   placeholder="name@domain.com"
-                  className={`w-full px-4 py-3 rounded-xl border ${userForm.email && !isValidEmail(userForm.email) ? 'border-rose-400 bg-rose-50/20' : 'border-[#EDE9FE]'} text-sm`} 
+                  className={`w-full px-4 py-3 rounded-xl border ${userForm.email && !isValidEmail(userForm.email) ? 'border-rose-400 bg-rose-50/20' : 'border-[#F4DDE2]'} text-sm`} 
                   required 
                 />
                 {userForm.email && !isValidEmail(userForm.email) && (
@@ -272,14 +274,14 @@ export default function AdminLayout() {
                 <select
                   value={userForm.role}
                   onChange={(e) => setUserForm({ ...userForm, role: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] text-sm"
+                  className="w-full px-4 py-3 rounded-xl border border-[#F4DDE2] text-sm"
                 >
                   <option value="User (Female)">User (Female)</option>
                   <option value="User (Male)">User (Male)</option>
                   <option value="Myself">Myself (User)</option>
                 </select>
               </div>
-              <button type="submit" className="w-full py-3 bg-[#7C3AED] text-white rounded-xl font-bold text-sm cursor-pointer">
+              <button type="submit" className="w-full py-3 bg-[#936DA2] text-white rounded-xl font-bold text-sm cursor-pointer">
                 Save User
               </button>
             </form>
@@ -290,7 +292,7 @@ export default function AdminLayout() {
       {/* Add Caregiver Modal */}
       {showAddCaregiverModal && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 font-inter">
-          <div className="bg-white rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl border border-[#EDE9FE]">
+          <div className="bg-white rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl border border-[#F4DDE2]">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-bold text-xl text-[#3a3135]">Add Caregiver</h3>
               <button onClick={() => setShowAddCaregiverModal(false)}><X className="w-5 h-5 text-gray-400 cursor-pointer" /></button>
@@ -303,7 +305,7 @@ export default function AdminLayout() {
                   value={caregiverForm.name} 
                   onChange={(e) => setCaregiverForm({ ...caregiverForm, name: e.target.value })}
                   placeholder="Full name"
-                  className={`w-full px-4 py-3 rounded-xl border ${caregiverForm.name && !isValidName(caregiverForm.name) ? 'border-rose-400 bg-rose-50/20' : 'border-[#EDE9FE]'} text-sm`} 
+                  className={`w-full px-4 py-3 rounded-xl border ${caregiverForm.name && !isValidName(caregiverForm.name) ? 'border-rose-400 bg-rose-50/20' : 'border-[#F4DDE2]'} text-sm`} 
                   required 
                 />
                 {caregiverForm.name && !isValidName(caregiverForm.name) && (
@@ -317,7 +319,7 @@ export default function AdminLayout() {
                   value={caregiverForm.email} 
                   onChange={(e) => setCaregiverForm({ ...caregiverForm, email: e.target.value })}
                   placeholder="email@care.org"
-                  className={`w-full px-4 py-3 rounded-xl border ${caregiverForm.email && !isValidEmail(caregiverForm.email) ? 'border-rose-400 bg-rose-50/20' : 'border-[#EDE9FE]'} text-sm`} 
+                  className={`w-full px-4 py-3 rounded-xl border ${caregiverForm.email && !isValidEmail(caregiverForm.email) ? 'border-rose-400 bg-rose-50/20' : 'border-[#F4DDE2]'} text-sm`} 
                   required 
                 />
                 {caregiverForm.email && !isValidEmail(caregiverForm.email) && (
@@ -331,7 +333,7 @@ export default function AdminLayout() {
                   value={caregiverForm.relation} 
                   onChange={(e) => setCaregiverForm({ ...caregiverForm, relation: e.target.value })}
                   placeholder="e.g. Parent, Guardian, Nurse"
-                  className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] text-sm"
+                  className="w-full px-4 py-3 rounded-xl border border-[#F4DDE2] text-sm"
                 />
               </div>
               <div>
@@ -341,13 +343,13 @@ export default function AdminLayout() {
                   value={caregiverForm.phone} 
                   onChange={(e) => setCaregiverForm({ ...caregiverForm, phone: e.target.value })}
                   placeholder="+1 (555) 000-0000"
-                  className={`w-full px-4 py-3 rounded-xl border ${caregiverForm.phone && !isValidPhone(caregiverForm.phone) ? 'border-rose-400 bg-rose-50/20' : 'border-[#EDE9FE]'} text-sm`}
+                  className={`w-full px-4 py-3 rounded-xl border ${caregiverForm.phone && !isValidPhone(caregiverForm.phone) ? 'border-rose-400 bg-rose-50/20' : 'border-[#F4DDE2]'} text-sm`}
                 />
                 {caregiverForm.phone && !isValidPhone(caregiverForm.phone) && (
                   <p className="text-[11px] text-red-500 mt-1">Phone must be a valid 10-digit number</p>
                 )}
               </div>
-              <button type="submit" className="w-full py-3 bg-[#7C3AED] text-white rounded-xl font-bold text-sm cursor-pointer">
+              <button type="submit" className="w-full py-3 bg-[#936DA2] text-white rounded-xl font-bold text-sm cursor-pointer">
                 Save Caregiver
               </button>
             </form>
@@ -358,7 +360,7 @@ export default function AdminLayout() {
       {/* Add Article Modal */}
       {showAddArticleModal && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 font-inter">
-          <div className="bg-white rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl border border-[#EDE9FE]">
+          <div className="bg-white rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl border border-[#F4DDE2]">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-bold text-xl text-[#3a3135]">Publish Health Article</h3>
               <button onClick={() => setShowAddArticleModal(false)}><X className="w-5 h-5 text-gray-400 cursor-pointer" /></button>
@@ -371,7 +373,7 @@ export default function AdminLayout() {
                   value={newArticle.title} 
                   onChange={(e) => setNewArticle({ ...newArticle, title: e.target.value })}
                   placeholder="Title"
-                  className={`w-full px-4 py-3 rounded-xl border ${newArticle.title && newArticle.title.trim().length < 5 ? 'border-rose-400 bg-rose-50/20' : 'border-[#EDE9FE]'} text-sm`} 
+                  className={`w-full px-4 py-3 rounded-xl border ${newArticle.title && newArticle.title.trim().length < 5 ? 'border-rose-400 bg-rose-50/20' : 'border-[#F4DDE2]'} text-sm`} 
                   required 
                 />
                 {newArticle.title && newArticle.title.trim().length < 5 && (
@@ -383,7 +385,7 @@ export default function AdminLayout() {
                 <select
                   value={newArticle.category}
                   onChange={(e) => setNewArticle({ ...newArticle, category: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] text-sm"
+                  className="w-full px-4 py-3 rounded-xl border border-[#F4DDE2] text-sm"
                 >
                   <option value="Wellness">Wellness</option>
                   <option value="Medical">Medical</option>
@@ -398,14 +400,14 @@ export default function AdminLayout() {
                   value={newArticle.desc} 
                   onChange={(e) => setNewArticle({ ...newArticle, desc: e.target.value })}
                   placeholder="Short description"
-                  className={`w-full px-4 py-3 rounded-xl border ${newArticle.desc && newArticle.desc.trim().length > 0 && newArticle.desc.trim().length < 10 ? 'border-rose-400 bg-rose-50/20' : 'border-[#EDE9FE]'} text-sm`} 
+                  className={`w-full px-4 py-3 rounded-xl border ${newArticle.desc && newArticle.desc.trim().length > 0 && newArticle.desc.trim().length < 10 ? 'border-rose-400 bg-rose-50/20' : 'border-[#F4DDE2]'} text-sm`} 
                   rows={3}
                 />
                 {newArticle.desc && newArticle.desc.trim().length > 0 && newArticle.desc.trim().length < 10 && (
                   <p className="text-[11px] text-red-500 mt-1">Description must be at least 10 characters</p>
                 )}
               </div>
-              <button type="submit" className="w-full py-3 bg-[#7C3AED] text-white rounded-xl font-bold text-sm cursor-pointer">
+              <button type="submit" className="w-full py-3 bg-[#936DA2] text-white rounded-xl font-bold text-sm cursor-pointer">
                 Publish Article
               </button>
             </form>
@@ -416,7 +418,7 @@ export default function AdminLayout() {
       {/* Change Password Modal */}
       {showPasswordModal && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 font-inter">
-          <div className="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-[#EDE9FE]">
+          <div className="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-[#F4DDE2]">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-bold text-lg text-[#3a3135]">Change Password</h3>
               <button onClick={() => setShowPasswordModal(false)}><X className="w-5 h-5 text-gray-400 cursor-pointer" /></button>
@@ -428,7 +430,7 @@ export default function AdminLayout() {
                   type="password" 
                   value={oldPassword} 
                   onChange={(e) => setOldPassword(e.target.value)} 
-                  className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] text-sm" 
+                  className="w-full px-4 py-3 rounded-xl border border-[#F4DDE2] text-sm" 
                   required
                 />
               </div>
@@ -438,7 +440,7 @@ export default function AdminLayout() {
                   type="password" 
                   value={newPassword} 
                   onChange={(e) => setNewPassword(e.target.value)} 
-                  className={`w-full px-4 py-3 rounded-xl border ${newPassword && (!validatePassword(newPassword).isValid || (oldPassword && oldPassword === newPassword)) ? 'border-rose-400 bg-rose-50/20' : 'border-[#EDE9FE]'} text-sm`} 
+                  className={`w-full px-4 py-3 rounded-xl border ${newPassword && (!validatePassword(newPassword).isValid || (oldPassword && oldPassword === newPassword)) ? 'border-rose-400 bg-rose-50/20' : 'border-[#F4DDE2]'} text-sm`} 
                   required
                 />
                 {newPassword && !validatePassword(newPassword).isValid && (
@@ -448,7 +450,7 @@ export default function AdminLayout() {
                   <p className="text-[11px] text-red-500 mt-1">New password cannot match current password</p>
                 )}
               </div>
-              <button type="submit" className="w-full py-3 bg-[#7C3AED] text-white rounded-xl font-bold text-sm cursor-pointer">
+              <button type="submit" className="w-full py-3 bg-[#936DA2] text-white rounded-xl font-bold text-sm cursor-pointer">
                 Update Password
               </button>
             </form>

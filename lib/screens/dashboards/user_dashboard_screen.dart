@@ -23,6 +23,11 @@ import '../../features/wearables/screens/universal_wearables_screen.dart';
 import '../../features/wearables/screens/device_qr_scanner_screen.dart';
 import '../../services/api_service.dart';
 import '../user/medical_records_screen.dart';
+import '../user/period_tracker_screen.dart';
+import 'package:google_fonts/google_fonts.dart';
+import '../twin/voice_analysis_screen.dart';
+import '../twin/smart_chat_screen.dart';
+import '../../widgets/brand_logo.dart';
 
 class UserDashboardScreen extends StatefulWidget {
   const UserDashboardScreen({super.key});
@@ -33,6 +38,14 @@ class UserDashboardScreen extends StatefulWidget {
 
 class _UserDashboardScreenState extends State<UserDashboardScreen> {
   int _selectedNavIndex = 0; // 0: Overview, 1: Period Tracker, 2: Fitness, 3: Vault
+  int _selectedTopicIndex = 0;
+  final List<String> _topics = [
+    'Daily Life',
+    'Period & Cycle',
+    'Health Tracker',
+    'Medical Vault',
+    'Connect Devices',
+  ];
   int _healthScore = 92;
   String _currentStageName = 'Reproductive Age (25–39)';
 
@@ -275,162 +288,702 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
     final remainingCalories = _calorieBudget - _foodCalories + _burnedCalories;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFAF8FC),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0.5,
-        leading: Builder(
-          builder: (ctx) => IconButton(
-            icon: const Icon(Icons.menu_rounded, color: AppTheme.textDark),
-            onPressed: () => Scaffold.of(ctx).openDrawer(),
+      backgroundColor: const Color(0xFFF3EEF9),
+      extendBody: true,
+      drawer: _buildUserDrawer(context, user, auth),
+      bottomNavigationBar: _buildFloatingBottomNav(context),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFFEDE4F7), Color(0xFFFAF7FD), Color(0xFFF4EEF9)],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
           ),
         ),
-        title: Row(
-          children: [
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF7C3AED), Color(0xFFF43F5E)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Center(
-                child: Icon(Icons.auto_awesome, color: Colors.white, size: 16),
-              ),
-            ),
-            const SizedBox(width: 8),
-            const Text(
-              'FemSphere',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w800,
-                color: AppTheme.textDark,
-                letterSpacing: -0.3,
-              ),
-            ),
-            const SizedBox(width: 8),
-            GestureDetector(
-              onTap: () => _showLifeStageSelectionModal(context),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF3E8FF),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFE9D5FF)),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      _isPregnant ? '🤰 Maternity' : (_currentStageName.isNotEmpty ? _currentStageName.split('(').first.trim() : '🌸 Stage'),
-                      style: const TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF7C3AED),
+        child: SafeArea(
+          bottom: false,
+          child: _selectedNavIndex == 1
+              ? PeriodTrackerScreen(onBack: () => setState(() => _selectedNavIndex = 0))
+              : _selectedNavIndex == 3
+                  ? MedicalRecordsScreen(onBack: () => setState(() => _selectedNavIndex = 0))
+                  : RefreshIndicator(
+                      color: AppTheme.primaryPurple,
+                      onRefresh: () async {
+                        await Future.wait([
+                          _fetchLiveDashboardData(),
+                          _loadWearableTelemetry(),
+                        ]);
+                      },
+                      child: SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (_selectedNavIndex == 0) _buildOverviewTab(context, user, remainingCalories),
+                            if (_selectedNavIndex == 2) _buildFitnessTab(remainingCalories),
+                            if (_selectedNavIndex == 4) _buildProfileTab(user),
+                          ],
+                        ),
                       ),
                     ),
-                    const SizedBox(width: 2),
-                    const Icon(Icons.arrow_drop_down, size: 14, color: Color(0xFF7C3AED)),
+        ),
+      ),
+    );
+  }
+
+  // 1. TOP HEADER (Screen 1 Reference UI)
+  Widget _buildTopHeader(BuildContext context, dynamic user) {
+    final userName = (user?.fullName != null && user!.fullName!.trim().isNotEmpty)
+        ? user!.fullName!.trim()
+        : 'Alex';
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 4, bottom: 14),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          // User Avatar & Welcome Text
+          GestureDetector(
+            onTap: () => Scaffold.of(context).openDrawer(),
+            child: Row(
+              children: [
+                const BrandLogo(size: 44),
+                const SizedBox(width: 12),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Hi, $userName',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: const Color(0xFF6B7280),
+                      ),
+                    ),
+                    Text(
+                      'Welcome Back',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: AppTheme.textDark,
+                      ),
+                    ),
                   ],
+                ),
+              ],
+            ),
+          ),
+
+          // Action Pills (Stage Selection + Notification Bell)
+          Row(
+            children: [
+              GestureDetector(
+                onTap: () => _showLifeStageSelectionModal(context),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: const Color(0xFFF1EBF8)),
+                  ),
+                  child: Row(
+                    children: [
+                      Text(
+                        _isPregnant ? '🤰 Maternity' : (_currentStageName.isNotEmpty ? _currentStageName.split('(').first.trim() : '🌸 Stage'),
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.primaryPurple,
+                        ),
+                      ),
+                      const SizedBox(width: 2),
+                      const Icon(Icons.arrow_drop_down, size: 14, color: AppTheme.primaryPurple),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              // White circular notification pill button
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationsScreen()));
+                },
+                child: Container(
+                  width: 42,
+                  height: 42,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white,
+                    border: Border.all(color: const Color(0xFFF1EBF8), width: 1.2),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.04),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      const Icon(Icons.notifications_outlined, size: 20, color: AppTheme.textDark),
+                      Positioned(
+                        top: 10,
+                        right: 11,
+                        child: Container(
+                          width: 7,
+                          height: 7,
+                          decoration: const BoxDecoration(
+                            color: Color(0xFF1E1B2E),
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 2. ACTION CARDS GRID (Hero "Talk to AI assistant" + Right Stacked Cards)
+  Widget _buildActionCardsGrid(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Left Hero Card
+        Expanded(
+          flex: 11,
+          child: Container(
+            padding: const EdgeInsets.all(18),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(26),
+              border: Border.all(color: AppTheme.softBorder, width: 1.2),
+              boxShadow: [
+                BoxShadow(
+                  color: AppTheme.primaryPurple.withValues(alpha: 0.04),
+                  blurRadius: 16,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    color: AppTheme.primaryPurpleLight,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: const Center(
+                    child: Icon(Icons.auto_awesome, color: AppTheme.primaryPurple, size: 20),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                Text(
+                  'Talk to AI\nassistant',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                    color: AppTheme.textDark,
+                    height: 1.2,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  "Let's try it now",
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 11,
+                    color: const Color(0xFF94A3B8),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 14),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const VoiceAnalysisScreen()),
+                    );
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    decoration: BoxDecoration(
+                      color: AppTheme.primaryPurple,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppTheme.primaryPurple.withValues(alpha: 0.35),
+                          blurRadius: 10,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: Center(
+                      child: Text(
+                        'Start Talking',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        // Right Stacked Cards
+        Expanded(
+          flex: 10,
+          child: Column(
+            children: [
+              // Voice Card
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const VoiceAnalysisScreen()),
+                  );
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(22),
+                    border: Border.all(color: AppTheme.softBorder, width: 1.2),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.primaryPurple.withValues(alpha: 0.04),
+                        blurRadius: 16,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              width: 32,
+                              height: 32,
+                              decoration: BoxDecoration(
+                                color: AppTheme.primaryPurpleLight,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: const Center(
+                                child: Icon(Icons.mic_rounded, color: AppTheme.primaryPurple, size: 17),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Voice',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w800,
+                                color: AppTheme.textDark,
+                              ),
+                            ),
+                            Text(
+                              'Voice to text\nAssistant',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 10,
+                                color: const Color(0xFF94A3B8),
+                                height: 1.15,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Icon(Icons.arrow_forward_rounded, size: 16, color: AppTheme.textDark),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              // Smart Chat Card
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const SmartChatScreen()),
+                  );
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(22),
+                    border: Border.all(color: AppTheme.softBorder, width: 1.2),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.primaryPurple.withValues(alpha: 0.04),
+                        blurRadius: 16,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              width: 32,
+                              height: 32,
+                              decoration: BoxDecoration(
+                                color: AppTheme.primaryPurpleLight,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: const Center(
+                                child: Icon(Icons.chat_bubble_outline_rounded, color: AppTheme.primaryPurple, size: 16),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Smart Chat',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w800,
+                                color: AppTheme.textDark,
+                              ),
+                            ),
+                            Text(
+                              'Health Twin\nAssistant',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 10,
+                                color: const Color(0xFF94A3B8),
+                                height: 1.15,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Icon(Icons.arrow_forward_rounded, size: 16, color: AppTheme.textDark),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  // 3. TOPICS SECTION (Horizontal Category Filter Chips)
+  Widget _buildTopicsSection(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Topics',
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 17,
+                fontWeight: FontWeight.w800,
+                color: AppTheme.textDark,
+              ),
+            ),
+            GestureDetector(
+              onTap: () => setState(() => _selectedTopicIndex = 0),
+              child: Text(
+                'See All',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: const Color(0xFF94A3B8),
                 ),
               ),
             ),
           ],
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.shield_outlined, color: Colors.redAccent, size: 20),
-            tooltip: 'Emergency SOS',
-            onPressed: () => _showEmergencyModal(context, user),
-          ),
-          IconButton(
-            icon: const Badge(
-              label: Text('2', style: TextStyle(fontSize: 10)),
-              child: Icon(Icons.notifications_outlined, color: AppTheme.textDark, size: 20),
-            ),
-            onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationsScreen()));
+        const SizedBox(height: 12),
+        SizedBox(
+          height: 38,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            itemCount: _topics.length,
+            separatorBuilder: (_, __) => const SizedBox(width: 8),
+            itemBuilder: (context, idx) {
+              final topic = _topics[idx];
+              final isSelected = _selectedTopicIndex == idx;
+              return GestureDetector(
+                onTap: () {
+                  setState(() => _selectedTopicIndex = idx);
+                  if (topic == 'Period & Cycle') {
+                    setState(() => _selectedNavIndex = 1);
+                  } else if (topic == 'Health Tracker') {
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const VitalsTrackerScreen()));
+                  } else if (topic == 'Medical Vault') {
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const MedicalRecordsScreen()));
+                  } else if (topic == 'Connect Devices') {
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const UniversalWearablesScreen()));
+                  }
+                },
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: isSelected ? AppTheme.primaryPurple : Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: isSelected ? AppTheme.primaryPurple : AppTheme.softBorder,
+                      width: 1.2,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: isSelected ? 0.08 : 0.02),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: Text(
+                      topic,
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 12,
+                        fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                        color: isSelected ? Colors.white : const Color(0xFF475569),
+                      ),
+                    ),
+                  ),
+                ),
+              );
             },
           ),
-        ],
-        bottom: _isLoadingDashboard
-            ? const PreferredSize(
-                preferredSize: Size.fromHeight(2),
-                child: LinearProgressIndicator(
-                  minHeight: 2,
-                  backgroundColor: Colors.transparent,
-                  valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryPurple),
+        ),
+      ],
+    );
+  }
+
+  // 4. DISCOVERY CARDS CAROUSEL
+  Widget _buildDiscoveryCardsCarousel(BuildContext context) {
+    final cards = [
+      {
+        'title': 'What is blood pressure?',
+        'subtitle': 'Blood pressure measures the force of blood flow in your arteries.',
+        'action': () => Navigator.push(context, MaterialPageRoute(builder: (_) => const VitalsTrackerScreen())),
+      },
+      {
+        'title': 'Why is sleep important?',
+        'subtitle': 'Quality sleep helps repair the body, balance cortisol and reset rhythms.',
+        'action': () => Navigator.push(context, MaterialPageRoute(builder: (_) => const UniversalWearablesScreen())),
+      },
+      {
+        'title': 'Hormonal Rhythm',
+        'subtitle': 'Sync your nutrition with follicular and luteal phases.',
+        'action': () => setState(() => _selectedNavIndex = 1),
+      },
+      {
+        'title': 'Medical Vault OCR',
+        'subtitle': 'Zero-knowledge encrypted cloud storage for clinical panels.',
+        'action': () => Navigator.push(context, MaterialPageRoute(builder: (_) => const MedicalRecordsScreen())),
+      },
+    ];
+
+    return SizedBox(
+      height: 154,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: cards.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 12),
+        itemBuilder: (context, idx) {
+          final item = cards[idx];
+          return Container(
+            width: 180,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(22),
+              border: Border.all(color: AppTheme.softBorder, width: 1.2),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.03),
+                  blurRadius: 10,
+                  offset: const Offset(0, 3),
                 ),
-              )
-            : null,
-      ),
-      drawer: _buildUserDrawer(context, user, auth),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _selectedNavIndex > 4 ? 0 : _selectedNavIndex,
-        onDestinationSelected: (index) {
-          if (index == 2) {
-            _showAIChatSheet(context);
-            return;
-          }
-          setState(() {
-            _selectedNavIndex = index;
-          });
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      item['title'] as String,
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: AppTheme.textDark,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      item['subtitle'] as String,
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 10,
+                        color: const Color(0xFF94A3B8),
+                        height: 1.25,
+                      ),
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+                GestureDetector(
+                  onTap: item['action'] as VoidCallback,
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 6),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFAF7FD),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: const Color(0xFFEDE4F8)),
+                    ),
+                    child: Center(
+                      child: Text(
+                        'Discover',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFF475569),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
         },
-        backgroundColor: Colors.white,
-        indicatorColor: AppTheme.primaryPurple.withValues(alpha: 0.15),
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home, color: AppTheme.primaryPurple),
-            label: 'Home',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.water_drop_outlined),
-            selectedIcon: Icon(Icons.water_drop, color: _roseColor),
-            label: 'Health',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.auto_awesome, color: Color(0xFF7C3AED)),
-            selectedIcon: Icon(Icons.auto_awesome, color: Color(0xFF7C3AED)),
-            label: 'Twin AI',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.medical_services_outlined),
-            selectedIcon: Icon(Icons.medical_services, color: AppTheme.secondaryTeal),
-            label: 'Care & Vault',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person, color: AppTheme.primaryPurple),
-            label: 'Profile',
+      ),
+    );
+  }
+
+  // 5. FLOATING LUXURY BOTTOM NAVIGATION BAR
+  Widget _buildFloatingBottomNav(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(36),
+        border: Border.all(color: AppTheme.softBorder, width: 1.2),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.primaryPurple.withValues(alpha: 0.08),
+            blurRadius: 24,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          await Future.wait([
-            _fetchLiveDashboardData(),
-            _loadWearableTelemetry(),
-          ]);
-        },
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              
-              // TAB CONTENT
-              if (_selectedNavIndex == 0) _buildOverviewTab(remainingCalories),
-              if (_selectedNavIndex == 1) _buildPeriodTrackerTab(),
-              if (_selectedNavIndex == 2) _buildFitnessTab(remainingCalories),
-              if (_selectedNavIndex == 3) _buildVaultTab(),
-              if (_selectedNavIndex == 4) _buildProfileTab(user),
-            ],
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          _buildBottomNavBtn(
+            icon: Icons.home_rounded,
+            isSelected: _selectedNavIndex == 0,
+            onTap: () => setState(() => _selectedNavIndex = 0),
+          ),
+          _buildBottomNavBtn(
+            icon: Icons.calendar_month_rounded,
+            isSelected: _selectedNavIndex == 1,
+            onTap: () => setState(() => _selectedNavIndex = 1),
+          ),
+          // Center Elevated Glowing Purple Button
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const VoiceAnalysisScreen()),
+              );
+            },
+            child: Container(
+              width: 52,
+              height: 52,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: const LinearGradient(
+                  colors: [AppTheme.primaryPurple, AppTheme.primaryPurpleDark],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppTheme.primaryPurple.withValues(alpha: 0.45),
+                    blurRadius: 16,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: const Center(
+                child: Icon(Icons.auto_awesome, color: Colors.white, size: 24),
+              ),
+            ),
+          ),
+          _buildBottomNavBtn(
+            icon: Icons.chat_bubble_outline_rounded,
+            isSelected: false,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const SmartChatScreen()),
+              );
+            },
+          ),
+          _buildBottomNavBtn(
+            icon: Icons.folder_shared_outlined,
+            isSelected: _selectedNavIndex == 3,
+            onTap: () => setState(() => _selectedNavIndex = 3),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBottomNavBtn({
+    required IconData icon,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        width: 44,
+        height: 44,
+        decoration: BoxDecoration(
+          color: isSelected ? AppTheme.primaryPurpleLight : Colors.transparent,
+          borderRadius: BorderRadius.circular(22),
+        ),
+        child: Center(
+          child: Icon(
+            icon,
+            size: 22,
+            color: isSelected ? AppTheme.primaryPurple : const Color(0xFF94A3B8),
           ),
         ),
       ),
@@ -438,11 +991,73 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
   }
 
   // TAB 1: OVERVIEW & DIGITAL TWIN
-  Widget _buildOverviewTab(int remainingCalories) {
+  Widget _buildOverviewTab(BuildContext context, dynamic user, int remainingCalories) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // 1. Health Score Ring Card
+        // 1. Top Header
+        _buildTopHeader(context, user),
+
+        const SizedBox(height: 12),
+
+        // 2. Greeting Headline
+        Text(
+          'Good Morning How\ncan I help you?',
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 27,
+            fontWeight: FontWeight.w800,
+            height: 1.22,
+            color: AppTheme.textDark,
+            letterSpacing: -0.6,
+          ),
+        ),
+
+        const SizedBox(height: 18),
+
+        // 3. Action Cards Grid
+        _buildActionCardsGrid(context),
+
+        const SizedBox(height: 22),
+
+        // 4. "Topics" Category Chips
+        _buildTopicsSection(context),
+
+        const SizedBox(height: 14),
+
+        // 5. Horizontal Discovery Cards Carousel
+        _buildDiscoveryCardsCarousel(context),
+
+        const SizedBox(height: 24),
+
+        // Telemetry & Biomarkers Header
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Biomarkers & Telemetry',
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: AppTheme.textDark,
+              ),
+            ),
+            GestureDetector(
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const VitalsTrackerScreen())),
+              child: Text(
+                'Open Tracker',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.primaryPurple,
+                ),
+              ),
+            ),
+          ],
+        ),
+
+        const SizedBox(height: 14),
+
+        // 6. Health Score Ring Card
         _buildHealthScoreCard(),
 
         const SizedBox(height: 16),
@@ -532,7 +1147,7 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
               child: _buildHubCard(
                 title: 'AI Analytics',
                 subtitle: '92/100 Bio-Twin',
-                icon: Icons.auto_awesome,
+                icon: Icons.insights_rounded,
                 color: const Color(0xFF6366F1),
                 onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const HealthReportsScreen())),
               ),
@@ -637,11 +1252,11 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF3E8FF),
+                    color: AppTheme.primaryPurpleLight,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: const Color(0xFFE9D5FF)),
                   ),
-                  child: const Text('Cycle Paused', style: TextStyle(color: Color(0xFF7C3AED), fontWeight: FontWeight.bold, fontSize: 11)),
+                  child: const Text('Cycle Paused', style: TextStyle(color: AppTheme.primaryPurple, fontWeight: FontWeight.bold, fontSize: 11)),
                 ),
               ],
             ),
@@ -655,13 +1270,13 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: const LinearGradient(
-                    colors: [Color(0xFFC084FC), Color(0xFF7C3AED)],
+                    colors: [AppTheme.accentPink, AppTheme.primaryPurple],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF7C3AED).withOpacity(0.3),
+                      color: AppTheme.primaryPurple.withOpacity(0.3),
                       blurRadius: 16,
                       offset: const Offset(0, 6),
                     )
@@ -699,7 +1314,7 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
                         const Text('ESTIMATED DUE DATE', style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Colors.grey)),
                         const SizedBox(height: 4),
                         Text(_eddDate, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: AppTheme.textDark)),
-                        Text('$_daysRemaining days remaining', style: const TextStyle(fontSize: 10, color: Color(0xFF7C3AED), fontWeight: FontWeight.w600)),
+                        Text('$_daysRemaining days remaining', style: const TextStyle(fontSize: 10, color: AppTheme.primaryPurple, fontWeight: FontWeight.w600)),
                       ],
                     ),
                   ),
@@ -745,7 +1360,7 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
                     children: [
                       const Text('Daily Kick Counter', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppTheme.textDark)),
                       const SizedBox(height: 2),
-                      Text('$_kickCount / 10 kicks felt today', style: const TextStyle(fontSize: 11, color: Color(0xFF7C3AED), fontWeight: FontWeight.w600)),
+                      Text('$_kickCount / 10 kicks felt today', style: const TextStyle(fontSize: 11, color: AppTheme.primaryPurple, fontWeight: FontWeight.w600)),
                     ],
                   ),
                   Row(
@@ -759,7 +1374,7 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
                         icon: const Text('👣', style: TextStyle(fontSize: 14)),
                         label: const Text('+ Kick', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF7C3AED),
+                          backgroundColor: AppTheme.primaryPurple,
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -942,7 +1557,7 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
             width: double.infinity,
             child: OutlinedButton.icon(
               icon: const Text('🤰', style: TextStyle(fontSize: 15)),
-              label: const Text('Positive Pregnancy Test? Enter Maternity Mode', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF7C3AED))),
+              label: const Text('Positive Pregnancy Test? Enter Maternity Mode', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppTheme.primaryPurple)),
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: Color(0xFFDDD6FE)),
                 backgroundColor: const Color(0xFFF5F3FF),
@@ -1267,7 +1882,7 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
                 padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
-                    colors: [Color(0xFF7C3AED), Color(0xFF4C1D95)],
+                    colors: [AppTheme.primaryPurple, Color(0xFF4C1D95)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -1452,81 +2067,7 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
     );
   }
 
-  // TAB 4: VAULT & RECORDS
-  Widget _buildVaultTab() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppTheme.borderPurple),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text('📁 Encrypted Health Vault', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppTheme.textDark)),
-              TextButton.icon(
-                onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => const MedicalRecordsScreen()));
-                },
-                icon: const Icon(Icons.open_in_new, size: 16, color: AppTheme.primaryPurple),
-                label: const Text('View All', style: TextStyle(color: AppTheme.primaryPurple, fontSize: 13, fontWeight: FontWeight.bold)),
-              ),
-            ],
-          ),
-          const SizedBox(height: 14),
-          if (_medicalRecords.isNotEmpty)
-            ..._medicalRecords.take(4).map((rec) {
-              final title = (rec['title'] ?? rec['file_name'] ?? 'Medical Document').toString();
-              final category = (rec['category'] ?? 'Lab Report').toString();
-              final date = rec['uploaded_at'] != null ? rec['uploaded_at'].toString().split('T')[0] : (rec['date'] ?? 'Recent');
-              final isPdf = (rec['file_type'] ?? 'PDF').toString().toUpperCase().contains('PDF');
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: InkWell(
-                  onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => const MedicalRecordsScreen()));
-                  },
-                  borderRadius: BorderRadius.circular(16),
-                  child: _buildVaultItem(
-                    title,
-                    '$category • $date',
-                    isPdf ? Icons.picture_as_pdf : Icons.document_scanner,
-                    isPdf ? Colors.red : Colors.purple,
-                  ),
-                ),
-              );
-            })
-          else ...[
-            _buildVaultItem('Q3_Longitudinal_Blood_Panel.pdf', 'Lab Report • July 29, 2026', Icons.picture_as_pdf, Colors.red),
-            const SizedBox(height: 10),
-            _buildVaultItem('Pelvic_Ultrasound_Scan_Results.pdf', 'Imaging • June 14, 2026', Icons.document_scanner, Colors.purple),
-            const SizedBox(height: 10),
-            _buildVaultItem('OBGYN_Annual_Wellness_Consult.pdf', 'Clinical Note • May 02, 2026', Icons.medical_services, Colors.teal),
-          ],
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const MedicalRecordsScreen()));
-              },
-              icon: const Icon(Icons.upload_file, size: 18),
-              label: const Text('Upload & Scan New Report'),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppTheme.primaryPurple,
-                side: const BorderSide(color: AppTheme.primaryPurple),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+
 
   Widget _buildQuickTile({
     required String title,
@@ -1571,33 +2112,7 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
     );
   }
 
-  Widget _buildVaultItem(String name, String meta, IconData icon, Color color) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: const Color(0xFFFAF8FC),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.borderPurple),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, color: color, size: 24),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(name, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.textDark)),
-                const SizedBox(height: 2),
-                Text(meta, style: const TextStyle(fontSize: 10, color: AppTheme.textMuted)),
-              ],
-            ),
-          ),
-          const Icon(Icons.download, size: 18, color: AppTheme.textMuted),
-        ],
-      ),
-    );
-  }
+
 
   Widget _buildUserDrawer(BuildContext context, dynamic user, AuthProvider auth) {
     return Drawer(
@@ -1608,7 +2123,7 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
             padding: const EdgeInsets.fromLTRB(20, 48, 20, 20),
             decoration: const BoxDecoration(
               gradient: LinearGradient(
-                colors: [Color(0xFF7C3AED), Color(0xFF6D28D9)],
+                colors: [AppTheme.primaryPurple, AppTheme.primaryPurpleDark],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -1670,7 +2185,7 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
                 ),
                 _buildDrawerTile(
                   title: 'Specialty Health Journeys',
-                  icon: Icons.auto_awesome,
+                  icon: Icons.spa_outlined,
                   color: const Color(0xFFEC4899),
                   badge: '7 Modes',
                   onTap: () {
@@ -1680,7 +2195,7 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
                 ),
                 _buildDrawerTile(
                   title: 'Biological Health Stage',
-                  icon: Icons.auto_awesome,
+                  icon: Icons.timeline_rounded,
                   color: const Color(0xFF8B5CF6),
                   onTap: () {
                     Navigator.pop(context);
@@ -1875,8 +2390,8 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
                 child: CircularProgressIndicator(
                   value: 0.87,
                   strokeWidth: 9,
-                  backgroundColor: const Color(0xFFF3E8FF),
-                  valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF7C3AED)),
+                  backgroundColor: AppTheme.primaryPurpleLight,
+                  valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.primaryPurple),
                   strokeCap: StrokeCap.round,
                 ),
               ),
@@ -1941,18 +2456,18 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFF3E8FF),
+                            color: AppTheme.primaryPurpleLight,
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(color: const Color(0xFFDDD6FE)),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(Icons.watch_rounded, color: Color(0xFF7C3AED), size: 11),
+                              const Icon(Icons.watch_rounded, color: AppTheme.primaryPurple, size: 11),
                               const SizedBox(width: 3),
                               Text(
                                 _wearableManager.activeDevice?.name ?? _connectedWearableDevice?['device_name'] ?? 'Watch',
-                                style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF7C3AED)),
+                                style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppTheme.primaryPurple),
                               ),
                             ],
                           ),
@@ -2004,14 +2519,14 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFF5B21B6), Color(0xFF7C3AED), Color(0xFF9333EA)],
+          colors: [AppTheme.primaryPurpleDark, AppTheme.primaryPurple, AppTheme.primaryPurpleDark],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF7C3AED).withValues(alpha: 0.35),
+            color: AppTheme.primaryPurple.withValues(alpha: 0.35),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -2100,10 +2615,10 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
             width: double.infinity,
             child: ElevatedButton.icon(
               onPressed: () => _showAIChatSheet(context),
-              icon: const Icon(Icons.auto_awesome, color: Color(0xFF5B21B6), size: 16),
+              icon: const Icon(Icons.psychology_outlined, color: AppTheme.primaryPurpleDark, size: 16),
               label: const Text(
                 'Consult Health Twin Simulation',
-                style: TextStyle(color: Color(0xFF5B21B6), fontWeight: FontWeight.bold, fontSize: 12),
+                style: TextStyle(color: AppTheme.primaryPurpleDark, fontWeight: FontWeight.bold, fontSize: 12),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
@@ -2285,18 +2800,18 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF3E8FF),
+                      color: AppTheme.primaryPurpleLight,
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(color: const Color(0xFFDDD6FE)),
                     ),
                     child: const Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.edit_note_rounded, size: 14, color: Color(0xFF7C3AED)),
+                        Icon(Icons.edit_note_rounded, size: 14, color: AppTheme.primaryPurple),
                         SizedBox(width: 3),
                         Text(
                           'Match Watch',
-                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF7C3AED)),
+                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppTheme.primaryPurple),
                         ),
                       ],
                     ),
@@ -2390,7 +2905,7 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
         border: Border.all(color: const Color(0xFFDDD6FE)),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF7C3AED).withValues(alpha: 0.06),
+            color: AppTheme.primaryPurple.withValues(alpha: 0.06),
             blurRadius: 14,
             offset: const Offset(0, 4),
           ),
@@ -2407,10 +2922,10 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
                   Container(
                     padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF3E8FF),
+                      color: AppTheme.primaryPurpleLight,
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(Icons.auto_awesome, color: Color(0xFF7C3AED), size: 16),
+                    child: const Icon(Icons.psychology_outlined, color: AppTheme.primaryPurple, size: 16),
                   ),
                   const SizedBox(width: 8),
                   const Text(
@@ -2422,12 +2937,12 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF3E8FF),
+                  color: AppTheme.primaryPurpleLight,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Text(
                   'Daily Brief',
-                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF7C3AED)),
+                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppTheme.primaryPurple),
                 ),
               ),
             ],
@@ -2445,10 +2960,10 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
               children: const [
                 Text(
                   'Chat with Twin AI',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF7C3AED)),
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.primaryPurple),
                 ),
                 SizedBox(width: 4),
-                Icon(Icons.arrow_forward_rounded, size: 14, color: Color(0xFF7C3AED)),
+                Icon(Icons.arrow_forward_rounded, size: 14, color: AppTheme.primaryPurple),
               ],
             ),
           ),
@@ -2546,7 +3061,7 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
   }
 
   Widget _buildProfileTab(dynamic user) {
-    final name = user?.name ?? 'Keerthana';
+    final name = user?.fullName ?? 'Keerthana';
     final email = user?.email ?? 'keerthana@femsphere.org';
 
     return Column(
@@ -2563,10 +3078,10 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
             children: [
               CircleAvatar(
                 radius: 30,
-                backgroundColor: const Color(0xFFF3E8FF),
+                backgroundColor: AppTheme.primaryPurpleLight,
                 child: Text(
                   name.isNotEmpty ? name[0].toUpperCase() : 'F',
-                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF7C3AED)),
+                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.primaryPurple),
                 ),
               ),
               const SizedBox(width: 16),
@@ -2581,10 +3096,10 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF3E8FF),
+                        color: AppTheme.primaryPurpleLight,
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: const Text('🌸 Patient Account', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF7C3AED))),
+                      child: const Text('🌸 Patient Account', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppTheme.primaryPurple)),
                     ),
                   ],
                 ),
@@ -2661,10 +3176,10 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF3E8FF),
+                      color: AppTheme.primaryPurpleLight,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Icon(Icons.auto_awesome, color: AppTheme.primaryPurple, size: 20),
+                    child: const Icon(Icons.timeline_rounded, color: AppTheme.primaryPurple, size: 20),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -2693,7 +3208,7 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
                   gradient: LinearGradient(
                     colors: _isPregnant
                         ? [const Color(0xFFFDF2F8), const Color(0xFFFCE7F3)]
-                        : [const Color(0xFFFAF5FF), const Color(0xFFF3E8FF)],
+                        : [const Color(0xFFFAF5FF), AppTheme.primaryPurpleLight],
                   ),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
@@ -3008,16 +3523,8 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                     child: Row(
                       children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFF7C3AED), Color(0xFFF43F5E)],
-                            ),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: const Icon(Icons.auto_awesome, color: Colors.white, size: 18),
-                        ),
+                         const BrandLogo(size: 36),
+
                         const SizedBox(width: 12),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -3051,7 +3558,7 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
                             padding: const EdgeInsets.all(14),
                             constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
                             decoration: BoxDecoration(
-                              color: isUser ? const Color(0xFF7C3AED) : const Color(0xFFF3E8FF),
+                              color: isUser ? AppTheme.primaryPurple : AppTheme.primaryPurpleLight,
                               borderRadius: BorderRadius.circular(16),
                             ),
                             child: Text(
@@ -3122,7 +3629,7 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
                         ),
                         const SizedBox(width: 8),
                         CircleAvatar(
-                          backgroundColor: const Color(0xFF7C3AED),
+                          backgroundColor: AppTheme.primaryPurple,
                           radius: 22,
                           child: IconButton(
                             icon: const Icon(Icons.arrow_upward, color: Colors.white, size: 20),
@@ -3156,8 +3663,8 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
     return Padding(
       padding: const EdgeInsets.only(right: 8),
       child: ActionChip(
-        label: Text(text, style: const TextStyle(fontSize: 11, color: Color(0xFF7C3AED), fontWeight: FontWeight.bold)),
-        backgroundColor: const Color(0xFFF3E8FF),
+        label: Text(text, style: const TextStyle(fontSize: 11, color: AppTheme.primaryPurple, fontWeight: FontWeight.bold)),
+        backgroundColor: AppTheme.primaryPurpleLight,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         side: BorderSide.none,
         onPressed: onTap,
@@ -3201,10 +3708,10 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF3E8FF),
+                        color: AppTheme.primaryPurpleLight,
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: const Icon(Icons.watch_rounded, color: Color(0xFF7C3AED), size: 20),
+                      child: const Icon(Icons.watch_rounded, color: AppTheme.primaryPurple, size: 20),
                     ),
                     const SizedBox(width: 10),
                     const Text(
@@ -3269,7 +3776,7 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
                 icon: const Icon(Icons.check_circle_outline, size: 18),
                 label: const Text('Sync Exactly As On Watch', style: TextStyle(fontWeight: FontWeight.bold)),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF7C3AED),
+                  backgroundColor: AppTheme.primaryPurple,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),

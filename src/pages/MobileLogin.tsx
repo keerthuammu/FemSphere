@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-  Sparkles,
   Lock,
   Mail,
   Eye,
@@ -188,10 +187,12 @@ export default function Login() {
               <ArrowLeft className="w-4 h-4" />
             </button>
 
-            <div className="flex items-center gap-1.5">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-purple-600 to-rose-500 flex items-center justify-center text-white shadow-xs">
-                <Sparkles className="w-4 h-4" />
-              </div>
+            <div className="flex items-center gap-2">
+              <img
+                src="/femsphere_logo.png"
+                alt="FemSphere"
+                className="w-8 h-8 rounded-full object-contain shadow-xs"
+              />
               <span className="font-serif text-lg font-bold tracking-tight text-slate-900 dark:text-white">
                 FemSphere
               </span>

@@ -157,8 +157,8 @@ export default function UserRecords() {
       <div className="bg-white rounded-[28px] p-6 md:p-8 border border-[#F1EBF9] shadow-[0_4px_25px_rgba(124,58,237,0.025)] flex flex-col md:flex-row items-start md:items-center justify-between gap-5">
         <div className="space-y-1.5">
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-bold px-3 py-1 rounded-full bg-[#F3EEFC] text-[#7C3AED] uppercase tracking-wider flex items-center gap-1.5">
-              <Sparkles className="w-3 h-3 text-[#7C3AED]" /> Encrypted Medical Vault
+            <span className="text-[10px] font-bold px-3 py-1 rounded-full bg-[#F9E8EC] text-[#936DA2] uppercase tracking-wider flex items-center gap-1.5">
+              <Sparkles className="w-3 h-3 text-[#936DA2]" /> Encrypted Medical Vault
             </span>
             <span className="text-[10px] font-bold px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 uppercase tracking-wider">
               OCR Auto-Scan Active
@@ -174,7 +174,7 @@ export default function UserRecords() {
 
         <button 
           onClick={() => setShowUploadModal(true)} 
-          className="flex items-center gap-2.5 px-6 py-3 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-full font-bold text-xs shadow-sm transition-all hover:scale-[1.02] cursor-pointer shrink-0"
+          className="flex items-center gap-2.5 px-6 py-3 bg-[#936DA2] hover:bg-[#835A92] text-white rounded-full font-bold text-xs shadow-sm transition-all hover:scale-[1.02] cursor-pointer shrink-0"
         >
           <Upload className="w-4 h-4" /> 
           <span>Upload Medical Report (PDF)</span>
@@ -193,7 +193,7 @@ export default function UserRecords() {
             <div className="flex items-center justify-between mb-5">
               <div>
                 <h4 className="font-bold text-base md:text-lg text-[#201538] flex items-center gap-2">
-                  <CalendarIcon className="w-4 h-4 text-[#7C3AED]" />
+                  <CalendarIcon className="w-4 h-4 text-[#936DA2]" />
                   <span>{monthName} {year}</span>
                 </h4>
                 <p className="text-xs text-[#8E859E] mt-0.5">
@@ -205,7 +205,7 @@ export default function UserRecords() {
                 {activeDateFilter && (
                   <button
                     onClick={() => setActiveDateFilter(null)}
-                    className="px-3 py-1 rounded-full bg-[#F3EEFC] text-[#7C3AED] hover:bg-[#EDE9FE] text-[11px] font-bold transition-colors cursor-pointer"
+                    className="px-3 py-1 rounded-full bg-[#F9E8EC] text-[#936DA2] hover:bg-[#F4DDE2] text-[11px] font-bold transition-colors cursor-pointer"
                   >
                     Clear Filter
                   </button>
@@ -213,14 +213,14 @@ export default function UserRecords() {
                 <div className="flex items-center gap-1 text-[#8E859E]">
                   <button
                     onClick={prevMonth}
-                    className="p-1 hover:text-[#201538] rounded-lg hover:bg-[#F3EEFC] transition-colors cursor-pointer"
+                    className="p-1 hover:text-[#201538] rounded-lg hover:bg-[#F9E8EC] transition-colors cursor-pointer"
                     title="Previous Month"
                   >
                     <ChevronLeft className="w-4 h-4" />
                   </button>
                   <button
                     onClick={nextMonth}
-                    className="p-1 hover:text-[#201538] rounded-lg hover:bg-[#F3EEFC] transition-colors cursor-pointer"
+                    className="p-1 hover:text-[#201538] rounded-lg hover:bg-[#F9E8EC] transition-colors cursor-pointer"
                     title="Next Month"
                   >
                     <ChevronRight className="w-4 h-4" />
@@ -260,16 +260,16 @@ export default function UserRecords() {
                     }}
                     className={`relative w-8 h-8 sm:w-9 sm:h-9 mx-auto rounded-full flex flex-col items-center justify-center transition-all cursor-pointer ${
                       isSelected
-                        ? 'bg-[#7C3AED] text-white font-bold shadow-xs scale-105'
+                        ? 'bg-[#936DA2] text-white font-bold shadow-xs scale-105'
                         : hasRecord
-                        ? 'bg-[#F3EEFC] text-[#201538] font-bold hover:bg-[#EDE9FE]'
-                        : 'text-[#4A4158] hover:bg-[#F3EEFC]/50 hover:text-[#201538]'
+                        ? 'bg-[#F9E8EC] text-[#201538] font-bold hover:bg-[#F4DDE2]'
+                        : 'text-[#4A4158] hover:bg-[#F9E8EC]/50 hover:text-[#201538]'
                     }`}
                     title={hasRecord ? `Report on ${dateStr}` : dateStr}
                   >
                     <span>{day}</span>
                     {hasRecord && !isSelected && (
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#7C3AED] mt-0.5" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#936DA2] mt-0.5" />
                     )}
                   </button>
                 );
@@ -280,11 +280,11 @@ export default function UserRecords() {
           {/* Calendar Footnote */}
           <div className="pt-4 mt-4 border-t border-[#F1EBF9] flex items-center justify-between text-[11px] text-[#8E859E]">
             <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-[#7C3AED]" />
+              <span className="w-2 h-2 rounded-full bg-[#936DA2]" />
               <span>Dates with uploaded medical reports</span>
             </div>
             {activeDateFilter && (
-              <span className="font-bold text-[#7C3AED]">
+              <span className="font-bold text-[#936DA2]">
                 Filtering for: {activeDateFilter}
               </span>
             )}
@@ -312,7 +312,7 @@ export default function UserRecords() {
                     cx="50"
                     cy="50"
                     r="38"
-                    stroke="#F3EEFC"
+                    stroke="#F9E8EC"
                     strokeWidth="10"
                     fill="none"
                   />
@@ -401,8 +401,8 @@ export default function UserRecords() {
                 onClick={() => setSelectedCategory(cat)}
                 className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
                   selectedCategory === cat
-                    ? 'bg-[#7C3AED] text-white shadow-xs'
-                    : 'bg-[#FAF8FD] text-[#8E859E] hover:text-[#201538] hover:bg-[#F3EEFC]'
+                    ? 'bg-[#936DA2] text-white shadow-xs'
+                    : 'bg-[#FCF4F5] text-[#8E859E] hover:text-[#201538] hover:bg-[#F9E8EC]'
                 }`}
               >
                 {cat === 'All' ? `All Reports (${records.length})` : cat}
@@ -418,7 +418,7 @@ export default function UserRecords() {
               placeholder="Search reports or biomarkers..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 rounded-full bg-[#FAF8FD] border border-[#F1EBF9] text-xs font-medium text-[#201538] placeholder-[#8E859E] focus:outline-none focus:border-[#7C3AED] transition-all"
+              className="w-full pl-9 pr-3 py-2 rounded-full bg-[#FCF4F5] border border-[#F1EBF9] text-xs font-medium text-[#201538] placeholder-[#8E859E] focus:outline-none focus:border-[#936DA2] transition-all"
             />
           </div>
         </div>
@@ -433,17 +433,17 @@ export default function UserRecords() {
             return (
               <div 
                 key={record.id}
-                className="p-5 rounded-2xl bg-[#FAF8FD] hover:bg-white border border-[#F1EBF9] hover:border-[#7C3AED]/30 transition-all shadow-xs space-y-3 group"
+                className="p-5 rounded-2xl bg-[#FCF4F5] hover:bg-white border border-[#F1EBF9] hover:border-[#936DA2]/30 transition-all shadow-xs space-y-3 group"
               >
                 {/* Header Row: Title, Category, Status, Actions */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="flex items-start gap-3.5 min-w-0">
-                    <div className="w-10 h-10 rounded-2xl bg-[#F3EEFC] text-[#7C3AED] flex items-center justify-center shrink-0 mt-0.5">
+                    <div className="w-10 h-10 rounded-2xl bg-[#F9E8EC] text-[#936DA2] flex items-center justify-center shrink-0 mt-0.5">
                       <FileText className="w-5 h-5" />
                     </div>
                     <div className="min-w-0 space-y-1">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="px-2.5 py-0.5 rounded-full bg-white text-[#7C3AED] border border-[#EDE9FE] font-bold text-[10px]">
+                        <span className="px-2.5 py-0.5 rounded-full bg-white text-[#936DA2] border border-[#F4DDE2] font-bold text-[10px]">
                           {record.category || 'Lab Results'}
                         </span>
                         <span className="px-2 py-0.5 rounded-full bg-white text-[#8E859E] border border-[#F1EBF9] font-semibold text-[10px]">
@@ -461,7 +461,7 @@ export default function UserRecords() {
                         )}
                       </div>
 
-                      <h4 className="font-bold text-sm md:text-base text-[#201538] truncate group-hover:text-[#7C3AED] transition-colors">
+                      <h4 className="font-bold text-sm md:text-base text-[#201538] truncate group-hover:text-[#936DA2] transition-colors">
                         {record.title}
                       </h4>
                       <p className="text-[11px] text-[#8E859E]">
@@ -474,7 +474,7 @@ export default function UserRecords() {
                   <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
                     <button
                       onClick={() => setSelectedRecordForDetail(record)}
-                      className="px-4 py-2 bg-[#F3EEFC] hover:bg-[#7C3AED] text-[#7C3AED] hover:text-white rounded-full font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer"
+                      className="px-4 py-2 bg-[#F9E8EC] hover:bg-[#936DA2] text-[#936DA2] hover:text-white rounded-full font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer"
                     >
                       <Eye className="w-3.5 h-3.5" />
                       <span>View Biomarkers</span>
@@ -484,7 +484,7 @@ export default function UserRecords() {
                       onClick={() => {
                         alert(`Viewing document "${record.title}.${record.type?.toLowerCase() || 'pdf'}" from encrypted vault.`);
                       }}
-                      className="p-2 rounded-full bg-white hover:bg-[#FAF8FD] text-[#6E6480] hover:text-[#201538] border border-[#F1EBF9] transition-colors cursor-pointer"
+                      className="p-2 rounded-full bg-white hover:bg-[#FCF4F5] text-[#6E6480] hover:text-[#201538] border border-[#F1EBF9] transition-colors cursor-pointer"
                       title="Download or View PDF"
                     >
                       <Download className="w-3.5 h-3.5" />
@@ -507,7 +507,7 @@ export default function UserRecords() {
                 {/* AI / Clinical Summary Preview (Clean, non-overwhelming) */}
                 {record.scanResults?.aiSummary && (
                   <div className="p-3 rounded-2xl bg-white border border-[#F1EBF9] flex items-start gap-2.5 text-xs text-[#4A4158] leading-relaxed">
-                    <Sparkles className="w-4 h-4 text-[#7C3AED] shrink-0 mt-0.5" />
+                    <Sparkles className="w-4 h-4 text-[#936DA2] shrink-0 mt-0.5" />
                     <p className="flex-1 font-normal">
                       <strong className="font-semibold text-[#201538]">Clinical Summary: </strong>
                       {record.scanResults.aiSummary}
@@ -524,13 +524,13 @@ export default function UserRecords() {
                         className="px-2.5 py-1 rounded-xl bg-white border border-[#F1EBF9] text-[11px] font-medium text-[#4A4158] whitespace-nowrap flex items-center gap-1.5"
                       >
                         <span className="font-semibold">{b.name}:</span>
-                        <span className="font-bold text-[#7C3AED]">{b.value}</span>
+                        <span className="font-bold text-[#936DA2]">{b.value}</span>
                       </span>
                     ))}
                     {biomarkers.length > 4 && (
                       <button
                         onClick={() => setSelectedRecordForDetail(record)}
-                        className="text-[11px] font-bold text-[#7C3AED] hover:underline whitespace-nowrap px-1"
+                        className="text-[11px] font-bold text-[#936DA2] hover:underline whitespace-nowrap px-1"
                       >
                         +{biomarkers.length - 4} more
                       </button>
@@ -543,8 +543,8 @@ export default function UserRecords() {
 
           {/* Empty State when zero records match */}
           {filteredRecords.length === 0 && (
-            <div className="text-center py-16 px-4 bg-[#FAF8FD] rounded-3xl border border-dashed border-[#F1EBF9] space-y-4">
-              <div className="w-14 h-14 rounded-full bg-[#F3EEFC] text-[#7C3AED] flex items-center justify-center mx-auto">
+            <div className="text-center py-16 px-4 bg-[#FCF4F5] rounded-3xl border border-dashed border-[#F1EBF9] space-y-4">
+              <div className="w-14 h-14 rounded-full bg-[#F9E8EC] text-[#936DA2] flex items-center justify-center mx-auto">
                 <FileText className="w-7 h-7" />
               </div>
               <div className="max-w-sm mx-auto space-y-1">
@@ -560,7 +560,7 @@ export default function UserRecords() {
               {records.length === 0 && (
                 <button
                   onClick={() => setShowUploadModal(true)}
-                  className="px-5 py-2.5 bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-bold text-xs rounded-full shadow-xs transition-all cursor-pointer"
+                  className="px-5 py-2.5 bg-[#936DA2] hover:bg-[#835A92] text-white font-bold text-xs rounded-full shadow-xs transition-all cursor-pointer"
                 >
                   Upload First Medical Report (PDF)
                 </button>
@@ -581,7 +581,7 @@ export default function UserRecords() {
             <div className="flex items-start justify-between gap-4 pb-4 border-b border-[#F1EBF9]">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <span className="px-2.5 py-0.5 rounded-full bg-[#F3EEFC] text-[#7C3AED] font-bold text-[10px]">
+                  <span className="px-2.5 py-0.5 rounded-full bg-[#F9E8EC] text-[#936DA2] font-bold text-[10px]">
                     {selectedRecordForDetail.category || 'Lab Results'}
                   </span>
                   <span className="text-[11px] text-[#8E859E]">
@@ -598,7 +598,7 @@ export default function UserRecords() {
 
               <button
                 onClick={() => setSelectedRecordForDetail(null)}
-                className="p-1.5 rounded-full hover:bg-[#F3EEFC] text-[#8E859E] hover:text-[#201538] transition-colors cursor-pointer"
+                className="p-1.5 rounded-full hover:bg-[#F9E8EC] text-[#8E859E] hover:text-[#201538] transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -606,8 +606,8 @@ export default function UserRecords() {
 
             {/* Reassuring Clinical AI Summary */}
             {selectedRecordForDetail.scanResults?.aiSummary && (
-              <div className="p-4 rounded-2xl bg-[#FAF8FD] border border-[#F1EBF9] space-y-1.5">
-                <div className="flex items-center gap-2 text-xs font-bold text-[#7C3AED]">
+              <div className="p-4 rounded-2xl bg-[#FCF4F5] border border-[#F1EBF9] space-y-1.5">
+                <div className="flex items-center gap-2 text-xs font-bold text-[#936DA2]">
                   <Sparkles className="w-3.5 h-3.5" />
                   <span>Clinical Assessment</span>
                 </div>
@@ -671,7 +671,7 @@ export default function UserRecords() {
             <div className="pt-2 flex justify-end">
               <button
                 onClick={() => setSelectedRecordForDetail(null)}
-                className="px-6 py-2.5 bg-[#7C3AED] hover:bg-[#6D28D9] text-white text-xs font-bold rounded-full transition-all cursor-pointer"
+                className="px-6 py-2.5 bg-[#936DA2] hover:bg-[#835A92] text-white text-xs font-bold rounded-full transition-all cursor-pointer"
               >
                 Close Analysis
               </button>

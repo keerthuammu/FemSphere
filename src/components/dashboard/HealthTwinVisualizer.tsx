@@ -254,7 +254,7 @@ export default function HealthTwinVisualizer() {
             <button
               onClick={() => setViewMode('3d')}
               className={`px-2 py-1 rounded text-[10px] font-bold transition-all flex items-center gap-1 cursor-pointer ${
-                viewMode === '3d' ? 'bg-[#7C3AED] text-white shadow-2xs' : 'text-[#7a6f75] hover:text-[#3a3135]'
+                viewMode === '3d' ? 'bg-[#936DA2] text-white shadow-2xs' : 'text-[#7a6f75] hover:text-[#3a3135]'
               }`}
             >
               <Eye className="w-3 h-3" /> 3D Holo
@@ -262,7 +262,7 @@ export default function HealthTwinVisualizer() {
             <button
               onClick={() => setViewMode('2d')}
               className={`px-2 py-1 rounded text-[10px] font-bold transition-all flex items-center gap-1 cursor-pointer ${
-                viewMode === '2d' ? 'bg-[#7C3AED] text-white shadow-2xs' : 'text-[#7a6f75] hover:text-[#3a3135]'
+                viewMode === '2d' ? 'bg-[#936DA2] text-white shadow-2xs' : 'text-[#7a6f75] hover:text-[#3a3135]'
               }`}
             >
               <Layers className="w-3 h-3" /> 2D Map

@@ -19,7 +19,7 @@ export default function AdminDoctors() {
   const countSuspended = doctors.filter(d => d.status === 'Suspended' || d.status === 'Rejected').length;
 
   const doctorTypeFilters = [
-    { id: 'ALL' as const, label: 'All Doctors', count: doctors.length, icon: Stethoscope, iconColor: 'text-[#7C3AED]' },
+    { id: 'ALL' as const, label: 'All Doctors', count: doctors.length, icon: Stethoscope, iconColor: 'text-[#936DA2]' },
     { id: 'ACTIVE' as const, label: 'Active Doctors', count: countActive, icon: Check, iconColor: 'text-emerald-600' },
     { id: 'PENDING' as const, label: 'Pending Review', count: countPending, icon: Clock, iconColor: 'text-amber-600' },
     { id: 'SUSPENDED' as const, label: 'Suspended', count: countSuspended, icon: Ban, iconColor: 'text-rose-600' }
@@ -43,9 +43,9 @@ export default function AdminDoctors() {
   });
 
   return (
-    <div className="bg-white rounded-2xl p-5 md:p-6 border border-[#EDE9FE] shadow-xs space-y-4 font-inter">
+    <div className="bg-white rounded-2xl p-5 md:p-6 border border-[#F4DDE2] shadow-xs space-y-4 font-inter">
       {/* TOP HEADER & SEARCH */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-[#EDE9FE] pb-3.5">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-[#F4DDE2] pb-3.5">
         <div>
           <h3 className="font-bold text-xl text-[#3a3135]">Manage Doctors & Verification</h3>
           <p className="text-xs text-[#64595e]">Review medical practitioner licenses and set active privileges</p>
@@ -58,7 +58,7 @@ export default function AdminDoctors() {
               placeholder="Search doctors..." 
               value={searchDoctor}
               onChange={(e) => setSearchDoctor(e.target.value)}
-              className="pl-8 pr-3 py-1.5 rounded-xl border border-[#EDE9FE] text-xs focus:ring-2 focus:ring-[#7C3AED] outline-none"
+              className="pl-8 pr-3 py-1.5 rounded-xl border border-[#F4DDE2] text-xs focus:ring-2 focus:ring-[#936DA2] outline-none"
             />
           </div>
         </div>
@@ -73,8 +73,8 @@ export default function AdminDoctors() {
               onClick={() => setSelectedFilter(tab.id)}
               className={`flex items-center gap-2 px-3 py-1.5 rounded-xl font-bold text-xs transition-all cursor-pointer ${
                 selectedFilter === tab.id
-                  ? 'bg-[#7C3AED] text-white shadow-xs'
-                  : 'bg-[#FAF8FC] text-[#64595e] border border-[#EDE9FE] hover:bg-[#F5F3FF] hover:text-[#7C3AED]'
+                  ? 'bg-[#936DA2] text-white shadow-xs'
+                  : 'bg-[#FCF4F5] text-[#64595e] border border-[#F4DDE2] hover:bg-[#F9E8EC] hover:text-[#936DA2]'
               }`}
             >
               <tab.icon className={`w-3.5 h-3.5 ${selectedFilter === tab.id ? 'text-white' : tab.iconColor}`} />
@@ -82,7 +82,7 @@ export default function AdminDoctors() {
               <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                 selectedFilter === tab.id
                   ? 'bg-white/20 text-white'
-                  : 'bg-[#EDE9FE] text-[#7C3AED]'
+                  : 'bg-[#F4DDE2] text-[#936DA2]'
               }`}>
                 {tab.count}
               </span>
@@ -92,9 +92,9 @@ export default function AdminDoctors() {
       </div>
 
       {/* Doctors Table */}
-      <div className="overflow-x-auto rounded-xl border border-[#EDE9FE]">
+      <div className="overflow-x-auto rounded-xl border border-[#F4DDE2]">
         <table className="w-full text-left text-xs font-inter">
-          <thead className="bg-[#FAF8FC] text-[#3a3135] uppercase text-[11px] font-bold border-b border-[#EDE9FE]">
+          <thead className="bg-[#FCF4F5] text-[#3a3135] uppercase text-[11px] font-bold border-b border-[#F4DDE2]">
             <tr>
               <th className="p-3">Doctor ID</th>
               <th className="p-3">Name</th>
@@ -104,9 +104,9 @@ export default function AdminDoctors() {
               <th className="p-3 text-right">Verification Action</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#EDE9FE]">
+          <tbody className="divide-y divide-[#F4DDE2]">
             {filteredDoctors.map(d => (
-              <tr key={d.id} className="hover:bg-[#FAF8FC] transition-colors">
+              <tr key={d.id} className="hover:bg-[#FCF4F5] transition-colors">
                 <td className="p-3 font-bold text-[#F472B6]">#{d.id}</td>
                 <td className="p-3">
                   <p className="font-bold text-[#3a3135]">{d.name}</p>
@@ -114,7 +114,7 @@ export default function AdminDoctors() {
                 </td>
                 <td className="p-3 text-[#64595e]">{d.spec}</td>
                 <td className="p-3">
-                  <span className="font-mono text-[11px] text-[#4A3B42] bg-[#FAF8FC] px-2 py-0.5 rounded border border-[#EDE9FE]">
+                  <span className="font-mono text-[11px] text-[#4A3B42] bg-[#FCF4F5] px-2 py-0.5 rounded border border-[#F4DDE2]">
                     {d.license}
                   </span>
                 </td>
@@ -146,7 +146,7 @@ export default function AdminDoctors() {
                   ) : d.status === 'Active' ? (
                     <button 
                       onClick={() => suspendDoctor(d.id)} 
-                      className="px-2.5 py-1 border border-[#EDE9FE] text-rose-600 hover:bg-rose-50 rounded-lg font-bold text-[11px] transition-colors cursor-pointer inline-flex items-center gap-1"
+                      className="px-2.5 py-1 border border-[#F4DDE2] text-rose-600 hover:bg-rose-50 rounded-lg font-bold text-[11px] transition-colors cursor-pointer inline-flex items-center gap-1"
                     >
                       <Ban className="w-3.5 h-3.5" /> Suspend
                     </button>
@@ -173,7 +173,7 @@ export default function AdminDoctors() {
       </div>
 
       {/* SUMMARY BAR */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-3.5 bg-[#FAF8FC] rounded-xl border border-[#EDE9FE] text-xs font-inter">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-3.5 bg-[#FCF4F5] rounded-xl border border-[#F4DDE2] text-xs font-inter">
         <div className="flex items-center gap-2">
           <span className="font-bold text-[#3a3135]">
             Showing {filteredDoctors.length} of {doctors.length} doctor{doctors.length === 1 ? '' : 's'}

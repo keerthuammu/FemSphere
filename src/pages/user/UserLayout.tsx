@@ -110,7 +110,6 @@ export default function UserLayout() {
     { name: 'Dashboard', path: '/dashboard', icon: Activity, end: true },
     { name: 'Medical Records', path: '/dashboard/records', icon: FileText },
     { name: 'Health Tracker', path: '/dashboard/tracker', icon: Heart, iconColor: 'text-[#F472B6]' },
-    { name: 'Connect Devices', path: '/dashboard/devices', icon: Watch, iconColor: 'text-[#7C3AED]' },
     ...(isReproductiveAgeUser ? [
       { name: 'Period Tracker', path: '/dashboard/period-tracker', icon: Droplet, iconColor: 'text-rose-500' }
     ] : []),
@@ -118,20 +117,21 @@ export default function UserLayout() {
     { name: 'Health Reports', path: '/dashboard/reports', icon: Printer, iconColor: 'text-[#14B8A6]' },
     { name: 'Prescribed Fitness', path: '/dashboard/fitness', icon: Activity, iconColor: 'text-emerald-600' },
     { name: 'Partner Mode', path: '/dashboard/partner', icon: Heart, iconColor: 'text-rose-500' },
-    { name: 'Notifications', path: '/dashboard/notifications', icon: Bell, badge: unreadCount > 0 ? unreadCount : undefined },
   ];
 
   return (
-    <div className="min-h-screen bg-[#FAF8FD] flex font-sans text-[#201538]">
+    <div className="min-h-screen bg-[#FCF4F5] flex font-sans text-[#201538]">
       
       {/* --- SIDEBAR --- Elegant minimal lavender theme matching reference UI */}
-      <aside className="hidden md:flex flex-col justify-between fixed top-0 left-0 h-screen w-64 z-40 bg-[#FAF8FD] border-r border-[#F0EAF8] p-5 overflow-y-auto print:hidden">
+      <aside className="hidden md:flex flex-col justify-between fixed top-0 left-0 h-screen w-64 z-40 bg-[#FCF4F5] border-r border-[#F0EAF8] p-5 overflow-y-auto print:hidden">
         <div className="space-y-6">
           {/* Brand Logo & Name */}
           <Link to="/" className="flex items-center gap-3 px-1 py-1">
-            <div className="w-10 h-10 rounded-2xl bg-[#201538] text-white flex items-center justify-center font-bold text-lg shadow-sm">
-              <Sparkles className="w-5 h-5 text-[#C4B5FD]" />
-            </div>
+            <img
+              src="/femsphere_logo.png"
+              alt="FemSphere Logo"
+              className="w-10 h-10 rounded-full object-contain shadow-xs"
+            />
             <div>
               <span className="font-sans text-xl font-extrabold tracking-tight text-[#201538] block leading-none">FemSphere</span>
               <span className="text-[10px] uppercase font-bold text-[#8B5CF6] tracking-widest block mt-0.5">Health Portal</span>
@@ -171,13 +171,13 @@ export default function UserLayout() {
             {/* Connect Device in nav */}
             <button 
               onClick={() => setShowConnectDeviceModal(true)} 
-              className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl font-bold text-xs transition-all cursor-pointer bg-white/70 hover:bg-white text-[#7C3AED] hover:text-[#6D28D9] border border-[#E9D5FF] shadow-2xs hover:shadow-xs group"
+              className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl font-bold text-xs transition-all cursor-pointer bg-white/70 hover:bg-white text-[#936DA2] hover:text-[#835A92] border border-[#E9D5FF] shadow-2xs hover:shadow-xs group"
             >
               <div className="flex items-center gap-3">
-                <Watch className="w-4 h-4 shrink-0 text-[#7C3AED] group-hover:scale-110 transition-transform" />
+                <Watch className="w-4 h-4 shrink-0 text-[#936DA2] group-hover:scale-110 transition-transform" />
                 <span className="truncate">Connect Device</span>
               </div>
-              <span className="text-[10px] bg-[#EDE9FE] text-[#7C3AED] px-2 py-0.5 rounded-full font-bold">
+              <span className="text-[10px] bg-[#F4DDE2] text-[#936DA2] px-2 py-0.5 rounded-full font-bold">
                 {wearableDevices.length > 0 ? `${wearableDevices.length} Active` : '+ Add'}
               </span>
             </button>
@@ -201,7 +201,7 @@ export default function UserLayout() {
               {/* Minimal celebration / wellness outline illustration */}
               <div className="relative w-12 h-12 flex items-center justify-center">
                 <svg viewBox="0 0 48 48" className="w-12 h-12 text-[#8B5CF6]" fill="none">
-                  <circle cx="24" cy="20" r="10" stroke="#201538" strokeWidth="2" fill="#F3EEFC" />
+                  <circle cx="24" cy="20" r="10" stroke="#201538" strokeWidth="2" fill="#F9E8EC" />
                   <path d="M19 19C19 19 21 21 24 21C27 21 29 19 29 19" stroke="#201538" strokeWidth="1.5" strokeLinecap="round" />
                   <circle cx="21" cy="17" r="1.5" fill="#201538" />
                   <circle cx="27" cy="17" r="1.5" fill="#201538" />
@@ -210,14 +210,14 @@ export default function UserLayout() {
                   <circle cx="10" cy="12" r="1.5" fill="#FB7185" />
                   <path d="M37 12L39 14M39 12L37 14" stroke="#8B5CF6" strokeWidth="1.5" strokeLinecap="round" />
                   <path d="M8 26L10 28" stroke="#FB7185" strokeWidth="1.5" strokeLinecap="round" />
-                  <circle cx="40" cy="24" r="1.5" fill="#7C3AED" />
+                  <circle cx="40" cy="24" r="1.5" fill="#936DA2" />
                 </svg>
               </div>
 
               {/* Circular dark arrow button */}
               <button
                 onClick={() => navigate('/dashboard/reports')}
-                className="w-8 h-8 rounded-full bg-[#201538] hover:bg-[#7C3AED] text-white flex items-center justify-center shadow-xs transition-all hover:scale-105 cursor-pointer"
+                className="w-8 h-8 rounded-full bg-[#201538] hover:bg-[#936DA2] text-white flex items-center justify-center shadow-xs transition-all hover:scale-105 cursor-pointer"
                 title="Upgrade to Premium"
               >
                 <ChevronRight className="w-4 h-4" />
@@ -230,7 +230,7 @@ export default function UserLayout() {
             <div className="flex items-center gap-3">
               <div 
                 className="w-9 h-9 rounded-full text-white flex items-center justify-center font-bold text-xs shadow-xs overflow-hidden shrink-0 border border-white"
-                style={{ backgroundColor: userProfile.avatarBg || '#7C3AED' }}
+                style={{ backgroundColor: userProfile.avatarBg || '#936DA2' }}
               >
                 {userProfile.avatarUrl ? (
                   <img src={userProfile.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
@@ -274,7 +274,7 @@ export default function UserLayout() {
             <input
               type="text"
               placeholder="Search for class, task, etc..."
-              className="w-full pl-10 pr-4 py-2.5 rounded-full bg-[#FAF8FD] border border-[#EDE8F5] text-xs font-medium text-[#201538] placeholder-[#9E95AD] focus:outline-none focus:ring-2 focus:ring-[#7C3AED]/20 focus:border-[#7C3AED] focus:bg-white transition-all shadow-2xs"
+              className="w-full pl-10 pr-4 py-2.5 rounded-full bg-[#FCF4F5] border border-[#EDE8F5] text-xs font-medium text-[#201538] placeholder-[#9E95AD] focus:outline-none focus:ring-2 focus:ring-[#936DA2]/20 focus:border-[#936DA2] focus:bg-white transition-all shadow-2xs"
             />
           </div>
           
@@ -287,52 +287,25 @@ export default function UserLayout() {
               onSelectStage={handleSelectStage}
             />
 
-            {/* Connect Device Button in Navigation Bar */}
-            <button
-              onClick={() => setShowConnectDeviceModal(true)}
-              className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-full bg-white hover:bg-[#FAF8FD] border border-[#EDE8F5] hover:border-[#DDD6FE] text-[#201538] text-xs font-bold transition-all shadow-2xs cursor-pointer group"
-              title="Connect smartwatch or health data source"
-            >
-              <Watch className="w-3.5 h-3.5 text-[#7C3AED] group-hover:rotate-12 transition-transform" />
-              <span className="hidden sm:inline">Connect Device</span>
-              {wearableDevices.length > 0 ? (
-                <span className="flex items-center gap-1 text-[10px] text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded-full font-bold">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                  {wearableDevices.length} Connected
-                </span>
-              ) : null}
-            </button>
-
-            {/* Notification Bell matching reference UI */}
+            {/* Notification Bell */}
             <Link
               to="/dashboard/notifications"
-              className="relative p-2.5 rounded-full bg-white text-[#6E6480] hover:text-[#7C3AED] hover:bg-[#F3EEFC] transition-colors border border-[#EDE8F5] cursor-pointer shadow-2xs"
+              className="relative p-2.5 rounded-full bg-white text-[#6E6480] hover:text-[#936DA2] hover:bg-[#F9E8EC] transition-colors border border-[#EDE8F5] cursor-pointer shadow-2xs"
               title="Notifications"
             >
               <Bell className="w-4 h-4" />
-              <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#FB7185] text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white shadow-2xs">
-                {unreadCount > 0 ? unreadCount : '2'}
-              </span>
-            </Link>
-
-            {/* Profile Avatar Circle matching top right in reference UI */}
-            <Link
-              to="/dashboard/profile"
-              className="w-9 h-9 rounded-full overflow-hidden border border-[#EDE8F5] shadow-2xs flex items-center justify-center cursor-pointer hover:ring-2 hover:ring-[#7C3AED]/30 transition-all shrink-0"
-              style={{ backgroundColor: userProfile.avatarBg || '#7C3AED' }}
-              title="Profile"
-            >
-              {userProfile.avatarUrl ? (
-                <img src={userProfile.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
-              ) : (
-                <span className="text-white text-xs font-bold">{userProfile.fullName ? userProfile.fullName.charAt(0).toUpperCase() : 'U'}</span>
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#FB7185] text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white shadow-2xs">
+                  {unreadCount}
+                </span>
               )}
             </Link>
+
           </div>
         </header>
 
         {/* Mobile Navigation Strip */}
-        <div className="md:hidden flex overflow-x-auto gap-2 p-3 bg-[#FAF8FD] border-b border-[#EDE8F5]">
+        <div className="md:hidden flex overflow-x-auto gap-2 p-3 bg-[#FCF4F5] border-b border-[#EDE8F5]">
           {navItems.map((item) => (
             <NavLink
               key={item.path}
@@ -385,14 +358,14 @@ export default function UserLayout() {
           <div className="bg-white rounded-[28px] p-6 sm:p-7 max-w-md w-full border border-[#F1EBF9] shadow-2xl space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-[#F1EBF9]">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-xl bg-[#F3EEFC] text-[#7C3AED] flex items-center justify-center">
+                <div className="w-8 h-8 rounded-xl bg-[#F9E8EC] text-[#936DA2] flex items-center justify-center">
                   <Upload className="w-4 h-4" />
                 </div>
                 <h3 className="font-extrabold text-base text-[#201538]">Upload Medical Report</h3>
               </div>
               <button 
                 onClick={() => setShowUploadModal(false)} 
-                className="p-1 rounded-full text-[#8E859E] hover:text-[#201538] hover:bg-[#F3EEFC] transition-colors cursor-pointer"
+                className="p-1 rounded-full text-[#8E859E] hover:text-[#201538] hover:bg-[#F9E8EC] transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -422,7 +395,7 @@ export default function UserLayout() {
                       title: prev.title.trim() ? prev.title : cleanName
                     }));
                   }}
-                  className="w-full text-xs text-[#8E859E] file:mr-3 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-[#F3EEFC] file:text-[#7C3AED] file:cursor-pointer p-2 rounded-2xl border border-[#F1EBF9] bg-[#FAF8FD]"
+                  className="w-full text-xs text-[#8E859E] file:mr-3 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-[#F9E8EC] file:text-[#936DA2] file:cursor-pointer p-2 rounded-2xl border border-[#F1EBF9] bg-[#FCF4F5]"
                   required
                 />
               </div>
@@ -434,7 +407,7 @@ export default function UserLayout() {
                   placeholder="e.g. Complete Blood Count (CBC) Panel" 
                   value={newRecord.title} 
                   onChange={(e) => setNewRecord({...newRecord, title: e.target.value})} 
-                  className="w-full p-2.5 rounded-2xl border border-[#F1EBF9] bg-[#FAF8FD] focus:bg-white focus:outline-none focus:border-[#7C3AED] text-xs font-medium text-[#201538]" 
+                  className="w-full p-2.5 rounded-2xl border border-[#F1EBF9] bg-[#FCF4F5] focus:bg-white focus:outline-none focus:border-[#936DA2] text-xs font-medium text-[#201538]" 
                   required 
                 />
               </div>
@@ -444,7 +417,7 @@ export default function UserLayout() {
                 <select 
                   value={newRecord.category} 
                   onChange={(e) => setNewRecord({...newRecord, category: e.target.value})} 
-                  className="w-full p-2.5 rounded-2xl border border-[#F1EBF9] bg-[#FAF8FD] focus:bg-white focus:outline-none focus:border-[#7C3AED] font-semibold text-xs text-[#201538]"
+                  className="w-full p-2.5 rounded-2xl border border-[#F1EBF9] bg-[#FCF4F5] focus:bg-white focus:outline-none focus:border-[#936DA2] font-semibold text-xs text-[#201538]"
                 >
                   <option value="Lab Results">Lab Results</option>
                   <option value="Blood Work">Blood Work</option>
@@ -462,21 +435,21 @@ export default function UserLayout() {
                   placeholder="e.g. Diagnostic lab analysis from Clinic" 
                   value={newRecord.description} 
                   onChange={(e) => setNewRecord({...newRecord, description: e.target.value})} 
-                  className="w-full p-2.5 rounded-2xl border border-[#F1EBF9] bg-[#FAF8FD] focus:bg-white focus:outline-none focus:border-[#7C3AED] text-xs font-medium text-[#201538]" 
+                  className="w-full p-2.5 rounded-2xl border border-[#F1EBF9] bg-[#FCF4F5] focus:bg-white focus:outline-none focus:border-[#936DA2] text-xs font-medium text-[#201538]" 
                 />
               </div>
 
               <div className="flex gap-2.5 pt-2">
                 <button 
                   type="submit" 
-                  className="flex-1 py-2.5 bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-bold rounded-full cursor-pointer shadow-xs transition-all text-xs"
+                  className="flex-1 py-2.5 bg-[#936DA2] hover:bg-[#835A92] text-white font-bold rounded-full cursor-pointer shadow-xs transition-all text-xs"
                 >
                   Upload & Scan PDF
                 </button>
                 <button 
                   type="button" 
                   onClick={() => setShowUploadModal(false)} 
-                  className="py-2.5 px-5 border border-[#F1EBF9] bg-white hover:bg-[#FAF8FD] text-[#6E6480] font-bold rounded-full cursor-pointer transition-colors text-xs"
+                  className="py-2.5 px-5 border border-[#F1EBF9] bg-white hover:bg-[#FCF4F5] text-[#6E6480] font-bold rounded-full cursor-pointer transition-colors text-xs"
                 >
                   Cancel
                 </button>
@@ -489,12 +462,12 @@ export default function UserLayout() {
       {/* 4. Book Appointment Modal - Doctor Availability & Capacity Booking Hub */}
       {showBookModal && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 z-50 font-inter overflow-y-auto">
-          <div className="bg-white rounded-3xl p-5 sm:p-6 max-w-4xl w-full border border-[#EDE9FE] shadow-2xl space-y-4 my-auto max-h-[92vh] flex flex-col">
+          <div className="bg-white rounded-3xl p-5 sm:p-6 max-w-4xl w-full border border-[#F4DDE2] shadow-2xl space-y-4 my-auto max-h-[92vh] flex flex-col">
             
             {/* Modal Header */}
-            <div className="flex items-center justify-between pb-3 border-b border-[#EDE9FE] shrink-0">
+            <div className="flex items-center justify-between pb-3 border-b border-[#F4DDE2] shrink-0">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-purple-100 text-[#7C3AED] flex items-center justify-center font-bold">
+                <div className="w-9 h-9 rounded-xl bg-purple-100 text-[#936DA2] flex items-center justify-center font-bold">
                   <Calendar className="w-5 h-5" />
                 </div>
                 <div>
@@ -522,13 +495,13 @@ export default function UserLayout() {
             )}
 
             {/* SEARCH & FILTER BAR */}
-            <div className="p-4 rounded-2xl bg-[#FAF8FC] border border-[#EDE9FE] space-y-3 shrink-0 text-xs">
+            <div className="p-4 rounded-2xl bg-[#FCF4F5] border border-[#F4DDE2] space-y-3 shrink-0 text-xs">
               <div className="flex items-center justify-between">
                 <span className="font-bold text-[#3a3135] uppercase tracking-wider text-[11px] flex items-center gap-1.5">
-                  <Search className="w-3.5 h-3.5 text-[#7C3AED]" /> Filter Available Shifts & Accommodations
+                  <Search className="w-3.5 h-3.5 text-[#936DA2]" /> Filter Available Shifts & Accommodations
                 </span>
                 {availableSearchFilters.date && (
-                  <span className="text-[11px] font-bold text-[#7C3AED] bg-purple-100 px-2.5 py-0.5 rounded-full">
+                  <span className="text-[11px] font-bold text-[#936DA2] bg-purple-100 px-2.5 py-0.5 rounded-full">
                     {new Date(availableSearchFilters.date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' })}
                   </span>
                 )}
@@ -548,7 +521,7 @@ export default function UserLayout() {
                       setNewAppointment(prev => ({ ...prev, date: newDate }));
                       fetchAvailableDoctors({ date: newDate });
                     }}
-                    className="w-full p-2 rounded-xl border border-[#EDE9FE] bg-white font-medium focus:border-[#7C3AED] outline-none"
+                    className="w-full p-2 rounded-xl border border-[#F4DDE2] bg-white font-medium focus:border-[#936DA2] outline-none"
                     required
                   />
                 </div>
@@ -567,7 +540,7 @@ export default function UserLayout() {
                         setAvailableSearchFilters(prev => ({ ...prev, place: newPlace }));
                         fetchAvailableDoctors({ place: newPlace });
                       }}
-                      className="w-full pl-8 pr-2.5 py-2 rounded-xl border border-[#EDE9FE] bg-white font-medium focus:border-[#7C3AED] outline-none"
+                      className="w-full pl-8 pr-2.5 py-2 rounded-xl border border-[#F4DDE2] bg-white font-medium focus:border-[#936DA2] outline-none"
                     />
                   </div>
                 </div>
@@ -582,7 +555,7 @@ export default function UserLayout() {
                       setAvailableSearchFilters(prev => ({ ...prev, time: newTime }));
                       fetchAvailableDoctors({ time: newTime });
                     }}
-                    className="w-full p-2 rounded-xl border border-[#EDE9FE] bg-white font-medium focus:border-[#7C3AED] outline-none"
+                    className="w-full p-2 rounded-xl border border-[#F4DDE2] bg-white font-medium focus:border-[#936DA2] outline-none"
                   >
                     <option value="">All Shift Times</option>
                     <option value="09:00 AM">Morning (08:00 AM - 12:00 PM)</option>
@@ -601,7 +574,7 @@ export default function UserLayout() {
                       setAvailableSearchFilters(prev => ({ ...prev, specialty: newSpec }));
                       fetchAvailableDoctors({ specialty: newSpec });
                     }}
-                    className="w-full p-2 rounded-xl border border-[#EDE9FE] bg-white font-medium focus:border-[#7C3AED] outline-none"
+                    className="w-full p-2 rounded-xl border border-[#F4DDE2] bg-white font-medium focus:border-[#936DA2] outline-none"
                   >
                     <option value="">All Specialties</option>
                     <option value="Obstetrics & Gynecology">Obstetrics & Gynecology</option>
@@ -618,12 +591,12 @@ export default function UserLayout() {
             <div className="flex-1 overflow-y-auto space-y-4 pr-1">
               {isLoadingAvailableDoctors ? (
                 <div className="py-12 text-center space-y-3">
-                  <div className="w-10 h-10 border-3 border-[#7C3AED] border-t-transparent rounded-full animate-spin mx-auto"></div>
+                  <div className="w-10 h-10 border-3 border-[#936DA2] border-t-transparent rounded-full animate-spin mx-auto"></div>
                   <p className="text-xs text-[#7a6f75] font-medium">Checking live doctor shift schedules & accommodation capacity...</p>
                 </div>
               ) : availableDoctors.length === 0 ? (
-                <div className="py-12 px-4 text-center rounded-2xl border border-dashed border-[#EDE9FE] space-y-3 bg-[#FAF8FC]">
-                  <div className="w-12 h-12 rounded-2xl bg-purple-50 text-[#7C3AED] flex items-center justify-center mx-auto">
+                <div className="py-12 px-4 text-center rounded-2xl border border-dashed border-[#F4DDE2] space-y-3 bg-[#FCF4F5]">
+                  <div className="w-12 h-12 rounded-2xl bg-purple-50 text-[#936DA2] flex items-center justify-center mx-auto">
                     <Stethoscope className="w-6 h-6" />
                   </div>
                   <h4 className="font-bold text-sm text-[#3a3135]">No Available Doctors Found for Chosen Criteria</h4>
@@ -642,7 +615,7 @@ export default function UserLayout() {
                       setAvailableSearchFilters(resetFilters);
                       fetchAvailableDoctors(resetFilters);
                     }}
-                    className="px-4 py-2 bg-[#7C3AED] text-white text-xs font-bold rounded-xl cursor-pointer hover:bg-[#6D28D9] transition-all"
+                    className="px-4 py-2 bg-[#936DA2] text-white text-xs font-bold rounded-xl cursor-pointer hover:bg-[#835A92] transition-all"
                   >
                     Reset Search Filters
                   </button>
@@ -650,18 +623,18 @@ export default function UserLayout() {
               ) : (
                 <div className="space-y-4">
                   {availableDoctors.map((doc) => (
-                    <div key={doc.id} className="p-4 sm:p-5 rounded-2xl border border-[#EDE9FE] bg-white shadow-2xs hover:shadow-xs transition-all space-y-3">
+                    <div key={doc.id} className="p-4 sm:p-5 rounded-2xl border border-[#F4DDE2] bg-white shadow-2xs hover:shadow-xs transition-all space-y-3">
                       
                       {/* Doctor Info Row */}
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-100 pb-3">
                         <div className="flex items-center gap-3">
-                          <div className="w-11 h-11 rounded-2xl bg-[#EDE9FE] text-[#7C3AED] flex items-center justify-center font-bold text-base shrink-0 shadow-2xs">
+                          <div className="w-11 h-11 rounded-2xl bg-[#F4DDE2] text-[#936DA2] flex items-center justify-center font-bold text-base shrink-0 shadow-2xs">
                             {doc.name ? doc.name.replace('Dr. ', '').charAt(0) : 'D'}
                           </div>
                           <div>
                             <div className="flex items-center gap-2">
                               <h4 className="font-bold text-sm text-[#3a3135]">{doc.name}</h4>
-                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-50 text-[#7C3AED] border border-purple-200">
+                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-50 text-[#936DA2] border border-purple-200">
                                 {doc.specialization}
                               </span>
                             </div>
@@ -675,7 +648,7 @@ export default function UserLayout() {
                         {doc.teleconsultFee && (
                           <div className="text-right sm:text-right shrink-0">
                             <span className="text-[10px] text-gray-400 font-bold block uppercase">Consultation Fee</span>
-                            <span className="text-sm font-bold text-[#7C3AED]">${doc.teleconsultFee}</span>
+                            <span className="text-sm font-bold text-[#936DA2]">${doc.teleconsultFee}</span>
                           </div>
                         )}
                       </div>
@@ -693,7 +666,7 @@ export default function UserLayout() {
                               className={`p-3.5 rounded-xl border transition-all text-xs space-y-2.5 ${
                                 shift.isFull 
                                   ? 'bg-red-50/40 border-red-200 opacity-90' 
-                                  : 'bg-[#FAF8FC] border-[#EDE9FE] hover:border-purple-300'
+                                  : 'bg-[#FCF4F5] border-[#F4DDE2] hover:border-purple-300'
                               }`}
                             >
                               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
@@ -701,7 +674,7 @@ export default function UserLayout() {
                                   <span className="font-bold text-[#3a3135]">{shift.type || 'Clinical Shift'}</span>
                                   <span className="text-gray-400">•</span>
                                   <span className="font-semibold text-gray-600 flex items-center gap-1">
-                                    <Clock className="w-3.5 h-3.5 text-[#7C3AED]" /> {shift.startTime} - {shift.endTime}
+                                    <Clock className="w-3.5 h-3.5 text-[#936DA2]" /> {shift.startTime} - {shift.endTime}
                                   </span>
                                 </div>
 
@@ -777,11 +750,11 @@ export default function UserLayout() {
                                           }}
                                           className={`px-3 py-1.5 rounded-xl font-bold text-xs transition-all cursor-pointer flex items-center gap-1 ${
                                             isSelected
-                                              ? 'bg-[#7C3AED] text-white shadow-sm ring-2 ring-purple-300'
-                                              : 'bg-white hover:bg-purple-50 text-gray-700 border border-[#EDE9FE]'
+                                              ? 'bg-[#936DA2] text-white shadow-sm ring-2 ring-purple-300'
+                                              : 'bg-white hover:bg-purple-50 text-gray-700 border border-[#F4DDE2]'
                                           }`}
                                         >
-                                          <Clock className={`w-3 h-3 ${isSelected ? 'text-white' : 'text-[#7C3AED]'}`} />
+                                          <Clock className={`w-3 h-3 ${isSelected ? 'text-white' : 'text-[#936DA2]'}`} />
                                           <span>{slotTime}</span>
                                         </button>
                                       );
@@ -807,8 +780,8 @@ export default function UserLayout() {
                   <span className="font-bold text-[#3a3135] text-xs">Selected Consultation Slot:</span>
                   {newAppointment.doctor && newAppointment.time ? (
                     <div className="flex items-center gap-2 mt-0.5">
-                      <span className="font-bold text-[#7C3AED] text-sm">{newAppointment.doctor}</span>
-                      <span className="px-2 py-0.5 rounded-md bg-white border border-purple-200 text-[#7C3AED] font-bold">
+                      <span className="font-bold text-[#936DA2] text-sm">{newAppointment.doctor}</span>
+                      <span className="px-2 py-0.5 rounded-md bg-white border border-purple-200 text-[#936DA2] font-bold">
                         {newAppointment.date} at {newAppointment.time}
                       </span>
                     </div>
@@ -837,7 +810,7 @@ export default function UserLayout() {
                   placeholder="e.g. PCOS follow-up, hormonal bloodwork review & exercise prescription"
                   value={newAppointment.reason}
                   onChange={(e) => setNewAppointment({ ...newAppointment, reason: e.target.value })}
-                  className="w-full p-2.5 rounded-xl border border-purple-200 bg-white text-xs outline-none focus:border-[#7C3AED]"
+                  className="w-full p-2.5 rounded-xl border border-purple-200 bg-white text-xs outline-none focus:border-[#936DA2]"
                   required
                 />
               </div>
@@ -853,7 +826,7 @@ export default function UserLayout() {
                 <button 
                   type="submit" 
                   disabled={!newAppointment.doctorId || !newAppointment.time}
-                  className="py-2.5 px-6 bg-[#7C3AED] hover:bg-[#6D28D9] disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold rounded-xl cursor-pointer shadow-sm transition-all flex items-center gap-1.5"
+                  className="py-2.5 px-6 bg-[#936DA2] hover:bg-[#835A92] disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold rounded-xl cursor-pointer shadow-sm transition-all flex items-center gap-1.5"
                 >
                   <ShieldCheck className="w-4 h-4" />
                   <span>Confirm & Lock Accommodation Slot</span>
@@ -869,9 +842,9 @@ export default function UserLayout() {
       {/* 5. AI Document Scanning Progress Modal */}
       {isScanningDoc && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 font-inter">
-          <div className="bg-white rounded-3xl p-8 max-w-md w-full border border-[#EDE9FE] shadow-2xl space-y-6 text-center animate-in zoom-in-95 duration-200">
-            <div className="w-16 h-16 rounded-3xl bg-[#F5F3FF] border border-[#EDE9FE] mx-auto flex items-center justify-center text-[#7C3AED]">
-              <Scan className="w-8 h-8 text-[#7C3AED] animate-pulse" />
+          <div className="bg-white rounded-3xl p-8 max-w-md w-full border border-[#F4DDE2] shadow-2xl space-y-6 text-center animate-in zoom-in-95 duration-200">
+            <div className="w-16 h-16 rounded-3xl bg-[#F9E8EC] border border-[#F4DDE2] mx-auto flex items-center justify-center text-[#936DA2]">
+              <Scan className="w-8 h-8 text-[#936DA2] animate-pulse" />
             </div>
 
             <div className="space-y-2">
@@ -883,9 +856,9 @@ export default function UserLayout() {
             </div>
 
             <div className="space-y-2">
-              <div className="w-full h-3 rounded-full bg-[#FAF8FC] border border-[#EDE9FE] overflow-hidden">
+              <div className="w-full h-3 rounded-full bg-[#FCF4F5] border border-[#F4DDE2] overflow-hidden">
                 <div 
-                  className="h-full bg-gradient-to-r from-[#7C3AED] to-purple-500 rounded-full transition-all duration-300"
+                  className="h-full bg-gradient-to-r from-[#936DA2] to-purple-500 rounded-full transition-all duration-300"
                   style={{ width: `${scanningProgress}%` }}
                 ></div>
               </div>
@@ -901,11 +874,11 @@ export default function UserLayout() {
       {/* 6. Scanned Medical Report Result Modal */}
       {viewingScanRecordModal && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 z-50 font-inter overflow-y-auto">
-          <div className="bg-white rounded-3xl p-6 md:p-8 max-w-2xl w-full border border-[#EDE9FE] shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto my-auto">
-            <div className="flex items-center justify-between pb-4 border-b border-[#EDE9FE]">
+          <div className="bg-white rounded-3xl p-6 md:p-8 max-w-2xl w-full border border-[#F4DDE2] shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto my-auto">
+            <div className="flex items-center justify-between pb-4 border-b border-[#F4DDE2]">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-[#F5F3FF] border border-[#EDE9FE] flex items-center justify-center text-[#7C3AED]">
-                  <FileCheck className="w-5 h-5 text-[#7C3AED]" />
+                <div className="w-10 h-10 rounded-2xl bg-[#F9E8EC] border border-[#F4DDE2] flex items-center justify-center text-[#936DA2]">
+                  <FileCheck className="w-5 h-5 text-[#936DA2]" />
                 </div>
                 <div>
                   <h3 className="font-bold text-lg text-[#3a3135]">{viewingScanRecordModal.title}</h3>
@@ -921,15 +894,15 @@ export default function UserLayout() {
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
-              <div className="p-3 rounded-xl bg-[#FAF8FC] border border-[#EDE9FE]">
+              <div className="p-3 rounded-xl bg-[#FCF4F5] border border-[#F4DDE2]">
                 <span className="text-[10px] font-bold text-[#7a6f75] uppercase block">Ordering Doctor</span>
                 <span className="font-bold text-[#3a3135]">{viewingScanRecordModal.scanResults?.doctorName || 'Dr. Sarah Jenkins, MD'}</span>
               </div>
-              <div className="p-3 rounded-xl bg-[#FAF8FC] border border-[#EDE9FE]">
+              <div className="p-3 rounded-xl bg-[#FCF4F5] border border-[#F4DDE2]">
                 <span className="text-[10px] font-bold text-[#7a6f75] uppercase block">Diagnostic Lab</span>
                 <span className="font-bold text-[#3a3135]">{viewingScanRecordModal.scanResults?.labName || 'Quest Diagnostics'}</span>
               </div>
-              <div className="p-3 rounded-xl bg-[#FAF8FC] border border-[#EDE9FE] col-span-2 sm:col-span-1">
+              <div className="p-3 rounded-xl bg-[#FCF4F5] border border-[#F4DDE2] col-span-2 sm:col-span-1">
                 <span className="text-[10px] font-bold text-[#7a6f75] uppercase block">Risk Level</span>
                 <span className="font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full text-[10px] inline-block mt-0.5">
                   {viewingScanRecordModal.scanResults?.riskLevel || 'Optimal Health'}
@@ -937,9 +910,9 @@ export default function UserLayout() {
               </div>
             </div>
 
-            <div className="p-4 rounded-2xl bg-[#F5F3FF] border border-[#EDE9FE] text-xs space-y-1">
-              <span className="font-bold text-[#7C3AED] uppercase tracking-wider text-[10px] flex items-center gap-1">
-                <Sparkles className="w-3.5 h-3.5 text-[#7C3AED]" /> AI Diagnostic Summary
+            <div className="p-4 rounded-2xl bg-[#F9E8EC] border border-[#F4DDE2] text-xs space-y-1">
+              <span className="font-bold text-[#936DA2] uppercase tracking-wider text-[10px] flex items-center gap-1">
+                <Sparkles className="w-3.5 h-3.5 text-[#936DA2]" /> AI Diagnostic Summary
               </span>
               <p className="text-[#3a3135] leading-relaxed">
                 {viewingScanRecordModal.scanResults?.aiSummary}
@@ -949,9 +922,9 @@ export default function UserLayout() {
             {viewingScanRecordModal.scanResults?.keyBiomarkers && (
               <div className="space-y-2 text-xs">
                 <h5 className="font-bold text-[#3a3135]">Extracted Biomarkers & Test Results</h5>
-                <div className="overflow-x-auto rounded-xl border border-[#EDE9FE]">
+                <div className="overflow-x-auto rounded-xl border border-[#F4DDE2]">
                   <table className="w-full text-left text-xs">
-                    <thead className="bg-[#FAF8FC] border-b border-[#EDE9FE] text-[#7a6f75] font-bold text-[10px] uppercase">
+                    <thead className="bg-[#FCF4F5] border-b border-[#F4DDE2] text-[#7a6f75] font-bold text-[10px] uppercase">
                       <tr>
                         <th className="p-2.5">Biomarker</th>
                         <th className="p-2.5">Value</th>
@@ -959,7 +932,7 @@ export default function UserLayout() {
                         <th className="p-2.5">Status</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-[#EDE9FE]">
+                    <tbody className="divide-y divide-[#F4DDE2]">
                       {viewingScanRecordModal.scanResults.keyBiomarkers.map((b: any, idx: number) => (
                         <tr key={idx}>
                           <td className="p-2.5 font-bold text-[#3a3135]">{b.name}</td>
@@ -980,15 +953,15 @@ export default function UserLayout() {
               </div>
             )}
 
-            <div className="p-3.5 rounded-xl bg-[#FAF8FC] border border-[#EDE9FE] text-xs">
+            <div className="p-3.5 rounded-xl bg-[#FCF4F5] border border-[#F4DDE2] text-xs">
               <span className="font-bold text-[#64595e] uppercase block text-[10px] mb-1">Clinical Recommendations</span>
               <p className="text-[#3a3135]">{viewingScanRecordModal.scanResults?.recommendations}</p>
             </div>
 
-            <div className="flex justify-end gap-2 pt-2 border-t border-[#EDE9FE]">
+            <div className="flex justify-end gap-2 pt-2 border-t border-[#F4DDE2]">
               <button 
                 onClick={() => setViewingScanRecordModal(null)} 
-                className="px-5 py-2.5 bg-[#7C3AED] text-white font-bold rounded-xl text-xs shadow-xs cursor-pointer"
+                className="px-5 py-2.5 bg-[#936DA2] text-white font-bold rounded-xl text-xs shadow-xs cursor-pointer"
               >
                 Close Analysis
               </button>
@@ -1000,10 +973,10 @@ export default function UserLayout() {
       {/* 7. Change Photo Modal */}
       {showPhotoModal && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 font-inter">
-          <div className="bg-white rounded-3xl p-6 md:p-8 max-w-md w-full border border-[#EDE9FE] shadow-2xl space-y-6 animate-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between pb-3 border-b border-[#EDE9FE]">
+          <div className="bg-white rounded-3xl p-6 md:p-8 max-w-md w-full border border-[#F4DDE2] shadow-2xl space-y-6 animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between pb-3 border-b border-[#F4DDE2]">
               <div className="flex items-center gap-2">
-                <Camera className="w-5 h-5 text-[#7C3AED]" />
+                <Camera className="w-5 h-5 text-[#936DA2]" />
                 <h3 className="font-bold text-lg text-[#3a3135]">Edit Profile Photo</h3>
               </div>
               <button onClick={() => setShowPhotoModal(false)} className="text-[#7a6f75] hover:text-black cursor-pointer">
@@ -1032,14 +1005,14 @@ export default function UserLayout() {
                   type="file" 
                   accept="image/png, image/jpeg, image/webp"
                   onChange={handleFilePhotoChange}
-                  className="w-full text-xs text-[#7a6f75] file:mr-3 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[#EDE9FE] file:text-[#7C3AED] hover:file:bg-[#7C3AED] hover:file:text-white transition-colors cursor-pointer"
+                  className="w-full text-xs text-[#7a6f75] file:mr-3 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[#F4DDE2] file:text-[#936DA2] hover:file:bg-[#936DA2] hover:file:text-white transition-colors cursor-pointer"
                 />
               </div>
 
               <div className="space-y-2">
                 <label className="block font-bold text-[#3a3135] uppercase text-[10px]">2. Choose Theme Accent Color</label>
                 <div className="flex items-center justify-center gap-3">
-                  {['#7C3AED', '#14B8A6', '#EC4899', '#F59E0B', '#4F46E5', '#10B981'].map((c) => (
+                  {['#936DA2', '#14B8A6', '#EC4899', '#F59E0B', '#4F46E5', '#10B981'].map((c) => (
                     <button 
                       key={c}
                       type="button"
@@ -1063,17 +1036,17 @@ export default function UserLayout() {
                 </button>
               )}
 
-              <div className="flex gap-3 pt-3 border-t border-[#EDE9FE]">
+              <div className="flex gap-3 pt-3 border-t border-[#F4DDE2]">
                 <button 
                   type="button" 
                   onClick={() => setShowPhotoModal(false)} 
-                  className="flex-1 py-3 border border-[#EDE9FE] rounded-xl font-bold text-xs hover:bg-gray-50 cursor-pointer"
+                  className="flex-1 py-3 border border-[#F4DDE2] rounded-xl font-bold text-xs hover:bg-gray-50 cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button 
                   type="submit" 
-                  className="flex-1 py-3 bg-[#7C3AED] text-white rounded-xl font-bold text-xs hover:bg-[#6D28D9] shadow-xs cursor-pointer"
+                  className="flex-1 py-3 bg-[#936DA2] text-white rounded-xl font-bold text-xs hover:bg-[#835A92] shadow-xs cursor-pointer"
                 >
                   Save Avatar Photo
                 </button>
@@ -1086,8 +1059,8 @@ export default function UserLayout() {
       {/* 8. Change Password Modal */}
       {showPasswordModal && (
         <div className="fixed inset-0 bg-slate-900/40 flex items-center justify-center p-4 z-50 font-inter">
-          <div className="bg-white rounded-3xl p-6 max-w-sm w-full border border-[#EDE9FE] shadow-2xl space-y-4">
-            <div className="flex items-center justify-between pb-2 border-b border-[#EDE9FE]">
+          <div className="bg-white rounded-3xl p-6 max-w-sm w-full border border-[#F4DDE2] shadow-2xl space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-[#F4DDE2]">
               <h3 className="font-bold text-base text-[#3a3135]">Change Account Password</h3>
               <button onClick={() => setShowPasswordModal(false)} className="text-[#7a6f75] hover:text-black cursor-pointer">
                 <X className="w-5 h-5" />
@@ -1108,7 +1081,7 @@ export default function UserLayout() {
                   placeholder="••••••••••••" 
                   value={passwordData.oldPassword} 
                   onChange={(e) => setPasswordData({...passwordData, oldPassword: e.target.value as any})} 
-                  className="w-full p-2.5 rounded-xl border border-[#EDE9FE]" 
+                  className="w-full p-2.5 rounded-xl border border-[#F4DDE2]" 
                   required 
                 />
               </div>
@@ -1120,7 +1093,7 @@ export default function UserLayout() {
                   placeholder="Enter new password" 
                   value={passwordData.newPassword} 
                   onChange={(e) => setPasswordData({...passwordData, newPassword: e.target.value as any})} 
-                  className="w-full p-2.5 rounded-xl border border-[#EDE9FE]" 
+                  className="w-full p-2.5 rounded-xl border border-[#F4DDE2]" 
                   required 
                 />
               </div>
@@ -1132,13 +1105,13 @@ export default function UserLayout() {
                   placeholder="Confirm new password" 
                   value={passwordData.confirmPassword} 
                   onChange={(e) => setPasswordData({...passwordData, confirmPassword: e.target.value as any})} 
-                  className="w-full p-2.5 rounded-xl border border-[#EDE9FE]" 
+                  className="w-full p-2.5 rounded-xl border border-[#F4DDE2]" 
                   required 
                 />
               </div>
 
               <div className="flex gap-2 pt-2">
-                <button type="submit" className="flex-1 py-2.5 bg-[#7C3AED] text-white font-bold rounded-xl cursor-pointer">
+                <button type="submit" className="flex-1 py-2.5 bg-[#936DA2] text-white font-bold rounded-xl cursor-pointer">
                   Update Password
                 </button>
                 <button type="button" onClick={() => setShowPasswordModal(false)} className="py-2.5 px-4 border rounded-xl font-bold cursor-pointer">
@@ -1153,13 +1126,13 @@ export default function UserLayout() {
       {/* 9. Health Report Full Preview Modal */}
       {showReportPreview && (
         <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center p-4 z-50 font-inter">
-          <div className="bg-white rounded-3xl p-6 md:p-8 max-w-3xl w-full max-h-[90vh] overflow-y-auto border border-[#EDE9FE] shadow-2xl space-y-6">
-            <div className="flex items-center justify-between pb-4 border-b border-[#EDE9FE]">
+          <div className="bg-white rounded-3xl p-6 md:p-8 max-w-3xl w-full max-h-[90vh] overflow-y-auto border border-[#F4DDE2] shadow-2xl space-y-6">
+            <div className="flex items-center justify-between pb-4 border-b border-[#F4DDE2]">
               <h3 className="font-bold text-lg text-[#3a3135]">Generated Health Report Preview</h3>
               <div className="flex items-center gap-2">
                 <button 
                   onClick={handlePrintPDFReport} 
-                  className="flex items-center gap-1.5 px-4 py-2 bg-[#7C3AED] text-white rounded-xl text-xs font-bold cursor-pointer"
+                  className="flex items-center gap-1.5 px-4 py-2 bg-[#936DA2] text-white rounded-xl text-xs font-bold cursor-pointer"
                 >
                   <Printer className="w-4 h-4" /> Download / Print PDF
                 </button>
@@ -1170,21 +1143,21 @@ export default function UserLayout() {
             </div>
 
             <div className="space-y-5 text-xs">
-              <div className="p-4 bg-[#FAF8FC] rounded-2xl border border-[#EDE9FE]">
-                <h4 className="font-bold text-sm text-[#7C3AED] mb-2">1. Personal Profile</h4>
+              <div className="p-4 bg-[#FCF4F5] rounded-2xl border border-[#F4DDE2]">
+                <h4 className="font-bold text-sm text-[#936DA2] mb-2">1. Personal Profile</h4>
                 <p><b>Name:</b> {userProfile.fullName} | <b>DOB:</b> {userProfile.dob} ({userProfile.age} yrs)</p>
                 <p><b>Blood Group:</b> {userProfile.bloodGroup || 'Not specified'} | <b>Height/Weight:</b> {userProfile.height || '--'}cm / {userProfile.weight || '--'}kg</p>
                 <p><b>Contact:</b> {userProfile.phone || '--'} | {userProfile.email || '--'}</p>
               </div>
 
-              <div className="p-4 bg-[#FAF8FC] rounded-2xl border border-[#EDE9FE]">
-                <h4 className="font-bold text-sm text-[#7C3AED] mb-2">2. Health Vitals Log</h4>
+              <div className="p-4 bg-[#FCF4F5] rounded-2xl border border-[#F4DDE2]">
+                <h4 className="font-bold text-sm text-[#936DA2] mb-2">2. Health Vitals Log</h4>
                 <p><b>Latest Weight:</b> {trackerLogs[0]?.weight || '--'} kg | <b>Water:</b> {trackerLogs[0]?.water || '--'} L | <b>Sleep:</b> {trackerLogs[0]?.sleep || '--'} hrs</p>
                 <p><b>Exercise:</b> {trackerLogs[0]?.exercise || '--'} mins | <b>Blood Pressure:</b> {trackerLogs[0]?.bloodPressure || '120/78'}</p>
               </div>
 
-              <div className="p-4 bg-[#FAF8FC] rounded-2xl border border-[#EDE9FE]">
-                <h4 className="font-bold text-sm text-[#7C3AED] mb-2">3. Symptom History</h4>
+              <div className="p-4 bg-[#FCF4F5] rounded-2xl border border-[#F4DDE2]">
+                <h4 className="font-bold text-sm text-[#936DA2] mb-2">3. Symptom History</h4>
                 {symptomLogs.length > 0 ? (
                   symptomLogs.map(s => (
                     <p key={s.id}>• <b>{s.symptomName}</b> ({s.severity} severity) - {s.description || 'Logged symptom'} [{s.date}]</p>
@@ -1194,8 +1167,8 @@ export default function UserLayout() {
                 )}
               </div>
 
-              <div className="p-4 bg-[#FAF8FC] rounded-2xl border border-[#EDE9FE]">
-                <h4 className="font-bold text-sm text-[#7C3AED] mb-2">4. Medical Vault Records</h4>
+              <div className="p-4 bg-[#FCF4F5] rounded-2xl border border-[#F4DDE2]">
+                <h4 className="font-bold text-sm text-[#936DA2] mb-2">4. Medical Vault Records</h4>
                 {records.length > 0 ? (
                   records.map(r => (
                     <p key={r.id}>• <b>{r.title}</b> ({r.type}) - {r.description} [{r.date}]</p>
@@ -1205,8 +1178,8 @@ export default function UserLayout() {
                 )}
               </div>
 
-              <div className="p-4 bg-[#FAF8FC] rounded-2xl border border-[#EDE9FE]">
-                <h4 className="font-bold text-sm text-[#7C3AED] mb-2">5. Appointments Summary</h4>
+              <div className="p-4 bg-[#FCF4F5] rounded-2xl border border-[#F4DDE2]">
+                <h4 className="font-bold text-sm text-[#936DA2] mb-2">5. Appointments Summary</h4>
                 {appointments.length > 0 ? (
                   appointments.map(a => (
                     <p key={a.id}>• <b>{a.doctor}</b> - {a.reason} [{a.status} on {a.date} at {a.time}]</p>
@@ -1226,19 +1199,19 @@ export default function UserLayout() {
           <div className="bg-white rounded-3xl max-w-md w-full p-8 border border-purple-200 shadow-2xl text-center space-y-6">
             <div className="relative mx-auto w-24 h-24">
               <div className="absolute inset-0 rounded-full bg-purple-500/30 animate-ping" />
-              <div className="relative w-24 h-24 rounded-full bg-gradient-to-tr from-[#7C3AED] to-pink-500 flex items-center justify-center text-white shadow-lg">
+              <div className="relative w-24 h-24 rounded-full bg-gradient-to-tr from-[#936DA2] to-pink-500 flex items-center justify-center text-white shadow-lg">
                 <Video className="w-10 h-10 animate-bounce" />
               </div>
             </div>
 
             <div>
-              <span className="px-3 py-1 bg-purple-100 text-[#7C3AED] text-xs font-bold rounded-full uppercase tracking-wider">
+              <span className="px-3 py-1 bg-purple-100 text-[#936DA2] text-xs font-bold rounded-full uppercase tracking-wider">
                 Incoming Video Call
               </span>
               <h3 className="text-2xl font-serif font-bold text-[#2E2428] mt-3">
                 {incomingCall.doctorName}
               </h3>
-              <p className="text-sm text-[#7C3AED] font-semibold mt-0.5">
+              <p className="text-sm text-[#936DA2] font-semibold mt-0.5">
                 {incomingCall.doctorSpecialization}
               </p>
               <p className="text-xs text-slate-500 mt-2">
@@ -1246,7 +1219,7 @@ export default function UserLayout() {
               </p>
             </div>
 
-            <p className="text-xs text-slate-600 bg-[#FAF8FC] p-3 rounded-2xl border border-purple-50">
+            <p className="text-xs text-slate-600 bg-[#FCF4F5] p-3 rounded-2xl border border-purple-50">
               Your doctor is calling you for your scheduled clinical consultation. Click Accept to join the encrypted video session.
             </p>
 
@@ -1296,7 +1269,7 @@ export default function UserLayout() {
             {/* Main Doctor Feed */}
             <div className="w-full h-full max-w-4xl bg-slate-900 rounded-3xl border border-slate-800 flex flex-col items-center justify-center relative overflow-hidden">
               <div className="text-center space-y-3">
-                <div className="w-28 h-28 rounded-full bg-gradient-to-tr from-[#7C3AED] to-pink-500 flex items-center justify-center text-4xl font-bold mx-auto shadow-2xl">
+                <div className="w-28 h-28 rounded-full bg-gradient-to-tr from-[#936DA2] to-pink-500 flex items-center justify-center text-4xl font-bold mx-auto shadow-2xl">
                   {activeVideoConsultation.doctorName.charAt(0)}
                 </div>
                 <div>
@@ -1309,7 +1282,7 @@ export default function UserLayout() {
               </div>
 
               {/* Patient Mini PIP Camera View (Bottom Right) */}
-              <div className="absolute bottom-6 right-6 w-44 h-32 bg-slate-800 rounded-2xl border-2 border-[#7C3AED] overflow-hidden flex items-center justify-center shadow-2xl">
+              <div className="absolute bottom-6 right-6 w-44 h-32 bg-slate-800 rounded-2xl border-2 border-[#936DA2] overflow-hidden flex items-center justify-center shadow-2xl">
                 <div className="text-center">
                   <div className="w-12 h-12 rounded-full bg-pink-500 flex items-center justify-center text-base font-bold mx-auto">
                     {userProfile.fullName.charAt(0)}

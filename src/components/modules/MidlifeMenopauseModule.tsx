@@ -37,9 +37,9 @@ export default function MidlifeMenopauseModule() {
   };
 
   return (
-    <div className="bg-white rounded-3xl p-6 border border-[#EDE9FE] shadow-sm space-y-6 font-inter">
+    <div className="bg-white rounded-3xl p-6 border border-[#F4DDE2] shadow-sm space-y-6 font-inter">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#EDE9FE] pb-4 gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#F4DDE2] pb-4 gap-4">
         <div className="flex items-center gap-3">
           <div className="w-11 h-11 rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center font-bold text-xl shadow-xs">
             🔥
@@ -60,7 +60,7 @@ export default function MidlifeMenopauseModule() {
 
       <div className="grid md:grid-cols-3 gap-5">
         {/* Hot Flash Tracker Box */}
-        <div className="bg-[#FAF8FC] p-5 rounded-2xl border border-[#EDE9FE] space-y-3">
+        <div className="bg-[#FCF4F5] p-5 rounded-2xl border border-[#F4DDE2] space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-bold text-orange-600 uppercase tracking-wider flex items-center gap-1.5">
               <Flame className="w-4 h-4" /> Vasomotor Frequency
@@ -74,7 +74,7 @@ export default function MidlifeMenopauseModule() {
           
           <div className="space-y-2 text-xs">
             {episodes.map(ep => (
-              <div key={ep.id} className="bg-white p-3 rounded-xl border border-[#EDE9FE] flex items-center justify-between">
+              <div key={ep.id} className="bg-white p-3 rounded-xl border border-[#F4DDE2] flex items-center justify-between">
                 <div>
                   <span className="font-bold text-[#3a3135]">{ep.type}</span>
                   <p className="text-[11px] text-[#7a6f75]">{ep.duration} • Trigger: {ep.trigger}</p>
@@ -97,12 +97,12 @@ export default function MidlifeMenopauseModule() {
         </div>
 
         {/* Sleep Disruption Architecture */}
-        <div className="bg-[#FAF8FC] p-5 rounded-2xl border border-[#EDE9FE] space-y-3">
+        <div className="bg-[#FCF4F5] p-5 rounded-2xl border border-[#F4DDE2] space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold text-[#7C3AED] uppercase tracking-wider flex items-center gap-1.5">
+            <span className="text-[10px] font-bold text-[#936DA2] uppercase tracking-wider flex items-center gap-1.5">
               <Moon className="w-4 h-4" /> Sleep & Recovery
             </span>
-            <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-purple-100 text-[#7C3AED]">
+            <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-purple-100 text-[#936DA2]">
               6h 40m
             </span>
           </div>
@@ -112,7 +112,7 @@ export default function MidlifeMenopauseModule() {
             1 nighttime awakening logged at 03:40 AM due to vasomotor temperature surge. Magnesium glycinate supplementation logged.
           </p>
 
-          <div className="bg-white p-3 rounded-xl border border-[#EDE9FE] text-xs space-y-1.5">
+          <div className="bg-white p-3 rounded-xl border border-[#F4DDE2] text-xs space-y-1.5">
             <div className="flex justify-between">
               <span className="text-[#7a6f75]">Deep Sleep Quality:</span>
               <span className="font-bold text-[#3a3135]">1h 14m (Adequate)</span>
@@ -125,7 +125,7 @@ export default function MidlifeMenopauseModule() {
         </div>
 
         {/* Bone & Longevity Health */}
-        <div className="bg-[#FAF8FC] p-5 rounded-2xl border border-[#EDE9FE] space-y-3">
+        <div className="bg-[#FCF4F5] p-5 rounded-2xl border border-[#F4DDE2] space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-bold text-[#14B8A6] uppercase tracking-wider flex items-center gap-1.5">
               <Heart className="w-4 h-4" /> Bone & Cardiovascular
@@ -140,14 +140,14 @@ export default function MidlifeMenopauseModule() {
             1,200 mg Calcium and 2,000 IU Vitamin D3 logged. Resistance training suggested to preserve bone mineral density (DEXA T-score baseline: -0.6).
           </p>
 
-          <div className="bg-white p-3 rounded-xl border border-[#EDE9FE] text-xs space-y-1.5">
+          <div className="bg-white p-3 rounded-xl border border-[#F4DDE2] text-xs space-y-1.5">
             <div className="flex justify-between">
               <span className="text-[#7a6f75]">Blood Pressure:</span>
               <span className="font-bold text-[#3a3135]">116/74 mmHg</span>
             </div>
             <div className="flex justify-between">
               <span className="text-[#7a6f75]">Next DEXA Scan:</span>
-              <span className="font-bold text-[#7C3AED]">Nov 2026</span>
+              <span className="font-bold text-[#936DA2]">Nov 2026</span>
             </div>
           </div>
         </div>
@@ -156,8 +156,8 @@ export default function MidlifeMenopauseModule() {
       {/* Log Vasomotor Episode Modal */}
       {showLogModal && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-3xl p-6 max-w-md w-full border border-[#EDE9FE] shadow-2xl space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-[#EDE9FE]">
+          <div className="bg-white rounded-3xl p-6 max-w-md w-full border border-[#F4DDE2] shadow-2xl space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-[#F4DDE2]">
               <h3 className="font-bold text-base text-[#3a3135]">Log Vasomotor Symptom</h3>
               <button onClick={() => setShowLogModal(false)} className="text-gray-400 hover:text-black font-bold p-1 cursor-pointer">✕</button>
             </div>
@@ -223,7 +223,7 @@ export default function MidlifeMenopauseModule() {
                 />
               </div>
 
-              <div className="flex justify-end gap-2 pt-2 border-t border-[#EDE9FE]">
+              <div className="flex justify-end gap-2 pt-2 border-t border-[#F4DDE2]">
                 <button
                   type="button"
                   onClick={() => setShowLogModal(false)}

@@ -21,8 +21,8 @@ export default function UserProfilePage() {
   } = useUser();
 
   return (
-    <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#EDE9FE] shadow-sm space-y-6 max-w-3xl mx-auto font-inter">
-      <div className="flex items-center justify-between border-b border-[#EDE9FE] pb-4">
+    <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#F4DDE2] shadow-sm space-y-6 max-w-3xl mx-auto font-inter">
+      <div className="flex items-center justify-between border-b border-[#F4DDE2] pb-4">
         <div>
           <h3 className="font-bold text-xl text-[#3a3135]">My Profile Information</h3>
           <p className="text-xs text-[#7a6f75]">Manage your personal profile details and profile avatar photo</p>
@@ -30,14 +30,14 @@ export default function UserProfilePage() {
         {!isEditingProfile ? (
           <button 
             onClick={() => { setEditProfileForm({ ...userProfile }); setIsEditingProfile(true); }} 
-            className="flex items-center gap-2 px-4 py-2 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl text-xs font-bold cursor-pointer transition-all shadow-xs"
+            className="flex items-center gap-2 px-4 py-2 bg-[#936DA2] hover:bg-[#835A92] text-white rounded-xl text-xs font-bold cursor-pointer transition-all shadow-xs"
           >
             <Edit3 className="w-4 h-4" /> Edit Profile
           </button>
         ) : (
           <button 
             onClick={() => setIsEditingProfile(false)} 
-            className="flex items-center gap-2 px-4 py-2 border border-[#EDE9FE] text-[#7a6f75] hover:bg-gray-50 rounded-xl text-xs font-bold cursor-pointer transition-all"
+            className="flex items-center gap-2 px-4 py-2 border border-[#F4DDE2] text-[#7a6f75] hover:bg-gray-50 rounded-xl text-xs font-bold cursor-pointer transition-all"
           >
             <X className="w-4 h-4" /> Cancel
           </button>
@@ -45,20 +45,20 @@ export default function UserProfilePage() {
       </div>
 
       {/* PROFILE PHOTO AVATAR HEADER CARD */}
-      <div className="bg-[#FAF8FC] p-6 rounded-3xl border border-[#EDE9FE] flex flex-col sm:flex-row items-center justify-between gap-6">
+      <div className="bg-[#FCF4F5] p-6 rounded-3xl border border-[#F4DDE2] flex flex-col sm:flex-row items-center justify-between gap-6">
         <div className="flex flex-col sm:flex-row items-center gap-5 text-center sm:text-left">
           {/* Photo Avatar Circle with Edit Badge */}
           <div 
             className="relative group cursor-pointer" 
             onClick={() => {
               setTempAvatarUrl(userProfile.avatarUrl);
-              setTempAvatarBg(userProfile.avatarBg || '#7C3AED');
+              setTempAvatarBg(userProfile.avatarBg || '#936DA2');
               setShowPhotoModal(true);
             }}
           >
             <div 
               className="w-24 h-24 rounded-full text-white flex items-center justify-center font-bold text-3xl shadow-md border-4 border-white overflow-hidden relative"
-              style={{ backgroundColor: userProfile.avatarBg || '#7C3AED' }}
+              style={{ backgroundColor: userProfile.avatarBg || '#936DA2' }}
             >
               {userProfile.avatarUrl ? (
                 <img src={userProfile.avatarUrl} alt={userProfile.fullName} className="w-full h-full object-cover rounded-full" />
@@ -68,7 +68,7 @@ export default function UserProfilePage() {
             </div>
             <button 
               type="button" 
-              className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-[#7C3AED] text-white flex items-center justify-center shadow-lg border-2 border-white hover:bg-[#6D28D9] transition-transform group-hover:scale-110 cursor-pointer"
+              className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-[#936DA2] text-white flex items-center justify-center shadow-lg border-2 border-white hover:bg-[#835A92] transition-transform group-hover:scale-110 cursor-pointer"
               title="Edit Profile Photo"
             >
               <Camera className="w-4 h-4" />
@@ -78,7 +78,7 @@ export default function UserProfilePage() {
           <div>
             <h4 className="font-bold text-xl text-[#3a3135]">{userProfile.fullName || 'User'}</h4>
             <p className="text-xs text-[#7a6f75] mt-0.5">{userProfile.email} • {userProfile.phone}</p>
-            <span className="inline-block text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-purple-100 text-[#7C3AED] border border-purple-200 mt-2">
+            <span className="inline-block text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-purple-100 text-[#936DA2] border border-purple-200 mt-2">
               FemSphere Verified Account
             </span>
           </div>
@@ -88,12 +88,12 @@ export default function UserProfilePage() {
           type="button"
           onClick={() => {
             setTempAvatarUrl(userProfile.avatarUrl);
-            setTempAvatarBg(userProfile.avatarBg || '#7C3AED');
+            setTempAvatarBg(userProfile.avatarBg || '#936DA2');
             setShowPhotoModal(true);
           }}
-          className="px-5 py-2.5 bg-white border border-[#EDE9FE] hover:bg-[#F5F3FF] text-[#7C3AED] rounded-2xl font-bold text-xs flex items-center gap-2 shadow-2xs transition-all cursor-pointer shrink-0"
+          className="px-5 py-2.5 bg-white border border-[#F4DDE2] hover:bg-[#F9E8EC] text-[#936DA2] rounded-2xl font-bold text-xs flex items-center gap-2 shadow-2xs transition-all cursor-pointer shrink-0"
         >
-          <Camera className="w-4 h-4 text-[#7C3AED]" /> Change Profile Photo
+          <Camera className="w-4 h-4 text-[#936DA2]" /> Change Profile Photo
         </button>
       </div>
 
@@ -101,62 +101,62 @@ export default function UserProfilePage() {
         // View Mode
         <div className="space-y-6">
           <div className="grid md:grid-cols-2 gap-5 text-xs">
-            <div className="p-4 rounded-2xl bg-[#FAF8FC] border border-[#EDE9FE]">
+            <div className="p-4 rounded-2xl bg-[#FCF4F5] border border-[#F4DDE2]">
               <span className="block font-bold text-[#7a6f75] uppercase text-[10px] mb-1">Full Name</span>
               <p className="font-bold text-[#3a3135] text-base">{userProfile.fullName || '--'}</p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-[#FAF8FC] border border-[#EDE9FE]">
+            <div className="p-4 rounded-2xl bg-[#FCF4F5] border border-[#F4DDE2]">
               <span className="block font-bold text-[#7a6f75] uppercase text-[10px] mb-1">Date of Birth & Age</span>
               <p className="font-bold text-[#3a3135] text-base">{userProfile.dob || '--'} ({calculateAge(userProfile.dob)} yrs)</p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-[#FAF8FC] border border-[#EDE9FE]">
+            <div className="p-4 rounded-2xl bg-[#FCF4F5] border border-[#F4DDE2]">
               <span className="block font-bold text-[#7a6f75] uppercase text-[10px] mb-1">Blood Group</span>
               <p className="font-bold text-[#3a3135] text-base">{userProfile.bloodGroup || '--'}</p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-[#FAF8FC] border border-[#EDE9FE]">
+            <div className="p-4 rounded-2xl bg-[#FCF4F5] border border-[#F4DDE2]">
               <span className="block font-bold text-[#7a6f75] uppercase text-[10px] mb-1">Height & Weight</span>
               <p className="font-bold text-[#3a3135] text-base">{userProfile.height ? `${userProfile.height} cm` : '--'} / {userProfile.weight ? `${userProfile.weight} kg` : '--'}</p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-[#FAF8FC] border border-[#EDE9FE]">
+            <div className="p-4 rounded-2xl bg-[#FCF4F5] border border-[#F4DDE2]">
               <span className="block font-bold text-[#7a6f75] uppercase text-[10px] mb-1">Phone Number</span>
               <p className="font-bold text-[#3a3135] text-base">{userProfile.phone || '--'}</p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-[#FAF8FC] border border-[#EDE9FE]">
+            <div className="p-4 rounded-2xl bg-[#FCF4F5] border border-[#F4DDE2]">
               <span className="block font-bold text-[#7a6f75] uppercase text-[10px] mb-1">Email Address</span>
               <p className="font-bold text-[#3a3135] text-base">{userProfile.email || '--'}</p>
             </div>
 
             <div className="p-4 rounded-2xl bg-purple-50/50 border border-purple-200 md:col-span-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <div>
-                <span className="block font-bold text-[#7C3AED] uppercase text-[10px] mb-1">Biological Life Stage (Dynamic)</span>
+                <span className="block font-bold text-[#936DA2] uppercase text-[10px] mb-1">Biological Life Stage (Dynamic)</span>
                 <p className="font-bold text-[#3a3135] text-base">{stageName || 'Reproductive Age'} ({currentStageCode})</p>
                 <p className="text-[11px] text-[#7a6f75] mt-0.5">Calculated dynamically based on your Date of Birth ({userProfile.dob}) and clinical markers</p>
               </div>
-              <div className="px-3 py-1.5 rounded-xl bg-white border border-purple-200 text-xs font-bold text-[#7C3AED]">
+              <div className="px-3 py-1.5 rounded-xl bg-white border border-purple-200 text-xs font-bold text-[#936DA2]">
                 {userProfile.menarcheStarted !== false ? '🩸 Menarche Commenced' : '🌱 Awaiting Menarche'}
               </div>
             </div>
 
-            <div className="p-4 rounded-2xl bg-[#FAF8FC] border border-[#EDE9FE] md:col-span-2">
+            <div className="p-4 rounded-2xl bg-[#FCF4F5] border border-[#F4DDE2] md:col-span-2">
               <span className="block font-bold text-[#7a6f75] uppercase text-[10px] mb-1">Street Address</span>
               <p className="font-bold text-[#3a3135] text-base">{userProfile.address || '--'}</p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-[#FAF8FC] border border-[#EDE9FE] md:col-span-2">
+            <div className="p-4 rounded-2xl bg-[#FCF4F5] border border-[#F4DDE2] md:col-span-2">
               <span className="block font-bold text-[#7a6f75] uppercase text-[10px] mb-1">Emergency Contact</span>
               <p className="font-bold text-[#3a3135] text-base">{userProfile.emergencyContact || '--'}</p>
             </div>
           </div>
 
-          <div className="pt-4 border-t border-[#EDE9FE] flex justify-between items-center">
+          <div className="pt-4 border-t border-[#F4DDE2] flex justify-between items-center">
             <button 
               onClick={() => setShowPasswordModal(true)} 
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-[#EDE9FE] text-xs font-bold text-[#7C3AED] hover:bg-[#F5F3FF] cursor-pointer transition-colors"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-[#F4DDE2] text-xs font-bold text-[#936DA2] hover:bg-[#F9E8EC] cursor-pointer transition-colors"
             >
               <Lock className="w-4 h-4" /> Change Password
             </button>
@@ -181,7 +181,7 @@ export default function UserProfilePage() {
                 className={`w-full p-3 rounded-xl border ${
                   editProfileForm.fullName.trim() && !isValidName(editProfileForm.fullName)
                     ? 'border-red-400 focus:border-red-500'
-                    : 'border-[#EDE9FE]'
+                    : 'border-[#F4DDE2]'
                 }`} 
                 required 
               />
@@ -199,7 +199,7 @@ export default function UserProfilePage() {
                 className={`w-full p-3 rounded-xl border ${
                   editProfileForm.dob && !isPastOrToday(editProfileForm.dob)
                     ? 'border-red-400 focus:border-red-500'
-                    : 'border-[#EDE9FE]'
+                    : 'border-[#F4DDE2]'
                 }`} 
                 required 
               />
@@ -213,7 +213,7 @@ export default function UserProfilePage() {
               <select 
                 value={editProfileForm.bloodGroup} 
                 onChange={(e) => setEditProfileForm({...editProfileForm, bloodGroup: e.target.value})} 
-                className="w-full p-3 rounded-xl border border-[#EDE9FE] bg-white font-medium"
+                className="w-full p-3 rounded-xl border border-[#F4DDE2] bg-white font-medium"
               >
                 <option value="A+">A Positive (A+)</option>
                 <option value="A-">A Negative (A-)</option>
@@ -231,7 +231,7 @@ export default function UserProfilePage() {
               <select 
                 value={editProfileForm.menarcheStarted !== false ? 'started' : 'awaiting'} 
                 onChange={(e) => setEditProfileForm({...editProfileForm, menarcheStarted: e.target.value === 'started'})} 
-                className="w-full p-3 rounded-xl border border-[#EDE9FE] bg-white font-medium"
+                className="w-full p-3 rounded-xl border border-[#F4DDE2] bg-white font-medium"
               >
                 <option value="started">Started (Menstrual Cycles Active)</option>
                 <option value="awaiting">Not Yet (Awaiting First Period / Pubertal Development)</option>
@@ -246,7 +246,7 @@ export default function UserProfilePage() {
                   type="number" 
                   value={editProfileForm.height} 
                   onChange={(e) => setEditProfileForm({...editProfileForm, height: e.target.value})} 
-                  className="w-full p-3 rounded-xl border border-[#EDE9FE]" 
+                  className="w-full p-3 rounded-xl border border-[#F4DDE2]" 
                 />
               </div>
               <div>
@@ -255,7 +255,7 @@ export default function UserProfilePage() {
                   type="number" 
                   value={editProfileForm.weight} 
                   onChange={(e) => setEditProfileForm({...editProfileForm, weight: e.target.value})} 
-                  className="w-full p-3 rounded-xl border border-[#EDE9FE]" 
+                  className="w-full p-3 rounded-xl border border-[#F4DDE2]" 
                 />
               </div>
             </div>
@@ -269,7 +269,7 @@ export default function UserProfilePage() {
                 className={`w-full p-3 rounded-xl border ${
                   editProfileForm.phone.trim() && !isValidPhone(editProfileForm.phone)
                     ? 'border-red-400 focus:border-red-500'
-                    : 'border-[#EDE9FE]'
+                    : 'border-[#F4DDE2]'
                 }`} 
                 required 
               />
@@ -287,7 +287,7 @@ export default function UserProfilePage() {
                 className={`w-full p-3 rounded-xl border ${
                   editProfileForm.email.trim() && !isValidEmail(editProfileForm.email)
                     ? 'border-red-400 focus:border-red-500'
-                    : 'border-[#EDE9FE]'
+                    : 'border-[#F4DDE2]'
                 }`} 
                 required 
               />
@@ -302,7 +302,7 @@ export default function UserProfilePage() {
                 type="text" 
                 value={editProfileForm.address} 
                 onChange={(e) => setEditProfileForm({...editProfileForm, address: e.target.value})} 
-                className="w-full p-3 rounded-xl border border-[#EDE9FE]" 
+                className="w-full p-3 rounded-xl border border-[#F4DDE2]" 
               />
             </div>
 
@@ -312,7 +312,7 @@ export default function UserProfilePage() {
                 type="text" 
                 value={editProfileForm.emergencyContact} 
                 onChange={(e) => setEditProfileForm({...editProfileForm, emergencyContact: e.target.value})} 
-                className="w-full p-3 rounded-xl border border-[#EDE9FE]" 
+                className="w-full p-3 rounded-xl border border-[#F4DDE2]" 
               />
             </div>
           </div>
@@ -321,13 +321,13 @@ export default function UserProfilePage() {
             <button 
               type="button" 
               onClick={() => setIsEditingProfile(false)} 
-              className="px-5 py-2.5 rounded-xl border border-[#EDE9FE] font-bold text-xs hover:bg-gray-50 cursor-pointer"
+              className="px-5 py-2.5 rounded-xl border border-[#F4DDE2] font-bold text-xs hover:bg-gray-50 cursor-pointer"
             >
               Cancel
             </button>
             <button 
               type="submit" 
-              className="px-6 py-2.5 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl font-bold text-xs shadow-xs cursor-pointer"
+              className="px-6 py-2.5 bg-[#936DA2] hover:bg-[#835A92] text-white rounded-xl font-bold text-xs shadow-xs cursor-pointer"
             >
               Save Profile Changes
             </button>

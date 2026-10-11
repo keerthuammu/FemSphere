@@ -5,8 +5,8 @@ export default function PubertyGrowingModule() {
   const [cycleActivated, setCycleActivated] = useState(false);
 
   return (
-    <div className="bg-white rounded-3xl p-6 border border-[#EDE9FE] shadow-sm space-y-6">
-      <div className="flex items-center justify-between border-b border-[#EDE9FE] pb-4">
+    <div className="bg-white rounded-3xl p-6 border border-[#F4DDE2] shadow-sm space-y-6">
+      <div className="flex items-center justify-between border-b border-[#F4DDE2] pb-4">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-2xl bg-pink-100 text-pink-600 flex items-center justify-center font-bold">
             🌱
@@ -34,8 +34,8 @@ export default function PubertyGrowingModule() {
 
       {/* Educational Cards Grid */}
       <div className="grid md:grid-cols-3 gap-4">
-        <div className="bg-[#FAF8FC] p-4 rounded-2xl border border-[#EDE9FE] space-y-2">
-          <div className="flex items-center gap-2 text-[#7C3AED] font-bold text-xs">
+        <div className="bg-[#FCF4F5] p-4 rounded-2xl border border-[#F4DDE2] space-y-2">
+          <div className="flex items-center gap-2 text-[#936DA2] font-bold text-xs">
             <BookOpen className="w-4 h-4" />
             <span>Body & Hormones</span>
           </div>
@@ -43,7 +43,7 @@ export default function PubertyGrowingModule() {
           <p className="text-xs text-[#64595e]">Growth spurts, skin changes, and body development are natural milestones powered by healthy hormones.</p>
         </div>
 
-        <div className="bg-[#FAF8FC] p-4 rounded-2xl border border-[#EDE9FE] space-y-2">
+        <div className="bg-[#FCF4F5] p-4 rounded-2xl border border-[#F4DDE2] space-y-2">
           <div className="flex items-center gap-2 text-[#14B8A6] font-bold text-xs">
             <Smile className="w-4 h-4" />
             <span>Emotional Wellbeing</span>
@@ -52,7 +52,7 @@ export default function PubertyGrowingModule() {
           <p className="text-xs text-[#64595e]">Hormonal changes can cause sudden shifts in energy and emotions. Deep breathing and journaling help stay grounded.</p>
         </div>
 
-        <div className="bg-[#FAF8FC] p-4 rounded-2xl border border-[#EDE9FE] space-y-2">
+        <div className="bg-[#FCF4F5] p-4 rounded-2xl border border-[#F4DDE2] space-y-2">
           <div className="flex items-center gap-2 text-pink-600 font-bold text-xs">
             <Droplet className="w-4 h-4" />
             <span>Hygiene & Care</span>

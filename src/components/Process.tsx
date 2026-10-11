@@ -21,12 +21,12 @@ export default function Process() {
       
       <div className="relative">
         {/* Desktop Line */}
-        <div className="hidden lg:block absolute top-12 left-0 right-0 h-0.5 bg-gradient-to-r from-[#EDE9FE] via-[#7C3AED] to-[#CCFBF1] z-0"></div>
+        <div className="hidden lg:block absolute top-12 left-0 right-0 h-0.5 bg-gradient-to-r from-[#F4DDE2] via-[#936DA2] to-[#CCFBF1] z-0"></div>
         
         <div className="grid lg:grid-cols-6 gap-6 relative z-10">
           {steps.map((step, i) => (
             <div key={i} className="flex flex-col items-center lg:items-start text-center lg:text-left">
-              <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center border-2 border-[#7C3AED] text-[#7C3AED] font-bold mb-4 shadow-md lg:mx-0 mx-auto">
+              <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center border-2 border-[#936DA2] text-[#936DA2] font-bold mb-4 shadow-md lg:mx-0 mx-auto">
                 {step.num}
               </div>
               <h4 className="text-sm font-bold text-[#3a3135] mb-2">{step.title}</h4>

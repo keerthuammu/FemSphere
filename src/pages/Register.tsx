@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
-  Sparkles, Check, User, Users, Stethoscope, Shield, Heart, 
+  Check, User, Users, Stethoscope, Shield, Heart, 
   Upload, ChevronLeft, ChevronRight, Lock, Activity, Phone, 
   Mail, MapPin, Calendar, FileText, CheckSquare, Square, FileCheck, AlertCircle
 } from 'lucide-react';
@@ -489,13 +489,17 @@ export default function Register() {
   return (
     <div className="min-h-screen bg-[#fbf9f6] flex flex-col font-inter text-[#3a3135]">
       {/* Top Nav */}
-      <div className="p-4 md:px-12 flex justify-between items-center bg-white/80 backdrop-blur-md sticky top-0 z-30 border-b border-[#EDE9FE]">
-        <Link to="/" className="flex items-center gap-2">
-          <h1 className="font-serif text-2xl font-bold text-[#7C3AED] tracking-tight">FemSphere</h1>
-          <Sparkles className="w-4 h-4 text-[#14B8A6]" />
+      <div className="p-4 md:px-12 flex justify-between items-center bg-white/80 backdrop-blur-md sticky top-0 z-30 border-b border-[#F4DDE2]">
+        <Link to="/" className="flex items-center gap-2.5 group">
+          <img
+            src="/femsphere_logo.png"
+            alt="FemSphere Logo"
+            className="w-8 h-8 rounded-full object-contain shadow-xs transition-transform group-hover:scale-105"
+          />
+          <h1 className="font-serif text-2xl font-bold text-[#936DA2] tracking-tight">FemSphere</h1>
         </Link>
         <p className="text-sm text-[#7a6f75] font-inter">
-          Already have an account? <Link to="/login" className="font-bold text-[#7C3AED] hover:underline ml-1 font-inter">Login</Link>
+          Already have an account? <Link to="/login" className="font-bold text-[#936DA2] hover:underline ml-1 font-inter">Login</Link>
         </p>
       </div>
 
@@ -504,9 +508,9 @@ export default function Register() {
         {/* Stepper Header */}
         <div className="w-full mb-8 font-inter">
           <div className="flex items-center justify-between relative mb-2">
-            <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-1 bg-[#EDE9FE] -z-10 rounded-full"></div>
+            <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-1 bg-[#F4DDE2] -z-10 rounded-full"></div>
             <div 
-              className="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-[#7C3AED] -z-10 rounded-full transition-all duration-500" 
+              className="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-[#936DA2] -z-10 rounded-full transition-all duration-500" 
               style={{ width: `${((step - 1) / 4) * 100}%` }}
             ></div>
             
@@ -527,10 +531,10 @@ export default function Register() {
                 }}
                 className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 font-inter ${
                   step === num 
-                    ? 'bg-[#7C3AED] text-white ring-4 ring-[#EDE9FE] shadow-md scale-110' 
+                    ? 'bg-[#936DA2] text-white ring-4 ring-[#F4DDE2] shadow-md scale-110' 
                     : step > num 
-                      ? 'bg-[#7C3AED] text-white cursor-pointer' 
-                      : 'bg-white text-[#a89cb5] border-2 border-[#EDE9FE]'
+                      ? 'bg-[#936DA2] text-white cursor-pointer' 
+                      : 'bg-white text-[#a89cb5] border-2 border-[#F4DDE2]'
                 }`}
               >
                 {step > num ? <Check className="w-4 h-4" /> : num}
@@ -539,7 +543,7 @@ export default function Register() {
           </div>
           <div className="flex justify-between text-[11px] uppercase tracking-wider text-[#7a6f75] font-semibold px-1 font-inter">
             {stepTitles.map((title, i) => (
-              <span key={i} className={`text-center font-inter ${step === i + 1 ? 'text-[#7C3AED] font-bold' : ''}`}>
+              <span key={i} className={`text-center font-inter ${step === i + 1 ? 'text-[#936DA2] font-bold' : ''}`}>
                 {title}
               </span>
             ))}
@@ -547,11 +551,11 @@ export default function Register() {
         </div>
 
         {/* Main Form Container */}
-        <div className="w-full bg-white rounded-3xl shadow-xl shadow-purple-900/5 border border-[#EDE9FE] p-6 md:p-10 relative overflow-hidden font-inter">
+        <div className="w-full bg-white rounded-3xl shadow-xl shadow-purple-900/5 border border-[#F4DDE2] p-6 md:p-10 relative overflow-hidden font-inter">
           
-          <div className="flex items-center justify-between border-b border-[#EDE9FE] pb-4 mb-6">
+          <div className="flex items-center justify-between border-b border-[#F4DDE2] pb-4 mb-6">
             <div>
-              <span className="text-xs font-bold text-[#7C3AED] uppercase tracking-widest bg-[#F5F3FF] px-3 py-1 rounded-full border border-[#EDE9FE] font-inter">
+              <span className="text-xs font-bold text-[#936DA2] uppercase tracking-widest bg-[#F9E8EC] px-3 py-1 rounded-full border border-[#F4DDE2] font-inter">
                 Step {step} of 5
               </span>
               <h2 className="font-inter font-bold text-2xl md:text-3xl text-[#3a3135] mt-2">
@@ -585,15 +589,15 @@ export default function Register() {
                     onClick={() => setFormData(prev => ({ ...prev, accountType: 'Myself' }))}
                     className={`p-5 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between gap-3 ${
                       (formData.accountType === 'Myself' || formData.accountType === 'User (Female)') 
-                        ? 'border-[#7C3AED] bg-[#F5F3FF]/70 shadow-sm ring-1 ring-[#7C3AED]' 
-                        : 'border-[#EDE9FE] hover:border-[#7C3AED]/50 bg-white'
+                        ? 'border-[#936DA2] bg-[#F9E8EC]/70 shadow-sm ring-1 ring-[#936DA2]' 
+                        : 'border-[#F4DDE2] hover:border-[#936DA2]/50 bg-white'
                     }`}
                   >
                     <div className="flex items-center justify-between">
-                      <div className={`p-3 rounded-xl ${(formData.accountType === 'Myself' || formData.accountType === 'User (Female)') ? 'bg-[#7C3AED] text-white' : 'bg-[#EDE9FE] text-[#7C3AED]'}`}>
+                      <div className={`p-3 rounded-xl ${(formData.accountType === 'Myself' || formData.accountType === 'User (Female)') ? 'bg-[#936DA2] text-white' : 'bg-[#F4DDE2] text-[#936DA2]'}`}>
                         <User className="w-6 h-6" />
                       </div>
-                      <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[#EDE9FE] text-[#7C3AED]">Default</span>
+                      <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[#F4DDE2] text-[#936DA2]">Default</span>
                     </div>
                     <div>
                       <h3 className="font-bold text-[#3a3135] text-base">Myself</h3>
@@ -608,12 +612,12 @@ export default function Register() {
                     onClick={() => setFormData(prev => ({ ...prev, accountType: 'Caregiver' }))}
                     className={`p-5 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between gap-3 ${
                       formData.accountType === 'Caregiver' 
-                        ? 'border-[#7C3AED] bg-[#F5F3FF]/70 shadow-sm ring-1 ring-[#7C3AED]' 
-                        : 'border-[#EDE9FE] hover:border-[#7C3AED]/50 bg-white'
+                        ? 'border-[#936DA2] bg-[#F9E8EC]/70 shadow-sm ring-1 ring-[#936DA2]' 
+                        : 'border-[#F4DDE2] hover:border-[#936DA2]/50 bg-white'
                     }`}
                   >
                     <div className="flex items-center justify-between">
-                      <div className={`p-3 rounded-xl ${formData.accountType === 'Caregiver' ? 'bg-[#7C3AED] text-white' : 'bg-[#EDE9FE] text-[#7C3AED]'}`}>
+                      <div className={`p-3 rounded-xl ${formData.accountType === 'Caregiver' ? 'bg-[#936DA2] text-white' : 'bg-[#F4DDE2] text-[#936DA2]'}`}>
                         <Users className="w-6 h-6" />
                       </div>
                     </div>
@@ -630,12 +634,12 @@ export default function Register() {
                     onClick={() => setFormData(prev => ({ ...prev, accountType: 'Doctor' }))}
                     className={`p-5 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between gap-3 ${
                       formData.accountType === 'Doctor' 
-                        ? 'border-[#7C3AED] bg-[#F5F3FF]/70 shadow-sm ring-1 ring-[#7C3AED]' 
-                        : 'border-[#EDE9FE] hover:border-[#7C3AED]/50 bg-white'
+                        ? 'border-[#936DA2] bg-[#F9E8EC]/70 shadow-sm ring-1 ring-[#936DA2]' 
+                        : 'border-[#F4DDE2] hover:border-[#936DA2]/50 bg-white'
                     }`}
                   >
                     <div className="flex items-center justify-between">
-                      <div className={`p-3 rounded-xl ${formData.accountType === 'Doctor' ? 'bg-[#7C3AED] text-white' : 'bg-[#EDE9FE] text-[#7C3AED]'}`}>
+                      <div className={`p-3 rounded-xl ${formData.accountType === 'Doctor' ? 'bg-[#936DA2] text-white' : 'bg-[#F4DDE2] text-[#936DA2]'}`}>
                         <Stethoscope className="w-6 h-6" />
                       </div>
                     </div>
@@ -664,7 +668,7 @@ export default function Register() {
                     className={`w-full px-4 py-3 rounded-xl border ${
                       formData.fullName.trim() && !isValidName(formData.fullName)
                         ? 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-100'
-                        : 'border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100'
+                        : 'border-[#F4DDE2] focus:border-[#936DA2] focus:ring-2 focus:ring-purple-100'
                     } outline-none text-sm`} 
                     required 
                   />
@@ -685,7 +689,7 @@ export default function Register() {
                     className={`w-full px-4 py-3 rounded-xl border ${
                       formData.dob && (!isPastOrToday(formData.dob) || calculateAge(formData.dob) < 0 || (formData.accountType === 'Caregiver' && calculateAge(formData.dob) < 16))
                         ? 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-100'
-                        : 'border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100'
+                        : 'border-[#F4DDE2] focus:border-[#936DA2] focus:ring-2 focus:ring-purple-100'
                     } outline-none text-sm`} 
                     required 
                   />
@@ -707,7 +711,7 @@ export default function Register() {
                     name="gender" 
                     value={formData.gender} 
                     onChange={handleChange}
-                    className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm bg-white font-medium"
+                    className="w-full px-4 py-3 rounded-xl border border-[#F4DDE2] focus:border-[#936DA2] focus:ring-2 focus:ring-purple-100 outline-none text-sm bg-white font-medium"
                   >
                     <option value="">Select Gender</option>
                     <option value="Female">Female</option>
@@ -727,7 +731,7 @@ export default function Register() {
                     className={`w-full px-4 py-3 rounded-xl border ${
                       formData.mobileNumber.trim() && !isValidPhone(formData.mobileNumber)
                         ? 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-100'
-                        : 'border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100'
+                        : 'border-[#F4DDE2] focus:border-[#936DA2] focus:ring-2 focus:ring-purple-100'
                     } outline-none text-sm`} 
                     required 
                   />
@@ -749,7 +753,7 @@ export default function Register() {
                     className={`w-full px-4 py-3 rounded-xl border ${
                       formData.email.trim() && !isValidEmail(formData.email)
                         ? 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-100'
-                        : 'border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100'
+                        : 'border-[#F4DDE2] focus:border-[#936DA2] focus:ring-2 focus:ring-purple-100'
                     } outline-none text-sm transition-all`} 
                     required 
                   />
@@ -766,7 +770,7 @@ export default function Register() {
                     name="country" 
                     value={formData.country} 
                     onChange={handleChange}
-                    className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm bg-white"
+                    className="w-full px-4 py-3 rounded-xl border border-[#F4DDE2] focus:border-[#936DA2] focus:ring-2 focus:ring-purple-100 outline-none text-sm bg-white"
                   >
                     <option value="">Select Country</option>
                     <option value="United States">United States</option>
@@ -786,7 +790,7 @@ export default function Register() {
                     value={formData.city} 
                     onChange={handleChange}
                     placeholder="e.g. San Francisco" 
-                    className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
+                    className="w-full px-4 py-3 rounded-xl border border-[#F4DDE2] focus:border-[#936DA2] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
                   />
                 </div>
 
@@ -798,7 +802,7 @@ export default function Register() {
                     value={formData.state} 
                     onChange={handleChange}
                     placeholder="e.g. California" 
-                    className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
+                    className="w-full px-4 py-3 rounded-xl border border-[#F4DDE2] focus:border-[#936DA2] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
                   />
                 </div>
 
@@ -813,7 +817,7 @@ export default function Register() {
                     className={`w-full px-4 py-3 rounded-xl border ${
                       formData.pincode.trim() && !isValidPincode(formData.pincode)
                         ? 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-100'
-                        : 'border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100'
+                        : 'border-[#F4DDE2] focus:border-[#936DA2] focus:ring-2 focus:ring-purple-100'
                     } outline-none text-sm`} 
                     required
                   />
@@ -833,20 +837,20 @@ export default function Register() {
                     value={formData.address} 
                     onChange={handleChange}
                     placeholder="Enter your street address, apartment, suite..." 
-                    className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
+                    className="w-full px-4 py-3 rounded-xl border border-[#F4DDE2] focus:border-[#936DA2] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
                     required
                   />
                 </div>
 
                 <div className="md:col-span-1">
                   <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">Profile Photo (Optional)</label>
-                  <div className="flex items-center gap-3 p-3 rounded-xl border border-dashed border-[#EDE9FE] bg-[#FBF9FE]">
-                    <Upload className="w-5 h-5 text-[#7C3AED] shrink-0" />
+                  <div className="flex items-center gap-3 p-3 rounded-xl border border-dashed border-[#F4DDE2] bg-[#FBF9FE]">
+                    <Upload className="w-5 h-5 text-[#936DA2] shrink-0" />
                     <input 
                       type="file" 
                       accept="image/*" 
                       onChange={handleFileChange}
-                      className="text-xs text-[#7a6f75] file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[11px] file:font-semibold file:bg-[#EDE9FE] file:text-[#7C3AED] hover:file:bg-[#7C3AED] hover:file:text-white cursor-pointer w-full"
+                      className="text-xs text-[#7a6f75] file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[11px] file:font-semibold file:bg-[#F4DDE2] file:text-[#936DA2] hover:file:bg-[#936DA2] hover:file:text-white cursor-pointer w-full"
                     />
                   </div>
                 </div>
@@ -867,7 +871,7 @@ export default function Register() {
                     className={`w-full px-4 py-3 rounded-xl border ${
                       formData.username.trim() && !isValidUsername(formData.username)
                         ? 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-100'
-                        : 'border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100'
+                        : 'border-[#F4DDE2] focus:border-[#936DA2] focus:ring-2 focus:ring-purple-100'
                     } outline-none text-sm`} 
                     required 
                   />
@@ -889,7 +893,7 @@ export default function Register() {
                     className={`w-full px-4 py-3 rounded-xl border ${
                       formData.password && !validatePassword(formData.password).isValid
                         ? 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-100'
-                        : 'border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100'
+                        : 'border-[#F4DDE2] focus:border-[#936DA2] focus:ring-2 focus:ring-purple-100'
                     } outline-none text-sm`} 
                     required 
                   />
@@ -911,7 +915,7 @@ export default function Register() {
                     className={`w-full px-4 py-3 rounded-xl border ${
                       formData.confirmPassword && formData.password !== formData.confirmPassword
                         ? 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-100'
-                        : 'border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100'
+                        : 'border-[#F4DDE2] focus:border-[#936DA2] focus:ring-2 focus:ring-purple-100'
                     } outline-none text-sm`} 
                     required 
                   />
@@ -927,8 +931,8 @@ export default function Register() {
             {/* STEP 4: Role-Specific Information */}
             {step === 4 && (
               <div className="space-y-5">
-                <div className="flex items-center justify-between bg-[#F5F3FF] p-3 rounded-xl border border-[#EDE9FE]">
-                  <span className="text-xs font-semibold text-[#7C3AED]">Custom Setup</span>
+                <div className="flex items-center justify-between bg-[#F9E8EC] p-3 rounded-xl border border-[#F4DDE2]">
+                  <span className="text-xs font-semibold text-[#936DA2]">Custom Setup</span>
                   <span className="text-xs font-bold text-[#3a3135]">{formData.accountType} Profile</span>
                 </div>
 
@@ -940,7 +944,7 @@ export default function Register() {
                         name="bloodGroup" 
                         value={formData.bloodGroup} 
                         onChange={handleChange}
-                        className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm bg-white"
+                        className="w-full px-4 py-3 rounded-xl border border-[#F4DDE2] focus:border-[#936DA2] focus:ring-2 focus:ring-purple-100 outline-none text-sm bg-white"
                       >
                         <option value="">Select Blood Group</option>
                         <option value="A+">A Positive (A+)</option>
@@ -962,7 +966,7 @@ export default function Register() {
                         value={formData.heightCm} 
                         onChange={handleChange}
                         placeholder="e.g. 168" 
-                        className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
+                        className="w-full px-4 py-3 rounded-xl border border-[#F4DDE2] focus:border-[#936DA2] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
                       />
                     </div>
 
@@ -974,7 +978,7 @@ export default function Register() {
                         value={formData.weightKg} 
                         onChange={handleChange}
                         placeholder="e.g. 62" 
-                        className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
+                        className="w-full px-4 py-3 rounded-xl border border-[#F4DDE2] focus:border-[#936DA2] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
                       />
                     </div>
 
@@ -984,7 +988,7 @@ export default function Register() {
                         name="maritalStatus" 
                         value={formData.maritalStatus} 
                         onChange={handleChange}
-                        className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm bg-white"
+                        className="w-full px-4 py-3 rounded-xl border border-[#F4DDE2] focus:border-[#936DA2] focus:ring-2 focus:ring-purple-100 outline-none text-sm bg-white"
                       >
                         <option value="">Select Marital Status</option>
                         <option value="Single">Single</option>
@@ -1002,7 +1006,7 @@ export default function Register() {
                         value={formData.emergencyContactName} 
                         onChange={handleChange}
                         placeholder="e.g. Marcus Rostova" 
-                        className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
+                        className="w-full px-4 py-3 rounded-xl border border-[#F4DDE2] focus:border-[#936DA2] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
                       />
                     </div>
 
@@ -1014,7 +1018,7 @@ export default function Register() {
                         value={formData.emergencyContactPhone} 
                         onChange={handleChange}
                         placeholder="e.g. +1 (555) 902-4118" 
-                        className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
+                        className="w-full px-4 py-3 rounded-xl border border-[#F4DDE2] focus:border-[#936DA2] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
                       />
                     </div>
                   </div>
@@ -1023,8 +1027,8 @@ export default function Register() {
                 {/* CAREGIVER ROLE SPECIFIC QUESTIONS */}
                 {formData.accountType === 'Caregiver' && (
                   <div className="space-y-6">
-                    <div className="bg-[#FAF8FC] p-5 rounded-2xl border border-[#EDE9FE] space-y-5">
-                      <div className="flex items-center gap-2 text-[#7C3AED] pb-2 border-b border-[#EDE9FE]">
+                    <div className="bg-[#FCF4F5] p-5 rounded-2xl border border-[#F4DDE2] space-y-5">
+                      <div className="flex items-center gap-2 text-[#936DA2] pb-2 border-b border-[#F4DDE2]">
                         <Users className="w-5 h-5 flex-shrink-0" />
                         <h3 className="font-bold text-base text-[#3a3135] font-inter">
                           Caregiver & Dependent Health Profile
@@ -1042,7 +1046,7 @@ export default function Register() {
                             value={formData.dependentName} 
                             onChange={handleChange}
                             placeholder="e.g. Sophia Rostova" 
-                            className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
+                            className="w-full px-4 py-3 rounded-xl border border-[#F4DDE2] focus:border-[#936DA2] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
                             required
                           />
                         </div>
@@ -1055,7 +1059,7 @@ export default function Register() {
                             name="relationship" 
                             value={formData.relationship} 
                             onChange={handleChange}
-                            className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm bg-white"
+                            className="w-full px-4 py-3 rounded-xl border border-[#F4DDE2] focus:border-[#936DA2] focus:ring-2 focus:ring-purple-100 outline-none text-sm bg-white"
                           >
                             <option value="">Select Relationship</option>
                             <option value="Daughter">Daughter</option>
@@ -1069,7 +1073,7 @@ export default function Register() {
                             <option value="Other Relative">Other Relative</option>
                           </select>
                           {formData.relationship && (
-                            <p className="text-[11px] text-[#7C3AED] font-semibold mt-1">
+                            <p className="text-[11px] text-[#936DA2] font-semibold mt-1">
                               Calculated Role: <span className="font-bold">{getCaregiverTypeFromRelationship(formData.relationship)}</span>
                             </p>
                           )}
@@ -1084,7 +1088,7 @@ export default function Register() {
                             name="dependentDob" 
                             value={formData.dependentDob} 
                             onChange={handleChange}
-                            className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm bg-white" 
+                            className="w-full px-4 py-3 rounded-xl border border-[#F4DDE2] focus:border-[#936DA2] focus:ring-2 focus:ring-purple-100 outline-none text-sm bg-white" 
                             required
                           />
                           {formData.dependentDob && isPastOrToday(formData.dependentDob) && (
@@ -1102,7 +1106,7 @@ export default function Register() {
                             name="dependentGender" 
                             value={formData.dependentGender} 
                             onChange={handleChange}
-                            className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm bg-white"
+                            className="w-full px-4 py-3 rounded-xl border border-[#F4DDE2] focus:border-[#936DA2] focus:ring-2 focus:ring-purple-100 outline-none text-sm bg-white"
                           >
                             <option value="">Select Gender</option>
                             <option value="Female">Female</option>
@@ -1119,7 +1123,7 @@ export default function Register() {
                             name="dependentBloodGroup" 
                             value={formData.dependentBloodGroup} 
                             onChange={handleChange}
-                            className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm bg-white"
+                            className="w-full px-4 py-3 rounded-xl border border-[#F4DDE2] focus:border-[#936DA2] focus:ring-2 focus:ring-purple-100 outline-none text-sm bg-white"
                           >
                             <option value="">Select Blood Group</option>
                             <option value="A+">A Positive (A+)</option>
@@ -1143,7 +1147,7 @@ export default function Register() {
                             value={formData.emergencyContactPhone} 
                             onChange={handleChange}
                             placeholder="e.g. +1 (555) 902-4118" 
-                            className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
+                            className="w-full px-4 py-3 rounded-xl border border-[#F4DDE2] focus:border-[#936DA2] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
                             required
                           />
                         </div>
@@ -1156,7 +1160,7 @@ export default function Register() {
                             value={formData.dependentHeightCm} 
                             onChange={handleChange}
                             placeholder="e.g. 110" 
-                            className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
+                            className="w-full px-4 py-3 rounded-xl border border-[#F4DDE2] focus:border-[#936DA2] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
                           />
                         </div>
 
@@ -1168,7 +1172,7 @@ export default function Register() {
                             value={formData.dependentWeightKg} 
                             onChange={handleChange}
                             placeholder="e.g. 18" 
-                            className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
+                            className="w-full px-4 py-3 rounded-xl border border-[#F4DDE2] focus:border-[#936DA2] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
                           />
                         </div>
 
@@ -1182,7 +1186,7 @@ export default function Register() {
                             value={formData.dependentMedicalNotes} 
                             onChange={handleChange}
                             placeholder="e.g. Asthma, Penicillin Allergy, Diabetes, Daily Insulin" 
-                            className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
+                            className="w-full px-4 py-3 rounded-xl border border-[#F4DDE2] focus:border-[#936DA2] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
                           />
                         </div>
                       </div>
@@ -1202,13 +1206,13 @@ export default function Register() {
                               onClick={() => toggleCaregiverScope(scope)}
                               className={`p-3.5 rounded-xl border-2 cursor-pointer flex items-center justify-between transition-all ${
                                 isSelected 
-                                  ? 'border-[#7C3AED] bg-[#F5F3FF] font-bold text-[#7C3AED]' 
-                                  : 'border-[#EDE9FE] bg-white hover:border-[#7C3AED]/50 text-[#3a3135]'
+                                  ? 'border-[#936DA2] bg-[#F9E8EC] font-bold text-[#936DA2]' 
+                                  : 'border-[#F4DDE2] bg-white hover:border-[#936DA2]/50 text-[#3a3135]'
                               }`}
                             >
                               <span className="text-xs">{scope}</span>
                               <div className={`w-5 h-5 rounded-md flex items-center justify-center border ${
-                                isSelected ? 'bg-[#7C3AED] border-[#7C3AED] text-white' : 'border-[#a89cb5] bg-white'
+                                isSelected ? 'bg-[#936DA2] border-[#936DA2] text-white' : 'border-[#a89cb5] bg-white'
                               }`}>
                                 {isSelected && <Check className="w-3.5 h-3.5" />}
                               </div>
@@ -1233,7 +1237,7 @@ export default function Register() {
                         value={formData.licenseNumber} 
                         onChange={handleChange}
                         placeholder="e.g. MD-892401"
-                        className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
+                        className="w-full px-4 py-3 rounded-xl border border-[#F4DDE2] focus:border-[#936DA2] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
                         required
                       />
                     </div>
@@ -1246,7 +1250,7 @@ export default function Register() {
                         name="specialization" 
                         value={formData.specialization} 
                         onChange={handleChange}
-                        className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm bg-white"
+                        className="w-full px-4 py-3 rounded-xl border border-[#F4DDE2] focus:border-[#936DA2] focus:ring-2 focus:ring-purple-100 outline-none text-sm bg-white"
                       >
                         <option value="">Select Specialization</option>
                         <option value="Obstetrics & Gynecology">Obstetrics & Gynecology</option>
@@ -1267,7 +1271,7 @@ export default function Register() {
                         value={formData.yearsOfExperience} 
                         onChange={handleChange}
                         placeholder="e.g. 12"
-                        className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
+                        className="w-full px-4 py-3 rounded-xl border border-[#F4DDE2] focus:border-[#936DA2] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
                       />
                     </div>
 
@@ -1281,7 +1285,7 @@ export default function Register() {
                         value={formData.hospitalClinic} 
                         onChange={handleChange}
                         placeholder="e.g. St. Jude Women's Health Center"
-                        className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
+                        className="w-full px-4 py-3 rounded-xl border border-[#F4DDE2] focus:border-[#936DA2] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
                       />
                     </div>
                   </div>
@@ -1295,23 +1299,23 @@ export default function Register() {
                 
                 {/* Rules & Regulations Text Block */}
                 <div>
-                  <div className="flex items-center justify-between pb-2 mb-3 border-b border-[#EDE9FE]">
-                    <div className="flex items-center gap-2 text-[#7C3AED]">
+                  <div className="flex items-center justify-between pb-2 mb-3 border-b border-[#F4DDE2]">
+                    <div className="flex items-center gap-2 text-[#936DA2]">
                       <Shield className="w-5 h-5 flex-shrink-0" />
                       <h3 className="font-bold text-lg text-[#3a3135] font-inter">
                         Rules & Regulations
                       </h3>
                     </div>
-                    <span className="text-xs font-bold text-[#7C3AED] bg-[#F5F3FF] px-3 py-1 rounded-full border border-[#EDE9FE] font-inter">
+                    <span className="text-xs font-bold text-[#936DA2] bg-[#F9E8EC] px-3 py-1 rounded-full border border-[#F4DDE2] font-inter">
                       {formData.accountType} Policy
                     </span>
                   </div>
 
-                  <div className="bg-[#FAF8FC] p-4 md:p-5 rounded-2xl border border-[#EDE9FE] space-y-3.5 max-h-96 overflow-y-auto scrollbar-thin font-inter">
+                  <div className="bg-[#FCF4F5] p-4 md:p-5 rounded-2xl border border-[#F4DDE2] space-y-3.5 max-h-96 overflow-y-auto scrollbar-thin font-inter">
                     {getRoleRules().map((item, idx) => (
-                      <div key={idx} className="bg-white p-4 rounded-xl border border-[#EDE9FE]/90 shadow-xs hover:border-[#7C3AED]/40 transition-all">
+                      <div key={idx} className="bg-white p-4 rounded-xl border border-[#F4DDE2]/90 shadow-xs hover:border-[#936DA2]/40 transition-all">
                         <div className="flex items-center gap-2.5 mb-1.5">
-                          <span className="text-xs font-bold px-2.5 py-0.5 rounded-md bg-[#F5F3FF] text-[#7C3AED] border border-[#EDE9FE] flex-shrink-0 font-inter">
+                          <span className="text-xs font-bold px-2.5 py-0.5 rounded-md bg-[#F9E8EC] text-[#936DA2] border border-[#F4DDE2] flex-shrink-0 font-inter">
                             {String(idx + 1).padStart(2, '0')}
                           </span>
                           <h4 className="font-bold text-sm md:text-base text-[#3b0764] tracking-tight">
@@ -1328,14 +1332,14 @@ export default function Register() {
 
                 {/* Consent Section */}
                 <div className="pt-2">
-                  <h3 className="font-bold text-lg text-[#3a3135] mb-3 flex items-center gap-2 text-[#7C3AED] font-inter">
+                  <h3 className="font-bold text-lg text-[#3a3135] mb-3 flex items-center gap-2 text-[#936DA2] font-inter">
                     <FileCheck className="w-5 h-5 flex-shrink-0" />
                     Consent
                   </h3>
                   
                   {/* Primary Consent Checkbox */}
                   <label className={`flex items-start gap-3.5 p-4 md:p-4.5 rounded-2xl border-2 cursor-pointer transition-all ${
-                    formData.fullConsent ? 'border-[#7C3AED] bg-[#F5F3FF] shadow-sm' : 'border-[#EDE9FE] hover:bg-gray-50'
+                    formData.fullConsent ? 'border-[#936DA2] bg-[#F9E8EC] shadow-sm' : 'border-[#F4DDE2] hover:bg-gray-50'
                   }`}>
                     <input 
                       type="checkbox" 
@@ -1352,7 +1356,7 @@ export default function Register() {
                           dataControlConsent: checked
                         }));
                       }}
-                      className="mt-0.5 rounded border-[#EDE9FE] text-[#7C3AED] focus:ring-[#7C3AED] w-5 h-5 flex-shrink-0 cursor-pointer"
+                      className="mt-0.5 rounded border-[#F4DDE2] text-[#936DA2] focus:ring-[#936DA2] w-5 h-5 flex-shrink-0 cursor-pointer"
                       required 
                     />
                     <span className="font-inter text-sm text-[#374151] leading-relaxed font-medium">
@@ -1364,12 +1368,12 @@ export default function Register() {
             )}
 
             {/* Stepper Controls & Action Buttons */}
-            <div className="mt-8 flex items-center justify-between pt-6 border-t border-[#EDE9FE]">
+            <div className="mt-8 flex items-center justify-between pt-6 border-t border-[#F4DDE2]">
               {step > 1 ? (
                 <button 
                   type="button" 
                   onClick={handlePrev} 
-                  className="flex items-center gap-1.5 px-5 py-3 rounded-xl border border-[#EDE9FE] hover:bg-[#F5F3FF] text-[#4a4145] font-bold text-sm transition-colors"
+                  className="flex items-center gap-1.5 px-5 py-3 rounded-xl border border-[#F4DDE2] hover:bg-[#F9E8EC] text-[#4a4145] font-bold text-sm transition-colors"
                 >
                   <ChevronLeft className="w-4 h-4" /> Previous
                 </button>
@@ -1380,7 +1384,7 @@ export default function Register() {
               {step < 5 ? (
                 <button 
                   type="submit" 
-                  className="flex items-center gap-1.5 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl px-7 py-3 text-sm font-bold shadow-md shadow-purple-200 transition-colors"
+                  className="flex items-center gap-1.5 bg-[#936DA2] hover:bg-[#835A92] text-white rounded-xl px-7 py-3 text-sm font-bold shadow-md shadow-purple-200 transition-colors"
                 >
                   Next Step <ChevronRight className="w-4 h-4" />
                 </button>
@@ -1390,7 +1394,7 @@ export default function Register() {
                   disabled={!(formData.fullConsent || (formData.infoAccurate && formData.termsAgreed && formData.dataProcessingConsent && formData.dataControlConsent))}
                   className={`flex-1 md:flex-none rounded-xl px-8 py-3.5 text-sm font-bold shadow-lg transition-all transform ${
                     (formData.fullConsent || (formData.infoAccurate && formData.termsAgreed && formData.dataProcessingConsent && formData.dataControlConsent))
-                      ? 'bg-[#7C3AED] hover:bg-[#6D28D9] text-white shadow-purple-200 hover:-translate-y-0.5' 
+                      ? 'bg-[#936DA2] hover:bg-[#835A92] text-white shadow-purple-200 hover:-translate-y-0.5' 
                       : 'bg-gray-300 text-gray-500 cursor-not-allowed shadow-none'
                   }`}
                 >
@@ -1404,7 +1408,7 @@ export default function Register() {
 
         {/* Footer link */}
         <div className="mt-6 text-center text-sm text-[#7a6f75]">
-          Already have an account? <Link to="/login" className="font-bold text-[#7C3AED] hover:underline">Login</Link>
+          Already have an account? <Link to="/login" className="font-bold text-[#936DA2] hover:underline">Login</Link>
         </div>
 
       </div>

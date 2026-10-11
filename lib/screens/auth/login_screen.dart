@@ -97,6 +97,16 @@ class _LoginScreenState extends State<LoginScreen> {
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(14),
+              child: Image.asset(
+                'assets/images/femsphere_logo.png',
+                width: 26,
+                height: 26,
+                fit: BoxFit.contain,
+              ),
+            ),
+            const SizedBox(width: 8),
             Text(
               'FemSphere',
               style: GoogleFonts.playfairDisplay(
@@ -105,8 +115,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 fontSize: 22,
               ),
             ),
-            const SizedBox(width: 4),
-            const Icon(Icons.auto_awesome, color: AppTheme.secondaryTeal, size: 16),
           ],
         ),
         centerTitle: true,
@@ -205,7 +213,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     ),
                                     child: Row(
                                       children: [
-                                        const Icon(Icons.auto_awesome, size: 12, color: AppTheme.primaryPurple),
+                                        const Icon(Icons.psychology_outlined, size: 12, color: AppTheme.primaryPurple),
                                         const SizedBox(width: 4),
                                         Text(
                                           'Digital Health Twin Portal',

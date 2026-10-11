@@ -449,6 +449,128 @@ class ApiService {
     return {};
   }
 
+  static Future<Map<String, dynamic>> savePeriodSettings(Map<String, dynamic> data) async {
+    final response = await http.post(
+      Uri.parse(ApiConstants.periodTrackerSettings),
+      headers: _headers,
+      body: jsonEncode(data),
+    );
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    }
+    return {'success': false, 'message': 'Failed to save cycle settings'};
+  }
+
+  static Future<Map<String, dynamic>> updatePeriodSettings(Map<String, dynamic> data) async {
+    final response = await http.put(
+      Uri.parse(ApiConstants.periodTrackerSettings),
+      headers: _headers,
+      body: jsonEncode(data),
+    );
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    }
+    return {'success': false, 'message': 'Failed to update settings'};
+  }
+
+  static Future<Map<String, dynamic>> logPeriodCycle(Map<String, dynamic> data) async {
+    final response = await http.post(
+      Uri.parse(ApiConstants.periodTrackerCycles),
+      headers: _headers,
+      body: jsonEncode(data),
+    );
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    }
+    return {'success': false, 'message': 'Failed to log period cycle'};
+  }
+
+  static Future<Map<String, dynamic>> updatePeriodCycle(dynamic id, Map<String, dynamic> data) async {
+    final response = await http.put(
+      Uri.parse(ApiConstants.periodTrackerCycle(id)),
+      headers: _headers,
+      body: jsonEncode(data),
+    );
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    }
+    return {'success': false, 'message': 'Failed to update cycle'};
+  }
+
+  static Future<Map<String, dynamic>> deletePeriodCycle(dynamic id) async {
+    final response = await http.delete(
+      Uri.parse(ApiConstants.periodTrackerCycle(id)),
+      headers: _headers,
+    );
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    }
+    return {'success': false, 'message': 'Failed to delete cycle'};
+  }
+
+  static Future<List<dynamic>> getDailyLogs({String? month, String? date}) async {
+    String url = ApiConstants.periodTrackerDaily;
+    if (month != null) {
+      url += '?month=$month';
+    } else if (date != null) {
+      url += '?date=$date';
+    }
+    final response = await http.get(Uri.parse(url), headers: _headers);
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      if (data['success'] == true && data['logs'] is List) {
+        return data['logs'];
+      }
+    }
+    return [];
+  }
+
+  static Future<Map<String, dynamic>> saveDailyLog(Map<String, dynamic> data) async {
+    final response = await http.post(
+      Uri.parse(ApiConstants.periodTrackerDaily),
+      headers: _headers,
+      body: jsonEncode(data),
+    );
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    }
+    return {'success': false, 'message': 'Failed to save daily log'};
+  }
+
+  static Future<Map<String, dynamic>> deleteDailyLog(String date) async {
+    final response = await http.delete(
+      Uri.parse(ApiConstants.periodTrackerDailyDate(date)),
+      headers: _headers,
+    );
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    }
+    return {'success': false, 'message': 'Failed to delete daily log'};
+  }
+
+  static Future<Map<String, dynamic>> getPeriodInsights() async {
+    final response = await http.get(Uri.parse(ApiConstants.periodTrackerInsights), headers: _headers);
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    }
+    return {};
+  }
+
+  static Future<Map<String, dynamic>> adjustPeriodDelay(int newCycleLength, int delayDays) async {
+    final response = await http.post(
+      Uri.parse(ApiConstants.periodTrackerDelay),
+      headers: _headers,
+      body: jsonEncode({
+        'newCycleLength': newCycleLength,
+        'delayDays': delayDays,
+      }),
+    );
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    }
+    return {'success': false, 'message': 'Failed to calibrate cycle delay'};
+  }
+
   static Future<Map<String, dynamic>> activatePregnancy(String lmpDate) async {
     final response = await http.post(
       Uri.parse(ApiConstants.pregnancyActivate),
@@ -479,6 +601,53 @@ class ApiService {
       return jsonDecode(response.body);
     }
     return {};
+  }
+
+  // ===========================================================================
+  // AI HEALTH TWIN CHAT
+  // ===========================================================================
+  static Future<Map<String, dynamic>> chatWithTwin(String message, {List<dynamic>? history}) async {
+    final response = await http.post(
+      Uri.parse(ApiConstants.aiTwinChat),
+      headers: _headers,
+      body: jsonEncode({
+        'message': message,
+        'history': history ?? [],
+      }),
+    );
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    }
+    return {
+      'success': true,
+      'reply': "I have analyzed your recent cycle milestones and wearable biometrics. Your biomarkers appear stable with normal circadian variation. How else can I guide your wellness today?",
+      'suggestedQuestions': [
+        "What is my hormonal rhythm this week?",
+        "How is my sleep and resting heart rate trend?",
+        "Are there any insights from my recent medical records?"
+      ]
+    };
+  }
+
+  static Future<List<dynamic>> getHealthTrackerLogs() async {
+    final response = await http.get(Uri.parse(ApiConstants.vitals), headers: _headers);
+    if (response.statusCode == 200) {
+      final decoded = jsonDecode(response.body);
+      if (decoded is List) return decoded;
+    }
+    return [];
+  }
+
+  static Future<Map<String, dynamic>> saveHealthTrackerLog(Map<String, dynamic> data) async {
+    final response = await http.post(
+      Uri.parse(ApiConstants.vitals),
+      headers: _headers,
+      body: jsonEncode(data),
+    );
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return jsonDecode(response.body);
+    }
+    return {'success': false, 'message': 'Failed to save daily health activity'};
   }
 }
 

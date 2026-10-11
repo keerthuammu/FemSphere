@@ -11,11 +11,11 @@ export default function UserNotifications() {
   } = useUser();
 
   return (
-    <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#EDE9FE] shadow-sm space-y-6 font-inter">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-[#EDE9FE] pb-4 gap-4">
+    <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#F4DDE2] shadow-sm space-y-6 font-inter">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-[#F4DDE2] pb-4 gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <Bell className="w-5 h-5 text-[#7C3AED]" />
+            <Bell className="w-5 h-5 text-[#936DA2]" />
             <h3 className="font-bold text-xl text-[#3a3135]">Notifications Center</h3>
           </div>
           <p className="text-xs text-[#7a6f75] mt-1">Real-time system updates, clinical appointment alerts, and report scans</p>
@@ -23,7 +23,7 @@ export default function UserNotifications() {
         {notifications.some(n => !n.read) && (
           <button 
             onClick={markAllNotificationsRead} 
-            className="text-xs font-bold text-[#7C3AED] hover:underline cursor-pointer flex items-center gap-1.5"
+            className="text-xs font-bold text-[#936DA2] hover:underline cursor-pointer flex items-center gap-1.5"
           >
             <CheckCircle2 className="w-4 h-4" /> Mark all as read
           </button>
@@ -35,12 +35,12 @@ export default function UserNotifications() {
           <div 
             key={n.id} 
             className={`p-4.5 rounded-2xl border flex items-start justify-between gap-4 transition-all text-xs ${
-              n.read ? 'bg-[#FAF8FC] border-[#EDE9FE] opacity-75' : 'bg-white border-[#7C3AED]/30 shadow-xs'
+              n.read ? 'bg-[#FCF4F5] border-[#F4DDE2] opacity-75' : 'bg-white border-[#936DA2]/30 shadow-xs'
             }`}
           >
             <div className="space-y-1">
               <div className="flex items-center gap-2">
-                <span className={`w-2 h-2 rounded-full ${n.read ? 'bg-transparent' : 'bg-[#7C3AED]'}`}></span>
+                <span className={`w-2 h-2 rounded-full ${n.read ? 'bg-transparent' : 'bg-[#936DA2]'}`}></span>
                 <h4 className="font-bold text-sm text-[#3a3135]">{n.title}</h4>
                 <span className="text-[10px] text-[#7a6f75]">{n.time}</span>
               </div>
@@ -51,7 +51,7 @@ export default function UserNotifications() {
               {!n.read && (
                 <button 
                   onClick={() => markNotificationRead(n.id)} 
-                  className="text-[11px] font-bold text-[#7C3AED] hover:underline cursor-pointer"
+                  className="text-[11px] font-bold text-[#936DA2] hover:underline cursor-pointer"
                 >
                   Mark as read
                 </button>
@@ -68,7 +68,7 @@ export default function UserNotifications() {
         ))}
 
         {notifications.length === 0 && (
-          <div className="text-center py-12 border border-dashed border-[#EDE9FE] rounded-3xl text-[#7a6f75] text-xs">
+          <div className="text-center py-12 border border-dashed border-[#F4DDE2] rounded-3xl text-[#7a6f75] text-xs">
             No notifications to display.
           </div>
         )}

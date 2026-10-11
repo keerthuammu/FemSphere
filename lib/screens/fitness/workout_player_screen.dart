@@ -553,7 +553,7 @@ class _WorkoutPlayerScreenState extends State<WorkoutPlayerScreen> with TickerPr
             children: [
               Expanded(child: _buildSummaryMetric('Exercises Done', '${widget.workoutPlan.exercises.length}', 'completed', const Color(0xFF10B981), const Color(0xFFECFDF5))),
               const SizedBox(width: 12),
-              Expanded(child: _buildSummaryMetric('Streak', '5 Days 🔥', 'consistency', const Color(0xFF7C3AED), const Color(0xFFF3E8FF))),
+              Expanded(child: _buildSummaryMetric('Streak', '5 Days 🔥', 'consistency', AppTheme.primaryPurple, AppTheme.primaryPurpleLight)),
             ],
           ),
           const SizedBox(height: 32),

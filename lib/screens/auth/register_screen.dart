@@ -276,6 +276,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(14),
+              child: Image.asset(
+                'assets/images/femsphere_logo.png',
+                width: 26,
+                height: 26,
+                fit: BoxFit.contain,
+              ),
+            ),
+            const SizedBox(width: 8),
             Text(
               'FemSphere',
               style: GoogleFonts.playfairDisplay(
@@ -284,8 +294,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 fontSize: 22,
               ),
             ),
-            const SizedBox(width: 4),
-            const Icon(Icons.auto_awesome, color: AppTheme.secondaryTeal, size: 16),
           ],
         ),
         centerTitle: true,

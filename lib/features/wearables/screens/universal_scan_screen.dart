@@ -277,14 +277,14 @@ class _UniversalScanScreenState extends State<UniversalScanScreen> {
             margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
               gradient: const LinearGradient(
-                colors: [Color(0xFF7C3AED), Color(0xFF06B6D4)],
+                colors: [AppTheme.primaryPurple, Color(0xFF06B6D4)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF7C3AED).withValues(alpha: 0.18),
+                  color: AppTheme.primaryPurple.withValues(alpha: 0.18),
                   blurRadius: 10,
                   offset: const Offset(0, 3),
                 ),

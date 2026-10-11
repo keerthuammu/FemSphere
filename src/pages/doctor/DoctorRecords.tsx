@@ -17,8 +17,8 @@ export default function DoctorRecords() {
   );
 
   return (
-    <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#EDE9FE] shadow-sm space-y-6 animate-in fade-in duration-200">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#EDE9FE] pb-5">
+    <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#F4DDE2] shadow-sm space-y-6 animate-in fade-in duration-200">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#F4DDE2] pb-5">
         <div>
           <h3 className="font-serif text-3xl font-bold text-[#3a3135]">Shared Medical Records & AI Scans</h3>
           <p className="text-xs text-[#7a6f75]">Patient-shared diagnostic reports with automated AI biomarker extraction</p>
@@ -31,30 +31,30 @@ export default function DoctorRecords() {
             value={searchRecord}
             onChange={(e) => setSearchRecord(e.target.value)}
             placeholder="Search patient name or report..." 
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#EDE9FE] bg-[#FAF8FC] text-xs outline-none focus:border-[#7C3AED]"
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#F4DDE2] bg-[#FCF4F5] text-xs outline-none focus:border-[#936DA2]"
           />
         </div>
       </div>
 
       {filteredRecords.length === 0 ? (
-        <div className="p-12 text-center bg-[#FAF8FC] rounded-2xl border border-dashed border-[#EDE9FE]">
+        <div className="p-12 text-center bg-[#FCF4F5] rounded-2xl border border-dashed border-[#F4DDE2]">
           <p className="text-xs text-[#7a6f75]">No shared records match your search criteria.</p>
         </div>
       ) : (
         <div className="space-y-4">
           {filteredRecords.map(rec => (
-            <div key={rec.id} className="p-6 rounded-3xl border border-[#EDE9FE] bg-[#FAF8FC] hover:border-[#7C3AED]/40 hover:bg-white transition-all space-y-4 shadow-2xs">
+            <div key={rec.id} className="p-6 rounded-3xl border border-[#F4DDE2] bg-[#FCF4F5] hover:border-[#936DA2]/40 hover:bg-white transition-all space-y-4 shadow-2xs">
               
               {/* Top Header: Patient Identity Banner & File Badges */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#EDE9FE] pb-3.5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#F4DDE2] pb-3.5">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#7C3AED] to-[#F472B6] text-white flex items-center justify-center font-bold text-sm shadow-xs">
+                  <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#936DA2] to-[#F472B6] text-white flex items-center justify-center font-bold text-sm shadow-xs">
                     {rec.patient.charAt(0)}
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
                       <h4 className="font-bold text-base text-[#3a3135]">{rec.patient}</h4>
-                      <span className="px-2 py-0.5 rounded-md bg-purple-100 text-[#7C3AED] font-mono font-bold text-[10px]">
+                      <span className="px-2 py-0.5 rounded-md bg-purple-100 text-[#936DA2] font-mono font-bold text-[10px]">
                         {rec.patientId}
                       </span>
                     </div>
@@ -63,7 +63,7 @@ export default function DoctorRecords() {
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="px-3 py-1 rounded-full bg-purple-100 text-[#7C3AED] font-bold text-xs">
+                  <span className="px-3 py-1 rounded-full bg-purple-100 text-[#936DA2] font-bold text-xs">
                     {rec.category}
                   </span>
                   <span className="px-2.5 py-1 rounded-full bg-gray-100 text-[#7a6f75] font-semibold text-[11px]">
@@ -84,7 +84,7 @@ export default function DoctorRecords() {
                   </div>
 
                   <div className="p-3.5 rounded-2xl bg-purple-50/70 border border-purple-100 text-xs">
-                    <span className="font-bold text-[#7C3AED] flex items-center gap-1.5 text-[11px] uppercase tracking-wider mb-1">
+                    <span className="font-bold text-[#936DA2] flex items-center gap-1.5 text-[11px] uppercase tracking-wider mb-1">
                       <Sparkles className="w-3.5 h-3.5 text-[#14B8A6]" /> AI Diagnostic Summary for {rec.patient}
                     </span>
                     <p className="text-[#3a3135] leading-relaxed">{rec.aiSummary}</p>
@@ -93,8 +93,8 @@ export default function DoctorRecords() {
                   {/* Quick Biomarker Highlights */}
                   <div className="flex flex-wrap gap-2 pt-1">
                     {rec.biomarkers.slice(0, 3).map((bm, bIdx) => (
-                      <span key={bIdx} className="px-2.5 py-1 rounded-lg bg-white border border-[#EDE9FE] text-[11px] font-medium text-[#3a3135]">
-                        <b>{bm.name}:</b> <span className="text-[#7C3AED] font-bold">{bm.value}</span> ({bm.status})
+                      <span key={bIdx} className="px-2.5 py-1 rounded-lg bg-white border border-[#F4DDE2] text-[11px] font-medium text-[#3a3135]">
+                        <b>{bm.name}:</b> <span className="text-[#936DA2] font-bold">{bm.value}</span> ({bm.status})
                       </span>
                     ))}
                     {rec.biomarkers.length > 3 && (
@@ -109,7 +109,7 @@ export default function DoctorRecords() {
                 <div className="flex flex-row md:flex-col gap-2 shrink-0 self-end md:self-center">
                   <button 
                     onClick={() => setSelectedRecordToView(rec)} 
-                    className="px-5 py-2.5 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer text-xs"
+                    className="px-5 py-2.5 bg-[#936DA2] hover:bg-[#835A92] text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer text-xs"
                   >
                     <Eye className="w-4 h-4" /> View AI Biomarkers
                   </button>
@@ -118,7 +118,7 @@ export default function DoctorRecords() {
                       const pat = patients.find(p => p.id === rec.patientId || p.name === rec.patient);
                       if (pat) setSelectedHealthTwin(pat);
                     }}
-                    className="px-4 py-2 border border-[#EDE9FE] bg-white text-[#3a3135] hover:bg-purple-50 hover:text-[#7C3AED] rounded-xl font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer text-xs"
+                    className="px-4 py-2 border border-[#F4DDE2] bg-white text-[#3a3135] hover:bg-purple-50 hover:text-[#936DA2] rounded-xl font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer text-xs"
                   >
                     <Activity className="w-3.5 h-3.5" /> Patient Twin
                   </button>

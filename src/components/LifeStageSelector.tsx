@@ -20,23 +20,23 @@ export default function LifeStageSelector({ currentStageCode, stageName }: Props
         className={`flex items-center gap-2 px-3.5 py-2 rounded-2xl border text-xs font-bold transition-all shadow-xs cursor-pointer ${
           isPregnancy
             ? 'bg-purple-100 border-purple-300 text-purple-900 hover:bg-purple-200'
-            : 'bg-[#F5F3FF] border-[#EDE9FE] hover:border-[#7C3AED] text-[#7C3AED]'
+            : 'bg-[#F9E8EC] border-[#F4DDE2] hover:border-[#936DA2] text-[#936DA2]'
         }`}
         title="View Biological Stage Information"
       >
         <span className="text-sm">{isPregnancy ? '🤰' : '🌱'}</span>
         <span>{stageName || 'Reproductive Age'}</span>
-        <span className="text-[10px] bg-white/80 px-1.5 py-0.5 rounded-full border border-purple-200 font-extrabold text-[#7C3AED]">
+        <span className="text-[10px] bg-white/80 px-1.5 py-0.5 rounded-full border border-purple-200 font-extrabold text-[#936DA2]">
           Dynamic
         </span>
         <ChevronDown className="w-3.5 h-3.5 opacity-70" />
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 bg-white rounded-3xl shadow-2xl border border-[#EDE9FE] p-4 z-50 animate-in fade-in zoom-in-95 duration-150 space-y-3">
-          <div className="flex items-center justify-between border-b border-[#EDE9FE] pb-2.5">
+        <div className="absolute right-0 mt-2 w-80 bg-white rounded-3xl shadow-2xl border border-[#F4DDE2] p-4 z-50 animate-in fade-in zoom-in-95 duration-150 space-y-3">
+          <div className="flex items-center justify-between border-b border-[#F4DDE2] pb-2.5">
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-xl bg-purple-100 text-[#7C3AED] flex items-center justify-center">
+              <div className="w-7 h-7 rounded-xl bg-purple-100 text-[#936DA2] flex items-center justify-center">
                 <ShieldCheck className="w-4 h-4" />
               </div>
               <div>
@@ -52,10 +52,10 @@ export default function LifeStageSelector({ currentStageCode, stageName }: Props
             </button>
           </div>
 
-          <div className="p-3 bg-[#FAF8FC] rounded-2xl border border-[#EDE9FE] space-y-1.5 text-xs">
+          <div className="p-3 bg-[#FCF4F5] rounded-2xl border border-[#F4DDE2] space-y-1.5 text-xs">
             <div className="flex items-center justify-between">
               <span className="text-[11px] text-gray-500 font-semibold">Active Stage</span>
-              <span className="font-bold text-[#7C3AED]">{stageName || 'Reproductive Age'}</span>
+              <span className="font-bold text-[#936DA2]">{stageName || 'Reproductive Age'}</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-[11px] text-gray-500 font-semibold">Stage Engine</span>
@@ -67,18 +67,18 @@ export default function LifeStageSelector({ currentStageCode, stageName }: Props
 
           <div className="space-y-2 text-[11px] text-gray-600 leading-relaxed">
             <p className="flex items-start gap-1.5">
-              <Info className="w-3.5 h-3.5 text-[#7C3AED] shrink-0 mt-0.5" />
+              <Info className="w-3.5 h-3.5 text-[#936DA2] shrink-0 mt-0.5" />
               <span>
                 Your life stage dynamically calculates from your <b>Date of Birth</b>, onset of <b>menarche</b>, and active <b>pregnancy state</b>.
               </span>
             </p>
           </div>
 
-          <div className="border-t border-[#EDE9FE] pt-2.5 flex flex-col gap-2">
+          <div className="border-t border-[#F4DDE2] pt-2.5 flex flex-col gap-2">
             <Link
               to="/settings"
               onClick={() => setIsOpen(false)}
-              className="text-center py-2 px-3 bg-[#FAF8FC] hover:bg-purple-50 text-[#7C3AED] font-bold text-xs rounded-xl border border-[#EDE9FE] transition-colors flex items-center justify-center gap-1.5"
+              className="text-center py-2 px-3 bg-[#FCF4F5] hover:bg-purple-50 text-[#936DA2] font-bold text-xs rounded-xl border border-[#F4DDE2] transition-colors flex items-center justify-center gap-1.5"
             >
               <span>Calibrate DOB / Menarche in Settings</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -87,7 +87,7 @@ export default function LifeStageSelector({ currentStageCode, stageName }: Props
             <Link
               to="/tracker"
               onClick={() => setIsOpen(false)}
-              className="text-center py-2 px-3 bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-bold text-xs rounded-xl transition-colors flex items-center justify-center gap-1.5"
+              className="text-center py-2 px-3 bg-[#936DA2] hover:bg-[#835A92] text-white font-bold text-xs rounded-xl transition-colors flex items-center justify-center gap-1.5"
             >
               <span>Manage Maternity in Period Tracker</span>
               <ArrowRight className="w-3.5 h-3.5" />

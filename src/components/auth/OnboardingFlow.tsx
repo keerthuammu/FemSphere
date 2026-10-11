@@ -84,8 +84,8 @@ export default function OnboardingFlow() {
       <div className="w-full max-w-md h-[92vh] max-h-[720px] bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-2xl border border-purple-100 dark:border-slate-800 flex flex-col justify-between overflow-hidden relative">
         {/* Top skip & close */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5">
-            <Sparkles className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+          <div className="flex items-center gap-2">
+            <img src="/femsphere_logo.png" alt="FemSphere" className="w-6 h-6 rounded-full object-contain shadow-xs" />
             <span className="font-serif text-sm font-bold text-slate-900 dark:text-white">FemSphere</span>
           </div>
 

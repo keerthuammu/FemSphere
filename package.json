@@ -11,8 +11,8 @@
     "preview": "vite preview",
     "clean": "rm -rf dist",
     "lint": "tsc --noEmit",
-    "test": "node --test tests/api/api.test.js",
-    "test:all": "node --test tests/api/api.test.js && flutter test",
+    "test": "node --test tests/api/api.test.js tests/api/period_tracker_e2e.test.js",
+    "test:all": "node --test tests/api/api.test.js tests/api/period_tracker_e2e.test.js && flutter test",
     "seed": "node scripts/seed_demo_data.js",
     "init-db": "node init_db.js"
   },

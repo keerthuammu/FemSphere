@@ -91,9 +91,9 @@ export default function PostpartumDashboardModule() {
   };
 
   return (
-    <div className="bg-white rounded-3xl p-6 border border-[#EDE9FE] shadow-sm space-y-6 font-inter">
+    <div className="bg-white rounded-3xl p-6 border border-[#F4DDE2] shadow-sm space-y-6 font-inter">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#EDE9FE] pb-4 gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#F4DDE2] pb-4 gap-4">
         <div className="flex items-center gap-3">
           <div className="w-11 h-11 rounded-2xl bg-teal-100 text-teal-700 flex items-center justify-center font-bold text-xl shadow-xs">
             🍼
@@ -106,7 +106,7 @@ export default function PostpartumDashboardModule() {
 
         <button
           onClick={() => setIsEpdsModalOpen(true)}
-          className="self-start sm:self-auto px-4 py-2 bg-purple-50 hover:bg-purple-100 text-[#7C3AED] border border-purple-200 rounded-xl font-bold text-xs shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer"
+          className="self-start sm:self-auto px-4 py-2 bg-purple-50 hover:bg-purple-100 text-[#936DA2] border border-purple-200 rounded-xl font-bold text-xs shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer"
         >
           <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500" />
           Take EPDS Mood Screening ({epdsScore}/15)
@@ -115,19 +115,19 @@ export default function PostpartumDashboardModule() {
 
       <div className="grid md:grid-cols-3 gap-5">
         {/* 1. Feeding / Lactation Timer */}
-        <div className="bg-[#FAF8FC] p-5 rounded-2xl border border-[#EDE9FE] space-y-4">
+        <div className="bg-[#FCF4F5] p-5 rounded-2xl border border-[#F4DDE2] space-y-4">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold text-[#7C3AED] uppercase tracking-wider">Lactation & Feeding Log</span>
-            <Clock className="w-4 h-4 text-[#7C3AED]" />
+            <span className="text-[10px] font-bold text-[#936DA2] uppercase tracking-wider">Lactation & Feeding Log</span>
+            <Clock className="w-4 h-4 text-[#936DA2]" />
           </div>
 
-          <div className="flex gap-1 bg-white p-1 rounded-xl border border-[#EDE9FE]">
+          <div className="flex gap-1 bg-white p-1 rounded-xl border border-[#F4DDE2]">
             {(['Left Breast', 'Right Breast', 'Bottle'] as const).map(side => (
               <button
                 key={side}
                 onClick={() => setActiveSide(side)}
                 className={`flex-1 py-1.5 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
-                  activeSide === side ? 'bg-[#7C3AED] text-white shadow-2xs' : 'text-[#7a6f75] hover:text-[#3a3135]'
+                  activeSide === side ? 'bg-[#936DA2] text-white shadow-2xs' : 'text-[#7a6f75] hover:text-[#3a3135]'
                 }`}
               >
                 {side.replace(' Breast', '')}
@@ -135,7 +135,7 @@ export default function PostpartumDashboardModule() {
             ))}
           </div>
 
-          <div className="bg-white p-4 rounded-xl border border-[#EDE9FE] text-center space-y-3">
+          <div className="bg-white p-4 rounded-xl border border-[#F4DDE2] text-center space-y-3">
             <span className="text-2xl font-black text-[#3a3135]">
               {Math.floor(nursingSeconds / 60)}:{(nursingSeconds % 60).toString().padStart(2, '0')}
             </span>
@@ -150,7 +150,7 @@ export default function PostpartumDashboardModule() {
               ) : (
                 <button
                   onClick={handleStartNursing}
-                  className="px-4 py-2 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+                  className="px-4 py-2 bg-[#936DA2] hover:bg-[#835A92] text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
                 >
                   <Play className="w-3.5 h-3.5" /> Start Feed
                 </button>
@@ -161,7 +161,7 @@ export default function PostpartumDashboardModule() {
           <div className="space-y-1 text-xs">
             <span className="text-[10px] font-bold text-[#7a6f75] uppercase">Recent Sessions</span>
             {feedingLogs.slice(0, 2).map((l, i) => (
-              <div key={i} className="flex justify-between bg-white p-2 rounded-lg border border-[#EDE9FE] text-[11px]">
+              <div key={i} className="flex justify-between bg-white p-2 rounded-lg border border-[#F4DDE2] text-[11px]">
                 <span className="font-semibold text-[#3a3135]">{l.type}</span>
                 <span className="text-gray-500">{l.durationMinutes}m • {l.time}</span>
               </div>
@@ -170,14 +170,14 @@ export default function PostpartumDashboardModule() {
         </div>
 
         {/* 2. Diaper Output Logger */}
-        <div className="bg-[#FAF8FC] p-5 rounded-2xl border border-[#EDE9FE] space-y-4">
+        <div className="bg-[#FCF4F5] p-5 rounded-2xl border border-[#F4DDE2] space-y-4">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-bold text-[#14B8A6] uppercase tracking-wider">Newborn Output Logs</span>
             <Droplet className="w-4 h-4 text-[#14B8A6]" />
           </div>
 
           <div className="space-y-3">
-            <div className="bg-white p-3.5 rounded-xl border border-[#EDE9FE] flex items-center justify-between">
+            <div className="bg-white p-3.5 rounded-xl border border-[#F4DDE2] flex items-center justify-between">
               <div>
                 <span className="font-bold text-sm text-[#3a3135]">💧 Wet Diapers</span>
                 <p className="text-[11px] text-[#7a6f75]">Target: 6+ daily</p>
@@ -193,7 +193,7 @@ export default function PostpartumDashboardModule() {
               </div>
             </div>
 
-            <div className="bg-white p-3.5 rounded-xl border border-[#EDE9FE] flex items-center justify-between">
+            <div className="bg-white p-3.5 rounded-xl border border-[#F4DDE2] flex items-center justify-between">
               <div>
                 <span className="font-bold text-sm text-[#3a3135]">💩 Dirty Diapers</span>
                 <p className="text-[11px] text-[#7a6f75]">Normal yellow/seedy stools</p>
@@ -216,13 +216,13 @@ export default function PostpartumDashboardModule() {
         </div>
 
         {/* 3. Mood & Pelvic Recovery */}
-        <div className="bg-[#FAF8FC] p-5 rounded-2xl border border-[#EDE9FE] space-y-4">
+        <div className="bg-[#FCF4F5] p-5 rounded-2xl border border-[#F4DDE2] space-y-4">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-bold text-rose-600 uppercase tracking-wider">Maternal Well-Being</span>
             <Smile className="w-4 h-4 text-rose-500" />
           </div>
 
-          <div className="bg-white p-3.5 rounded-xl border border-[#EDE9FE] space-y-2">
+          <div className="bg-white p-3.5 rounded-xl border border-[#F4DDE2] space-y-2">
             <div className="flex justify-between items-center text-xs font-bold">
               <span className="text-[#3a3135]">EPDS Depression Risk:</span>
               <span className={`px-2 py-0.5 rounded-md text-[10px] ${
@@ -236,7 +236,7 @@ export default function PostpartumDashboardModule() {
             </p>
           </div>
 
-          <div className="bg-white p-3.5 rounded-xl border border-[#EDE9FE] space-y-2">
+          <div className="bg-white p-3.5 rounded-xl border border-[#F4DDE2] space-y-2">
             <span className="font-bold text-xs text-[#3a3135] block">Pelvic Floor Restoration</span>
             <p className="text-[11px] text-[#7a6f75]">
               Mild discomfort (2/10). Kegel rehabilitation session scheduled for week 6 consultation.
@@ -248,8 +248,8 @@ export default function PostpartumDashboardModule() {
       {/* EPDS Questionnaire Modal */}
       {isEpdsModalOpen && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-3xl p-6 max-w-xl w-full border border-[#EDE9FE] shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between pb-3 border-b border-[#EDE9FE]">
+          <div className="bg-white rounded-3xl p-6 max-w-xl w-full border border-[#F4DDE2] shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-3 border-b border-[#F4DDE2]">
               <div>
                 <h3 className="font-bold text-base text-[#3a3135]">Edinburgh Postnatal Depression Scale (EPDS)</h3>
                 <p className="text-xs text-[#7a6f75]">Self-assessment questionnaire for maternal emotional health</p>
@@ -264,7 +264,7 @@ export default function PostpartumDashboardModule() {
 
             <div className="space-y-4 text-xs">
               {epdsQuestions.map((q, qIdx) => (
-                <div key={qIdx} className="space-y-2 bg-[#FAF8FC] p-3.5 rounded-xl border border-[#EDE9FE]">
+                <div key={qIdx} className="space-y-2 bg-[#FCF4F5] p-3.5 rounded-xl border border-[#F4DDE2]">
                   <p className="font-bold text-[#3a3135]">{qIdx + 1}. {q.q}</p>
                   <div className="grid grid-cols-1 gap-1.5">
                     {q.options.map((opt, oIdx) => (
@@ -274,7 +274,7 @@ export default function PostpartumDashboardModule() {
                         onClick={() => handleSelectEpdsOption(qIdx, oIdx)}
                         className={`text-left p-2 rounded-lg border text-[11px] font-medium transition-all cursor-pointer ${
                           epdsAnswers[qIdx] === oIdx
-                            ? 'bg-purple-100 border-[#7C3AED] text-[#7C3AED] font-bold'
+                            ? 'bg-purple-100 border-[#936DA2] text-[#936DA2] font-bold'
                             : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
                         }`}
                       >
@@ -286,7 +286,7 @@ export default function PostpartumDashboardModule() {
               ))}
             </div>
 
-            <div className="flex justify-end gap-2 pt-2 border-t border-[#EDE9FE]">
+            <div className="flex justify-end gap-2 pt-2 border-t border-[#F4DDE2]">
               <button
                 onClick={() => setIsEpdsModalOpen(false)}
                 className="px-4 py-2 text-xs font-bold text-gray-600 hover:bg-gray-100 rounded-xl cursor-pointer"
@@ -295,7 +295,7 @@ export default function PostpartumDashboardModule() {
               </button>
               <button
                 onClick={handleCalculateEpds}
-                className="px-5 py-2 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
+                className="px-5 py-2 bg-[#936DA2] hover:bg-[#835A92] text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
               >
                 Save & Compute Score
               </button>

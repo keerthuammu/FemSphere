@@ -68,6 +68,20 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0.5,
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 12),
+          child: Center(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(14),
+              child: Image.asset(
+                'assets/images/femsphere_logo.png',
+                width: 28,
+                height: 28,
+                fit: BoxFit.contain,
+              ),
+            ),
+          ),
+        ),
         title: DropdownButtonHideUnderline(
           child: DropdownButton<int>(
             value: _activeDependent.id,

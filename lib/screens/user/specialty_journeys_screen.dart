@@ -329,7 +329,7 @@ class _SpecialtyJourneysScreenState extends State<SpecialtyJourneysScreen>
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             gradient: const LinearGradient(
-              colors: [Color(0xFF8B5CF6), Color(0xFF7C3AED)],
+              colors: [AppTheme.primaryPurple, AppTheme.primaryPurpleDark],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -555,7 +555,7 @@ class _SpecialtyJourneysScreenState extends State<SpecialtyJourneysScreen>
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             gradient: const LinearGradient(
-              colors: [Color(0xFFA855F7), Color(0xFF7E22CE)],
+              colors: [AppTheme.primaryPurple, AppTheme.primaryPurpleDark],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -592,7 +592,7 @@ class _SpecialtyJourneysScreenState extends State<SpecialtyJourneysScreen>
               ListTile(
                 dense: true,
                 contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.check_circle, color: Color(0xFFA855F7)),
+                leading: const Icon(Icons.check_circle, color: AppTheme.primaryPurple),
                 title: const Text('Menarche Literacy Module Completed', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                 subtitle: Text(_menarcheReadiness, style: const TextStyle(fontSize: 11)),
               ),

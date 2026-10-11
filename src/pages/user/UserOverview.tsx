@@ -97,7 +97,7 @@ export default function UserOverview() {
           <div className="relative rounded-[32px] bg-gradient-to-r from-[#201538] via-[#2A1B4B] to-[#392161] p-7 md:p-8 text-white overflow-hidden shadow-sm">
             {/* Ambient Background Wave & Circles */}
             <div className="absolute -right-12 -bottom-16 w-80 h-80 rounded-full bg-white/[0.04] pointer-events-none" />
-            <div className="absolute right-40 -top-20 w-64 h-64 rounded-full bg-[#7C3AED]/20 blur-3xl pointer-events-none" />
+            <div className="absolute right-40 -top-20 w-64 h-64 rounded-full bg-[#936DA2]/20 blur-3xl pointer-events-none" />
             <div className="absolute left-1/3 bottom-0 w-48 h-48 rounded-full bg-[#FB7185]/10 blur-2xl pointer-events-none" />
 
             <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
@@ -112,7 +112,7 @@ export default function UserOverview() {
                 <div className="pt-3">
                   <button
                     onClick={() => navigate('/dashboard/tracker')}
-                    className="px-6 py-2.5 bg-white hover:bg-[#FAF8FD] text-[#201538] text-xs font-bold rounded-full shadow-sm hover:scale-[1.02] transition-all cursor-pointer inline-flex items-center gap-2"
+                    className="px-6 py-2.5 bg-white hover:bg-[#FCF4F5] text-[#201538] text-xs font-bold rounded-full shadow-sm hover:scale-[1.02] transition-all cursor-pointer inline-flex items-center gap-2"
                   >
                     <span>Get Started</span>
                   </button>
@@ -384,7 +384,7 @@ export default function UserOverview() {
                     cx="50"
                     cy="50"
                     r="40"
-                    stroke="#F3EEFC"
+                    stroke="#F9E8EC"
                     strokeWidth="8"
                     fill="none"
                   />
@@ -393,7 +393,7 @@ export default function UserOverview() {
                     cx="50"
                     cy="50"
                     r="40"
-                    stroke="#EDE9FE"
+                    stroke="#F4DDE2"
                     strokeWidth="8"
                     strokeDasharray="251.2"
                     strokeDashoffset={251.2 * (1 - userProgressPercent / 100)}
@@ -455,14 +455,14 @@ export default function UserOverview() {
               <div className="flex items-center gap-1.5 text-[#8E859E]">
                 <button
                   onClick={prevMonth}
-                  className="p-1 hover:text-[#201538] rounded-lg hover:bg-[#F3EEFC] transition-colors cursor-pointer"
+                  className="p-1 hover:text-[#201538] rounded-lg hover:bg-[#F9E8EC] transition-colors cursor-pointer"
                   title="Previous Month"
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </button>
                 <button
                   onClick={nextMonth}
-                  className="p-1 hover:text-[#201538] rounded-lg hover:bg-[#F3EEFC] transition-colors cursor-pointer"
+                  className="p-1 hover:text-[#201538] rounded-lg hover:bg-[#F9E8EC] transition-colors cursor-pointer"
                   title="Next Month"
                 >
                   <ChevronRight className="w-4 h-4" />
@@ -493,7 +493,7 @@ export default function UserOverview() {
                     className={`w-7 h-7 sm:w-8 sm:h-8 mx-auto rounded-full flex items-center justify-center transition-all cursor-pointer ${
                       isSelected
                         ? 'bg-[#FB7185] text-white font-bold shadow-xs scale-105'
-                        : 'text-[#4A4158] hover:bg-[#F3EEFC] hover:text-[#201538]'
+                        : 'text-[#4A4158] hover:bg-[#F9E8EC] hover:text-[#201538]'
                     }`}
                   >
                     {day}
@@ -526,7 +526,7 @@ export default function UserOverview() {
                   const colors = [
                     { bg: 'bg-[#FFF1EB]', text: 'text-[#F97316]' },
                     { bg: 'bg-[#E6F8F5]', text: 'text-[#0D9488]' },
-                    { bg: 'bg-[#F3EEFC]', text: 'text-[#7C3AED]' }
+                    { bg: 'bg-[#F9E8EC]', text: 'text-[#936DA2]' }
                   ];
                   const IconComp = icons[idx % icons.length];
                   const colorObj = colors[idx % colors.length];
@@ -535,14 +535,14 @@ export default function UserOverview() {
                     <div 
                       key={appt.id || idx}
                       onClick={() => navigate('/dashboard/appointments')}
-                      className="p-3.5 rounded-2xl bg-[#FAF8FD] hover:bg-[#F3EEFC]/60 border border-[#F3EEFC] flex items-center justify-between gap-3 transition-all cursor-pointer group"
+                      className="p-3.5 rounded-2xl bg-[#FCF4F5] hover:bg-[#F9E8EC]/60 border border-[#F9E8EC] flex items-center justify-between gap-3 transition-all cursor-pointer group"
                     >
                       <div className="flex items-center gap-3 min-w-0">
                         <div className={`w-10 h-10 rounded-2xl ${colorObj.bg} ${colorObj.text} flex items-center justify-center shrink-0`}>
                           <IconComp className="w-5 h-5" />
                         </div>
                         <div className="min-w-0">
-                          <h5 className="font-bold text-xs text-[#201538] truncate group-hover:text-[#7C3AED] transition-colors">
+                          <h5 className="font-bold text-xs text-[#201538] truncate group-hover:text-[#936DA2] transition-colors">
                             {appt.doctor || appt.reason || 'Clinical Consultation'}
                           </h5>
                           <p className="text-[11px] text-[#8E859E] truncate mt-0.5">
@@ -555,7 +555,7 @@ export default function UserOverview() {
                   );
                 })
               ) : (
-                <div className="p-5 rounded-2xl bg-[#FAF8FD] border border-[#F3EEFC] text-center space-y-1">
+                <div className="p-5 rounded-2xl bg-[#FCF4F5] border border-[#F9E8EC] text-center space-y-1">
                   <p className="text-xs font-bold text-[#4A4158]">No appointments scheduled</p>
                   <p className="text-[11px] text-[#8E859E]">Book a clinical session with a certified doctor below.</p>
                 </div>
@@ -566,7 +566,7 @@ export default function UserOverview() {
             <div className="pt-2">
               <Link
                 to="/dashboard/appointments"
-                className="w-full py-2.5 px-4 rounded-2xl bg-[#FAF8FD] hover:bg-[#F3EEFC] text-[#7C3AED] text-xs font-bold flex items-center justify-center gap-2 transition-all border border-[#EDE8F5]"
+                className="w-full py-2.5 px-4 rounded-2xl bg-[#FCF4F5] hover:bg-[#F9E8EC] text-[#936DA2] text-xs font-bold flex items-center justify-center gap-2 transition-all border border-[#EDE8F5]"
               >
                 <CalendarIcon className="w-3.5 h-3.5" />
                 <span>Book New Session</span>

@@ -12,8 +12,8 @@ export default function DoctorProfilePage() {
   } = useDoctor();
 
   return (
-    <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#EDE9FE] shadow-sm max-w-3xl mx-auto space-y-6 animate-in fade-in duration-200">
-      <div className="border-b border-[#EDE9FE] pb-4">
+    <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#F4DDE2] shadow-sm max-w-3xl mx-auto space-y-6 animate-in fade-in duration-200">
+      <div className="border-b border-[#F4DDE2] pb-4">
         <h3 className="font-serif text-3xl font-bold text-[#3a3135]">Doctor Credentials & Practice Profile</h3>
         <p className="text-xs text-[#7a6f75] mt-1">Manage clinical license information, consultation fees, and working hours</p>
       </div>
@@ -32,7 +32,7 @@ export default function DoctorProfilePage() {
               type="text" 
               value={profile.name} 
               onChange={(e) => setProfile({ ...profile, name: e.target.value })} 
-              className="w-full p-3 rounded-xl border border-[#EDE9FE] font-bold text-[#3a3135]" 
+              className="w-full p-3 rounded-xl border border-[#F4DDE2] font-bold text-[#3a3135]" 
               required 
             />
           </div>
@@ -43,7 +43,7 @@ export default function DoctorProfilePage() {
               type="email" 
               value={profile.email} 
               onChange={(e) => setProfile({ ...profile, email: e.target.value })} 
-              className="w-full p-3 rounded-xl border border-[#EDE9FE]" 
+              className="w-full p-3 rounded-xl border border-[#F4DDE2]" 
               required 
             />
           </div>
@@ -54,7 +54,7 @@ export default function DoctorProfilePage() {
               type="text" 
               value={profile.spec} 
               onChange={(e) => setProfile({ ...profile, spec: e.target.value })} 
-              className="w-full p-3 rounded-xl border border-[#EDE9FE]" 
+              className="w-full p-3 rounded-xl border border-[#F4DDE2]" 
               required 
             />
           </div>
@@ -65,7 +65,7 @@ export default function DoctorProfilePage() {
               type="text" 
               value={profile.hospital} 
               onChange={(e) => setProfile({ ...profile, hospital: e.target.value })} 
-              className="w-full p-3 rounded-xl border border-[#EDE9FE]" 
+              className="w-full p-3 rounded-xl border border-[#F4DDE2]" 
               required 
             />
           </div>
@@ -76,7 +76,7 @@ export default function DoctorProfilePage() {
               type="text" 
               value={profile.license} 
               readOnly 
-              className="w-full p-3 rounded-xl border border-[#EDE9FE] bg-[#F5F3FF] text-[#7C3AED] font-mono font-bold" 
+              className="w-full p-3 rounded-xl border border-[#F4DDE2] bg-[#F9E8EC] text-[#936DA2] font-mono font-bold" 
             />
           </div>
 
@@ -86,7 +86,7 @@ export default function DoctorProfilePage() {
               type="text" 
               value={profile.workingHours} 
               onChange={(e) => setProfile({ ...profile, workingHours: e.target.value })} 
-              className="w-full p-3 rounded-xl border border-[#EDE9FE]" 
+              className="w-full p-3 rounded-xl border border-[#F4DDE2]" 
             />
           </div>
         </div>
@@ -97,7 +97,7 @@ export default function DoctorProfilePage() {
             value={profile.bio} 
             onChange={(e) => setProfile({ ...profile, bio: e.target.value })} 
             rows={3}
-            className="w-full p-3 rounded-xl border border-[#EDE9FE] text-xs" 
+            className="w-full p-3 rounded-xl border border-[#F4DDE2] text-xs" 
           />
         </div>
 
@@ -105,13 +105,13 @@ export default function DoctorProfilePage() {
           <button 
             type="button" 
             onClick={() => setShowPasswordModal(true)} 
-            className="px-4 py-2.5 rounded-xl border border-[#EDE9FE] font-bold text-[#7C3AED] hover:bg-purple-50 cursor-pointer transition-colors"
+            className="px-4 py-2.5 rounded-xl border border-[#F4DDE2] font-bold text-[#936DA2] hover:bg-purple-50 cursor-pointer transition-colors"
           >
             Change Password
           </button>
           <button 
             type="submit" 
-            className="px-6 py-2.5 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl font-bold transition-all shadow-sm cursor-pointer"
+            className="px-6 py-2.5 bg-[#936DA2] hover:bg-[#835A92] text-white rounded-xl font-bold transition-all shadow-sm cursor-pointer"
           >
             Save Profile Changes
           </button>

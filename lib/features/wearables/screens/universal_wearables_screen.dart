@@ -732,10 +732,10 @@ class _UniversalWearablesScreenState extends State<UniversalWearablesScreen> wit
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF3E8FF),
+                        color: AppTheme.primaryPurpleLight,
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: const Icon(Icons.watch_rounded, color: Color(0xFF7C3AED), size: 20),
+                      child: const Icon(Icons.watch_rounded, color: AppTheme.primaryPurple, size: 20),
                     ),
                     const SizedBox(width: 10),
                     const Text(
@@ -800,7 +800,7 @@ class _UniversalWearablesScreenState extends State<UniversalWearablesScreen> wit
                 icon: const Icon(Icons.check_circle_outline, size: 18),
                 label: const Text('Sync Exactly As On Watch', style: TextStyle(fontWeight: FontWeight.bold)),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF7C3AED),
+                  backgroundColor: AppTheme.primaryPurple,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),

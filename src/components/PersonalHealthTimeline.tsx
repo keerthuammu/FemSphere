@@ -55,10 +55,10 @@ export default function PersonalHealthTimeline() {
   };
 
   return (
-    <div className="bg-white rounded-3xl p-6 border border-[#EDE9FE] shadow-sm space-y-5">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#EDE9FE] pb-4">
+    <div className="bg-white rounded-3xl p-6 border border-[#F4DDE2] shadow-sm space-y-5">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#F4DDE2] pb-4">
         <div>
-          <div className="flex items-center gap-2 text-[#7C3AED]">
+          <div className="flex items-center gap-2 text-[#936DA2]">
             <Calendar className="w-5 h-5" />
             <h3 className="font-bold text-lg text-[#3a3135]">Unified Personal Health Timeline</h3>
           </div>
@@ -73,8 +73,8 @@ export default function PersonalHealthTimeline() {
               onClick={() => setFilter(cat)}
               className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
                 filter === cat
-                  ? 'bg-[#7C3AED] text-white shadow-xs'
-                  : 'bg-[#F5F3FF] text-[#64595e] hover:bg-[#EDE9FE]'
+                  ? 'bg-[#936DA2] text-white shadow-xs'
+                  : 'bg-[#F9E8EC] text-[#64595e] hover:bg-[#F4DDE2]'
               }`}
             >
               {cat}
@@ -86,31 +86,31 @@ export default function PersonalHealthTimeline() {
       {isLoading ? (
         <div className="py-12 text-center text-xs text-gray-400">Loading health timeline...</div>
       ) : events.length === 0 ? (
-        <div className="py-12 text-center bg-[#FAF8FC] rounded-2xl border border-dashed border-[#EDE9FE]">
-          <Clock className="w-8 h-8 text-[#7C3AED]/40 mx-auto mb-2" />
+        <div className="py-12 text-center bg-[#FCF4F5] rounded-2xl border border-dashed border-[#F4DDE2]">
+          <Clock className="w-8 h-8 text-[#936DA2]/40 mx-auto mb-2" />
           <p className="text-xs font-bold text-[#3a3135]">No timeline events recorded yet</p>
           <p className="text-[11px] text-[#7a6f75] mt-1">Log symptoms, daily vitals, or documents to populate your personal timeline.</p>
         </div>
       ) : (
-        <div className="relative pl-6 border-l-2 border-[#EDE9FE] space-y-6 my-2">
+        <div className="relative pl-6 border-l-2 border-[#F4DDE2] space-y-6 my-2">
           {events.map((evt, idx) => {
             const dateStr = evt.event_date ? new Date(evt.event_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Today';
             return (
               <div key={evt.id || idx} className="relative group">
                 {/* Timeline Node Icon */}
-                <div className="absolute -left-[35px] top-0.5 w-7 h-7 rounded-full bg-white border-2 border-[#EDE9FE] group-hover:border-[#7C3AED] flex items-center justify-center shadow-xs transition-all">
+                <div className="absolute -left-[35px] top-0.5 w-7 h-7 rounded-full bg-white border-2 border-[#F4DDE2] group-hover:border-[#936DA2] flex items-center justify-center shadow-xs transition-all">
                   {getEventIcon(evt.event_type)}
                 </div>
 
-                <div className="bg-[#FAF8FC] hover:bg-[#F5F3FF] p-4 rounded-2xl border border-[#EDE9FE] transition-all">
+                <div className="bg-[#FCF4F5] hover:bg-[#F9E8EC] p-4 rounded-2xl border border-[#F4DDE2] transition-all">
                   <div className="flex items-center justify-between gap-2 mb-1">
-                    <span className="text-[11px] font-bold text-[#7C3AED] uppercase tracking-wider">{evt.event_type} • {evt.source || 'FemSphere'}</span>
+                    <span className="text-[11px] font-bold text-[#936DA2] uppercase tracking-wider">{evt.event_type} • {evt.source || 'FemSphere'}</span>
                     <span className="text-xs text-[#7a6f75] font-medium">{dateStr}</span>
                   </div>
                   <h4 className="font-bold text-sm text-[#3a3135]">{evt.title}</h4>
                   
                   {evt.metadata && Object.keys(evt.metadata).length > 0 && (
-                    <div className="mt-2 text-xs text-[#64595e] flex flex-wrap gap-3 font-mono bg-white p-2 rounded-xl border border-[#EDE9FE]">
+                    <div className="mt-2 text-xs text-[#64595e] flex flex-wrap gap-3 font-mono bg-white p-2 rounded-xl border border-[#F4DDE2]">
                       {Object.entries(evt.metadata).map(([k, v]) => (
                         <span key={k}><strong className="text-[#3a3135]">{k}:</strong> {String(v)}</span>
                       ))}

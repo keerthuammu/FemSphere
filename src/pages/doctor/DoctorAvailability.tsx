@@ -91,13 +91,13 @@ export default function DoctorAvailability() {
     <div className="space-y-8 animate-in fade-in duration-200 font-inter">
       
       {/* 1. Header & Live Status Banner */}
-      <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#EDE9FE] shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#F4DDE2] shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex flex-wrap items-center gap-2">
             <span className="px-3 py-1 rounded-full bg-teal-100 text-teal-800 text-xs font-bold flex items-center gap-1.5">
               <CheckCircle2 className="w-3.5 h-3.5 text-teal-600" /> Live Schedule Engine
             </span>
-            <span className="px-3 py-1 rounded-full bg-purple-100 text-[#7C3AED] text-xs font-bold">
+            <span className="px-3 py-1 rounded-full bg-purple-100 text-[#936DA2] text-xs font-bold">
               {scheduleSettings.shifts.length} Shifts • {scheduleSettings.availableSlots.length} Bookable Slots
             </span>
             <span className="px-3 py-1 rounded-full bg-rose-100 text-rose-700 text-xs font-bold">
@@ -113,16 +113,16 @@ export default function DoctorAvailability() {
         <div className="flex items-center gap-3 shrink-0">
           <button 
             onClick={() => generateSlotsForShifts(30)}
-            className="px-4 py-3 bg-purple-50 hover:bg-purple-100 text-[#7C3AED] border border-purple-200 rounded-xl font-bold text-xs shadow-2xs transition-all flex items-center gap-2 cursor-pointer"
+            className="px-4 py-3 bg-purple-50 hover:bg-purple-100 text-[#936DA2] border border-purple-200 rounded-xl font-bold text-xs shadow-2xs transition-all flex items-center gap-2 cursor-pointer"
             title="Automatically compute slots for all configured shifts in 30-min intervals"
           >
-            <Sparkles className="w-4 h-4 text-[#7C3AED]" /> Auto-Generate Slots
+            <Sparkles className="w-4 h-4 text-[#936DA2]" /> Auto-Generate Slots
           </button>
 
           <button 
             onClick={handleSaveAndPublish}
             disabled={isSaving}
-            className="px-6 py-3 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl font-bold text-sm shadow-md transition-all flex items-center gap-2 cursor-pointer disabled:opacity-60"
+            className="px-6 py-3 bg-[#936DA2] hover:bg-[#835A92] text-white rounded-xl font-bold text-sm shadow-md transition-all flex items-center gap-2 cursor-pointer disabled:opacity-60"
           >
             {isSaving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <CheckSquare className="w-4 h-4" />}
             <span>Save & Publish</span>
@@ -138,11 +138,11 @@ export default function DoctorAvailability() {
       )}
 
       {/* 2. Weekly Practice Days Selector */}
-      <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#EDE9FE] shadow-sm space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#EDE9FE] pb-4">
+      <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#F4DDE2] shadow-sm space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#F4DDE2] pb-4">
           <div>
             <h4 className="font-bold text-base text-[#3a3135] flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-[#7C3AED]" /> Weekly Working Practice Days
+              <Calendar className="w-4 h-4 text-[#936DA2]" /> Weekly Working Practice Days
             </h4>
             <p className="text-xs text-[#7a6f75]">Select which days of the week your clinic / telehealth practice is open for bookings.</p>
           </div>
@@ -158,7 +158,7 @@ export default function DoctorAvailability() {
             <button
               type="button"
               onClick={() => setAllWorkingDays([...DAYS_OF_WEEK])}
-              className="px-3 py-1.5 rounded-lg bg-purple-50 hover:bg-purple-100 text-[#7C3AED] font-semibold cursor-pointer transition-colors"
+              className="px-3 py-1.5 rounded-lg bg-purple-50 hover:bg-purple-100 text-[#936DA2] font-semibold cursor-pointer transition-colors"
             >
               All 7 Days
             </button>
@@ -182,8 +182,8 @@ export default function DoctorAvailability() {
                 onClick={() => toggleDay(day)}
                 className={`p-3 rounded-2xl border text-center font-bold text-xs transition-all cursor-pointer flex flex-col items-center gap-1.5 ${
                   isSelected 
-                    ? 'bg-[#7C3AED] text-white border-[#7C3AED] shadow-xs' 
-                    : 'bg-[#FAF8FC] text-gray-500 border-[#EDE9FE] hover:border-purple-200 hover:bg-white'
+                    ? 'bg-[#936DA2] text-white border-[#936DA2] shadow-xs' 
+                    : 'bg-[#FCF4F5] text-gray-500 border-[#F4DDE2] hover:border-purple-200 hover:bg-white'
                 }`}
               >
                 <span>{day.slice(0, 3)}</span>
@@ -197,8 +197,8 @@ export default function DoctorAvailability() {
       </div>
 
       {/* 3. Consultation Shifts & Patient Capacity Quota Engine */}
-      <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#EDE9FE] shadow-sm space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#EDE9FE] pb-4">
+      <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#F4DDE2] shadow-sm space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#F4DDE2] pb-4">
           <div>
             <h4 className="font-bold text-base text-[#3a3135]">Consultation Shifts & Shift Windows</h4>
             <p className="text-xs text-[#7a6f75]">
@@ -214,18 +214,18 @@ export default function DoctorAvailability() {
             return (
               <div 
                 key={shift.id}
-                className="p-5 rounded-2xl border border-[#EDE9FE] bg-[#FAF8FC] hover:border-[#7C3AED]/30 transition-all space-y-4 shadow-2xs"
+                className="p-5 rounded-2xl border border-[#F4DDE2] bg-[#FCF4F5] hover:border-[#936DA2]/30 transition-all space-y-4 shadow-2xs"
               >
                 <div className="flex items-start justify-between">
                   <div>
                     <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
-                      shift.mode === 'Virtual Telehealth' ? 'bg-purple-100 text-[#7C3AED]' :
+                      shift.mode === 'Virtual Telehealth' ? 'bg-purple-100 text-[#936DA2]' :
                       shift.mode === 'In-Clinic' ? 'bg-teal-100 text-teal-800' : 'bg-indigo-100 text-indigo-800'
                     }`}>
                       {shift.mode}
                     </span>
                     <h5 className="font-bold text-base text-[#3a3135] mt-1">{shift.name}</h5>
-                    <p className="text-xs font-bold text-[#7C3AED] flex items-center gap-1.5 mt-0.5">
+                    <p className="text-xs font-bold text-[#936DA2] flex items-center gap-1.5 mt-0.5">
                       <Clock className="w-3.5 h-3.5" /> {shift.fromTime} ➔ {shift.toTime}
                     </p>
                   </div>
@@ -240,7 +240,7 @@ export default function DoctorAvailability() {
                 </div>
 
                 {/* Patient Capacity Stepper */}
-                <div className="p-3 bg-white rounded-xl border border-[#EDE9FE] flex items-center justify-between">
+                <div className="p-3 bg-white rounded-xl border border-[#F4DDE2] flex items-center justify-between">
                   <div>
                     <span className="text-[10px] font-bold text-[#7a6f75] uppercase block">Max Patient Quota</span>
                     <span className="text-xs font-semibold text-[#3a3135]">Accommodation limit</span>
@@ -250,7 +250,7 @@ export default function DoctorAvailability() {
                     <button 
                       type="button" 
                       onClick={() => handleUpdateShiftMaxPatients(shift.id, -1)}
-                      className="w-8 h-8 rounded-lg bg-[#FAF8FC] hover:bg-purple-100 text-[#7C3AED] font-bold flex items-center justify-center border border-[#EDE9FE] cursor-pointer"
+                      className="w-8 h-8 rounded-lg bg-[#FCF4F5] hover:bg-purple-100 text-[#936DA2] font-bold flex items-center justify-center border border-[#F4DDE2] cursor-pointer"
                     >
                       -
                     </button>
@@ -260,12 +260,12 @@ export default function DoctorAvailability() {
                       onChange={(e) => handleSetShiftMaxPatients(shift.id, Number(e.target.value))}
                       min={1}
                       max={100}
-                      className="w-14 text-center font-bold text-sm text-[#7C3AED] py-1 border border-[#EDE9FE] rounded-lg"
+                      className="w-14 text-center font-bold text-sm text-[#936DA2] py-1 border border-[#F4DDE2] rounded-lg"
                     />
                     <button 
                       type="button" 
                       onClick={() => handleUpdateShiftMaxPatients(shift.id, 1)}
-                      className="w-8 h-8 rounded-lg bg-[#FAF8FC] hover:bg-purple-100 text-[#7C3AED] font-bold flex items-center justify-center border border-[#EDE9FE] cursor-pointer"
+                      className="w-8 h-8 rounded-lg bg-[#FCF4F5] hover:bg-purple-100 text-[#936DA2] font-bold flex items-center justify-center border border-[#F4DDE2] cursor-pointer"
                     >
                       +
                     </button>
@@ -274,16 +274,16 @@ export default function DoctorAvailability() {
                 </div>
 
                 {/* Live Slot Preview for this shift */}
-                <div className="pt-2 border-t border-[#EDE9FE]/80">
+                <div className="pt-2 border-t border-[#F4DDE2]/80">
                   <div className="flex items-center justify-between text-[11px] text-[#7a6f75] mb-1.5">
                     <span className="font-semibold">Shift Slots Preview:</span>
-                    <span className="font-mono font-bold text-[#7C3AED]">{shiftSlots.length} slots generated</span>
+                    <span className="font-mono font-bold text-[#936DA2]">{shiftSlots.length} slots generated</span>
                   </div>
                   <div className="flex flex-wrap gap-1.5">
                     {shiftSlots.map(slot => (
                       <span 
                         key={slot} 
-                        className="px-2 py-0.5 rounded-lg bg-white border border-[#EDE9FE] text-[10px] font-mono font-bold text-[#4a4145]"
+                        className="px-2 py-0.5 rounded-lg bg-white border border-[#F4DDE2] text-[10px] font-mono font-bold text-[#4a4145]"
                       >
                         {slot}
                       </span>
@@ -296,10 +296,10 @@ export default function DoctorAvailability() {
         </div>
 
         {/* Add New Shift Window Form */}
-        <div className="p-6 rounded-2xl bg-white border border-dashed border-[#7C3AED]/40 space-y-4">
+        <div className="p-6 rounded-2xl bg-white border border-dashed border-[#936DA2]/40 space-y-4">
           <div className="flex items-center justify-between">
             <h5 className="font-bold text-sm text-[#3a3135] flex items-center gap-2">
-              <Plus className="w-4 h-4 text-[#7C3AED]" /> Add New Consultation Shift / Time Range
+              <Plus className="w-4 h-4 text-[#936DA2]" /> Add New Consultation Shift / Time Range
             </h5>
             <span className="text-[11px] text-[#7a6f75]">Adds the shift and automatically populates its time slots</span>
           </div>
@@ -322,7 +322,7 @@ export default function DoctorAvailability() {
                   if (shiftErrorMsg) setShiftErrorMsg(null);
                 }}
                 placeholder="e.g., Morning Clinic" 
-                className="w-full p-2.5 rounded-xl border border-[#EDE9FE] font-bold text-[#3a3135] bg-[#FAF8FC] outline-none focus:border-[#7C3AED]"
+                className="w-full p-2.5 rounded-xl border border-[#F4DDE2] font-bold text-[#3a3135] bg-[#FCF4F5] outline-none focus:border-[#936DA2]"
                 required
               />
             </div>
@@ -332,7 +332,7 @@ export default function DoctorAvailability() {
               <select
                 value={newShiftForm.mode}
                 onChange={(e) => setNewShiftForm({ ...newShiftForm, mode: e.target.value as any })}
-                className="w-full p-2.5 rounded-xl border border-[#EDE9FE] font-bold text-[#3a3135] bg-[#FAF8FC] outline-none focus:border-[#7C3AED] cursor-pointer"
+                className="w-full p-2.5 rounded-xl border border-[#F4DDE2] font-bold text-[#3a3135] bg-[#FCF4F5] outline-none focus:border-[#936DA2] cursor-pointer"
               >
                 <option value="Both">Both (Virtual & In-Clinic)</option>
                 <option value="Virtual Telehealth">Virtual Telehealth Only</option>
@@ -345,7 +345,7 @@ export default function DoctorAvailability() {
               <select 
                 value={newShiftForm.fromTime} 
                 onChange={(e) => setNewShiftForm({ ...newShiftForm, fromTime: e.target.value })}
-                className="w-full p-2.5 rounded-xl border border-[#EDE9FE] font-mono font-bold text-[#3a3135] bg-[#FAF8FC] outline-none focus:border-[#7C3AED] cursor-pointer"
+                className="w-full p-2.5 rounded-xl border border-[#F4DDE2] font-mono font-bold text-[#3a3135] bg-[#FCF4F5] outline-none focus:border-[#936DA2] cursor-pointer"
               >
                 {TIME_OPTIONS.map(t => (
                   <option key={t} value={t}>{t}</option>
@@ -358,7 +358,7 @@ export default function DoctorAvailability() {
               <select 
                 value={newShiftForm.toTime} 
                 onChange={(e) => setNewShiftForm({ ...newShiftForm, toTime: e.target.value })}
-                className="w-full p-2.5 rounded-xl border border-[#EDE9FE] font-mono font-bold text-[#3a3135] bg-[#FAF8FC] outline-none focus:border-[#7C3AED] cursor-pointer"
+                className="w-full p-2.5 rounded-xl border border-[#F4DDE2] font-mono font-bold text-[#3a3135] bg-[#FCF4F5] outline-none focus:border-[#936DA2] cursor-pointer"
               >
                 {TIME_OPTIONS.map(t => (
                   <option key={t} value={t}>{t}</option>
@@ -378,12 +378,12 @@ export default function DoctorAvailability() {
                   }}
                   min={1} 
                   max={100}
-                  className="w-20 p-2.5 rounded-xl border border-[#EDE9FE] font-bold text-[#7C3AED] bg-[#FAF8FC] outline-none focus:border-[#7C3AED]"
+                  className="w-20 p-2.5 rounded-xl border border-[#F4DDE2] font-bold text-[#936DA2] bg-[#FCF4F5] outline-none focus:border-[#936DA2]"
                   required
                 />
                 <button 
                   type="submit" 
-                  className="flex-1 py-2.5 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl font-bold cursor-pointer transition-colors shrink-0 flex items-center justify-center gap-1 shadow-xs"
+                  className="flex-1 py-2.5 bg-[#936DA2] hover:bg-[#835A92] text-white rounded-xl font-bold cursor-pointer transition-colors shrink-0 flex items-center justify-center gap-1 shadow-xs"
                 >
                   <Plus className="w-3.5 h-3.5" /> Add
                 </button>
@@ -394,12 +394,12 @@ export default function DoctorAvailability() {
       </div>
 
       {/* 4. DEDICATED SLOTS MANAGEMENT & GENERATION HUB ("Make Slots") */}
-      <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#EDE9FE] shadow-sm space-y-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#EDE9FE] pb-4">
+      <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#F4DDE2] shadow-sm space-y-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#F4DDE2] pb-4">
           <div>
             <div className="flex items-center gap-2">
               <h4 className="font-bold text-base text-[#3a3135] flex items-center gap-2">
-                <Clock className="w-4 h-4 text-[#7C3AED]" /> Consultation Appointment Slots ({scheduleSettings.availableSlots.length})
+                <Clock className="w-4 h-4 text-[#936DA2]" /> Consultation Appointment Slots ({scheduleSettings.availableSlots.length})
               </h4>
               <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-[10px] font-bold">
                 Bookable by Patients
@@ -414,28 +414,28 @@ export default function DoctorAvailability() {
             <button
               type="button"
               onClick={() => generateSlotsForShifts(15)}
-              className="px-3 py-1.5 bg-gray-100 hover:bg-purple-100 text-gray-700 hover:text-[#7C3AED] rounded-xl text-xs font-semibold cursor-pointer transition-colors"
+              className="px-3 py-1.5 bg-gray-100 hover:bg-purple-100 text-gray-700 hover:text-[#936DA2] rounded-xl text-xs font-semibold cursor-pointer transition-colors"
             >
               15m Slots
             </button>
             <button
               type="button"
               onClick={() => generateSlotsForShifts(30)}
-              className="px-3 py-1.5 bg-purple-100 hover:bg-purple-200 text-[#7C3AED] rounded-xl text-xs font-bold cursor-pointer transition-colors shadow-2xs"
+              className="px-3 py-1.5 bg-purple-100 hover:bg-purple-200 text-[#936DA2] rounded-xl text-xs font-bold cursor-pointer transition-colors shadow-2xs"
             >
               30m Slots (Default)
             </button>
             <button
               type="button"
               onClick={() => generateSlotsForShifts(45)}
-              className="px-3 py-1.5 bg-gray-100 hover:bg-purple-100 text-gray-700 hover:text-[#7C3AED] rounded-xl text-xs font-semibold cursor-pointer transition-colors"
+              className="px-3 py-1.5 bg-gray-100 hover:bg-purple-100 text-gray-700 hover:text-[#936DA2] rounded-xl text-xs font-semibold cursor-pointer transition-colors"
             >
               45m Slots
             </button>
             <button
               type="button"
               onClick={() => generateSlotsForShifts(60)}
-              className="px-3 py-1.5 bg-gray-100 hover:bg-purple-100 text-gray-700 hover:text-[#7C3AED] rounded-xl text-xs font-semibold cursor-pointer transition-colors"
+              className="px-3 py-1.5 bg-gray-100 hover:bg-purple-100 text-gray-700 hover:text-[#936DA2] rounded-xl text-xs font-semibold cursor-pointer transition-colors"
             >
               60m Slots
             </button>
@@ -450,7 +450,7 @@ export default function DoctorAvailability() {
         </div>
 
         {/* Add Individual Custom Slot Form */}
-        <div className="p-4 bg-[#FAF8FC] rounded-2xl border border-[#EDE9FE] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="p-4 bg-[#FCF4F5] rounded-2xl border border-[#F4DDE2] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <span className="text-xs font-bold text-[#3a3135]">Make / Add Specific Slot:</span>
             <span className="text-[11px] text-[#7a6f75]">Select or type any custom consultation time</span>
@@ -460,7 +460,7 @@ export default function DoctorAvailability() {
             <select
               value={newSlotTime}
               onChange={(e) => setNewSlotTime(e.target.value)}
-              className="p-2.5 rounded-xl border border-[#EDE9FE] bg-white font-mono font-bold text-xs text-[#3a3135] outline-none focus:border-[#7C3AED] cursor-pointer"
+              className="p-2.5 rounded-xl border border-[#F4DDE2] bg-white font-mono font-bold text-xs text-[#3a3135] outline-none focus:border-[#936DA2] cursor-pointer"
             >
               {TIME_OPTIONS.map(t => (
                 <option key={t} value={t}>{t}</option>
@@ -469,7 +469,7 @@ export default function DoctorAvailability() {
 
             <button
               type="submit"
-              className="px-4 py-2.5 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-xs transition-colors"
+              className="px-4 py-2.5 bg-[#936DA2] hover:bg-[#835A92] text-white rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-xs transition-colors"
             >
               <Plus className="w-3.5 h-3.5" /> Add Slot
             </button>
@@ -478,7 +478,7 @@ export default function DoctorAvailability() {
 
         {/* Interactive Slots Categorized by Time of Day */}
         {scheduleSettings.availableSlots.length === 0 ? (
-          <div className="p-12 text-center bg-[#FAF8FC] rounded-2xl border border-dashed border-[#EDE9FE] space-y-3">
+          <div className="p-12 text-center bg-[#FCF4F5] rounded-2xl border border-dashed border-[#F4DDE2] space-y-3">
             <Clock className="w-10 h-10 text-gray-400 mx-auto opacity-50" />
             <h4 className="font-serif text-lg font-bold text-[#3a3135]">No Slots Currently Configured</h4>
             <p className="text-xs text-[#7a6f75] max-w-md mx-auto">
@@ -487,7 +487,7 @@ export default function DoctorAvailability() {
             <button
               type="button"
               onClick={() => generateSlotsForShifts(30)}
-              className="px-5 py-2.5 bg-[#7C3AED] text-white rounded-xl text-xs font-bold shadow-md hover:bg-[#6D28D9] transition-all cursor-pointer inline-flex items-center gap-2"
+              className="px-5 py-2.5 bg-[#936DA2] text-white rounded-xl text-xs font-bold shadow-md hover:bg-[#835A92] transition-all cursor-pointer inline-flex items-center gap-2"
             >
               <Sparkles className="w-4 h-4" /> Generate 30-min Shift Slots
             </button>
@@ -506,9 +506,9 @@ export default function DoctorAvailability() {
                   {morningSlots.map(slot => (
                     <div
                       key={slot}
-                      className="group px-3 py-2 rounded-xl bg-white border border-[#EDE9FE] hover:border-purple-300 shadow-2xs flex items-center gap-2 text-xs font-mono font-bold text-[#3a3135] transition-all"
+                      className="group px-3 py-2 rounded-xl bg-white border border-[#F4DDE2] hover:border-purple-300 shadow-2xs flex items-center gap-2 text-xs font-mono font-bold text-[#3a3135] transition-all"
                     >
-                      <Clock className="w-3.5 h-3.5 text-[#7C3AED]" />
+                      <Clock className="w-3.5 h-3.5 text-[#936DA2]" />
                       <span>{slot}</span>
                       <button
                         type="button"
@@ -536,9 +536,9 @@ export default function DoctorAvailability() {
                   {afternoonSlots.map(slot => (
                     <div
                       key={slot}
-                      className="group px-3 py-2 rounded-xl bg-white border border-[#EDE9FE] hover:border-purple-300 shadow-2xs flex items-center gap-2 text-xs font-mono font-bold text-[#3a3135] transition-all"
+                      className="group px-3 py-2 rounded-xl bg-white border border-[#F4DDE2] hover:border-purple-300 shadow-2xs flex items-center gap-2 text-xs font-mono font-bold text-[#3a3135] transition-all"
                     >
-                      <Clock className="w-3.5 h-3.5 text-[#7C3AED]" />
+                      <Clock className="w-3.5 h-3.5 text-[#936DA2]" />
                       <span>{slot}</span>
                       <button
                         type="button"
@@ -566,9 +566,9 @@ export default function DoctorAvailability() {
                   {eveningSlots.map(slot => (
                     <div
                       key={slot}
-                      className="group px-3 py-2 rounded-xl bg-white border border-[#EDE9FE] hover:border-purple-300 shadow-2xs flex items-center gap-2 text-xs font-mono font-bold text-[#3a3135] transition-all"
+                      className="group px-3 py-2 rounded-xl bg-white border border-[#F4DDE2] hover:border-purple-300 shadow-2xs flex items-center gap-2 text-xs font-mono font-bold text-[#3a3135] transition-all"
                     >
-                      <Clock className="w-3.5 h-3.5 text-[#7C3AED]" />
+                      <Clock className="w-3.5 h-3.5 text-[#936DA2]" />
                       <span>{slot}</span>
                       <button
                         type="button"
@@ -589,19 +589,19 @@ export default function DoctorAvailability() {
 
       {/* 5. Practice Timing & Teleconsultation Parameters */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white rounded-3xl p-6 border border-[#EDE9FE] shadow-sm space-y-3">
+        <div className="bg-white rounded-3xl p-6 border border-[#F4DDE2] shadow-sm space-y-3">
           <label className="block font-bold uppercase text-[10px] text-[#7a6f75]">Overall Working Hours Window</label>
           <input 
             type="text" 
             value={scheduleSettings.workingHours} 
             onChange={(e) => setScheduleSettings({ ...scheduleSettings, workingHours: e.target.value })}
-            className="w-full p-3 rounded-xl border border-[#EDE9FE] text-xs font-bold text-[#3a3135] bg-[#FAF8FC] outline-none focus:border-[#7C3AED]"
+            className="w-full p-3 rounded-xl border border-[#F4DDE2] text-xs font-bold text-[#3a3135] bg-[#FCF4F5] outline-none focus:border-[#936DA2]"
             placeholder="e.g., 09:00 AM - 07:00 PM"
           />
           <p className="text-[11px] text-[#7a6f75]">Overall clinic and online practice envelope</p>
         </div>
 
-        <div className="bg-white rounded-3xl p-6 border border-[#EDE9FE] shadow-sm space-y-3">
+        <div className="bg-white rounded-3xl p-6 border border-[#F4DDE2] shadow-sm space-y-3">
           <label className="block font-bold uppercase text-[10px] text-[#7a6f75]">Default Slot Duration</label>
           <select 
             value={scheduleSettings.slotDuration} 
@@ -611,7 +611,7 @@ export default function DoctorAvailability() {
               const step = newDur.includes('15') ? 15 : newDur.includes('45') ? 45 : newDur.includes('60') ? 60 : 30;
               setSlotGenerationStep(step);
             }}
-            className="w-full p-3 rounded-xl border border-[#EDE9FE] text-xs font-bold text-[#3a3135] bg-[#FAF8FC] outline-none focus:border-[#7C3AED] cursor-pointer"
+            className="w-full p-3 rounded-xl border border-[#F4DDE2] text-xs font-bold text-[#3a3135] bg-[#FCF4F5] outline-none focus:border-[#936DA2] cursor-pointer"
           >
             <option value="15 Minutes">15 Minutes / Session</option>
             <option value="30 Minutes">30 Minutes / Session (Standard)</option>
@@ -621,7 +621,7 @@ export default function DoctorAvailability() {
           <p className="text-[11px] text-[#7a6f75]">Duration allocated per patient consultation</p>
         </div>
 
-        <div className="bg-white rounded-3xl p-6 border border-[#EDE9FE] shadow-sm space-y-3">
+        <div className="bg-white rounded-3xl p-6 border border-[#F4DDE2] shadow-sm space-y-3">
           <label className="block font-bold uppercase text-[10px] text-[#7a6f75]">Telehealth Consultation Fee ($)</label>
           <div className="relative">
             <span className="absolute left-3.5 top-3 text-[#7a6f75] font-bold text-xs">$</span>
@@ -629,7 +629,7 @@ export default function DoctorAvailability() {
               type="number" 
               value={scheduleSettings.teleconsultFee} 
               onChange={(e) => setScheduleSettings({ ...scheduleSettings, teleconsultFee: Number(e.target.value) })}
-              className="w-full pl-8 p-3 rounded-xl border border-[#EDE9FE] text-xs font-bold text-[#3a3135] bg-[#FAF8FC] outline-none focus:border-[#7C3AED]"
+              className="w-full pl-8 p-3 rounded-xl border border-[#F4DDE2] text-xs font-bold text-[#3a3135] bg-[#FCF4F5] outline-none focus:border-[#936DA2]"
             />
           </div>
           <p className="text-[11px] text-[#7a6f75]">Per-session rate for virtual video consultations</p>
@@ -637,8 +637,8 @@ export default function DoctorAvailability() {
       </div>
 
       {/* 5. On Leave & Blackout Dates Engine */}
-      <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#EDE9FE] shadow-sm space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#EDE9FE] pb-4">
+      <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#F4DDE2] shadow-sm space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#F4DDE2] pb-4">
           <div>
             <h4 className="font-bold text-base text-[#3a3135] flex items-center gap-2">
               <Calendar className="w-4 h-4 text-rose-500" /> On Leave & Blackout Dates
@@ -651,7 +651,7 @@ export default function DoctorAvailability() {
               min={new Date().toISOString().split('T')[0]}
               value={leaveDateInput}
               onChange={(e) => setLeaveDateInput(e.target.value)}
-              className="px-3 py-1.5 bg-[#FAF8FC] border border-[#EDE9FE] rounded-xl text-xs font-semibold text-[#3a3135]"
+              className="px-3 py-1.5 bg-[#FCF4F5] border border-[#F4DDE2] rounded-xl text-xs font-semibold text-[#3a3135]"
             />
             <button
               type="button"
@@ -684,7 +684,7 @@ export default function DoctorAvailability() {
       </div>
 
       {/* 6. Emergency / Urgent Telehealth Walk-ins */}
-      <div className="p-5 rounded-3xl bg-white border border-[#EDE9FE] shadow-sm flex items-center justify-between">
+      <div className="p-5 rounded-3xl bg-white border border-[#F4DDE2] shadow-sm flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
             <ShieldCheck className="w-5 h-5" />
@@ -698,7 +698,7 @@ export default function DoctorAvailability() {
           type="checkbox" 
           checked={scheduleSettings.isUrgentCareOpen}
           onChange={(e) => setScheduleSettings({ ...scheduleSettings, isUrgentCareOpen: e.target.checked })}
-          className="w-5 h-5 text-[#7C3AED] rounded-md cursor-pointer accent-[#7C3AED]"
+          className="w-5 h-5 text-[#936DA2] rounded-md cursor-pointer accent-[#936DA2]"
         />
       </div>
 

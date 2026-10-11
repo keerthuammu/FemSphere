@@ -148,11 +148,11 @@ export default function UserFitness() {
   return (
     <div className="space-y-6 animate-in fade-in duration-200 font-inter max-w-5xl mx-auto pb-10">
       {/* MINIMAL CLINICAL HEADER */}
-      <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#EDE9FE] shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#F4DDE2] shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <div className="flex flex-wrap items-center gap-2 mb-2">
-            <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-purple-100 text-[#7C3AED] uppercase tracking-wider flex items-center gap-1 border border-purple-200">
-              <Stethoscope className="w-3 h-3 text-[#7C3AED]" /> Doctor-Prescribed Regimens
+            <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-purple-100 text-[#936DA2] uppercase tracking-wider flex items-center gap-1 border border-purple-200">
+              <Stethoscope className="w-3 h-3 text-[#936DA2]" /> Doctor-Prescribed Regimens
             </span>
             <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 uppercase tracking-wider border border-emerald-200 flex items-center gap-1">
               <ShieldCheck className="w-3 h-3 text-emerald-700" /> Physician Verified
@@ -174,16 +174,16 @@ export default function UserFitness() {
 
         {/* Minimal Summary & Sync */}
         <div className="flex items-center gap-3 shrink-0">
-          <div className="bg-[#FAF8FC] px-4 py-2.5 rounded-2xl border border-[#EDE9FE] text-right">
+          <div className="bg-[#FCF4F5] px-4 py-2.5 rounded-2xl border border-[#F4DDE2] text-right">
             <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Compliance Streak</span>
             <span className="text-sm font-bold text-emerald-600 flex items-center justify-end gap-1">
               <Sparkles className="w-3.5 h-3.5 text-emerald-500" /> {streakDays} {streakDays === 1 ? 'Day' : 'Days'}
             </span>
           </div>
 
-          <div className="bg-[#FAF8FC] px-4 py-2.5 rounded-2xl border border-[#EDE9FE] text-right">
+          <div className="bg-[#FCF4F5] px-4 py-2.5 rounded-2xl border border-[#F4DDE2] text-right">
             <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Active Orders</span>
-            <span className="text-sm font-bold text-[#7C3AED]">
+            <span className="text-sm font-bold text-[#936DA2]">
               {totalExercisesCount} {totalExercisesCount === 1 ? 'Exercise' : 'Exercises'}
             </span>
           </div>
@@ -191,7 +191,7 @@ export default function UserFitness() {
           <button
             onClick={handleRefresh}
             disabled={isRefreshing}
-            className="p-3 bg-white hover:bg-purple-50 text-[#7C3AED] rounded-2xl border border-[#EDE9FE] shadow-xs transition-colors cursor-pointer"
+            className="p-3 bg-white hover:bg-purple-50 text-[#936DA2] rounded-2xl border border-[#F4DDE2] shadow-xs transition-colors cursor-pointer"
             title="Refresh Doctor Prescriptions"
           >
             <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
@@ -202,9 +202,9 @@ export default function UserFitness() {
       {/* CORE CONTENT: ONLY PRESCRIBED EXERCISES */}
       {prescriptionsWithExercises.length === 0 ? (
         /* MINIMAL EMPTY STATE */
-        <div className="bg-white rounded-3xl p-10 md:p-14 border border-[#EDE9FE] shadow-sm text-center space-y-4 max-w-2xl mx-auto">
-          <div className="w-16 h-16 rounded-2xl bg-purple-50 border border-purple-100 text-[#7C3AED] mx-auto flex items-center justify-center shadow-inner">
-            <Stethoscope className="w-8 h-8 text-[#7C3AED]" />
+        <div className="bg-white rounded-3xl p-10 md:p-14 border border-[#F4DDE2] shadow-sm text-center space-y-4 max-w-2xl mx-auto">
+          <div className="w-16 h-16 rounded-2xl bg-purple-50 border border-purple-100 text-[#936DA2] mx-auto flex items-center justify-center shadow-inner">
+            <Stethoscope className="w-8 h-8 text-[#936DA2]" />
           </div>
           <div>
             <h3 className="font-bold text-lg text-[#3a3135]">No Prescribed Exercises Yet</h3>
@@ -221,7 +221,7 @@ export default function UserFitness() {
                   navigate('/dashboard/appointments');
                 }
               }}
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#7C3AED] hover:bg-[#6D28D9] text-white text-xs font-bold rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#936DA2] hover:bg-[#835A92] text-white text-xs font-bold rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer"
             >
               Book Doctor Consultation <ArrowRight className="w-3.5 h-3.5" />
             </button>
@@ -247,17 +247,17 @@ export default function UserFitness() {
             return (
               <div 
                 key={note.id} 
-                className="bg-white rounded-3xl border border-[#EDE9FE] shadow-sm overflow-hidden transition-all hover:border-purple-200"
+                className="bg-white rounded-3xl border border-[#F4DDE2] shadow-sm overflow-hidden transition-all hover:border-purple-200"
               >
                 {/* DOCTOR & CLINICAL HEADER */}
-                <div className="p-6 border-b border-[#F3E8FF] bg-gradient-to-r from-[#FAF8FC] via-white to-[#FAF5FF] flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="p-6 border-b border-[#F3E8FF] bg-gradient-to-r from-[#FCF4F5] via-white to-[#FAF5FF] flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div className="flex items-start gap-3.5">
-                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#7C3AED] to-purple-500 text-white flex items-center justify-center font-bold text-sm shadow-md shrink-0">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#936DA2] to-purple-500 text-white flex items-center justify-center font-bold text-sm shadow-md shrink-0">
                       <Stethoscope className="w-6 h-6 text-white" />
                     </div>
                     <div>
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-[10px] font-bold text-[#7C3AED] uppercase tracking-wider">
+                        <span className="text-[10px] font-bold text-[#936DA2] uppercase tracking-wider">
                           Prescribed By
                         </span>
                         <span className="text-[11px] text-gray-400">•</span>
@@ -299,9 +299,9 @@ export default function UserFitness() {
                 {/* DOCTOR CLINICAL ADVICE / PRECAUTIONS NOTE (IF PRESENT) */}
                 {note.advice && (
                   <div className="mx-6 mt-5 p-3.5 rounded-2xl bg-purple-50/60 border border-purple-100 flex items-start gap-2.5 text-xs text-[#4A3B42]">
-                    <AlertCircle className="w-4 h-4 text-[#7C3AED] shrink-0 mt-0.5" />
+                    <AlertCircle className="w-4 h-4 text-[#936DA2] shrink-0 mt-0.5" />
                     <div className="space-y-0.5">
-                      <span className="font-bold text-[#7C3AED] text-[11px] uppercase tracking-wide block">
+                      <span className="font-bold text-[#936DA2] text-[11px] uppercase tracking-wide block">
                         Doctor's Movement Guidance & Precautions
                       </span>
                       <p className="leading-relaxed text-slate-700 whitespace-pre-line">
@@ -315,7 +315,7 @@ export default function UserFitness() {
                 <div className="p-6">
                   <div className="flex items-center justify-between mb-4">
                     <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
-                      <Activity className="w-3.5 h-3.5 text-[#7C3AED]" /> Prescribed Movement Protocols ({exercises.length})
+                      <Activity className="w-3.5 h-3.5 text-[#936DA2]" /> Prescribed Movement Protocols ({exercises.length})
                     </span>
                   </div>
 
@@ -330,7 +330,7 @@ export default function UserFitness() {
                           className={`p-4 rounded-2xl border transition-all flex flex-col justify-between ${
                             isCompleted 
                               ? 'bg-emerald-50/40 border-emerald-200' 
-                              : 'bg-[#FAF8FC]/50 hover:bg-[#FAF8FC] border-[#EDE9FE]'
+                              : 'bg-[#FCF4F5]/50 hover:bg-[#FCF4F5] border-[#F4DDE2]'
                           }`}
                         >
                           <div className="space-y-2.5">
@@ -341,7 +341,7 @@ export default function UserFitness() {
                                   {ex.name}
                                 </h4>
                                 {ex.category && (
-                                  <span className="inline-block mt-1 text-[10px] font-semibold px-2 py-0.5 rounded-md bg-purple-100/70 text-[#7C3AED]">
+                                  <span className="inline-block mt-1 text-[10px] font-semibold px-2 py-0.5 rounded-md bg-purple-100/70 text-[#936DA2]">
                                     {ex.category}
                                   </span>
                                 )}
@@ -354,7 +354,7 @@ export default function UserFitness() {
                                 className={`p-1.5 rounded-xl text-xs font-bold flex items-center gap-1 cursor-pointer transition-colors ${
                                   isCompleted 
                                     ? 'bg-emerald-600 text-white shadow-xs' 
-                                    : 'bg-white border border-[#EDE9FE] text-gray-400 hover:text-[#7C3AED] hover:border-purple-200'
+                                    : 'bg-white border border-[#F4DDE2] text-gray-400 hover:text-[#936DA2] hover:border-purple-200'
                                 }`}
                                 title={isCompleted ? 'Completed today' : 'Mark completed today'}
                               >
@@ -369,22 +369,22 @@ export default function UserFitness() {
                             {/* Protocol Specs (Duration, Frequency, Sets/Reps) */}
                             <div className="flex flex-wrap gap-1.5 text-[11px]">
                               {ex.duration && (
-                                <span className="px-2.5 py-1 rounded-lg bg-white border border-[#EDE9FE] text-gray-600 font-medium flex items-center gap-1">
-                                  <Clock className="w-3 h-3 text-[#7C3AED]" /> {ex.duration}
+                                <span className="px-2.5 py-1 rounded-lg bg-white border border-[#F4DDE2] text-gray-600 font-medium flex items-center gap-1">
+                                  <Clock className="w-3 h-3 text-[#936DA2]" /> {ex.duration}
                                 </span>
                               )}
                               {ex.frequency && (
-                                <span className="px-2.5 py-1 rounded-lg bg-white border border-[#EDE9FE] text-gray-600 font-medium flex items-center gap-1">
-                                  <Calendar className="w-3 h-3 text-[#7C3AED]" /> {ex.frequency}
+                                <span className="px-2.5 py-1 rounded-lg bg-white border border-[#F4DDE2] text-gray-600 font-medium flex items-center gap-1">
+                                  <Calendar className="w-3 h-3 text-[#936DA2]" /> {ex.frequency}
                                 </span>
                               )}
                               {ex.setsReps && (
-                                <span className="px-2.5 py-1 rounded-lg bg-white border border-[#EDE9FE] text-purple-700 font-bold">
+                                <span className="px-2.5 py-1 rounded-lg bg-white border border-[#F4DDE2] text-purple-700 font-bold">
                                   {ex.setsReps}
                                 </span>
                               )}
                               {ex.target && (
-                                <span className="px-2.5 py-1 rounded-lg bg-white border border-[#EDE9FE] text-gray-600 font-medium">
+                                <span className="px-2.5 py-1 rounded-lg bg-white border border-[#F4DDE2] text-gray-600 font-medium">
                                   Target: {ex.target}
                                 </span>
                               )}
@@ -393,7 +393,7 @@ export default function UserFitness() {
                             {/* Doctor's Form Instructions */}
                             {(ex.instructions || ex.clinicalNote) && (
                               <div className="pt-1">
-                                <p className="text-xs text-[#52454D] bg-white p-3 rounded-xl border border-[#EDE9FE] leading-relaxed">
+                                <p className="text-xs text-[#52454D] bg-white p-3 rounded-xl border border-[#F4DDE2] leading-relaxed">
                                   <span className="font-bold text-[10px] text-gray-400 uppercase tracking-wider block mb-0.5">
                                     Doctor's Instructions
                                   </span>

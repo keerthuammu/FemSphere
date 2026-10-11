@@ -164,13 +164,13 @@ export default function ConnectDeviceModal({ isOpen, onClose }: ConnectDeviceMod
 
   return (
     <div className="fixed inset-0 z-50 bg-black/45 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto animate-fade-in font-inter">
-      <div className="bg-white rounded-3xl border border-[#EDE9FE] shadow-2xl max-w-xl w-full max-h-[92vh] overflow-y-auto p-6 md:p-8 space-y-6">
+      <div className="bg-white rounded-3xl border border-[#F4DDE2] shadow-2xl max-w-xl w-full max-h-[92vh] overflow-y-auto p-6 md:p-8 space-y-6">
         
         {/* Modal Header */}
-        <div className="flex items-center justify-between border-b border-[#EDE9FE] pb-4">
+        <div className="flex items-center justify-between border-b border-[#F4DDE2] pb-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-[#F5F3FF] text-[#7C3AED] flex items-center justify-center border border-[#EDE9FE]">
-              <Watch className="w-5 h-5 text-[#7C3AED]" />
+            <div className="w-10 h-10 rounded-2xl bg-[#F9E8EC] text-[#936DA2] flex items-center justify-center border border-[#F4DDE2]">
+              <Watch className="w-5 h-5 text-[#936DA2]" />
             </div>
             <div>
               <h3 className="font-bold text-lg text-[#201538]">Connect Health Device</h3>
@@ -202,20 +202,20 @@ export default function ConnectDeviceModal({ isOpen, onClose }: ConnectDeviceMod
             ) : statusMessage.type === 'error' ? (
               <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
             ) : (
-              <Info className="w-4 h-4 text-[#7C3AED] shrink-0" />
+              <Info className="w-4 h-4 text-[#936DA2] shrink-0" />
             )}
             <span>{statusMessage.text}</span>
           </div>
         )}
 
         {/* Integration Method Tabs */}
-        <div className="grid grid-cols-3 gap-1 p-1 bg-[#FAF8FD] rounded-2xl border border-[#EDE9FE] text-xs font-bold">
+        <div className="grid grid-cols-3 gap-1 p-1 bg-[#FCF4F5] rounded-2xl border border-[#F4DDE2] text-xs font-bold">
           <button
             type="button"
             onClick={() => { setActiveTab('ble'); setStatusMessage(null); }}
             className={`py-2 px-2.5 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
               activeTab === 'ble'
-                ? 'bg-white text-[#7C3AED] shadow-2xs'
+                ? 'bg-white text-[#936DA2] shadow-2xs'
                 : 'text-[#7a6f75] hover:text-[#201538]'
             }`}
           >
@@ -227,7 +227,7 @@ export default function ConnectDeviceModal({ isOpen, onClose }: ConnectDeviceMod
             onClick={() => { setActiveTab('companion'); setStatusMessage(null); }}
             className={`py-2 px-2.5 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
               activeTab === 'companion'
-                ? 'bg-white text-[#7C3AED] shadow-2xs'
+                ? 'bg-white text-[#936DA2] shadow-2xs'
                 : 'text-[#7a6f75] hover:text-[#201538]'
             }`}
           >
@@ -239,7 +239,7 @@ export default function ConnectDeviceModal({ isOpen, onClose }: ConnectDeviceMod
             onClick={() => { setActiveTab('manual'); setStatusMessage(null); }}
             className={`py-2 px-2.5 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
               activeTab === 'manual'
-                ? 'bg-white text-[#7C3AED] shadow-2xs'
+                ? 'bg-white text-[#936DA2] shadow-2xs'
                 : 'text-[#7a6f75] hover:text-[#201538]'
             }`}
           >
@@ -277,21 +277,21 @@ export default function ConnectDeviceModal({ isOpen, onClose }: ConnectDeviceMod
             </div>
 
             {/* Supported Devices Info */}
-            <div className="p-4 rounded-2xl bg-[#FAF8FD] border border-[#EDE9FE] space-y-2">
+            <div className="p-4 rounded-2xl bg-[#FCF4F5] border border-[#F4DDE2] space-y-2">
               <span className="font-bold text-[#201538] block uppercase text-[10px] tracking-wider">
                 Compatible BLE Profiles
               </span>
               <ul className="space-y-1 text-[#64595e] text-[11px]">
                 <li className="flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#7C3AED]" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#936DA2]" />
                   <span>Standard Heart Rate Service (0x180D)</span>
                 </li>
                 <li className="flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#7C3AED]" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#936DA2]" />
                   <span>Battery Service & Level Streaming (0x180F)</span>
                 </li>
                 <li className="flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#7C3AED]" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#936DA2]" />
                   <span>Compatible with Polar, Garmin HRM, Amazfit, and BLE fitness bands</span>
                 </li>
               </ul>
@@ -302,7 +302,7 @@ export default function ConnectDeviceModal({ isOpen, onClose }: ConnectDeviceMod
               type="button"
               disabled={isScanning}
               onClick={handleStartBleScan}
-              className="w-full py-3 bg-[#7C3AED] hover:bg-[#6D28D9] disabled:opacity-50 text-white font-bold rounded-2xl flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
+              className="w-full py-3 bg-[#936DA2] hover:bg-[#835A92] disabled:opacity-50 text-white font-bold rounded-2xl flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
             >
               <Bluetooth className={`w-4 h-4 ${isScanning ? 'animate-pulse' : ''}`} />
               <span>{isScanning ? 'Requesting Bluetooth Device...' : 'Scan & Pair Bluetooth Device'}</span>
@@ -313,14 +313,14 @@ export default function ConnectDeviceModal({ isOpen, onClose }: ConnectDeviceMod
         {/* TAB 2: Mobile Companion Bridge (Apple Watch / Wear OS / Amazfit / Garmin) */}
         {activeTab === 'companion' && (
           <div className="space-y-4 text-xs">
-            <div className="p-3.5 rounded-2xl bg-[#FAF8FD] border border-[#EDE9FE] text-[#64595e] space-y-2 text-[11px] leading-relaxed">
+            <div className="p-3.5 rounded-2xl bg-[#FCF4F5] border border-[#F4DDE2] text-[#64595e] space-y-2 text-[11px] leading-relaxed">
               <p className="font-bold text-[#201538] text-xs">
                 Apple Watch, Samsung Galaxy Watch & Garmin Sync
               </p>
               <p>
                 Smartwatches that connect through proprietary ecosystems (Apple HealthKit, Samsung Health, Google Health Connect) stream their continuous background telemetry via the <b>FemSphere Mobile Companion App</b>.
               </p>
-              <p className="text-[#7C3AED] font-semibold">
+              <p className="text-[#936DA2] font-semibold">
                 Register your device below to link it to your account for streaming.
               </p>
             </div>
@@ -343,7 +343,7 @@ export default function ConnectDeviceModal({ isOpen, onClose }: ConnectDeviceMod
                     else if (b === 'AMAZFIT') setCompanionName('Amazfit GTR 4');
                     else setCompanionName(`${b} Smartwatch`);
                   }}
-                  className="w-full p-2.5 rounded-xl border border-[#EDE9FE] bg-white font-medium"
+                  className="w-full p-2.5 rounded-xl border border-[#F4DDE2] bg-white font-medium"
                 >
                   <option value="APPLE_WATCH">Apple Watch (Apple HealthKit)</option>
                   <option value="SAMSUNG">Samsung Galaxy Watch (Health Connect)</option>
@@ -365,7 +365,7 @@ export default function ConnectDeviceModal({ isOpen, onClose }: ConnectDeviceMod
                   value={companionName}
                   onChange={(e) => setCompanionName(e.target.value)}
                   placeholder="e.g. Apple Watch Ultra, Galaxy Watch 6"
-                  className="w-full p-2.5 rounded-xl border border-[#EDE9FE] bg-white"
+                  className="w-full p-2.5 rounded-xl border border-[#F4DDE2] bg-white"
                   required
                 />
               </div>
@@ -373,7 +373,7 @@ export default function ConnectDeviceModal({ isOpen, onClose }: ConnectDeviceMod
               <button
                 type="submit"
                 disabled={isSubmittingCompanion}
-                className="w-full py-3 bg-[#7C3AED] hover:bg-[#6D28D9] disabled:opacity-50 text-white font-bold rounded-2xl flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
+                className="w-full py-3 bg-[#936DA2] hover:bg-[#835A92] disabled:opacity-50 text-white font-bold rounded-2xl flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
               >
                 <Smartphone className="w-4 h-4" />
                 <span>{isSubmittingCompanion ? 'Registering...' : 'Register Companion Device'}</span>
@@ -397,7 +397,7 @@ export default function ConnectDeviceModal({ isOpen, onClose }: ConnectDeviceMod
                 type="date"
                 value={manualDate}
                 onChange={(e) => setManualDate(e.target.value)}
-                className="w-full p-2.5 rounded-xl border border-[#EDE9FE] bg-[#FAF8FD] font-medium"
+                className="w-full p-2.5 rounded-xl border border-[#F4DDE2] bg-[#FCF4F5] font-medium"
                 required
               />
             </div>
@@ -410,7 +410,7 @@ export default function ConnectDeviceModal({ isOpen, onClose }: ConnectDeviceMod
                   value={manualSteps}
                   onChange={(e) => setManualSteps(e.target.value)}
                   placeholder="e.g. 8400"
-                  className="w-full p-2.5 rounded-xl border border-[#EDE9FE] bg-white"
+                  className="w-full p-2.5 rounded-xl border border-[#F4DDE2] bg-white"
                 />
               </div>
 
@@ -421,7 +421,7 @@ export default function ConnectDeviceModal({ isOpen, onClose }: ConnectDeviceMod
                   value={manualCalories}
                   onChange={(e) => setManualCalories(e.target.value)}
                   placeholder="e.g. 380"
-                  className="w-full p-2.5 rounded-xl border border-[#EDE9FE] bg-white"
+                  className="w-full p-2.5 rounded-xl border border-[#F4DDE2] bg-white"
                 />
               </div>
 
@@ -432,7 +432,7 @@ export default function ConnectDeviceModal({ isOpen, onClose }: ConnectDeviceMod
                   value={manualHeartRate}
                   onChange={(e) => setManualHeartRate(e.target.value)}
                   placeholder="e.g. 72"
-                  className="w-full p-2.5 rounded-xl border border-[#EDE9FE] bg-white"
+                  className="w-full p-2.5 rounded-xl border border-[#F4DDE2] bg-white"
                 />
               </div>
 
@@ -443,7 +443,7 @@ export default function ConnectDeviceModal({ isOpen, onClose }: ConnectDeviceMod
                   value={manualSleepMins}
                   onChange={(e) => setManualSleepMins(e.target.value)}
                   placeholder="e.g. 480 (8 hrs)"
-                  className="w-full p-2.5 rounded-xl border border-[#EDE9FE] bg-white"
+                  className="w-full p-2.5 rounded-xl border border-[#F4DDE2] bg-white"
                 />
               </div>
 
@@ -454,7 +454,7 @@ export default function ConnectDeviceModal({ isOpen, onClose }: ConnectDeviceMod
                   value={manualSpo2}
                   onChange={(e) => setManualSpo2(e.target.value)}
                   placeholder="e.g. 98"
-                  className="w-full p-2.5 rounded-xl border border-[#EDE9FE] bg-white"
+                  className="w-full p-2.5 rounded-xl border border-[#F4DDE2] bg-white"
                 />
               </div>
             </div>
@@ -462,7 +462,7 @@ export default function ConnectDeviceModal({ isOpen, onClose }: ConnectDeviceMod
             <button
               type="submit"
               disabled={isSubmittingManual}
-              className="w-full py-3 bg-[#7C3AED] hover:bg-[#6D28D9] disabled:opacity-50 text-white font-bold rounded-2xl flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
+              className="w-full py-3 bg-[#936DA2] hover:bg-[#835A92] disabled:opacity-50 text-white font-bold rounded-2xl flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
             >
               <RefreshCw className={`w-4 h-4 ${isSubmittingManual ? 'animate-spin' : ''}`} />
               <span>{isSubmittingManual ? 'Saving Telemetry...' : 'Sync Device Activity Telemetry'}</span>
@@ -471,7 +471,7 @@ export default function ConnectDeviceModal({ isOpen, onClose }: ConnectDeviceMod
         )}
 
         {/* Footer */}
-        <div className="pt-3 border-t border-[#EDE9FE] flex items-center justify-between text-[11px] text-[#7a6f75]">
+        <div className="pt-3 border-t border-[#F4DDE2] flex items-center justify-between text-[11px] text-[#7a6f75]">
           <span className="flex items-center gap-1.5">
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
             <span>Encrypted Health Ingestion</span>
@@ -479,7 +479,7 @@ export default function ConnectDeviceModal({ isOpen, onClose }: ConnectDeviceMod
           <button
             type="button"
             onClick={onClose}
-            className="font-bold text-[#7C3AED] hover:underline cursor-pointer"
+            className="font-bold text-[#936DA2] hover:underline cursor-pointer"
           >
             Close
           </button>

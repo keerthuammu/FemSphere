@@ -33,9 +33,9 @@ export default function DoctorAppointments() {
   });
 
   return (
-    <div className="bg-white rounded-2xl p-5 md:p-6 border border-[#EDE9FE] shadow-xs space-y-4 font-inter">
+    <div className="bg-white rounded-2xl p-5 md:p-6 border border-[#F4DDE2] shadow-xs space-y-4 font-inter">
       {/* MINIMAL HEADER & CONTROLS */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#EDE9FE] pb-3.5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#F4DDE2] pb-3.5">
         <div>
           <h2 className="font-serif text-2xl font-bold text-[#3a3135]">Appointments</h2>
           <p className="text-xs text-[#7a6f75] mt-0.5">Manage consultation slots, telehealth calls, and prescriptions</p>
@@ -45,7 +45,7 @@ export default function DoctorAppointments() {
           <select 
             value={appointmentFilter} 
             onChange={(e) => setAppointmentFilter(e.target.value)}
-            className="px-3 py-1.5 rounded-xl border border-[#EDE9FE] bg-[#FAF8FC] text-xs font-semibold text-[#4a4145] cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#7C3AED]"
+            className="px-3 py-1.5 rounded-xl border border-[#F4DDE2] bg-[#FCF4F5] text-xs font-semibold text-[#4a4145] cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#936DA2]"
           >
             <option value="All">All ({appointments.length})</option>
             <option value="Upcoming">Upcoming</option>
@@ -58,7 +58,7 @@ export default function DoctorAppointments() {
 
           <button 
             onClick={() => setShowBookAppointmentModal(true)} 
-            className="px-3.5 py-1.5 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-xs transition-colors"
+            className="px-3.5 py-1.5 bg-[#936DA2] hover:bg-[#835A92] text-white rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-xs transition-colors"
           >
             <Plus className="w-3.5 h-3.5" /> Book Appointment
           </button>
@@ -67,8 +67,8 @@ export default function DoctorAppointments() {
 
       {/* APPOINTMENT LIST */}
       {filteredAppointments.length === 0 ? (
-        <div className="py-12 text-center bg-[#FAF8FC] rounded-xl border border-dashed border-[#EDE9FE] space-y-2">
-          <Calendar className="w-8 h-8 text-[#7C3AED] mx-auto opacity-40" />
+        <div className="py-12 text-center bg-[#FCF4F5] rounded-xl border border-dashed border-[#F4DDE2] space-y-2">
+          <Calendar className="w-8 h-8 text-[#936DA2] mx-auto opacity-40" />
           <h4 className="font-bold text-sm text-[#3a3135]">No Appointments Found</h4>
           <p className="text-xs text-[#7a6f75]">No consultation bookings match the selected status filter.</p>
         </div>
@@ -77,13 +77,13 @@ export default function DoctorAppointments() {
           {filteredAppointments.map(apt => (
             <div 
               key={apt.id} 
-              className="p-4 rounded-xl border border-[#EDE9FE] bg-white hover:border-[#7C3AED]/30 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
+              className="p-4 rounded-xl border border-[#F4DDE2] bg-white hover:border-[#936DA2]/30 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
             >
               {/* PATIENT DETAILS */}
               <div className="space-y-1">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="font-bold text-sm text-[#3a3135]">{apt.patient}</span>
-                  <span className="px-2 py-0.5 rounded-md bg-[#FAF8FC] border border-[#EDE9FE] text-[#7C3AED] font-semibold text-[10px]">
+                  <span className="px-2 py-0.5 rounded-md bg-[#FCF4F5] border border-[#F4DDE2] text-[#936DA2] font-semibold text-[10px]">
                     {apt.type}
                   </span>
                   {apt.cycleBadge && (
@@ -97,7 +97,7 @@ export default function DoctorAppointments() {
                   <p className="text-[#7a6f75] text-xs">{apt.reason}</p>
                 )}
                 <p className="text-[11px] text-[#7a6f75] flex items-center gap-1.5 font-medium">
-                  <Clock className="w-3 h-3 text-[#7C3AED]" />
+                  <Clock className="w-3 h-3 text-[#936DA2]" />
                   <span>{apt.date}</span>
                   <span>•</span>
                   <b className="text-[#3a3135]">{apt.time}</b>
@@ -108,7 +108,7 @@ export default function DoctorAppointments() {
               <div className="flex items-center gap-2.5 self-end sm:self-center">
                 <span className={`px-2.5 py-1 rounded-full font-bold text-[10px] ${
                   apt.status === 'Accepted' || apt.status === 'Scheduled' ? 'bg-emerald-100 text-emerald-800' :
-                  apt.status === 'Completed' ? 'bg-purple-100 text-[#7C3AED]' : 'bg-rose-100 text-rose-800'
+                  apt.status === 'Completed' ? 'bg-purple-100 text-[#936DA2]' : 'bg-rose-100 text-rose-800'
                 }`}>
                   {apt.status}
                 </span>
@@ -117,7 +117,7 @@ export default function DoctorAppointments() {
                 <div className="relative">
                   <button
                     onClick={() => setOpenMenuId(openMenuId === apt.id ? null : apt.id)}
-                    className="p-1.5 rounded-lg border border-[#EDE9FE] bg-white hover:bg-[#FAF8FC] hover:border-[#7C3AED]/40 text-[#4A3B42] transition-colors cursor-pointer shadow-2xs"
+                    className="p-1.5 rounded-lg border border-[#F4DDE2] bg-white hover:bg-[#FCF4F5] hover:border-[#936DA2]/40 text-[#4A3B42] transition-colors cursor-pointer shadow-2xs"
                     title="Actions"
                     aria-label="Actions menu"
                   >
@@ -131,7 +131,7 @@ export default function DoctorAppointments() {
                         className="fixed inset-0 z-30" 
                         onClick={() => setOpenMenuId(null)}
                       />
-                      <div className="absolute right-0 mt-1.5 w-44 bg-white rounded-xl border border-[#EDE9FE] shadow-lg py-1 z-40 text-xs font-medium divide-y divide-gray-100 animate-in fade-in zoom-in-95 duration-100">
+                      <div className="absolute right-0 mt-1.5 w-44 bg-white rounded-xl border border-[#F4DDE2] shadow-lg py-1 z-40 text-xs font-medium divide-y divide-gray-100 animate-in fade-in zoom-in-95 duration-100">
                         <div className="py-1">
                           <button
                             onClick={() => {
@@ -139,7 +139,7 @@ export default function DoctorAppointments() {
                               setSelectedCyclePatient({ id: numId, name: apt.patient });
                               setOpenMenuId(null);
                             }}
-                            className="w-full text-left px-3.5 py-1.5 hover:bg-[#FAF8FC] hover:text-[#7C3AED] transition-colors cursor-pointer"
+                            className="w-full text-left px-3.5 py-1.5 hover:bg-[#FCF4F5] hover:text-[#936DA2] transition-colors cursor-pointer"
                           >
                             Cycle Profile
                           </button>
@@ -155,7 +155,7 @@ export default function DoctorAppointments() {
                                 }
                                 setOpenMenuId(null);
                               }}
-                              className="w-full text-left px-3.5 py-1.5 hover:bg-[#FAF8FC] hover:text-[#7C3AED] transition-colors cursor-pointer"
+                              className="w-full text-left px-3.5 py-1.5 hover:bg-[#FCF4F5] hover:text-[#936DA2] transition-colors cursor-pointer"
                             >
                               {isAppointmentSlotActive(apt.date, apt.time).isActive ? 'Start Call' : 'Call (Slot Inactive)'}
                             </button>
@@ -166,7 +166,7 @@ export default function DoctorAppointments() {
                               handleOpenPrescribeForAppointment(apt);
                               setOpenMenuId(null);
                             }}
-                            className="w-full text-left px-3.5 py-1.5 hover:bg-[#FAF8FC] hover:text-[#7C3AED] transition-colors cursor-pointer"
+                            className="w-full text-left px-3.5 py-1.5 hover:bg-[#FCF4F5] hover:text-[#936DA2] transition-colors cursor-pointer"
                           >
                             Prescribe Rx & Exercise
                           </button>

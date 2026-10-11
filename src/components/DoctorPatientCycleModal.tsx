@@ -62,10 +62,10 @@ export default function DoctorPatientCycleModal({
 
   return (
     <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto animate-in fade-in duration-200">
-      <div className="bg-white rounded-3xl max-w-3xl w-full shadow-2xl border border-[#EDE9FE] overflow-hidden my-8 max-h-[90vh] flex flex-col font-inter">
+      <div className="bg-white rounded-3xl max-w-3xl w-full shadow-2xl border border-[#F4DDE2] overflow-hidden my-8 max-h-[90vh] flex flex-col font-inter">
         
         {/* Modal Header */}
-        <div className="px-6 py-5 border-b border-[#EDE9FE] bg-[#FAF8FC] flex items-center justify-between">
+        <div className="px-6 py-5 border-b border-[#F4DDE2] bg-[#FCF4F5] flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-rose-100 flex items-center justify-center text-rose-600">
               <Droplet className="w-5 h-5 fill-rose-500 text-rose-500" />
@@ -94,7 +94,7 @@ export default function DoctorPatientCycleModal({
         <div className="p-6 overflow-y-auto space-y-6 flex-1">
           {loading ? (
             <div className="py-20 text-center space-y-3">
-              <RefreshCw className="w-8 h-8 text-[#7C3AED] animate-spin mx-auto" />
+              <RefreshCw className="w-8 h-8 text-[#936DA2] animate-spin mx-auto" />
               <p className="text-sm font-medium text-[#7a6f75]">Retrieving verified cycle analytics & records...</p>
             </div>
           ) : error ? (
@@ -106,14 +106,14 @@ export default function DoctorPatientCycleModal({
               </div>
             </div>
           ) : !data?.hasCycleData ? (
-            <div className="p-8 text-center bg-[#FAF8FC] rounded-2xl border border-dashed border-[#EDE9FE] space-y-3">
+            <div className="p-8 text-center bg-[#FCF4F5] rounded-2xl border border-dashed border-[#F4DDE2] space-y-3">
               <Droplet className="w-10 h-10 text-gray-400 mx-auto opacity-40" />
               <h4 className="font-serif text-lg font-bold text-[#3a3135]">Cycle Profile Not Configured</h4>
               <p className="text-xs text-[#7a6f75] max-w-md mx-auto">
                 {data?.message || 'This patient has not yet completed their period cycle setup or is outside active reproductive tracking age.'}
               </p>
               {data?.lifeStage && (
-                <p className="text-xs font-semibold text-[#7C3AED]">
+                <p className="text-xs font-semibold text-[#936DA2]">
                   Registered Life Stage: {data.lifeStage}
                 </p>
               )}
@@ -167,7 +167,7 @@ export default function DoctorPatientCycleModal({
               </div>
 
               {/* Baseline Clinical Settings */}
-              <div className="bg-[#FAF8FC] p-4 rounded-2xl border border-[#EDE9FE] flex flex-wrap items-center justify-between gap-3 text-xs">
+              <div className="bg-[#FCF4F5] p-4 rounded-2xl border border-[#F4DDE2] flex flex-wrap items-center justify-between gap-3 text-xs">
                 <div>
                   <span className="text-[#7a6f75] block">Baseline Cycle Length</span>
                   <span className="font-bold text-[#3a3135]">{settings?.cycleLength || 28} Days</span>
@@ -178,7 +178,7 @@ export default function DoctorPatientCycleModal({
                 </div>
                 <div>
                   <span className="text-[#7a6f75] block">Last Period Start</span>
-                  <span className="font-mono font-bold text-[#7C3AED]">{settings?.lastPeriodStart}</span>
+                  <span className="font-mono font-bold text-[#936DA2]">{settings?.lastPeriodStart}</span>
                 </div>
                 <div>
                   <span className="text-[#7a6f75] block">Cycle Health Classification</span>
@@ -192,19 +192,19 @@ export default function DoctorPatientCycleModal({
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <h4 className="font-serif text-base font-bold text-[#3a3135] flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-[#7C3AED]" /> Past Menstrual Cycles & Timing History
+                    <Calendar className="w-4 h-4 text-[#936DA2]" /> Past Menstrual Cycles & Timing History
                   </h4>
                   <span className="text-xs text-[#7a6f75]">{history.length} recorded cycles</span>
                 </div>
 
                 {history.length === 0 ? (
-                  <div className="p-6 text-center bg-white rounded-2xl border border-[#EDE9FE] text-xs text-[#7a6f75]">
+                  <div className="p-6 text-center bg-white rounded-2xl border border-[#F4DDE2] text-xs text-[#7a6f75]">
                     No previous dynamic cycle logs found. Baseline setup active since {settings?.lastPeriodStart}.
                   </div>
                 ) : (
-                  <div className="overflow-x-auto rounded-2xl border border-[#EDE9FE] bg-white">
+                  <div className="overflow-x-auto rounded-2xl border border-[#F4DDE2] bg-white">
                     <table className="w-full text-left text-xs">
-                      <thead className="bg-[#FAF8FC] border-b border-[#EDE9FE] text-[#7a6f75] uppercase text-[10px] font-bold">
+                      <thead className="bg-[#FCF4F5] border-b border-[#F4DDE2] text-[#7a6f75] uppercase text-[10px] font-bold">
                         <tr>
                           <th className="p-3">Period Start</th>
                           <th className="p-3">Flow Duration</th>
@@ -214,7 +214,7 @@ export default function DoctorPatientCycleModal({
                           <th className="p-3">Reported Symptoms</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-[#EDE9FE]">
+                      <tbody className="divide-y divide-[#F4DDE2]">
                         {history.map((item: any, idx: number) => {
                           const varianceBadge = item.varianceDays < 0 
                             ? { label: `${Math.abs(item.varianceDays)}d Early`, color: 'bg-indigo-50 text-indigo-700 border-indigo-200' }
@@ -223,7 +223,7 @@ export default function DoctorPatientCycleModal({
                             : { label: 'On Time (0d)', color: 'bg-emerald-50 text-emerald-800 border-emerald-200' };
 
                           return (
-                            <tr key={item.id || idx} className="hover:bg-[#FAF8FC]/50 transition-colors">
+                            <tr key={item.id || idx} className="hover:bg-[#FCF4F5]/50 transition-colors">
                               <td className="p-3 font-mono font-bold text-[#3a3135]">
                                 {item.startDate}
                               </td>
@@ -246,7 +246,7 @@ export default function DoctorPatientCycleModal({
                                 {item.symptoms && item.symptoms.length > 0 ? (
                                   <div className="flex flex-wrap gap-1">
                                     {item.symptoms.map((s: string, i: number) => (
-                                      <span key={i} className="px-1.5 py-0.5 rounded-md bg-purple-50 text-[#7C3AED] text-[10px] font-medium border border-purple-100">
+                                      <span key={i} className="px-1.5 py-0.5 rounded-md bg-purple-50 text-[#936DA2] text-[10px] font-medium border border-purple-100">
                                         {s}
                                       </span>
                                     ))}
@@ -268,7 +268,7 @@ export default function DoctorPatientCycleModal({
         </div>
 
         {/* Modal Footer */}
-        <div className="p-4 border-t border-[#EDE9FE] bg-[#FAF8FC] flex justify-end">
+        <div className="p-4 border-t border-[#F4DDE2] bg-[#FCF4F5] flex justify-end">
           <button 
             type="button" 
             onClick={onClose}

@@ -5,10 +5,10 @@ export default function HealthyAgingModule() {
   const [adultChildShared, setAdultChildShared] = useState(true);
 
   return (
-    <div className="bg-white rounded-3xl p-6 border border-[#EDE9FE] shadow-sm space-y-5">
-      <div className="flex items-center justify-between border-b border-[#EDE9FE] pb-4">
+    <div className="bg-white rounded-3xl p-6 border border-[#F4DDE2] shadow-sm space-y-5">
+      <div className="flex items-center justify-between border-b border-[#F4DDE2] pb-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-[#7C3AED]/10 text-[#7C3AED] flex items-center justify-center font-bold text-lg">
+          <div className="w-10 h-10 rounded-2xl bg-[#936DA2]/10 text-[#936DA2] flex items-center justify-center font-bold text-lg">
             👵
           </div>
           <div>
@@ -31,8 +31,8 @@ export default function HealthyAgingModule() {
       </div>
 
       <div className="grid md:grid-cols-3 gap-4">
-        <div className="bg-[#FAF8FC] p-4 rounded-2xl border border-[#EDE9FE] space-y-2">
-          <div className="flex items-center gap-1.5 text-[#7C3AED] font-bold text-xs">
+        <div className="bg-[#FCF4F5] p-4 rounded-2xl border border-[#F4DDE2] space-y-2">
+          <div className="flex items-center gap-1.5 text-[#936DA2] font-bold text-xs">
             <Pill className="w-4 h-4" />
             <span>Medication Schedule</span>
           </div>
@@ -40,7 +40,7 @@ export default function HealthyAgingModule() {
           <p className="text-xs text-[#64595e]">Calcium, BP Regulator, and Vitamin D taken on time.</p>
         </div>
 
-        <div className="bg-[#FAF8FC] p-4 rounded-2xl border border-[#EDE9FE] space-y-2">
+        <div className="bg-[#FCF4F5] p-4 rounded-2xl border border-[#F4DDE2] space-y-2">
           <div className="flex items-center gap-1.5 text-[#14B8A6] font-bold text-xs">
             <Heart className="w-4 h-4" />
             <span>Cardiovascular Vitals</span>
@@ -49,7 +49,7 @@ export default function HealthyAgingModule() {
           <p className="text-xs text-[#64595e]">Vitals automatically synced via Bluetooth monitor at 09:00 AM.</p>
         </div>
 
-        <div className="bg-[#FAF8FC] p-4 rounded-2xl border border-[#EDE9FE] space-y-2">
+        <div className="bg-[#FCF4F5] p-4 rounded-2xl border border-[#F4DDE2] space-y-2">
           <div className="flex items-center gap-1.5 text-blue-600 font-bold text-xs">
             <Calendar className="w-4 h-4" />
             <span>Upcoming Specialist Visit</span>

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-  Sparkles,
   Lock,
   Mail,
   User,
@@ -82,9 +81,11 @@ export default function AuthModal() {
         {/* Header */}
         <div className="flex items-center justify-between border-b border-purple-100 dark:border-slate-800 pb-3">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-purple-600 text-white flex items-center justify-center shadow-xs">
-              <Sparkles className="w-4 h-4" />
-            </div>
+            <img
+              src="/femsphere_logo.png"
+              alt="FemSphere"
+              className="w-8 h-8 rounded-full object-contain shadow-xs"
+            />
             <div>
               <h3 className="text-sm font-bold text-slate-900 dark:text-white">
                 {authMode === 'login' && 'Sign In to FemSphere'}

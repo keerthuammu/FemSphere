@@ -52,9 +52,9 @@ export default function CaregiverDependents() {
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
       {/* Header */}
-      <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#EDE9FE] shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#F4DDE2] shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 text-[#7C3AED] mb-1">
+          <div className="flex items-center gap-2 text-[#936DA2] mb-1">
             <Users className="w-5 h-5" />
             <span className="text-xs font-bold uppercase tracking-wider">Family & Care Registry</span>
           </div>
@@ -66,7 +66,7 @@ export default function CaregiverDependents() {
 
         <button
           onClick={() => setShowAddDepModal(true)}
-          className="px-5 py-3 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm transition-all cursor-pointer w-fit"
+          className="px-5 py-3 bg-[#936DA2] hover:bg-[#835A92] text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm transition-all cursor-pointer w-fit"
         >
           <Plus className="w-4 h-4" /> Add Dependent
         </button>
@@ -74,8 +74,8 @@ export default function CaregiverDependents() {
 
       {/* Dependents Grid */}
       {dependents.length === 0 ? (
-        <div className="bg-white rounded-3xl p-12 border border-[#EDE9FE] shadow-sm text-center space-y-4">
-          <div className="w-16 h-16 rounded-full bg-purple-50 text-[#7C3AED] flex items-center justify-center mx-auto">
+        <div className="bg-white rounded-3xl p-12 border border-[#F4DDE2] shadow-sm text-center space-y-4">
+          <div className="w-16 h-16 rounded-full bg-purple-50 text-[#936DA2] flex items-center justify-center mx-auto">
             <Users className="w-8 h-8" />
           </div>
           <h4 className="font-serif text-xl font-bold text-[#3a3135]">No Dependents Linked</h4>
@@ -84,7 +84,7 @@ export default function CaregiverDependents() {
           </p>
           <button
             onClick={() => setShowAddDepModal(true)}
-            className="px-6 py-2.5 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl text-xs font-bold inline-flex items-center gap-2"
+            className="px-6 py-2.5 bg-[#936DA2] hover:bg-[#835A92] text-white rounded-xl text-xs font-bold inline-flex items-center gap-2"
           >
             <Plus className="w-4 h-4" /> Add First Dependent
           </button>
@@ -94,11 +94,11 @@ export default function CaregiverDependents() {
           {dependents.map((dep) => (
             <div
               key={dep.id}
-              className="p-6 rounded-3xl border border-[#EDE9FE] bg-white hover:shadow-md transition-all flex flex-col justify-between space-y-5"
+              className="p-6 rounded-3xl border border-[#F4DDE2] bg-white hover:shadow-md transition-all flex flex-col justify-between space-y-5"
             >
               <div className="space-y-4">
                 <div className="flex items-start justify-between">
-                  <div className="w-12 h-12 rounded-2xl bg-purple-100 text-[#7C3AED] flex items-center justify-center font-bold text-lg">
+                  <div className="w-12 h-12 rounded-2xl bg-purple-100 text-[#936DA2] flex items-center justify-center font-bold text-lg">
                     {dep.name.charAt(0)}
                   </div>
                   <button
@@ -112,15 +112,15 @@ export default function CaregiverDependents() {
 
                 <div>
                   <h4 className="font-bold text-lg text-[#3a3135]">{dep.name}</h4>
-                  <span className="inline-block mt-1 px-3 py-0.5 rounded-full bg-purple-50 text-[#7C3AED] font-bold text-xs border border-purple-100">
+                  <span className="inline-block mt-1 px-3 py-0.5 rounded-full bg-purple-50 text-[#936DA2] font-bold text-xs border border-purple-100">
                     {dep.relation}
                   </span>
                 </div>
 
-                <div className="space-y-2 pt-2 border-t border-[#EDE9FE] text-xs">
+                <div className="space-y-2 pt-2 border-t border-[#F4DDE2] text-xs">
                   <div className="flex items-center justify-between text-[#7a6f75]">
                     <span className="flex items-center gap-1.5">
-                      <Calendar className="w-3.5 h-3.5 text-[#7C3AED]" /> Date of Birth:
+                      <Calendar className="w-3.5 h-3.5 text-[#936DA2]" /> Date of Birth:
                     </span>
                     <span className="font-bold text-[#3a3135]">{dep.dob}</span>
                   </div>
@@ -134,7 +134,7 @@ export default function CaregiverDependents() {
                 </div>
               </div>
 
-              <div className="pt-3 border-t border-[#EDE9FE] flex items-center justify-between text-[11px] text-[#7a6f75]">
+              <div className="pt-3 border-t border-[#F4DDE2] flex items-center justify-between text-[11px] text-[#7a6f75]">
                 <span className="font-mono text-gray-400">ID: {dep.id}</span>
                 <span className="text-emerald-600 font-bold flex items-center gap-1">
                   Active Care Profile
@@ -148,10 +148,10 @@ export default function CaregiverDependents() {
       {/* Add Dependent Modal */}
       {showAddDepModal && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in duration-150 font-inter">
-          <div className="bg-white rounded-3xl p-6 md:p-8 max-w-md w-full border border-[#EDE9FE] shadow-2xl space-y-5">
-            <div className="flex items-center justify-between border-b border-[#EDE9FE] pb-3">
+          <div className="bg-white rounded-3xl p-6 md:p-8 max-w-md w-full border border-[#F4DDE2] shadow-2xl space-y-5">
+            <div className="flex items-center justify-between border-b border-[#F4DDE2] pb-3">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-purple-50 text-[#7C3AED] flex items-center justify-center">
+                <div className="w-9 h-9 rounded-xl bg-purple-50 text-[#936DA2] flex items-center justify-center">
                   <Users className="w-5 h-5" />
                 </div>
                 <div>
@@ -180,7 +180,7 @@ export default function CaregiverDependents() {
                   className={`w-full p-3 rounded-xl border ${
                     newDep.name.trim() && !isValidName(newDep.name)
                       ? 'border-red-400 focus:border-red-500'
-                      : 'border-[#EDE9FE] focus:border-[#7C3AED]'
+                      : 'border-[#F4DDE2] focus:border-[#936DA2]'
                   } outline-none text-sm font-medium`}
                   required
                 />
@@ -200,7 +200,7 @@ export default function CaregiverDependents() {
                   className={`w-full p-3 rounded-xl border ${
                     newDep.dob && !isPastOrToday(newDep.dob)
                       ? 'border-red-400 focus:border-red-500'
-                      : 'border-[#EDE9FE] focus:border-[#7C3AED]'
+                      : 'border-[#F4DDE2] focus:border-[#936DA2]'
                   } bg-white outline-none text-sm`}
                   required
                 />
@@ -216,7 +216,7 @@ export default function CaregiverDependents() {
                 <select
                   value={newDep.relation}
                   onChange={(e) => setNewDep({ ...newDep, relation: e.target.value })}
-                  className="w-full p-3 rounded-xl border border-[#EDE9FE] bg-white outline-none focus:border-[#7C3AED] text-sm font-medium"
+                  className="w-full p-3 rounded-xl border border-[#F4DDE2] bg-white outline-none focus:border-[#936DA2] text-sm font-medium"
                 >
                   <option value="Child (Daughter)">Child (Daughter)</option>
                   <option value="Child (Son)">Child (Son)</option>
@@ -238,7 +238,7 @@ export default function CaregiverDependents() {
                 <select
                   value={newDep.bloodGroup}
                   onChange={(e) => setNewDep({ ...newDep, bloodGroup: e.target.value })}
-                  className="w-full p-3 rounded-xl border border-[#EDE9FE] bg-white outline-none focus:border-[#7C3AED] text-sm font-medium"
+                  className="w-full p-3 rounded-xl border border-[#F4DDE2] bg-white outline-none focus:border-[#936DA2] text-sm font-medium"
                 >
                   <option value="A Positive (A+)">A Positive (A+)</option>
                   <option value="A Negative (A-)">A Negative (A-)</option>
@@ -251,19 +251,19 @@ export default function CaregiverDependents() {
                 </select>
               </div>
 
-              <div className="flex gap-3 pt-3 border-t border-[#EDE9FE]">
+              <div className="flex gap-3 pt-3 border-t border-[#F4DDE2]">
                 <button
                   type="button"
                   disabled={isAddingDep}
                   onClick={() => setShowAddDepModal(false)}
-                  className="flex-1 py-3 border border-[#EDE9FE] rounded-xl font-bold text-xs hover:bg-gray-50 cursor-pointer"
+                  className="flex-1 py-3 border border-[#F4DDE2] rounded-xl font-bold text-xs hover:bg-gray-50 cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isAddingDep}
-                  className="flex-1 py-3 bg-[#7C3AED] hover:bg-[#6D28D9] disabled:opacity-50 text-white font-bold text-xs rounded-xl shadow-md transition-all cursor-pointer"
+                  className="flex-1 py-3 bg-[#936DA2] hover:bg-[#835A92] disabled:opacity-50 text-white font-bold text-xs rounded-xl shadow-md transition-all cursor-pointer"
                 >
                   {isAddingDep ? 'Saving to Database...' : 'Save Dependent'}
                 </button>

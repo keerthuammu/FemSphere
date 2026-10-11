@@ -2331,7 +2331,7 @@ export default function FitnessTracker({
       {/* --- LIVE INTERACTIVE WORKOUT PLAYER MODAL --- */}
       {activeWorkout && (
         <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 md:p-6 animate-in fade-in duration-200">
-          <div className="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border border-[#EDE9FE] flex flex-col h-[94vh] max-h-[820px] justify-between relative">
+          <div className="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border border-[#F4DDE2] flex flex-col h-[94vh] max-h-[820px] justify-between relative">
             
             {/* 1. EXERCISE GUIDE MODAL */}
             {playerPhase === 'guide' ? (
@@ -2452,7 +2452,7 @@ export default function FitnessTracker({
                 <div className="grid grid-cols-2 gap-3 max-w-xs mx-auto">
                   <div className="p-4 rounded-2xl bg-purple-50 border border-purple-200">
                     <span className="text-[10px] font-bold text-gray-500 uppercase block">Burned</span>
-                    <span className="text-2xl font-black text-[#7C3AED]">+{activeWorkout.caloriesBurned}</span>
+                    <span className="text-2xl font-black text-[#936DA2]">+{activeWorkout.caloriesBurned}</span>
                     <span className="text-[10px] text-gray-400 block">kcal</span>
                   </div>
                   <div className="p-4 rounded-2xl bg-blue-50 border border-blue-200">
@@ -2463,7 +2463,7 @@ export default function FitnessTracker({
                 </div>
                 <button
                   onClick={() => { setActiveWorkout(null); setIsTimerRunning(false); }}
-                  className="w-full py-4 bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-bold text-sm rounded-2xl shadow-lg cursor-pointer"
+                  className="w-full py-4 bg-[#936DA2] hover:bg-[#835A92] text-white font-bold text-sm rounded-2xl shadow-lg cursor-pointer"
                 >
                   Save & Return to Dashboard
                 </button>
@@ -2471,7 +2471,7 @@ export default function FitnessTracker({
             ) : playerPhase === 'rest' ? (
               /* 3. REST INTERVAL */
               <div className="p-8 text-center space-y-6 my-auto">
-                <span className="text-xs font-black text-[#7C3AED] uppercase tracking-widest bg-purple-100 px-4 py-1.5 rounded-full border border-purple-200">
+                <span className="text-xs font-black text-[#936DA2] uppercase tracking-widest bg-purple-100 px-4 py-1.5 rounded-full border border-purple-200">
                   Take a Breath • Rest
                 </span>
                 <h3 className="text-6xl font-black text-[#1E293B] font-mono tracking-tight">
@@ -2603,12 +2603,12 @@ export default function FitnessTracker({
       )}
 
       {/* --- CLINICAL PATIENT HEALTH DISCOVERY HUB --- */}
-      <div className="bg-white rounded-3xl p-6 border border-[#EDE9FE] shadow-sm space-y-6">
+      <div className="bg-white rounded-3xl p-6 border border-[#F4DDE2] shadow-sm space-y-6">
         
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <h2 className="text-2xl font-black text-[#3a3135] tracking-tight">DOCTOR-PRESCRIBED EXERCISES & PROTOCOLS</h2>
-            <span className="px-2.5 py-1 rounded-full text-xs font-extrabold bg-purple-100 text-[#7C3AED] flex items-center gap-1 border border-purple-200">
+            <span className="px-2.5 py-1 rounded-full text-xs font-extrabold bg-purple-100 text-[#936DA2] flex items-center gap-1 border border-purple-200">
               <ShieldCheck className="w-3.5 h-3.5" /> 100% Doctor Prescribed
             </span>
             <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 flex items-center gap-1">
@@ -2623,7 +2623,7 @@ export default function FitnessTracker({
               placeholder="Search prescribed protocols..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-[#FAF8FC] border border-[#EDE9FE] text-xs font-medium focus:border-[#7C3AED] outline-none"
+              className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-[#FCF4F5] border border-[#F4DDE2] text-xs font-medium focus:border-[#936DA2] outline-none"
             />
           </div>
         </div>
@@ -2644,8 +2644,8 @@ export default function FitnessTracker({
               onClick={() => setSelectedCategory(cat.id)}
               className={`px-4 py-2.5 rounded-2xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-2 ${
                 selectedCategory === cat.id
-                  ? 'bg-[#7C3AED] text-white shadow-md shadow-purple-200 ring-2 ring-purple-300'
-                  : 'bg-[#FAF8FC] hover:bg-purple-50 text-gray-700 border border-[#EDE9FE]'
+                  ? 'bg-[#936DA2] text-white shadow-md shadow-purple-200 ring-2 ring-purple-300'
+                  : 'bg-[#FCF4F5] hover:bg-purple-50 text-gray-700 border border-[#F4DDE2]'
               }`}
             >
               <span>{cat.label}</span>
@@ -2660,7 +2660,7 @@ export default function FitnessTracker({
         {consultationAdvice && consultationAdvice.length > 0 && (
           <div className="p-5 rounded-3xl bg-[#FAF5FF] border border-purple-200 space-y-4">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-[#7C3AED] text-white flex items-center justify-center text-xs font-bold shadow-xs">
+              <div className="w-8 h-8 rounded-xl bg-[#936DA2] text-white flex items-center justify-center text-xs font-bold shadow-xs">
                 Rx
               </div>
               <div>
@@ -2680,9 +2680,9 @@ export default function FitnessTracker({
                 }
 
                 return (
-                  <div key={cons.id} className="p-4 rounded-2xl bg-white border border-[#EDE9FE] space-y-3 text-xs shadow-2xs">
+                  <div key={cons.id} className="p-4 rounded-2xl bg-white border border-[#F4DDE2] space-y-3 text-xs shadow-2xs">
                     <div className="flex items-center justify-between border-b border-gray-100 pb-2">
-                      <span className="font-bold text-[#7C3AED]">
+                      <span className="font-bold text-[#936DA2]">
                         {cons.doctor_name || 'Attending Specialist'}
                       </span>
                       <span className="text-[10px] text-gray-400">
@@ -2710,14 +2710,14 @@ export default function FitnessTracker({
                     {exercisesList.length > 0 && (
                       <div className="space-y-1.5 pt-1">
                         <span className="font-bold text-purple-800 block text-[10px] uppercase flex items-center gap-1">
-                          <Activity className="w-3.5 h-3.5 text-[#7C3AED]" /> Prescribed Exercise Regimens:
+                          <Activity className="w-3.5 h-3.5 text-[#936DA2]" /> Prescribed Exercise Regimens:
                         </span>
                         <div className="space-y-1.5">
                           {exercisesList.map((ex, idx) => (
                             <div key={idx} className="p-2.5 rounded-xl bg-purple-50/70 border border-purple-200/80 flex flex-col gap-1">
                               <div className="flex items-center justify-between">
                                 <span className="font-bold text-[#3a3135]">{ex.name}</span>
-                                <span className="font-black text-[#7C3AED] text-[10px] bg-white px-2 py-0.5 rounded-full border border-purple-200">
+                                <span className="font-black text-[#936DA2] text-[10px] bg-white px-2 py-0.5 rounded-full border border-purple-200">
                                   {ex.setsReps}
                                 </span>
                               </div>
@@ -2745,7 +2745,7 @@ export default function FitnessTracker({
         )}
 
         {/* --- PATIENT CLINICAL SAFEGUARD BANNER --- */}
-        <div className="rounded-3xl bg-gradient-to-r from-[#7C3AED] via-purple-700 to-indigo-900 text-white p-6 md:p-8 overflow-hidden shadow-xl relative">
+        <div className="rounded-3xl bg-gradient-to-r from-[#936DA2] via-purple-700 to-indigo-900 text-white p-6 md:p-8 overflow-hidden shadow-xl relative">
           <div className="absolute top-0 right-0 w-80 h-80 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
           
           <div className="relative z-10 max-w-2xl space-y-3">
@@ -2773,7 +2773,7 @@ export default function FitnessTracker({
                     : WORKOUT_PLANS.find(p => p.patientCondition === selectedCategory) || WORKOUT_PLANS[0];
                   handleStartWorkout(filtered);
                 }}
-                className="px-8 py-3.5 bg-white text-[#7C3AED] hover:bg-purple-50 font-black text-sm rounded-full shadow-lg transition-all cursor-pointer flex items-center gap-2"
+                className="px-8 py-3.5 bg-white text-[#936DA2] hover:bg-purple-50 font-black text-sm rounded-full shadow-lg transition-all cursor-pointer flex items-center gap-2"
               >
                 <span>Start Doctor-Prescribed Routine</span>
                 <span>🚀</span>
@@ -2809,11 +2809,11 @@ export default function FitnessTracker({
             .map((plan) => (
               <div
                 key={plan.id}
-                className="bg-[#FAF8FC] rounded-3xl p-5 border border-[#EDE9FE] hover:border-[#7C3AED] transition-all flex flex-col justify-between space-y-4 group shadow-2xs relative"
+                className="bg-[#FCF4F5] rounded-3xl p-5 border border-[#F4DDE2] hover:border-[#936DA2] transition-all flex flex-col justify-between space-y-4 group shadow-2xs relative"
               >
                 <div className="space-y-3">
                   <div className="flex items-start justify-between gap-2">
-                    <span className="text-[10px] font-black text-[#7C3AED] uppercase tracking-wider bg-purple-100/70 px-3 py-1 rounded-full border border-purple-200">
+                    <span className="text-[10px] font-black text-[#936DA2] uppercase tracking-wider bg-purple-100/70 px-3 py-1 rounded-full border border-purple-200">
                       {plan.category}
                     </span>
                     <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
@@ -2822,7 +2822,7 @@ export default function FitnessTracker({
                   </div>
 
                   <div>
-                    <h4 className="font-black text-lg text-[#3a3135] group-hover:text-[#7C3AED] transition-colors leading-snug">
+                    <h4 className="font-black text-lg text-[#3a3135] group-hover:text-[#936DA2] transition-colors leading-snug">
                       {plan.title}
                     </h4>
                     <p className="text-xs text-gray-500 mt-1 leading-relaxed">
@@ -2831,10 +2831,10 @@ export default function FitnessTracker({
                   </div>
 
                   {/* Medical Safeguard pill */}
-                  <div className="p-3 rounded-2xl bg-white border border-[#EDE9FE] space-y-1.5 text-xs">
+                  <div className="p-3 rounded-2xl bg-white border border-[#F4DDE2] space-y-1.5 text-xs">
                     <div className="flex items-center justify-between text-[11px] font-bold">
                       <span className="text-gray-500">Target Heart Rate:</span>
-                      <span className="text-[#7C3AED]">{plan.targetHeartRateBpm}</span>
+                      <span className="text-[#936DA2]">{plan.targetHeartRateBpm}</span>
                     </div>
                     <div className="text-[11px] text-gray-600 font-medium leading-tight">
                       <span className="font-bold text-amber-700">Safeguard: </span>
@@ -2855,7 +2855,7 @@ export default function FitnessTracker({
                       <button 
                         key={i} 
                         onClick={() => handleOpenExerciseGuide(plan, i)}
-                        className="text-[10px] font-bold bg-white hover:bg-purple-50 px-2.5 py-1 rounded-lg border border-[#EDE9FE] text-gray-700 cursor-pointer"
+                        className="text-[10px] font-bold bg-white hover:bg-purple-50 px-2.5 py-1 rounded-lg border border-[#F4DDE2] text-gray-700 cursor-pointer"
                       >
                         {ex.name}
                       </button>
@@ -2864,7 +2864,7 @@ export default function FitnessTracker({
 
                   <button
                     onClick={() => handleStartWorkout(plan)}
-                    className="w-full py-3.5 bg-white hover:bg-[#7C3AED] text-[#7C3AED] hover:text-white border-2 border-[#7C3AED] rounded-2xl font-black text-xs uppercase tracking-wider transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer"
+                    className="w-full py-3.5 bg-white hover:bg-[#936DA2] text-[#936DA2] hover:text-white border-2 border-[#936DA2] rounded-2xl font-black text-xs uppercase tracking-wider transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer"
                   >
                     <Play className="w-3.5 h-3.5 fill-current" />
                     <span>Start Prescribed Workout</span>
@@ -2879,7 +2879,7 @@ export default function FitnessTracker({
       {/* --- CALORIE & HYDRATION METRICS (ONLY IF NOT PRESCRIBED-ONLY) --- */}
       {!prescribedOnly && (
         <div className="grid md:grid-cols-3 gap-4">
-          <div className="bg-white p-5 rounded-3xl border border-[#EDE9FE] shadow-sm space-y-3">
+          <div className="bg-white p-5 rounded-3xl border border-[#F4DDE2] shadow-sm space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Calorie Balance</span>
               <Flame className="w-4 h-4 text-rose-500" />
@@ -2896,16 +2896,16 @@ export default function FitnessTracker({
             </div>
           </div>
 
-          <div className="bg-white p-5 rounded-3xl border border-[#EDE9FE] shadow-sm space-y-3">
+          <div className="bg-white p-5 rounded-3xl border border-[#F4DDE2] shadow-sm space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Daily Steps</span>
-              <Footprints className="w-4 h-4 text-[#7C3AED]" />
+              <Footprints className="w-4 h-4 text-[#936DA2]" />
             </div>
             <h4 className="text-2xl font-black text-[#3a3135]">{steps.toLocaleString()}</h4>
             <p className="text-xs text-purple-700 font-semibold">5.8 km • 48 active mins</p>
           </div>
 
-          <div className="bg-white p-5 rounded-3xl border border-[#EDE9FE] shadow-sm space-y-3">
+          <div className="bg-white p-5 rounded-3xl border border-[#F4DDE2] shadow-sm space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Hydration</span>
               <Droplets className="w-4 h-4 text-sky-600" />

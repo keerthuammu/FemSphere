@@ -135,9 +135,18 @@ class ApiConstants {
   static String get userLifeStage => '$baseUrl/life-stages/current';
   static String get healthTimeline => '$baseUrl/health/timeline';
   static String get aiInsights => '$baseUrl/health/insights';
+  static String get aiTwinChat => '$baseUrl/health/insights/chat';
+  static String get aiTwinGenerate => '$baseUrl/health/insights/generate';
   static String get consents => '$baseUrl/privacy/consents';
   static String get partnerSharedHealth => '$baseUrl/privacy/partner/shared-health';
   static String get periodTrackerOverview => '$baseUrl/period-tracker/overview';
+  static String get periodTrackerSettings => '$baseUrl/period-tracker/settings';
+  static String get periodTrackerCycles => '$baseUrl/period-tracker/cycles';
+  static String periodTrackerCycle(dynamic id) => '$baseUrl/period-tracker/cycles/$id';
+  static String get periodTrackerDaily => '$baseUrl/period-tracker/daily';
+  static String periodTrackerDailyDate(String date) => '$baseUrl/period-tracker/daily/$date';
+  static String get periodTrackerInsights => '$baseUrl/period-tracker/insights';
+  static String get periodTrackerDelay => '$baseUrl/period-tracker/adjust-delay';
   static String get pregnancyActivate => '$baseUrl/period-tracker/pregnancy/activate';
   static String get pregnancyDeactivate => '$baseUrl/period-tracker/pregnancy/deactivate';
 

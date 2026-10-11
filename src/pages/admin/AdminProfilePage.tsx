@@ -16,8 +16,8 @@ export default function AdminProfilePage() {
   } = useAdmin();
 
   return (
-    <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#EDE9FE] shadow-sm space-y-6 max-w-3xl mx-auto">
-      <div className="flex items-center justify-between border-b border-[#EDE9FE] pb-4">
+    <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#F4DDE2] shadow-sm space-y-6 max-w-3xl mx-auto">
+      <div className="flex items-center justify-between border-b border-[#F4DDE2] pb-4">
         <div>
           <h3 className="font-bold text-2xl text-[#3a3135]">Admin Account Details</h3>
           <p className="text-sm text-[#64595e]">Manage credentials and system access permissions</p>
@@ -28,14 +28,14 @@ export default function AdminProfilePage() {
               setAdminEditForm({ name: adminProfile.name, email: adminProfile.email }); 
               setIsAdminEditing(true); 
             }} 
-            className="px-4 py-2 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl text-xs font-bold transition-colors cursor-pointer"
+            className="px-4 py-2 bg-[#936DA2] hover:bg-[#835A92] text-white rounded-xl text-xs font-bold transition-colors cursor-pointer"
           >
             Edit Profile
           </button>
         ) : (
           <button 
             onClick={() => setIsAdminEditing(false)} 
-            className="px-4 py-2 border border-[#EDE9FE] text-[#7a6f75] hover:bg-gray-50 rounded-xl text-xs font-bold transition-colors cursor-pointer"
+            className="px-4 py-2 border border-[#F4DDE2] text-[#7a6f75] hover:bg-gray-50 rounded-xl text-xs font-bold transition-colors cursor-pointer"
           >
             Cancel
           </button>
@@ -50,30 +50,30 @@ export default function AdminProfilePage() {
 
       {!isAdminEditing ? (
         <div className="space-y-4 text-sm font-inter">
-          <div className="p-4 rounded-2xl bg-[#FAF8FC] border border-[#EDE9FE] flex items-start gap-3">
-            <User className="w-5 h-5 text-[#7C3AED] mt-0.5" />
+          <div className="p-4 rounded-2xl bg-[#FCF4F5] border border-[#F4DDE2] flex items-start gap-3">
+            <User className="w-5 h-5 text-[#936DA2] mt-0.5" />
             <div>
               <span className="block font-bold text-[#7a6f75] uppercase text-xs mb-1">Administrator Name</span>
               <p className="font-bold text-[#3a3135] text-lg">{adminProfile.name}</p>
             </div>
           </div>
-          <div className="p-4 rounded-2xl bg-[#FAF8FC] border border-[#EDE9FE] flex items-start gap-3">
+          <div className="p-4 rounded-2xl bg-[#FCF4F5] border border-[#F4DDE2] flex items-start gap-3">
             <Mail className="w-5 h-5 text-[#14B8A6] mt-0.5" />
             <div>
               <span className="block font-bold text-[#7a6f75] uppercase text-xs mb-1">Email Address</span>
               <p className="font-bold text-[#3a3135] text-lg">{adminProfile.email}</p>
             </div>
           </div>
-          <div className="p-4 rounded-2xl bg-[#FAF8FC] border border-[#EDE9FE] flex items-start gap-3">
+          <div className="p-4 rounded-2xl bg-[#FCF4F5] border border-[#F4DDE2] flex items-start gap-3">
             <Shield className="w-5 h-5 text-[#F472B6] mt-0.5" />
             <div>
               <span className="block font-bold text-[#7a6f75] uppercase text-xs mb-1">Security Privilege</span>
-              <p className="font-bold text-[#7C3AED] text-lg">{adminProfile.securityClearance}</p>
+              <p className="font-bold text-[#936DA2] text-lg">{adminProfile.securityClearance}</p>
             </div>
           </div>
           <button 
             onClick={() => setShowPasswordModal(true)} 
-            className="w-full py-3 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-2xl font-bold text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer"
+            className="w-full py-3 bg-[#936DA2] hover:bg-[#835A92] text-white rounded-2xl font-bold text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer"
           >
             <Key className="w-4 h-4" /> Change Password
           </button>
@@ -86,7 +86,7 @@ export default function AdminProfilePage() {
               type="text" 
               value={adminEditForm.name} 
               onChange={(e) => setAdminEditForm({ ...adminEditForm, name: e.target.value })} 
-              className={`w-full p-3 rounded-xl border ${adminEditForm.name && !isValidName(adminEditForm.name) ? 'border-rose-400 bg-rose-50/20' : 'border-[#EDE9FE]'} text-sm focus:ring-2 focus:ring-[#7C3AED] outline-none`} 
+              className={`w-full p-3 rounded-xl border ${adminEditForm.name && !isValidName(adminEditForm.name) ? 'border-rose-400 bg-rose-50/20' : 'border-[#F4DDE2]'} text-sm focus:ring-2 focus:ring-[#936DA2] outline-none`} 
               required 
             />
             {adminEditForm.name && !isValidName(adminEditForm.name) && (
@@ -99,7 +99,7 @@ export default function AdminProfilePage() {
               type="email" 
               value={adminEditForm.email} 
               onChange={(e) => setAdminEditForm({ ...adminEditForm, email: e.target.value })} 
-              className={`w-full p-3 rounded-xl border ${adminEditForm.email && !isValidEmail(adminEditForm.email) ? 'border-rose-400 bg-rose-50/20' : 'border-[#EDE9FE]'} text-sm focus:ring-2 focus:ring-[#7C3AED] outline-none`} 
+              className={`w-full p-3 rounded-xl border ${adminEditForm.email && !isValidEmail(adminEditForm.email) ? 'border-rose-400 bg-rose-50/20' : 'border-[#F4DDE2]'} text-sm focus:ring-2 focus:ring-[#936DA2] outline-none`} 
               required 
             />
             {adminEditForm.email && !isValidEmail(adminEditForm.email) && (
@@ -110,13 +110,13 @@ export default function AdminProfilePage() {
             <button 
               type="button" 
               onClick={() => setIsAdminEditing(false)} 
-              className="px-4 py-2.5 rounded-xl border border-[#EDE9FE] font-bold text-[#7a6f75] hover:bg-gray-50 transition-colors cursor-pointer"
+              className="px-4 py-2.5 rounded-xl border border-[#F4DDE2] font-bold text-[#7a6f75] hover:bg-gray-50 transition-colors cursor-pointer"
             >
               Cancel
             </button>
             <button 
               type="submit" 
-              className="px-6 py-2.5 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl font-bold transition-all shadow-sm cursor-pointer"
+              className="px-6 py-2.5 bg-[#936DA2] hover:bg-[#835A92] text-white rounded-xl font-bold transition-all shadow-sm cursor-pointer"
             >
               Save Profile Changes
             </button>

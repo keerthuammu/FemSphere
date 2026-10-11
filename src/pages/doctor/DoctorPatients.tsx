@@ -25,9 +25,9 @@ export default function DoctorPatients() {
     .filter(p => patientRiskFilter === 'All' || p.riskLevel === patientRiskFilter);
 
   return (
-    <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#EDE9FE] shadow-sm space-y-6 animate-in fade-in duration-200">
+    <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#F4DDE2] shadow-sm space-y-6 animate-in fade-in duration-200">
       {/* Header & Filter Bar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#EDE9FE] pb-5">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#F4DDE2] pb-5">
         <div>
           <h3 className="font-serif text-3xl font-bold text-[#3a3135]">Patient Digital Health Twins</h3>
           <p className="text-xs text-[#7a6f75] mt-1">Live longitudinal biomarkers, cycle phases, and clinical histories</p>
@@ -41,14 +41,14 @@ export default function DoctorPatients() {
               value={searchPatient}
               onChange={(e) => setSearchPatient(e.target.value)}
               placeholder="Search patient name..." 
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#EDE9FE] bg-[#FAF8FC] text-xs outline-none focus:border-[#7C3AED]"
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#F4DDE2] bg-[#FCF4F5] text-xs outline-none focus:border-[#936DA2]"
             />
           </div>
 
           <select 
             value={patientRiskFilter} 
             onChange={(e) => setPatientRiskFilter(e.target.value)}
-            className="p-2.5 rounded-xl border border-[#EDE9FE] bg-white text-xs font-bold text-[#4a4145] cursor-pointer"
+            className="p-2.5 rounded-xl border border-[#F4DDE2] bg-white text-xs font-bold text-[#4a4145] cursor-pointer"
           >
             <option value="All">All Risk Levels</option>
             <option value="Optimal">Optimal</option>
@@ -60,7 +60,7 @@ export default function DoctorPatients() {
 
       {/* Patients Grid */}
       {filteredPatients.length === 0 ? (
-        <div className="p-12 text-center bg-[#FAF8FC] rounded-2xl border border-dashed border-[#EDE9FE]">
+        <div className="p-12 text-center bg-[#FCF4F5] rounded-2xl border border-dashed border-[#F4DDE2]">
           <p className="text-xs text-[#7a6f75]">No patients found matching your search or filter.</p>
         </div>
       ) : (
@@ -68,7 +68,7 @@ export default function DoctorPatients() {
           {filteredPatients.map(p => {
             const patientReport = sharedRecords.find(r => r.patientId === p.id || r.patient === p.name);
             return (
-              <div key={p.id} className="p-5 rounded-3xl border border-[#EDE9FE] bg-[#FAF8FC] flex flex-col justify-between space-y-4 hover:border-[#7C3AED] transition-all shadow-2xs">
+              <div key={p.id} className="p-5 rounded-3xl border border-[#F4DDE2] bg-[#FCF4F5] flex flex-col justify-between space-y-4 hover:border-[#936DA2] transition-all shadow-2xs">
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
@@ -83,10 +83,10 @@ export default function DoctorPatients() {
                   <div>
                     <h4 className="font-bold text-lg text-[#3a3135]">{p.name}</h4>
                     <p className="text-xs text-[#7a6f75]">{p.age} yrs • Blood Group: {p.bloodGroup}</p>
-                    <p className="text-xs font-medium text-[#7C3AED] mt-1">{p.lifeStage}</p>
+                    <p className="text-xs font-medium text-[#936DA2] mt-1">{p.lifeStage}</p>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2 pt-2 border-t border-[#EDE9FE] text-xs">
+                  <div className="grid grid-cols-2 gap-2 pt-2 border-t border-[#F4DDE2] text-xs">
                     <button 
                       type="button"
                       onClick={() => setSelectedCyclePatient({ id: p.numericId, name: p.name })}
@@ -97,13 +97,13 @@ export default function DoctorPatients() {
                         <span className="text-[10px] text-rose-600 font-bold block flex items-center gap-1">
                           <Droplet className="w-3 h-3 fill-rose-500 text-rose-500" /> Cycle Phase
                         </span>
-                        <span className="text-[9px] text-[#7C3AED] font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
+                        <span className="text-[9px] text-[#936DA2] font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
                           View
                         </span>
                       </div>
                       <span className="font-bold text-xs text-[#3a3135] truncate block mt-0.5">{p.cyclePhase}</span>
                     </button>
-                    <div className="p-2 bg-white rounded-xl border border-[#EDE9FE]">
+                    <div className="p-2 bg-white rounded-xl border border-[#F4DDE2]">
                       <span className="text-[10px] text-[#7a6f75] block">Resting HR</span>
                       <span className="font-bold text-[#14B8A6]">{p.heartRate} bpm</span>
                     </div>
@@ -113,7 +113,7 @@ export default function DoctorPatients() {
                   {patientReport && (
                     <div className="p-3 bg-white rounded-2xl border border-purple-100 space-y-1.5">
                       <div className="flex items-center justify-between text-[11px]">
-                        <span className="font-bold text-[#7C3AED] flex items-center gap-1">
+                        <span className="font-bold text-[#936DA2] flex items-center gap-1">
                           <FileText className="w-3.5 h-3.5" /> Shared Report
                         </span>
                         <span className="text-[10px] text-[#7a6f75] font-mono">{patientReport.sharedDate}</span>
@@ -122,7 +122,7 @@ export default function DoctorPatients() {
                       <button 
                         type="button"
                         onClick={() => setSelectedRecordToView(patientReport)}
-                        className="w-full py-1.5 bg-purple-50 hover:bg-purple-100 text-[#7C3AED] rounded-lg font-bold text-[11px] flex items-center justify-center gap-1 transition-colors cursor-pointer"
+                        className="w-full py-1.5 bg-purple-50 hover:bg-purple-100 text-[#936DA2] rounded-lg font-bold text-[11px] flex items-center justify-center gap-1 transition-colors cursor-pointer"
                       >
                         <Eye className="w-3 h-3" /> View AI Biomarkers
                       </button>
@@ -130,10 +130,10 @@ export default function DoctorPatients() {
                   )}
                 </div>
 
-                <div className="flex gap-2 pt-2 border-t border-[#EDE9FE]">
+                <div className="flex gap-2 pt-2 border-t border-[#F4DDE2]">
                   <button 
                     onClick={() => setSelectedHealthTwin(p)} 
-                    className="flex-1 py-2.5 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                    className="flex-1 py-2.5 bg-[#936DA2] hover:bg-[#835A92] text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer"
                   >
                     <Activity className="w-3.5 h-3.5" /> View Health Twin
                   </button>
@@ -142,7 +142,7 @@ export default function DoctorPatients() {
                       setNewConsultationForm(prev => ({ ...prev, patient: p.name, patientId: p.id }));
                       setShowAddConsultationModal(true);
                     }} 
-                    className="p-2.5 border border-[#EDE9FE] bg-white hover:bg-purple-50 text-[#7C3AED] rounded-xl font-bold cursor-pointer"
+                    className="p-2.5 border border-[#F4DDE2] bg-white hover:bg-purple-50 text-[#936DA2] rounded-xl font-bold cursor-pointer"
                     title="Write Prescription"
                   >
                     <Pill className="w-4 h-4" />

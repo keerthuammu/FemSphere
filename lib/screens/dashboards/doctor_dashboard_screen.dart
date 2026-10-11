@@ -63,10 +63,14 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
         elevation: 0.5,
         title: Row(
           children: [
-            const CircleAvatar(
-              radius: 14,
-              backgroundColor: Color(0xFFCCFBF1),
-              child: Icon(Icons.medical_services, size: 16, color: AppTheme.secondaryTeal),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(14),
+              child: Image.asset(
+                'assets/images/femsphere_logo.png',
+                width: 28,
+                height: 28,
+                fit: BoxFit.contain,
+              ),
             ),
             const SizedBox(width: 8),
             Column(

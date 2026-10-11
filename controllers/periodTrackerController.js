@@ -1,6 +1,18 @@
 import pool from '../config/db.js';
 import { calculateGestationalMetrics, determineBiologicalLifeStage } from '../services/lifeStageService.js';
 
+export function formatLocalDate(d) {
+  if (!d) return '';
+  if (typeof d === 'string') return d.split('T')[0];
+  if (d instanceof Date) {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+  return String(d).split('T')[0];
+}
+
 // ==============================================================================
 // MENSTRUAL PHASE WELLNESS AFFIRMATIONS & RANDOM HEALTHY TIPS
 // ==============================================================================
@@ -246,6 +258,138 @@ export function calculatePhaseMetrics(lastPeriodStartStr, periodDurationDays = 5
 }
 
 // ==============================================================================
+// HISTORICAL CYCLE STATISTICS & PREDICTIONS ENGINE
+// ==============================================================================
+export function calculateCycleStatistics(cycles = [], baselineCycleLength = 28, baselinePeriodDuration = 5) {
+  if (!cycles || cycles.length === 0) {
+    return {
+      recordedCyclesCount: 0,
+      averageCycleLength: baselineCycleLength,
+      averagePeriodDuration: baselinePeriodDuration,
+      cycleVariabilityDays: 0,
+      minCycleLength: baselineCycleLength,
+      maxCycleLength: baselineCycleLength,
+      isIrregular: false,
+      confidenceLevel: 'Baseline Estimate'
+    };
+  }
+
+  // Calculate duration average
+  const durations = cycles.map(c => Number(c.duration_days) || 5).filter(d => d > 0 && d <= 15);
+  const avgDuration = durations.length > 0 
+    ? Math.round(durations.reduce((a, b) => a + b, 0) / durations.length) 
+    : baselinePeriodDuration;
+
+  // Calculate inter-cycle intervals from chronological cycles
+  const intervals = [];
+  for (let i = 1; i < cycles.length; i++) {
+    const prevDate = new Date(cycles[i - 1].start_date);
+    const currDate = new Date(cycles[i].start_date);
+    const diffDays = Math.round((currDate.getTime() - prevDate.getTime()) / (1000 * 60 * 60 * 24));
+    if (diffDays >= 18 && diffDays <= 60) {
+      intervals.push(diffDays);
+    }
+  }
+
+  if (intervals.length === 0) {
+    return {
+      recordedCyclesCount: cycles.length,
+      averageCycleLength: baselineCycleLength,
+      averagePeriodDuration: avgDuration,
+      cycleVariabilityDays: 0,
+      minCycleLength: baselineCycleLength,
+      maxCycleLength: baselineCycleLength,
+      isIrregular: false,
+      confidenceLevel: cycles.length === 1 ? 'Initial Cycle Recorded' : 'Baseline Estimate'
+    };
+  }
+
+  const avgCycle = Math.round(intervals.reduce((a, b) => a + b, 0) / intervals.length);
+  const minCycle = Math.min(...intervals);
+  const maxCycle = Math.max(...intervals);
+  const variability = maxCycle - minCycle;
+  const isIrregular = variability > 7;
+
+  let confidenceLevel = 'Moderate Confidence';
+  if (intervals.length >= 3 && variability <= 3) {
+    confidenceLevel = 'High (Consistent Pattern)';
+  } else if (intervals.length >= 2 && variability <= 5) {
+    confidenceLevel = 'Moderate Confidence';
+  } else if (isIrregular) {
+    confidenceLevel = 'Irregular Variation';
+  } else {
+    confidenceLevel = 'Learning Pattern';
+  }
+
+  return {
+    recordedCyclesCount: cycles.length,
+    averageCycleLength: avgCycle,
+    averagePeriodDuration: avgDuration,
+    cycleVariabilityDays: variability,
+    minCycleLength: minCycle,
+    maxCycleLength: maxCycle,
+    isIrregular,
+    confidenceLevel
+  };
+}
+
+export function calculatePredictions(lastPeriodStartStr, avgCycleLength, avgPeriodDuration, variability = 0, targetDate = new Date()) {
+  const dateStr = String(lastPeriodStartStr).split('T')[0];
+  const start = new Date(dateStr + 'T00:00:00');
+  const today = new Date(targetDate);
+  today.setHours(0, 0, 0, 0);
+  start.setHours(0, 0, 0, 0);
+
+  const cycleDaysElapsed = Math.floor((today.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+
+  // Next expected period
+  const nextPeriodStart = new Date(start);
+  nextPeriodStart.setDate(nextPeriodStart.getDate() + avgCycleLength);
+
+  // Next period range based on variability
+  const rangeMargin = Math.max(1, Math.min(5, Math.round(variability / 2)));
+  const nextPeriodRangeStart = new Date(nextPeriodStart);
+  nextPeriodRangeStart.setDate(nextPeriodRangeStart.getDate() - rangeMargin);
+
+  const nextPeriodRangeEnd = new Date(nextPeriodStart);
+  nextPeriodRangeEnd.setDate(nextPeriodRangeEnd.getDate() + rangeMargin);
+
+  // Ovulation: typically 14 days prior to next expected period in luteal phase
+  const ovulationDate = new Date(nextPeriodStart);
+  ovulationDate.setDate(ovulationDate.getDate() - 14);
+
+  // Fertile window: 5 days before ovulation + ovulation day
+  const fertileStart = new Date(ovulationDate);
+  fertileStart.setDate(fertileStart.getDate() - 5);
+
+  const fertileEnd = new Date(ovulationDate);
+  fertileEnd.setDate(fertileEnd.getDate() + 1);
+
+  const daysUntilPeriod = Math.round((nextPeriodStart.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  const isDelayed = daysUntilPeriod < 0;
+  const daysDelayed = isDelayed ? Math.abs(daysUntilPeriod) : 0;
+
+  return {
+    lastPeriodStartDate: start.toISOString().split('T')[0],
+    nextPeriodStartDate: nextPeriodStart.toISOString().split('T')[0],
+    nextPeriodRangeStartDate: nextPeriodRangeStart.toISOString().split('T')[0],
+    nextPeriodRangeEndDate: nextPeriodRangeEnd.toISOString().split('T')[0],
+    predictionRangeStart: nextPeriodRangeStart.toISOString().split('T')[0],
+    predictionRangeEnd: nextPeriodRangeEnd.toISOString().split('T')[0],
+    ovulationDate: ovulationDate.toISOString().split('T')[0],
+    estimatedOvulationDate: ovulationDate.toISOString().split('T')[0],
+    fertileWindowStartDate: fertileStart.toISOString().split('T')[0],
+    fertileWindowEndDate: fertileEnd.toISOString().split('T')[0],
+    estimatedPeriodDuration: avgPeriodDuration,
+    cycleDaysElapsed: cycleDaysElapsed + 1,
+    daysUntilPeriod: isDelayed ? 0 : daysUntilPeriod,
+    isDelayed,
+    daysDelayed,
+    predictionDisclaimer: "Predictions are estimates based on your recorded history. Ovulation and cycle timing vary biologically and should not be used as contraception or guaranteed fertility confirmation."
+  };
+}
+
+// ==============================================================================
 // 1. GET PERIOD SETTINGS & LIVE PHASE METRICS
 // ==============================================================================
 export const getPeriodSettings = async (req, res) => {
@@ -271,21 +415,62 @@ export const getPeriodSettings = async (req, res) => {
     const pregnancyStartStr = row.pregnancy_start_date ? row.pregnancy_start_date.toISOString().split('T')[0] : lastStartStr;
     const eddStr = row.gestational_target_edd ? row.gestational_target_edd.toISOString().split('T')[0] : null;
 
+    // Fetch all user cycles for actual historical statistics
+    const allCyclesRes = await pool.query(
+      `SELECT * FROM period_cycles WHERE user_id = $1 ORDER BY start_date ASC`,
+      [userId]
+    );
+
+    const historicalStats = calculateCycleStatistics(
+      allCyclesRes.rows, 
+      row.cycle_length || 28, 
+      row.period_duration || 5
+    );
+
+    const effectiveCycleLength = historicalStats.averageCycleLength || row.cycle_length || 28;
+    const effectivePeriodDuration = historicalStats.averagePeriodDuration || row.period_duration || 5;
+
     let metrics;
     if (isPregnant) {
       metrics = calculateGestationalMetrics(pregnancyStartStr);
     } else {
-      metrics = calculatePhaseMetrics(lastStartStr, row.period_duration, row.cycle_length);
+      metrics = calculatePhaseMetrics(lastStartStr, effectivePeriodDuration, effectiveCycleLength);
     }
 
-    // Fetch cycle history
+    const predictions = calculatePredictions(
+      lastStartStr,
+      effectiveCycleLength,
+      effectivePeriodDuration,
+      historicalStats.cycleVariabilityDays
+    );
+
+    // Fetch cycle history (descending for UI list)
     const historyRes = await pool.query(
       `SELECT * FROM period_cycles 
        WHERE user_id = $1 
        ORDER BY start_date DESC 
-       LIMIT 12`,
+       LIMIT 24`,
       [userId]
     );
+
+    // Fetch today's daily symptom log if logged
+    const todayLogRes = await pool.query(
+      `SELECT * FROM period_daily_logs WHERE user_id = $1 AND log_date = CURRENT_DATE LIMIT 1`,
+      [userId]
+    );
+
+    const todayLog = todayLogRes.rows.length > 0 ? {
+      id: todayLogRes.rows[0].id,
+      date: todayLogRes.rows[0].log_date.toISOString().split('T')[0],
+      isPeriodDay: todayLogRes.rows[0].is_period_day,
+      flowIntensity: todayLogRes.rows[0].flow_intensity,
+      symptoms: todayLogRes.rows[0].symptoms || [],
+      mood: todayLogRes.rows[0].mood,
+      energyLevel: todayLogRes.rows[0].energy_level,
+      sleepQuality: todayLogRes.rows[0].sleep_quality,
+      cervicalMucus: todayLogRes.rows[0].cervical_mucus,
+      notes: todayLogRes.rows[0].notes
+    } : null;
 
     // Pick a random mental wellness affirmation and shuffle healthy tips
     const affirmation = MENSTRUAL_AFFIRMATIONS[Math.floor(Math.random() * MENSTRUAL_AFFIRMATIONS.length)];
@@ -304,9 +489,23 @@ export const getPeriodSettings = async (req, res) => {
         isPregnant,
         pregnancyStartDate: isPregnant ? pregnancyStartStr : null,
         gestationalTargetEdd: isPregnant ? (eddStr || metrics.edd) : null,
+        reminderPeriodDaysBefore: row.reminder_period_days_before ?? 2,
+        reminderPeriodEnabled: row.reminder_period_enabled ?? true,
+        reminderOvulationEnabled: row.reminder_ovulation_enabled ?? false,
+        reminderDailyLoggingEnabled: row.reminder_daily_logging_enabled ?? false,
         updatedAt: row.updated_at
       },
+      reminders: {
+        periodDaysBefore: row.reminder_period_days_before ?? 2,
+        periodEnabled: row.reminder_period_enabled ?? true,
+        ovulationEnabled: row.reminder_ovulation_enabled ?? false,
+        dailyLoggingEnabled: row.reminder_daily_logging_enabled ?? false
+      },
       metrics,
+      prediction: predictions,
+      predictions,
+      historicalStats,
+      todayLog,
       cycleHistory: historyRes.rows.map(c => ({
         id: c.id,
         startDate: c.start_date.toISOString().split('T')[0],
@@ -559,6 +758,436 @@ export const adjustCycleDelay = async (req, res) => {
     });
   } catch (err) {
     console.error('Error adjusting cycle delay:', err);
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// ==============================================================================
+// 5. UPDATE PERIOD SETTINGS & REMINDER PREFERENCES
+// ==============================================================================
+export const updatePeriodSettings = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const {
+      cycleLength,
+      periodDuration,
+      reminderPeriodDaysBefore,
+      reminderPeriodEnabled,
+      reminderOvulationEnabled,
+      reminderDailyLoggingEnabled
+    } = req.body;
+
+    const duration = periodDuration ? Math.max(2, Math.min(15, parseInt(periodDuration, 10))) : undefined;
+    const cycle = cycleLength ? Math.max(20, Math.min(45, parseInt(cycleLength, 10))) : undefined;
+
+    const daysBefore = reminderPeriodDaysBefore !== undefined ? reminderPeriodDaysBefore : (req.body.periodDaysBefore !== undefined ? req.body.periodDaysBefore : undefined);
+    const periodEn = reminderPeriodEnabled !== undefined ? reminderPeriodEnabled : (req.body.periodEnabled !== undefined ? req.body.periodEnabled : undefined);
+    const ovEn = reminderOvulationEnabled !== undefined ? reminderOvulationEnabled : (req.body.ovulationEnabled !== undefined ? req.body.ovulationEnabled : undefined);
+    const dailyEn = reminderDailyLoggingEnabled !== undefined ? reminderDailyLoggingEnabled : (req.body.dailyLoggingEnabled !== undefined ? req.body.dailyLoggingEnabled : undefined);
+
+    const updateRes = await pool.query(
+      `UPDATE period_settings
+       SET cycle_length = COALESCE($1, cycle_length),
+           period_duration = COALESCE($2, period_duration),
+           reminder_period_days_before = COALESCE($3, reminder_period_days_before),
+           reminder_period_enabled = COALESCE($4, reminder_period_enabled),
+           reminder_ovulation_enabled = COALESCE($5, reminder_ovulation_enabled),
+           reminder_daily_logging_enabled = COALESCE($6, reminder_daily_logging_enabled),
+           updated_at = CURRENT_TIMESTAMP
+       WHERE user_id = $7
+       RETURNING *`,
+      [cycle, duration, daysBefore, periodEn, ovEn, dailyEn, userId]
+    );
+
+    if (updateRes.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Period settings not found.' });
+    }
+
+    res.json({
+      success: true,
+      message: 'Period tracking settings & reminder preferences updated successfully.',
+      settings: updateRes.rows[0]
+    });
+  } catch (err) {
+    console.error('Error updating period settings:', err);
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// ==============================================================================
+// 6. UPDATE / CORRECT EXISTING PERIOD CYCLE
+// ==============================================================================
+export const updatePeriodCycle = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { id } = req.params;
+    const {
+      startDate,
+      endDate,
+      durationDays,
+      flowIntensity,
+      symptoms,
+      mood,
+      notes
+    } = req.body;
+
+    if (!startDate) {
+      return res.status(400).json({ success: false, message: 'Start date is required.' });
+    }
+
+    const dur = durationDays ? Number(durationDays) : (endDate ? Math.max(1, Math.round((new Date(endDate).getTime() - new Date(startDate).getTime()) / 86400000) + 1) : 5);
+    const calculatedEnd = endDate || (() => {
+      const d = new Date(startDate + 'T00:00:00');
+      d.setDate(d.getDate() + (dur - 1));
+      return d.toISOString().split('T')[0];
+    })();
+
+    const updateRes = await pool.query(
+      `UPDATE period_cycles
+       SET start_date = $1,
+           end_date = $2,
+           duration_days = $3,
+           flow_intensity = COALESCE($4, flow_intensity),
+           symptoms = COALESCE($5, symptoms),
+           mood = COALESCE($6, mood),
+           notes = COALESCE($7, notes)
+       WHERE id = $8 AND user_id = $9
+       RETURNING *`,
+      [
+        startDate,
+        calculatedEnd,
+        dur,
+        flowIntensity,
+        symptoms ? JSON.stringify(symptoms) : null,
+        mood,
+        notes,
+        id,
+        userId
+      ]
+    );
+
+    if (updateRes.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Cycle record not found or access denied.' });
+    }
+
+    // Sync period_settings last_period_start to the latest cycle
+    const latestCycleRes = await pool.query(
+      `SELECT start_date, duration_days FROM period_cycles WHERE user_id = $1 ORDER BY start_date DESC LIMIT 1`,
+      [userId]
+    );
+    if (latestCycleRes.rows.length > 0) {
+      await pool.query(
+        `UPDATE period_settings
+         SET last_period_start = $1,
+             period_duration = $2,
+             updated_at = CURRENT_TIMESTAMP
+         WHERE user_id = $3`,
+        [latestCycleRes.rows[0].start_date, latestCycleRes.rows[0].duration_days, userId]
+      );
+    }
+
+    res.json({
+      success: true,
+      message: 'Period cycle record updated successfully.',
+      cycle: updateRes.rows[0]
+    });
+  } catch (err) {
+    console.error('Error updating period cycle:', err);
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// ==============================================================================
+// 7. DELETE A PERIOD CYCLE RECORD
+// ==============================================================================
+export const deletePeriodCycle = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { id } = req.params;
+
+    const deleteRes = await pool.query(
+      `DELETE FROM period_cycles WHERE id = $1 AND user_id = $2 RETURNING *`,
+      [id, userId]
+    );
+
+    if (deleteRes.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Cycle record not found or access denied.' });
+    }
+
+    // If other cycles remain, recalibrate last_period_start
+    const latestCycleRes = await pool.query(
+      `SELECT start_date, duration_days FROM period_cycles WHERE user_id = $1 ORDER BY start_date DESC LIMIT 1`,
+      [userId]
+    );
+    if (latestCycleRes.rows.length > 0) {
+      await pool.query(
+        `UPDATE period_settings
+         SET last_period_start = $1,
+             period_duration = $2,
+             updated_at = CURRENT_TIMESTAMP
+         WHERE user_id = $3`,
+        [latestCycleRes.rows[0].start_date, latestCycleRes.rows[0].duration_days, userId]
+      );
+    }
+
+    res.json({
+      success: true,
+      message: 'Period cycle record deleted successfully.',
+      deletedId: id
+    });
+  } catch (err) {
+    console.error('Error deleting period cycle:', err);
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// ==============================================================================
+// 8. GET DAILY HEALTH & SYMPTOM LOGS
+// ==============================================================================
+export const getDailyLogs = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { month, date, start, end } = req.query;
+
+    let query = `SELECT * FROM period_daily_logs WHERE user_id = $1`;
+    const params = [userId];
+
+    if (date) {
+      query += ` AND log_date = $2`;
+      params.push(date);
+    } else if (month) {
+      query += ` AND TO_CHAR(log_date, 'YYYY-MM') = $2`;
+      params.push(month);
+    } else if (start && end) {
+      query += ` AND log_date >= $2 AND log_date <= $3`;
+      params.push(start, end);
+    }
+
+    query += ` ORDER BY log_date ASC`;
+
+    const result = await pool.query(query, params);
+
+    res.json({
+      success: true,
+      count: result.rows.length,
+      logs: result.rows.map(r => ({
+        id: r.id,
+        date: formatLocalDate(r.log_date),
+        isPeriodDay: r.is_period_day,
+        flowIntensity: r.flow_intensity,
+        symptoms: r.symptoms || [],
+        mood: r.mood,
+        energyLevel: r.energy_level,
+        sleepQuality: r.sleep_quality,
+        cervicalMucus: r.cervical_mucus,
+        notes: r.notes,
+        updatedAt: r.updated_at
+      }))
+    });
+  } catch (err) {
+    console.error('Error fetching daily logs:', err);
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// ==============================================================================
+// 9. LOG / UPDATE DAILY HEALTH & MENSTRUAL SYMPTOMS
+// ==============================================================================
+export const saveDailyLog = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const {
+      date,
+      isPeriodDay = false,
+      flowIntensity = 'None',
+      symptoms = [],
+      mood = 'Calm',
+      energyLevel = 'Normal',
+      sleepQuality = 'Good',
+      cervicalMucus = 'None',
+      notes = ''
+    } = req.body;
+
+    if (!date) {
+      return res.status(400).json({ success: false, message: 'Log date is required.' });
+    }
+
+    const isPeriod = Boolean(isPeriodDay || (flowIntensity && flowIntensity !== 'None'));
+
+    const upsertRes = await pool.query(
+      `INSERT INTO period_daily_logs (
+         user_id, log_date, is_period_day, flow_intensity, symptoms, mood, energy_level, sleep_quality, cervical_mucus, notes, updated_at
+       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, CURRENT_TIMESTAMP)
+       ON CONFLICT (user_id, log_date)
+       DO UPDATE SET
+         is_period_day = EXCLUDED.is_period_day,
+         flow_intensity = EXCLUDED.flow_intensity,
+         symptoms = EXCLUDED.symptoms,
+         mood = EXCLUDED.mood,
+         energy_level = EXCLUDED.energy_level,
+         sleep_quality = EXCLUDED.sleep_quality,
+         cervical_mucus = EXCLUDED.cervical_mucus,
+         notes = EXCLUDED.notes,
+         updated_at = CURRENT_TIMESTAMP
+       RETURNING *`,
+      [
+        userId,
+        date,
+        isPeriod,
+        flowIntensity,
+        JSON.stringify(symptoms || []),
+        mood,
+        energyLevel,
+        sleepQuality,
+        cervicalMucus,
+        notes
+      ]
+    );
+
+    res.status(200).json({
+      success: true,
+      message: 'Daily health & symptom entry saved.',
+      log: {
+        id: upsertRes.rows[0].id,
+        date: formatLocalDate(upsertRes.rows[0].log_date),
+        isPeriodDay: upsertRes.rows[0].is_period_day,
+        flowIntensity: upsertRes.rows[0].flow_intensity,
+        symptoms: upsertRes.rows[0].symptoms || [],
+        mood: upsertRes.rows[0].mood,
+        energyLevel: upsertRes.rows[0].energy_level,
+        sleepQuality: upsertRes.rows[0].sleep_quality,
+        cervicalMucus: upsertRes.rows[0].cervical_mucus,
+        notes: upsertRes.rows[0].notes,
+        updatedAt: upsertRes.rows[0].updated_at
+      }
+    });
+  } catch (err) {
+    console.error('Error saving daily log:', err);
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// ==============================================================================
+// 10. DELETE DAILY HEALTH & SYMPTOM LOG
+// ==============================================================================
+export const deleteDailyLog = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { date } = req.params;
+
+    const deleteRes = await pool.query(
+      `DELETE FROM period_daily_logs WHERE user_id = $1 AND log_date = $2 RETURNING *`,
+      [userId, date]
+    );
+
+    if (deleteRes.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Daily log not found for date.' });
+    }
+
+    res.json({ success: true, message: 'Daily log deleted successfully.' });
+  } catch (err) {
+    console.error('Error deleting daily log:', err);
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// ==============================================================================
+// 11. GET PERIOD INSIGHTS & HISTORICAL TRENDS
+// ==============================================================================
+export const getPeriodInsights = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    // 1. Get cycles in chronological order
+    const cyclesRes = await pool.query(
+      `SELECT * FROM period_cycles WHERE user_id = $1 ORDER BY start_date ASC`,
+      [userId]
+    );
+
+    // 2. Get baseline settings
+    const settingsRes = await pool.query(
+      `SELECT * FROM period_settings WHERE user_id = $1`,
+      [userId]
+    );
+    const baselineCycle = settingsRes.rows[0]?.cycle_length || 28;
+    const baselineDuration = settingsRes.rows[0]?.period_duration || 5;
+
+    const stats = calculateCycleStatistics(cyclesRes.rows, baselineCycle, baselineDuration);
+
+    // 3. Trends over time
+    const cycleLengthTrends = [];
+    for (let i = 1; i < cyclesRes.rows.length; i++) {
+      const prev = new Date(cyclesRes.rows[i - 1].start_date);
+      const curr = new Date(cyclesRes.rows[i].start_date);
+      const diff = Math.round((curr.getTime() - prev.getTime()) / 86400000);
+      cycleLengthTrends.push({
+        cycleNumber: i,
+        startDate: curr.toISOString().split('T')[0],
+        lengthDays: diff
+      });
+    }
+
+    const durationTrends = cyclesRes.rows.map((c, idx) => ({
+      cycleNumber: idx + 1,
+      startDate: c.start_date.toISOString().split('T')[0],
+      durationDays: c.duration_days
+    }));
+
+    // 4. Symptom frequencies from cycles and daily logs
+    const dailyLogsRes = await pool.query(
+      `SELECT symptoms, mood, flow_intensity FROM period_daily_logs WHERE user_id = $1`,
+      [userId]
+    );
+
+    const symptomCounts = {};
+    const moodCounts = {};
+    const flowCounts = {};
+
+    const processSymptoms = (symList) => {
+      if (Array.isArray(symList)) {
+        symList.forEach(s => {
+          if (s && typeof s === 'string') {
+            symptomCounts[s] = (symptomCounts[s] || 0) + 1;
+          }
+        });
+      }
+    };
+
+    cyclesRes.rows.forEach(c => {
+      processSymptoms(c.symptoms);
+      if (c.mood) moodCounts[c.mood] = (moodCounts[c.mood] || 0) + 1;
+      if (c.flow_intensity) flowCounts[c.flow_intensity] = (flowCounts[c.flow_intensity] || 0) + 1;
+    });
+
+    dailyLogsRes.rows.forEach(d => {
+      processSymptoms(d.symptoms);
+      if (d.mood) moodCounts[d.mood] = (moodCounts[d.mood] || 0) + 1;
+      if (d.flow_intensity && d.flow_intensity !== 'None') flowCounts[d.flow_intensity] = (flowCounts[d.flow_intensity] || 0) + 1;
+    });
+
+    const topSymptoms = Object.entries(symptomCounts)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 8);
+
+    const topMoods = Object.entries(moodCounts)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+
+    res.json({
+      success: true,
+      stats,
+      trends: {
+        cycleLengths: cycleLengthTrends,
+        periodDurations: durationTrends,
+        topSymptoms,
+        topMoods,
+        flowDistribution: flowCounts
+      }
+    });
+  } catch (err) {
+    console.error('Error fetching period insights:', err);
     res.status(500).json({ success: false, message: err.message });
   }
 };

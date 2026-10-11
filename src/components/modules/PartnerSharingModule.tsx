@@ -122,8 +122,8 @@ export default function PartnerSharingModule() {
   };
 
   return (
-    <div className="bg-white rounded-3xl p-6 border border-[#EDE9FE] shadow-sm space-y-6">
-      <div className="flex items-center justify-between border-b border-[#EDE9FE] pb-4">
+    <div className="bg-white rounded-3xl p-6 border border-[#F4DDE2] shadow-sm space-y-6">
+      <div className="flex items-center justify-between border-b border-[#F4DDE2] pb-4">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center font-bold">
             ❤️
@@ -142,8 +142,8 @@ export default function PartnerSharingModule() {
       </div>
 
       {!partnerData ? (
-        <div className="bg-[#FAF8FC] p-5 rounded-2xl border border-[#EDE9FE] space-y-4">
-          <h4 className="font-bold text-xs text-[#7C3AED] uppercase tracking-wider">Grant Partner Access</h4>
+        <div className="bg-[#FCF4F5] p-5 rounded-2xl border border-[#F4DDE2] space-y-4">
+          <h4 className="font-bold text-xs text-[#936DA2] uppercase tracking-wider">Grant Partner Access</h4>
           
           {errorMsg && (
             <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs font-semibold">
@@ -162,7 +162,7 @@ export default function PartnerSharingModule() {
                 className={`w-full px-4 py-2.5 rounded-xl border ${
                   partnerEmail.trim() && !isValidEmail(partnerEmail)
                     ? 'border-red-400 focus:border-red-500'
-                    : 'border-[#EDE9FE] focus:border-[#7C3AED]'
+                    : 'border-[#F4DDE2] focus:border-[#936DA2]'
                 } outline-none text-sm bg-white`}
               />
               {partnerEmail.trim() && !isValidEmail(partnerEmail) && (
@@ -186,8 +186,8 @@ export default function PartnerSharingModule() {
                         isLocked
                           ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
                           : allowed
-                          ? 'bg-[#7C3AED] text-white border-[#7C3AED]'
-                          : 'bg-white text-gray-600 border-[#EDE9FE]'
+                          ? 'bg-[#936DA2] text-white border-[#936DA2]'
+                          : 'bg-white text-gray-600 border-[#F4DDE2]'
                       }`}
                     >
                       {isLocked ? <Lock className="w-3 h-3" /> : allowed ? <Unlock className="w-3 h-3" /> : null}
@@ -202,7 +202,7 @@ export default function PartnerSharingModule() {
           <button
             onClick={handleGrantAccess}
             disabled={isLoading || !partnerEmail}
-            className="w-full bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-bold text-xs py-3 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2"
+            className="w-full bg-[#936DA2] hover:bg-[#835A92] text-white font-bold text-xs py-3 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2"
           >
             <UserPlus className="w-4 h-4" />
             <span>Grant Consented Partner Access</span>

@@ -173,11 +173,11 @@ export default function ConnectDevices() {
   return (
     <div className="space-y-6 font-inter">
       {/* Top Header Card */}
-      <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#EDE9FE] shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#F4DDE2] shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="w-8 h-8 rounded-xl bg-[#F5F3FF] text-[#7C3AED] flex items-center justify-center border border-[#EDE9FE]">
-              <Watch className="w-4 h-4 text-[#7C3AED]" />
+            <span className="w-8 h-8 rounded-xl bg-[#F9E8EC] text-[#936DA2] flex items-center justify-center border border-[#F4DDE2]">
+              <Watch className="w-4 h-4 text-[#936DA2]" />
             </span>
             <h2 className="text-xl md:text-2xl font-bold text-[#201538]">Connect Devices</h2>
           </div>
@@ -191,7 +191,7 @@ export default function ConnectDevices() {
             type="button"
             onClick={handleManualSync}
             disabled={isSyncing}
-            className="px-4 py-2.5 rounded-2xl border border-[#EDE9FE] bg-[#FAF8FD] hover:bg-[#F5F3FF] text-[#7C3AED] text-xs font-bold flex items-center gap-2 transition-colors cursor-pointer"
+            className="px-4 py-2.5 rounded-2xl border border-[#F4DDE2] bg-[#FCF4F5] hover:bg-[#F9E8EC] text-[#936DA2] text-xs font-bold flex items-center gap-2 transition-colors cursor-pointer"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
             <span>{isSyncing ? 'Syncing...' : 'Sync Data'}</span>
@@ -200,7 +200,7 @@ export default function ConnectDevices() {
           <button
             type="button"
             onClick={() => setShowConnectDeviceModal(true)}
-            className="px-5 py-2.5 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-2xl text-xs font-bold flex items-center gap-2 shadow-sm transition-all cursor-pointer"
+            className="px-5 py-2.5 bg-[#936DA2] hover:bg-[#835A92] text-white rounded-2xl text-xs font-bold flex items-center gap-2 shadow-sm transition-all cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Connect Device</span>
@@ -216,24 +216,24 @@ export default function ConnectDevices() {
       )}
 
       {/* SECTION 1: CONNECTED DEVICES LIST */}
-      <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#EDE9FE] shadow-xs space-y-5">
+      <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#F4DDE2] shadow-xs space-y-5">
         <div className="flex items-center justify-between pb-3 border-b border-[#F1EBF9]">
           <div>
             <h3 className="font-bold text-base text-[#201538] flex items-center gap-2">
-              <Radio className="w-4 h-4 text-[#7C3AED]" />
+              <Radio className="w-4 h-4 text-[#936DA2]" />
               <span>Registered Devices</span>
             </h3>
             <p className="text-xs text-[#7a6f75]">Select an active device to inspect its synchronized vitals</p>
           </div>
-          <span className="text-xs font-bold px-3 py-1 rounded-full bg-[#F5F3FF] text-[#7C3AED] border border-[#EDE9FE]">
+          <span className="text-xs font-bold px-3 py-1 rounded-full bg-[#F9E8EC] text-[#936DA2] border border-[#F4DDE2]">
             {wearableDevices.length} {wearableDevices.length === 1 ? 'Device' : 'Devices'} Registered
           </span>
         </div>
 
         {wearableDevices.length === 0 ? (
-          <div className="py-12 px-6 rounded-2xl bg-[#FAF8FD] border border-dashed border-[#EDE9FE] text-center flex flex-col items-center justify-center space-y-3">
-            <div className="w-12 h-12 rounded-2xl bg-white border border-[#EDE9FE] flex items-center justify-center text-[#7C3AED] shadow-2xs">
-              <Watch className="w-6 h-6 text-[#7C3AED]" />
+          <div className="py-12 px-6 rounded-2xl bg-[#FCF4F5] border border-dashed border-[#F4DDE2] text-center flex flex-col items-center justify-center space-y-3">
+            <div className="w-12 h-12 rounded-2xl bg-white border border-[#F4DDE2] flex items-center justify-center text-[#936DA2] shadow-2xs">
+              <Watch className="w-6 h-6 text-[#936DA2]" />
             </div>
             <div>
               <h4 className="font-bold text-base text-[#201538]">No Devices Connected</h4>
@@ -244,7 +244,7 @@ export default function ConnectDevices() {
             <button
               type="button"
               onClick={() => setShowConnectDeviceModal(true)}
-              className="mt-2 px-5 py-2.5 bg-[#7C3AED] hover:bg-[#6D28D9] text-white text-xs font-bold rounded-2xl flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
+              className="mt-2 px-5 py-2.5 bg-[#936DA2] hover:bg-[#835A92] text-white text-xs font-bold rounded-2xl flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>Connect Your First Device</span>
@@ -263,8 +263,8 @@ export default function ConnectDevices() {
                   onClick={() => setSelectedDevice(dev)}
                   className={`p-5 rounded-2xl border transition-all cursor-pointer space-y-3 ${
                     isSelected
-                      ? 'border-[#7C3AED] bg-[#FAF8FD] ring-2 ring-[#7C3AED]/15 shadow-sm'
-                      : 'border-[#EDE9FE] bg-white hover:bg-[#FAF8FD]'
+                      ? 'border-[#936DA2] bg-[#FCF4F5] ring-2 ring-[#936DA2]/15 shadow-sm'
+                      : 'border-[#F4DDE2] bg-white hover:bg-[#FCF4F5]'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-3">
@@ -301,13 +301,13 @@ export default function ConnectDevices() {
                       <span>{dev.battery_level ? `${dev.battery_level}% Battery` : 'Battery N/A'}</span>
                     </div>
                     <div className="flex items-center gap-1.5 justify-end">
-                      <Clock className="w-3.5 h-3.5 text-[#7C3AED]" />
+                      <Clock className="w-3.5 h-3.5 text-[#936DA2]" />
                       <span className="truncate">{formatLastSync(dev.last_synced_at || dev.last_connected_at)}</span>
                     </div>
                   </div>
 
                   <div className="pt-2 flex items-center justify-between text-xs">
-                    <span className="text-[11px] font-semibold text-[#7C3AED]">
+                    <span className="text-[11px] font-semibold text-[#936DA2]">
                       {isSelected ? '● Active Device' : 'Click to select'}
                     </span>
                     <button
@@ -330,11 +330,11 @@ export default function ConnectDevices() {
       </div>
 
       {/* SECTION 2: DAILY ACTIVITY TELEMETRY (PURE BACKEND RECORDS) */}
-      <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#EDE9FE] shadow-xs space-y-6">
+      <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#F4DDE2] shadow-xs space-y-6">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-4 border-b border-[#F1EBF9]">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-[#F5F3FF] text-[#7C3AED] flex items-center justify-center border border-[#EDE9FE]">
-              <Activity className="w-5 h-5 text-[#7C3AED]" />
+            <div className="w-10 h-10 rounded-2xl bg-[#F9E8EC] text-[#936DA2] flex items-center justify-center border border-[#F4DDE2]">
+              <Activity className="w-5 h-5 text-[#936DA2]" />
             </div>
             <div>
               <h3 className="font-bold text-lg text-[#201538]">
@@ -352,7 +352,7 @@ export default function ConnectDevices() {
             <button
               type="button"
               onClick={handleManualSync}
-              className="px-3.5 py-1.5 rounded-xl border border-[#EDE9FE] text-xs font-bold text-[#7C3AED] hover:bg-[#FAF8FD] flex items-center gap-1.5 cursor-pointer transition-colors"
+              className="px-3.5 py-1.5 rounded-xl border border-[#F4DDE2] text-xs font-bold text-[#936DA2] hover:bg-[#FCF4F5] flex items-center gap-1.5 cursor-pointer transition-colors"
             >
               <RefreshCw className="w-3 h-3" />
               <span>Refresh Readings</span>
@@ -364,7 +364,7 @@ export default function ConnectDevices() {
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
           
           {/* Card 1: Steps */}
-          <div className="p-4 rounded-2xl bg-[#FAF8FD] border border-[#EDE9FE] space-y-1">
+          <div className="p-4 rounded-2xl bg-[#FCF4F5] border border-[#F4DDE2] space-y-1">
             <div className="flex items-center justify-between text-emerald-600">
               <span className="text-[10px] font-bold uppercase tracking-wider text-[#7a6f75]">Steps</span>
               <Footprints className="w-4 h-4 text-emerald-600" />
@@ -382,7 +382,7 @@ export default function ConnectDevices() {
           </div>
 
           {/* Card 2: Heart Rate */}
-          <div className="p-4 rounded-2xl bg-[#FAF8FD] border border-[#EDE9FE] space-y-1">
+          <div className="p-4 rounded-2xl bg-[#FCF4F5] border border-[#F4DDE2] space-y-1">
             <div className="flex items-center justify-between text-rose-500">
               <span className="text-[10px] font-bold uppercase tracking-wider text-[#7a6f75]">Heart Rate</span>
               <Heart className="w-4 h-4 text-rose-500" />
@@ -400,7 +400,7 @@ export default function ConnectDevices() {
           </div>
 
           {/* Card 3: Active Calories */}
-          <div className="p-4 rounded-2xl bg-[#FAF8FD] border border-[#EDE9FE] space-y-1">
+          <div className="p-4 rounded-2xl bg-[#FCF4F5] border border-[#F4DDE2] space-y-1">
             <div className="flex items-center justify-between text-amber-500">
               <span className="text-[10px] font-bold uppercase tracking-wider text-[#7a6f75]">Calories</span>
               <Flame className="w-4 h-4 text-amber-500" />
@@ -416,10 +416,10 @@ export default function ConnectDevices() {
           </div>
 
           {/* Card 4: Sleep Duration */}
-          <div className="p-4 rounded-2xl bg-[#FAF8FD] border border-[#EDE9FE] space-y-1">
-            <div className="flex items-center justify-between text-[#7C3AED]">
+          <div className="p-4 rounded-2xl bg-[#FCF4F5] border border-[#F4DDE2] space-y-1">
+            <div className="flex items-center justify-between text-[#936DA2]">
               <span className="text-[10px] font-bold uppercase tracking-wider text-[#7a6f75]">Sleep</span>
-              <Moon className="w-4 h-4 text-[#7C3AED]" />
+              <Moon className="w-4 h-4 text-[#936DA2]" />
             </div>
             <div className="text-lg font-extrabold text-[#201538]">
               {todaySummary?.today_sleep_minutes
@@ -432,7 +432,7 @@ export default function ConnectDevices() {
           </div>
 
           {/* Card 5: Blood Oxygen */}
-          <div className="p-4 rounded-2xl bg-[#FAF8FD] border border-[#EDE9FE] space-y-1">
+          <div className="p-4 rounded-2xl bg-[#FCF4F5] border border-[#F4DDE2] space-y-1">
             <div className="flex items-center justify-between text-[#0284C7]">
               <span className="text-[10px] font-bold uppercase tracking-wider text-[#7a6f75]">SpO2 Oxygen</span>
               <Activity className="w-4 h-4 text-[#0284C7]" />
@@ -448,7 +448,7 @@ export default function ConnectDevices() {
           </div>
 
           {/* Card 6: HRV / Stress */}
-          <div className="p-4 rounded-2xl bg-[#FAF8FD] border border-[#EDE9FE] space-y-1">
+          <div className="p-4 rounded-2xl bg-[#FCF4F5] border border-[#F4DDE2] space-y-1">
             <div className="flex items-center justify-between text-indigo-600">
               <span className="text-[10px] font-bold uppercase tracking-wider text-[#7a6f75]">HRV Recovery</span>
               <TrendingUp className="w-4 h-4 text-indigo-600" />
@@ -467,22 +467,22 @@ export default function ConnectDevices() {
       </div>
 
       {/* SECTION 3: DEVICE ACTIVITY HISTORY TABLE (PURE REAL STORED DATA) */}
-      <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#EDE9FE] shadow-xs space-y-5">
+      <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#F4DDE2] shadow-xs space-y-5">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b border-[#F1EBF9]">
           <div>
             <h3 className="font-bold text-base text-[#201538] flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-[#7C3AED]" />
+              <Calendar className="w-4 h-4 text-[#936DA2]" />
               <span>Historical Activity Records</span>
             </h3>
             <p className="text-xs text-[#7a6f75]">Aggregated daily activity data stored in database per user and date</p>
           </div>
 
-          <div className="flex items-center gap-1 p-1 bg-[#FAF8FD] rounded-xl border border-[#EDE9FE] text-xs font-bold">
+          <div className="flex items-center gap-1 p-1 bg-[#FCF4F5] rounded-xl border border-[#F4DDE2] text-xs font-bold">
             <button
               type="button"
               onClick={() => setHistoryDays(7)}
               className={`px-3 py-1 rounded-lg transition-colors cursor-pointer ${
-                historyDays === 7 ? 'bg-[#7C3AED] text-white shadow-2xs' : 'text-[#7a6f75] hover:text-[#201538]'
+                historyDays === 7 ? 'bg-[#936DA2] text-white shadow-2xs' : 'text-[#7a6f75] hover:text-[#201538]'
               }`}
             >
               7 Days
@@ -491,7 +491,7 @@ export default function ConnectDevices() {
               type="button"
               onClick={() => setHistoryDays(14)}
               className={`px-3 py-1 rounded-lg transition-colors cursor-pointer ${
-                historyDays === 14 ? 'bg-[#7C3AED] text-white shadow-2xs' : 'text-[#7a6f75] hover:text-[#201538]'
+                historyDays === 14 ? 'bg-[#936DA2] text-white shadow-2xs' : 'text-[#7a6f75] hover:text-[#201538]'
               }`}
             >
               14 Days
@@ -500,7 +500,7 @@ export default function ConnectDevices() {
               type="button"
               onClick={() => setHistoryDays(30)}
               className={`px-3 py-1 rounded-lg transition-colors cursor-pointer ${
-                historyDays === 30 ? 'bg-[#7C3AED] text-white shadow-2xs' : 'text-[#7a6f75] hover:text-[#201538]'
+                historyDays === 30 ? 'bg-[#936DA2] text-white shadow-2xs' : 'text-[#7a6f75] hover:text-[#201538]'
               }`}
             >
               30 Days
@@ -509,14 +509,14 @@ export default function ConnectDevices() {
         </div>
 
         {history.length === 0 ? (
-          <div className="py-10 text-center text-xs text-[#7a6f75] bg-[#FAF8FD] rounded-2xl border border-dashed border-[#EDE9FE]">
+          <div className="py-10 text-center text-xs text-[#7a6f75] bg-[#FCF4F5] rounded-2xl border border-dashed border-[#F4DDE2]">
             No historical activity records stored yet. As your connected device syncs, daily activity totals will appear here.
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-xs text-left">
               <thead>
-                <tr className="border-b border-[#EDE9FE] text-[#7a6f75] uppercase text-[10px] tracking-wider">
+                <tr className="border-b border-[#F4DDE2] text-[#7a6f75] uppercase text-[10px] tracking-wider">
                   <th className="pb-3 font-bold">Date</th>
                   <th className="pb-3 font-bold">Steps</th>
                   <th className="pb-3 font-bold">Avg Heart Rate</th>
@@ -527,7 +527,7 @@ export default function ConnectDevices() {
               </thead>
               <tbody className="divide-y divide-[#F1EBF9]">
                 {history.map((item, idx) => (
-                  <tr key={idx} className="hover:bg-[#FAF8FD] transition-colors">
+                  <tr key={idx} className="hover:bg-[#FCF4F5] transition-colors">
                     <td className="py-3 font-bold text-[#201538]">
                       {new Date(item.date).toLocaleDateString('en-US', {
                         weekday: 'short',
@@ -544,7 +544,7 @@ export default function ConnectDevices() {
                     <td className="py-3 font-semibold text-amber-600">
                       {item.calories ? `${Math.round(Number(item.calories))} kcal` : '--'}
                     </td>
-                    <td className="py-3 font-semibold text-[#7C3AED]">
+                    <td className="py-3 font-semibold text-[#936DA2]">
                       {item.sleep_hours ? `${item.sleep_hours} hrs` : '--'}
                     </td>
                     <td className="py-3 font-semibold text-[#0284C7]">
@@ -559,9 +559,9 @@ export default function ConnectDevices() {
       </div>
 
       {/* SECTION 4: TRANSPARENT INTEGRATION COMPATIBILITY MATRIX */}
-      <div className="bg-white rounded-3xl p-6 border border-[#EDE9FE] shadow-xs space-y-4 text-xs">
+      <div className="bg-white rounded-3xl p-6 border border-[#F4DDE2] shadow-xs space-y-4 text-xs">
         <div className="flex items-center gap-2">
-          <Info className="w-4 h-4 text-[#7C3AED]" />
+          <Info className="w-4 h-4 text-[#936DA2]" />
           <h4 className="font-bold text-sm text-[#201538]">Transparent Device Compatibility Guide</h4>
         </div>
         <p className="text-[11px] text-[#7a6f75] leading-relaxed">
@@ -569,9 +569,9 @@ export default function ConnectDevices() {
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-[11px]">
-          <div className="p-3.5 rounded-2xl bg-[#FAF8FD] border border-[#EDE9FE] space-y-1">
+          <div className="p-3.5 rounded-2xl bg-[#FCF4F5] border border-[#F4DDE2] space-y-1">
             <span className="font-bold text-[#201538] block flex items-center gap-1.5">
-              <Bluetooth className="w-3.5 h-3.5 text-[#7C3AED]" />
+              <Bluetooth className="w-3.5 h-3.5 text-[#936DA2]" />
               Web Bluetooth (Direct Browser BLE)
             </span>
             <p className="text-[#64595e]">
@@ -579,9 +579,9 @@ export default function ConnectDevices() {
             </p>
           </div>
 
-          <div className="p-3.5 rounded-2xl bg-[#FAF8FD] border border-[#EDE9FE] space-y-1">
+          <div className="p-3.5 rounded-2xl bg-[#FCF4F5] border border-[#F4DDE2] space-y-1">
             <span className="font-bold text-[#201538] block flex items-center gap-1.5">
-              <Smartphone className="w-3.5 h-3.5 text-[#7C3AED]" />
+              <Smartphone className="w-3.5 h-3.5 text-[#936DA2]" />
               FemSphere Mobile Companion Bridge
             </span>
             <p className="text-[#64595e]">

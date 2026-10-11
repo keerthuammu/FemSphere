@@ -22,7 +22,7 @@ const METRIC_CONFIG: Record<MetricType, MetricInfo> = {
   sleep: { 
     label: 'Sleep Duration', 
     unit: 'hrs', 
-    color: '#7C3AED', 
+    color: '#936DA2', 
     gradientId: 'grad-sleep',
     icon: Moon 
   },
@@ -346,11 +346,11 @@ export default function UserTracker() {
   return (
     <div className="space-y-6 font-inter">
       {/* Top Header Card */}
-      <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#EDE9FE] shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#F4DDE2] shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="w-8 h-8 rounded-xl bg-[#F5F3FF] text-[#7C3AED] flex items-center justify-center border border-[#EDE9FE]">
-              <Activity className="w-4 h-4 text-[#7C3AED]" />
+            <span className="w-8 h-8 rounded-xl bg-[#F9E8EC] text-[#936DA2] flex items-center justify-center border border-[#F4DDE2]">
+              <Activity className="w-4 h-4 text-[#936DA2]" />
             </span>
             <h2 className="text-xl md:text-2xl font-bold text-[#201538]">Daily Health & Activity Tracker</h2>
           </div>
@@ -369,7 +369,7 @@ export default function UserTracker() {
           <button
             type="button"
             onClick={() => handleOpenNewLogModal()}
-            className="px-5 py-2.5 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-2xl text-xs font-bold flex items-center gap-2 shadow-sm transition-all cursor-pointer"
+            className="px-5 py-2.5 bg-[#936DA2] hover:bg-[#835A92] text-white rounded-2xl text-xs font-bold flex items-center gap-2 shadow-sm transition-all cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Log Daily Activity</span>
@@ -381,7 +381,7 @@ export default function UserTracker() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
         {/* COLUMN 1: Calendar Navigation (lg:col-span-5) */}
-        <div className="lg:col-span-5 bg-white rounded-3xl p-6 border border-[#EDE9FE] shadow-xs flex flex-col justify-between space-y-4">
+        <div className="lg:col-span-5 bg-white rounded-3xl p-6 border border-[#F4DDE2] shadow-xs flex flex-col justify-between space-y-4">
           <div>
             {/* Calendar Month Navigation Header */}
             <div className="flex items-center justify-between pb-3 border-b border-[#F1EBF9]">
@@ -395,7 +395,7 @@ export default function UserTracker() {
                 <button
                   type="button"
                   onClick={handleGoToToday}
-                  className="px-2.5 py-1 text-[11px] font-bold rounded-lg border border-[#EDE9FE] text-[#7C3AED] hover:bg-[#FAF8FD] cursor-pointer transition-colors"
+                  className="px-2.5 py-1 text-[11px] font-bold rounded-lg border border-[#F4DDE2] text-[#936DA2] hover:bg-[#FCF4F5] cursor-pointer transition-colors"
                 >
                   Today
                 </button>
@@ -403,7 +403,7 @@ export default function UserTracker() {
                   type="button"
                   onClick={handlePrevMonth}
                   aria-label="Previous month"
-                  className="p-1.5 rounded-lg border border-[#EDE9FE] text-[#7a6f75] hover:text-[#7C3AED] hover:bg-[#FAF8FD] cursor-pointer transition-colors"
+                  className="p-1.5 rounded-lg border border-[#F4DDE2] text-[#7a6f75] hover:text-[#936DA2] hover:bg-[#FCF4F5] cursor-pointer transition-colors"
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </button>
@@ -411,7 +411,7 @@ export default function UserTracker() {
                   type="button"
                   onClick={handleNextMonth}
                   aria-label="Next month"
-                  className="p-1.5 rounded-lg border border-[#EDE9FE] text-[#7a6f75] hover:text-[#7C3AED] hover:bg-[#FAF8FD] cursor-pointer transition-colors"
+                  className="p-1.5 rounded-lg border border-[#F4DDE2] text-[#7a6f75] hover:text-[#936DA2] hover:bg-[#FCF4F5] cursor-pointer transition-colors"
                 >
                   <ChevronRight className="w-4 h-4" />
                 </button>
@@ -443,11 +443,11 @@ export default function UserTracker() {
                     onClick={() => setSelectedDate(day.dateStr)}
                     className={`h-11 rounded-xl flex flex-col items-center justify-center relative transition-all cursor-pointer select-none ${
                       isSelected
-                        ? 'bg-[#7C3AED] text-white font-bold shadow-xs'
+                        ? 'bg-[#936DA2] text-white font-bold shadow-xs'
                         : isToday
-                        ? 'bg-[#F5F3FF] text-[#7C3AED] font-bold border border-[#EDE9FE]'
+                        ? 'bg-[#F9E8EC] text-[#936DA2] font-bold border border-[#F4DDE2]'
                         : day.isCurrentMonth
-                        ? 'text-[#201538] hover:bg-[#F8F5FD] font-medium'
+                        ? 'text-[#201538] hover:bg-[#FCF4F5] font-medium'
                         : 'text-gray-300 hover:bg-gray-50'
                     }`}
                   >
@@ -457,7 +457,7 @@ export default function UserTracker() {
                     {hasRecord && (
                       <span
                         className={`w-1.5 h-1.5 rounded-[2px] mt-1 transition-all ${
-                          isSelected ? 'bg-white shadow-2xs' : 'bg-[#7C3AED]'
+                          isSelected ? 'bg-white shadow-2xs' : 'bg-[#936DA2]'
                         }`}
                         title="Daily activity reported"
                       />
@@ -471,30 +471,30 @@ export default function UserTracker() {
           {/* Calendar Legend */}
           <div className="pt-3 border-t border-[#F1EBF9] flex items-center justify-between text-[11px] text-[#7a6f75]">
             <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-[2px] bg-[#7C3AED] inline-block shrink-0" />
+              <span className="w-2 h-2 rounded-[2px] bg-[#936DA2] inline-block shrink-0" />
               <span className="font-medium">Lavender square = Reported activity</span>
             </div>
-            <span className="text-[10px] font-semibold text-[#7C3AED]">
+            <span className="text-[10px] font-semibold text-[#936DA2]">
               {reportedDatesSet.size} {reportedDatesSet.size === 1 ? 'day' : 'days'} logged
             </span>
           </div>
         </div>
 
         {/* COLUMN 2: Interactive Trend Graph (lg:col-span-7) */}
-        <div className="lg:col-span-7 bg-white rounded-3xl p-6 border border-[#EDE9FE] shadow-xs flex flex-col justify-between space-y-4">
+        <div className="lg:col-span-7 bg-white rounded-3xl p-6 border border-[#F4DDE2] shadow-xs flex flex-col justify-between space-y-4">
           <div>
             {/* Graph Header with Metric Switcher Tabs */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b border-[#F1EBF9]">
               <div>
                 <h3 className="font-bold text-base text-[#201538] flex items-center gap-1.5">
-                  <TrendingUp className="w-4 h-4 text-[#7C3AED]" />
+                  <TrendingUp className="w-4 h-4 text-[#936DA2]" />
                   Health Trends
                 </h3>
                 <p className="text-[11px] text-[#7a6f75]">Plotting actual recorded values from your database</p>
               </div>
 
               {/* Metric Toggle Tabs */}
-              <div className="flex items-center gap-1 p-1 bg-[#FAF8FD] rounded-xl border border-[#EDE9FE] overflow-x-auto max-w-full">
+              <div className="flex items-center gap-1 p-1 bg-[#FCF4F5] rounded-xl border border-[#F4DDE2] overflow-x-auto max-w-full">
                 {(['sleep', 'water', 'steps', 'heartRate'] as MetricType[]).map((metricKey) => {
                   const cfg = METRIC_CONFIG[metricKey];
                   const Icon = cfg.icon;
@@ -509,8 +509,8 @@ export default function UserTracker() {
                       }}
                       className={`px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1 transition-all cursor-pointer whitespace-nowrap ${
                         isActive
-                          ? 'bg-[#7C3AED] text-white shadow-2xs'
-                          : 'text-[#64595e] hover:text-[#7C3AED] hover:bg-white'
+                          ? 'bg-[#936DA2] text-white shadow-2xs'
+                          : 'text-[#64595e] hover:text-[#936DA2] hover:bg-white'
                       }`}
                     >
                       <Icon className="w-3.5 h-3.5" />
@@ -525,9 +525,9 @@ export default function UserTracker() {
             <div className="pt-2">
               {graphData.length < 2 || !svgMetrics ? (
                 /* Clear empty state when no actual data exists */
-                <div className="h-48 flex flex-col items-center justify-center text-center p-6 bg-[#FAF8FD] rounded-2xl border border-dashed border-[#EDE9FE] space-y-2">
-                  <div className="w-10 h-10 rounded-xl bg-[#F5F3FF] text-[#7C3AED] flex items-center justify-center border border-[#EDE9FE]">
-                    <TrendingUp className="w-5 h-5 text-[#7C3AED]" />
+                <div className="h-48 flex flex-col items-center justify-center text-center p-6 bg-[#FCF4F5] rounded-2xl border border-dashed border-[#F4DDE2] space-y-2">
+                  <div className="w-10 h-10 rounded-xl bg-[#F9E8EC] text-[#936DA2] flex items-center justify-center border border-[#F4DDE2]">
+                    <TrendingUp className="w-5 h-5 text-[#936DA2]" />
                   </div>
                   <h4 className="font-bold text-xs text-[#201538]">
                     No trend data available for {METRIC_CONFIG[activeMetric].label}
@@ -605,7 +605,7 @@ export default function UserTracker() {
                             cx={pt.x}
                             cy={pt.y}
                             r={isHovered || isPointSelected ? 5.5 : 3.5}
-                            fill={isPointSelected ? '#7C3AED' : '#ffffff'}
+                            fill={isPointSelected ? '#936DA2' : '#ffffff'}
                             stroke={METRIC_CONFIG[activeMetric].color}
                             strokeWidth={isHovered || isPointSelected ? 2.5 : 2}
                             className="cursor-pointer transition-all"
@@ -659,27 +659,27 @@ export default function UserTracker() {
           {/* Metric Summary Badges */}
           {graphStats && (
             <div className="pt-3 border-t border-[#F1EBF9] grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs">
-              <div className="p-2 rounded-xl bg-[#FAF8FD] border border-[#EDE9FE]">
+              <div className="p-2 rounded-xl bg-[#FCF4F5] border border-[#F4DDE2]">
                 <span className="text-[10px] text-[#7a6f75] uppercase block font-semibold">Average</span>
                 <span className="font-bold text-[#201538]">
                   {graphStats.avg.toFixed(1)} {METRIC_CONFIG[activeMetric].unit}
                 </span>
               </div>
-              <div className="p-2 rounded-xl bg-[#FAF8FD] border border-[#EDE9FE]">
+              <div className="p-2 rounded-xl bg-[#FCF4F5] border border-[#F4DDE2]">
                 <span className="text-[10px] text-[#7a6f75] uppercase block font-semibold">Highest</span>
                 <span className="font-bold text-[#201538]">
                   {graphStats.max} {METRIC_CONFIG[activeMetric].unit}
                 </span>
               </div>
-              <div className="p-2 rounded-xl bg-[#FAF8FD] border border-[#EDE9FE]">
+              <div className="p-2 rounded-xl bg-[#FCF4F5] border border-[#F4DDE2]">
                 <span className="text-[10px] text-[#7a6f75] uppercase block font-semibold">Latest</span>
                 <span className="font-bold text-[#201538]">
                   {graphStats.latest} {METRIC_CONFIG[activeMetric].unit}
                 </span>
               </div>
-              <div className="p-2 rounded-xl bg-[#FAF8FD] border border-[#EDE9FE]">
+              <div className="p-2 rounded-xl bg-[#FCF4F5] border border-[#F4DDE2]">
                 <span className="text-[10px] text-[#7a6f75] uppercase block font-semibold">Recorded Days</span>
-                <span className="font-bold text-[#7C3AED]">
+                <span className="font-bold text-[#936DA2]">
                   {graphStats.count} entries
                 </span>
               </div>
@@ -690,13 +690,13 @@ export default function UserTracker() {
       </div>
 
       {/* BOTTOM SECTION: Date-Filtered Daily Activity Record */}
-      <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#EDE9FE] shadow-xs space-y-6">
+      <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#F4DDE2] shadow-xs space-y-6">
         
         {/* Section Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-4 border-b border-[#F1EBF9]">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-[#F5F3FF] text-[#7C3AED] flex items-center justify-center border border-[#EDE9FE] shrink-0">
-              <CalendarIcon className="w-5 h-5 text-[#7C3AED]" />
+            <div className="w-10 h-10 rounded-2xl bg-[#F9E8EC] text-[#936DA2] flex items-center justify-center border border-[#F4DDE2] shrink-0">
+              <CalendarIcon className="w-5 h-5 text-[#936DA2]" />
             </div>
             <div>
               <div className="flex items-center gap-2">
@@ -704,7 +704,7 @@ export default function UserTracker() {
                   {formatPrettyDate(selectedDate)}
                 </h3>
                 {selectedDate === todayStr && (
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-[#7C3AED]">
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-[#936DA2]">
                     Today
                   </span>
                 )}
@@ -721,7 +721,7 @@ export default function UserTracker() {
               <button
                 type="button"
                 onClick={() => handleOpenEditModal(selectedDayRecord)}
-                className="px-4 py-2 bg-[#F5F3FF] hover:bg-[#EDE9FE] text-[#7C3AED] rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+                className="px-4 py-2 bg-[#F9E8EC] hover:bg-[#F4DDE2] text-[#936DA2] rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
               >
                 <Edit3 className="w-3.5 h-3.5" />
                 <span>Edit Record</span>
@@ -743,7 +743,7 @@ export default function UserTracker() {
             <button
               type="button"
               onClick={() => handleOpenNewLogModal(selectedDate)}
-              className="px-4 py-2 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer"
+              className="px-4 py-2 bg-[#936DA2] hover:bg-[#835A92] text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Log for this Date</span>
@@ -759,7 +759,7 @@ export default function UserTracker() {
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
               
               {/* Card 1: Hydration */}
-              <div className="p-4 rounded-2xl bg-[#FAF8FD] border border-[#EDE9FE] space-y-1">
+              <div className="p-4 rounded-2xl bg-[#FCF4F5] border border-[#F4DDE2] space-y-1">
                 <div className="flex items-center justify-between text-[#0284C7]">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-[#7a6f75]">Water</span>
                   <Droplets className="w-4 h-4 text-[#0284C7]" />
@@ -771,10 +771,10 @@ export default function UserTracker() {
               </div>
 
               {/* Card 2: Sleep */}
-              <div className="p-4 rounded-2xl bg-[#FAF8FD] border border-[#EDE9FE] space-y-1">
-                <div className="flex items-center justify-between text-[#7C3AED]">
+              <div className="p-4 rounded-2xl bg-[#FCF4F5] border border-[#F4DDE2] space-y-1">
+                <div className="flex items-center justify-between text-[#936DA2]">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-[#7a6f75]">Sleep</span>
-                  <Moon className="w-4 h-4 text-[#7C3AED]" />
+                  <Moon className="w-4 h-4 text-[#936DA2]" />
                 </div>
                 <div className="text-base font-extrabold text-[#201538]">
                   {selectedDayRecord.sleep ? `${selectedDayRecord.sleep} hrs` : '--'}
@@ -783,7 +783,7 @@ export default function UserTracker() {
               </div>
 
               {/* Card 3: Steps */}
-              <div className="p-4 rounded-2xl bg-[#FAF8FD] border border-[#EDE9FE] space-y-1">
+              <div className="p-4 rounded-2xl bg-[#FCF4F5] border border-[#F4DDE2] space-y-1">
                 <div className="flex items-center justify-between text-emerald-600">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-[#7a6f75]">Steps</span>
                   <Footprints className="w-4 h-4 text-emerald-600" />
@@ -797,7 +797,7 @@ export default function UserTracker() {
               </div>
 
               {/* Card 4: Exercise */}
-              <div className="p-4 rounded-2xl bg-[#FAF8FD] border border-[#EDE9FE] space-y-1">
+              <div className="p-4 rounded-2xl bg-[#FCF4F5] border border-[#F4DDE2] space-y-1">
                 <div className="flex items-center justify-between text-rose-500">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-[#7a6f75]">Exercise</span>
                   <Flame className="w-4 h-4 text-rose-500" />
@@ -811,7 +811,7 @@ export default function UserTracker() {
               </div>
 
               {/* Card 5: Heart Rate & BP */}
-              <div className="p-4 rounded-2xl bg-[#FAF8FD] border border-[#EDE9FE] space-y-1">
+              <div className="p-4 rounded-2xl bg-[#FCF4F5] border border-[#F4DDE2] space-y-1">
                 <div className="flex items-center justify-between text-purple-600">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-[#7a6f75]">Vitals</span>
                   <HeartPulse className="w-4 h-4 text-purple-600" />
@@ -825,7 +825,7 @@ export default function UserTracker() {
               </div>
 
               {/* Card 6: Weight */}
-              <div className="p-4 rounded-2xl bg-[#FAF8FD] border border-[#EDE9FE] space-y-1">
+              <div className="p-4 rounded-2xl bg-[#FCF4F5] border border-[#F4DDE2] space-y-1">
                 <div className="flex items-center justify-between text-amber-600">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-[#7a6f75]">Weight</span>
                   <Activity className="w-4 h-4 text-amber-600" />
@@ -842,14 +842,14 @@ export default function UserTracker() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
               
               {/* Meals & Nutrition */}
-              <div className="p-4 rounded-2xl border border-[#EDE9FE] bg-[#FAF8FD] space-y-1.5">
+              <div className="p-4 rounded-2xl border border-[#F4DDE2] bg-[#FCF4F5] space-y-1.5">
                 <div className="flex items-center justify-between">
                   <span className="font-bold text-[#201538] flex items-center gap-1.5">
-                    <Utensils className="w-4 h-4 text-[#7C3AED]" />
+                    <Utensils className="w-4 h-4 text-[#936DA2]" />
                     Meals & Calorie Intake
                   </span>
                   {selectedDayRecord.caloriesIntake && (
-                    <span className="font-extrabold text-[#7C3AED] bg-purple-50 px-2 py-0.5 rounded-md border border-purple-100 text-[11px]">
+                    <span className="font-extrabold text-[#936DA2] bg-purple-50 px-2 py-0.5 rounded-md border border-purple-100 text-[11px]">
                       {selectedDayRecord.caloriesIntake} kcal
                     </span>
                   )}
@@ -860,7 +860,7 @@ export default function UserTracker() {
               </div>
 
               {/* Mood & Journal Notes */}
-              <div className="p-4 rounded-2xl border border-[#EDE9FE] bg-[#FAF8FD] space-y-1.5">
+              <div className="p-4 rounded-2xl border border-[#F4DDE2] bg-[#FCF4F5] space-y-1.5">
                 <div className="flex items-center justify-between">
                   <span className="font-bold text-[#201538] flex items-center gap-1.5">
                     <Smile className="w-4 h-4 text-amber-500" />
@@ -882,9 +882,9 @@ export default function UserTracker() {
           </div>
         ) : (
           /* Clear message when no record exists for selected date */
-          <div className="py-12 px-6 rounded-2xl bg-[#FAF8FD] border border-dashed border-[#EDE9FE] text-center flex flex-col items-center justify-center space-y-3">
-            <div className="w-12 h-12 rounded-2xl bg-white border border-[#EDE9FE] flex items-center justify-center text-[#7C3AED] shadow-2xs">
-              <CalendarX className="w-6 h-6 text-[#7C3AED]" />
+          <div className="py-12 px-6 rounded-2xl bg-[#FCF4F5] border border-dashed border-[#F4DDE2] text-center flex flex-col items-center justify-center space-y-3">
+            <div className="w-12 h-12 rounded-2xl bg-white border border-[#F4DDE2] flex items-center justify-center text-[#936DA2] shadow-2xs">
+              <CalendarX className="w-6 h-6 text-[#936DA2]" />
             </div>
             <div>
               <h4 className="font-bold text-base text-[#201538]">
@@ -897,7 +897,7 @@ export default function UserTracker() {
             <button
               type="button"
               onClick={() => handleOpenNewLogModal(selectedDate)}
-              className="mt-2 px-5 py-2.5 bg-[#7C3AED] hover:bg-[#6D28D9] text-white text-xs font-bold rounded-2xl flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
+              className="mt-2 px-5 py-2.5 bg-[#936DA2] hover:bg-[#835A92] text-white text-xs font-bold rounded-2xl flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>Log Activity for this Date</span>
@@ -908,7 +908,7 @@ export default function UserTracker() {
       </div>
 
       {/* SYMPTOMS SECTION (Minimal secondary section with toggle) */}
-      <div className="bg-white rounded-3xl p-6 border border-[#EDE9FE] shadow-xs space-y-4">
+      <div className="bg-white rounded-3xl p-6 border border-[#F4DDE2] shadow-xs space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="w-7 h-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-200">
@@ -933,7 +933,7 @@ export default function UserTracker() {
                 });
                 setIsSymptomModalOpen(true);
               }}
-              className="px-3 py-1.5 bg-[#FAF8FD] hover:bg-[#F5F3FF] border border-[#EDE9FE] text-[#7C3AED] rounded-xl text-xs font-bold flex items-center gap-1 transition-colors cursor-pointer"
+              className="px-3 py-1.5 bg-[#FCF4F5] hover:bg-[#F9E8EC] border border-[#F4DDE2] text-[#936DA2] rounded-xl text-xs font-bold flex items-center gap-1 transition-colors cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5" /> Log Symptom
             </button>
@@ -941,7 +941,7 @@ export default function UserTracker() {
             <button
               type="button"
               onClick={() => setShowSymptomsSection(!showSymptomsSection)}
-              className="p-1.5 rounded-xl border border-[#EDE9FE] text-[#7a6f75] hover:text-[#201538] transition-colors cursor-pointer"
+              className="p-1.5 rounded-xl border border-[#F4DDE2] text-[#7a6f75] hover:text-[#201538] transition-colors cursor-pointer"
               title={showSymptomsSection ? 'Hide symptoms list' : 'Show symptoms list'}
             >
               {showSymptomsSection ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
@@ -959,7 +959,7 @@ export default function UserTracker() {
                 {symptomLogs.map((s) => (
                   <div
                     key={s.id}
-                    className="p-3.5 rounded-2xl border border-[#EDE9FE] bg-[#FAF8FD] flex items-start justify-between gap-3 text-xs"
+                    className="p-3.5 rounded-2xl border border-[#F4DDE2] bg-[#FCF4F5] flex items-start justify-between gap-3 text-xs"
                   >
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
@@ -985,7 +985,7 @@ export default function UserTracker() {
                           handleEditSymptom(s);
                           setIsSymptomModalOpen(true);
                         }}
-                        className="px-2.5 py-1 bg-white hover:bg-[#F5F3FF] border border-[#EDE9FE] text-[#7C3AED] rounded-lg text-[11px] font-bold transition-colors cursor-pointer"
+                        className="px-2.5 py-1 bg-white hover:bg-[#F9E8EC] border border-[#F4DDE2] text-[#936DA2] rounded-lg text-[11px] font-bold transition-colors cursor-pointer"
                       >
                         Edit
                       </button>
@@ -1009,13 +1009,13 @@ export default function UserTracker() {
       {/* MODAL 1: DAILY ACTIVITY FORM MODAL */}
       {isActivityModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/45 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto animate-fade-in">
-          <div className="bg-white rounded-3xl border border-[#EDE9FE] shadow-2xl max-w-2xl w-full max-h-[92vh] overflow-y-auto p-6 md:p-8 space-y-6">
+          <div className="bg-white rounded-3xl border border-[#F4DDE2] shadow-2xl max-w-2xl w-full max-h-[92vh] overflow-y-auto p-6 md:p-8 space-y-6">
             
             {/* Modal Header */}
-            <div className="flex items-center justify-between border-b border-[#EDE9FE] pb-4">
+            <div className="flex items-center justify-between border-b border-[#F4DDE2] pb-4">
               <div>
                 <h3 className="font-bold text-lg text-[#201538] flex items-center gap-2">
-                  <Edit3 className="w-5 h-5 text-[#7C3AED]" />
+                  <Edit3 className="w-5 h-5 text-[#936DA2]" />
                   {editingTrackerId ? 'Edit Daily Activity Record' : 'Log Daily Activity Record'}
                 </h3>
                 <p className="text-xs text-[#7a6f75] mt-0.5">
@@ -1070,14 +1070,14 @@ export default function UserTracker() {
                   type="date"
                   value={trackerInput.date || selectedDate}
                   onChange={(e) => setTrackerInput({ ...trackerInput, date: e.target.value })}
-                  className="w-full p-3 rounded-2xl border border-[#EDE9FE] bg-[#FAF8FD] focus:bg-white focus:ring-2 focus:ring-[#7C3AED] focus:outline-hidden font-medium"
+                  className="w-full p-3 rounded-2xl border border-[#F4DDE2] bg-[#FCF4F5] focus:bg-white focus:ring-2 focus:ring-[#936DA2] focus:outline-hidden font-medium"
                   required
                 />
               </div>
 
               {/* Section 1: Water & Sleep */}
-              <div className="p-4 rounded-2xl bg-[#FAF8FD] border border-[#EDE9FE] space-y-3">
-                <h4 className="font-bold text-xs uppercase tracking-wider text-[#7C3AED] flex items-center gap-1.5">
+              <div className="p-4 rounded-2xl bg-[#FCF4F5] border border-[#F4DDE2] space-y-3">
+                <h4 className="font-bold text-xs uppercase tracking-wider text-[#936DA2] flex items-center gap-1.5">
                   <Droplets className="w-4 h-4" /> 1. Hydration & Sleep
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -1089,7 +1089,7 @@ export default function UserTracker() {
                       placeholder="e.g. 2.5"
                       value={trackerInput.water}
                       onChange={(e) => setTrackerInput({ ...trackerInput, water: e.target.value })}
-                      className="w-full p-2.5 rounded-xl border border-[#EDE9FE] bg-white focus:ring-2 focus:ring-[#7C3AED] focus:outline-hidden"
+                      className="w-full p-2.5 rounded-xl border border-[#F4DDE2] bg-white focus:ring-2 focus:ring-[#936DA2] focus:outline-hidden"
                     />
                   </div>
                   <div>
@@ -1100,14 +1100,14 @@ export default function UserTracker() {
                       placeholder="e.g. 8.0"
                       value={trackerInput.sleep}
                       onChange={(e) => setTrackerInput({ ...trackerInput, sleep: e.target.value })}
-                      className="w-full p-2.5 rounded-xl border border-[#EDE9FE] bg-white focus:ring-2 focus:ring-[#7C3AED] focus:outline-hidden"
+                      className="w-full p-2.5 rounded-xl border border-[#F4DDE2] bg-white focus:ring-2 focus:ring-[#936DA2] focus:outline-hidden"
                     />
                   </div>
                 </div>
               </div>
 
               {/* Section 2: Steps & Movement */}
-              <div className="p-4 rounded-2xl bg-[#FAF8FD] border border-[#EDE9FE] space-y-3">
+              <div className="p-4 rounded-2xl bg-[#FCF4F5] border border-[#F4DDE2] space-y-3">
                 <h4 className="font-bold text-xs uppercase tracking-wider text-emerald-600 flex items-center gap-1.5">
                   <Footprints className="w-4 h-4 text-emerald-600" /> 2. Steps & Distance
                 </h4>
@@ -1119,7 +1119,7 @@ export default function UserTracker() {
                       placeholder="e.g. 8250"
                       value={trackerInput.steps}
                       onChange={(e) => setTrackerInput({ ...trackerInput, steps: e.target.value })}
-                      className="w-full p-2.5 rounded-xl border border-[#EDE9FE] bg-white focus:ring-2 focus:ring-[#7C3AED] focus:outline-hidden"
+                      className="w-full p-2.5 rounded-xl border border-[#F4DDE2] bg-white focus:ring-2 focus:ring-[#936DA2] focus:outline-hidden"
                     />
                   </div>
                   <div>
@@ -1130,14 +1130,14 @@ export default function UserTracker() {
                       placeholder="e.g. 5.2"
                       value={trackerInput.distanceKm}
                       onChange={(e) => setTrackerInput({ ...trackerInput, distanceKm: e.target.value })}
-                      className="w-full p-2.5 rounded-xl border border-[#EDE9FE] bg-white focus:ring-2 focus:ring-[#7C3AED] focus:outline-hidden"
+                      className="w-full p-2.5 rounded-xl border border-[#F4DDE2] bg-white focus:ring-2 focus:ring-[#936DA2] focus:outline-hidden"
                     />
                   </div>
                 </div>
               </div>
 
               {/* Section 3: Exercise & Workout */}
-              <div className="p-4 rounded-2xl bg-[#FAF8FD] border border-[#EDE9FE] space-y-3">
+              <div className="p-4 rounded-2xl bg-[#FCF4F5] border border-[#F4DDE2] space-y-3">
                 <h4 className="font-bold text-xs uppercase tracking-wider text-rose-500 flex items-center gap-1.5">
                   <Flame className="w-4 h-4 text-rose-500" /> 3. Exercise & Workout
                 </h4>
@@ -1149,7 +1149,7 @@ export default function UserTracker() {
                       placeholder="e.g. Yoga, Jogging, Pilates"
                       value={trackerInput.exerciseType}
                       onChange={(e) => setTrackerInput({ ...trackerInput, exerciseType: e.target.value })}
-                      className="w-full p-2.5 rounded-xl border border-[#EDE9FE] bg-white focus:ring-2 focus:ring-[#7C3AED] focus:outline-hidden"
+                      className="w-full p-2.5 rounded-xl border border-[#F4DDE2] bg-white focus:ring-2 focus:ring-[#936DA2] focus:outline-hidden"
                     />
                   </div>
                   <div>
@@ -1159,7 +1159,7 @@ export default function UserTracker() {
                       placeholder="e.g. 35"
                       value={trackerInput.exercise}
                       onChange={(e) => setTrackerInput({ ...trackerInput, exercise: e.target.value })}
-                      className="w-full p-2.5 rounded-xl border border-[#EDE9FE] bg-white focus:ring-2 focus:ring-[#7C3AED] focus:outline-hidden"
+                      className="w-full p-2.5 rounded-xl border border-[#F4DDE2] bg-white focus:ring-2 focus:ring-[#936DA2] focus:outline-hidden"
                     />
                   </div>
                   <div>
@@ -1169,14 +1169,14 @@ export default function UserTracker() {
                       placeholder="e.g. 240"
                       value={trackerInput.caloriesBurned}
                       onChange={(e) => setTrackerInput({ ...trackerInput, caloriesBurned: e.target.value })}
-                      className="w-full p-2.5 rounded-xl border border-[#EDE9FE] bg-white focus:ring-2 focus:ring-[#7C3AED] focus:outline-hidden"
+                      className="w-full p-2.5 rounded-xl border border-[#F4DDE2] bg-white focus:ring-2 focus:ring-[#936DA2] focus:outline-hidden"
                     />
                   </div>
                 </div>
               </div>
 
               {/* Section 4: Body Vitals & Weight */}
-              <div className="p-4 rounded-2xl bg-[#FAF8FD] border border-[#EDE9FE] space-y-3">
+              <div className="p-4 rounded-2xl bg-[#FCF4F5] border border-[#F4DDE2] space-y-3">
                 <h4 className="font-bold text-xs uppercase tracking-wider text-purple-700 flex items-center gap-1.5">
                   <HeartPulse className="w-4 h-4 text-purple-700" /> 4. Vitals & Weight
                 </h4>
@@ -1188,7 +1188,7 @@ export default function UserTracker() {
                       placeholder="e.g. 72"
                       value={trackerInput.heartRate}
                       onChange={(e) => setTrackerInput({ ...trackerInput, heartRate: e.target.value })}
-                      className="w-full p-2.5 rounded-xl border border-[#EDE9FE] bg-white focus:ring-2 focus:ring-[#7C3AED] focus:outline-hidden"
+                      className="w-full p-2.5 rounded-xl border border-[#F4DDE2] bg-white focus:ring-2 focus:ring-[#936DA2] focus:outline-hidden"
                     />
                   </div>
                   <div>
@@ -1198,7 +1198,7 @@ export default function UserTracker() {
                       placeholder="e.g. 120/80"
                       value={trackerInput.bloodPressure}
                       onChange={(e) => setTrackerInput({ ...trackerInput, bloodPressure: e.target.value })}
-                      className="w-full p-2.5 rounded-xl border border-[#EDE9FE] bg-white focus:ring-2 focus:ring-[#7C3AED] focus:outline-hidden"
+                      className="w-full p-2.5 rounded-xl border border-[#F4DDE2] bg-white focus:ring-2 focus:ring-[#936DA2] focus:outline-hidden"
                     />
                   </div>
                   <div>
@@ -1209,14 +1209,14 @@ export default function UserTracker() {
                       placeholder="e.g. 58.5"
                       value={trackerInput.weight}
                       onChange={(e) => setTrackerInput({ ...trackerInput, weight: e.target.value })}
-                      className="w-full p-2.5 rounded-xl border border-[#EDE9FE] bg-white focus:ring-2 focus:ring-[#7C3AED] focus:outline-hidden"
+                      className="w-full p-2.5 rounded-xl border border-[#F4DDE2] bg-white focus:ring-2 focus:ring-[#936DA2] focus:outline-hidden"
                     />
                   </div>
                 </div>
               </div>
 
               {/* Section 5: Meals & Nutrition */}
-              <div className="p-4 rounded-2xl bg-[#FAF8FD] border border-[#EDE9FE] space-y-3">
+              <div className="p-4 rounded-2xl bg-[#FCF4F5] border border-[#F4DDE2] space-y-3">
                 <h4 className="font-bold text-xs uppercase tracking-wider text-amber-700 flex items-center gap-1.5">
                   <Utensils className="w-4 h-4 text-amber-700" /> 5. Food & Nutrition
                 </h4>
@@ -1228,7 +1228,7 @@ export default function UserTracker() {
                       placeholder="e.g. Oatmeal bowl (Breakfast), Salad (Lunch), Grilled Chicken (Dinner)"
                       value={trackerInput.foodMeals}
                       onChange={(e) => setTrackerInput({ ...trackerInput, foodMeals: e.target.value })}
-                      className="w-full p-2.5 rounded-xl border border-[#EDE9FE] bg-white focus:ring-2 focus:ring-[#7C3AED] focus:outline-hidden"
+                      className="w-full p-2.5 rounded-xl border border-[#F4DDE2] bg-white focus:ring-2 focus:ring-[#936DA2] focus:outline-hidden"
                     />
                   </div>
                   <div>
@@ -1238,14 +1238,14 @@ export default function UserTracker() {
                       placeholder="e.g. 1800"
                       value={trackerInput.caloriesIntake}
                       onChange={(e) => setTrackerInput({ ...trackerInput, caloriesIntake: e.target.value })}
-                      className="w-full p-2.5 rounded-xl border border-[#EDE9FE] bg-white focus:ring-2 focus:ring-[#7C3AED] focus:outline-hidden"
+                      className="w-full p-2.5 rounded-xl border border-[#F4DDE2] bg-white focus:ring-2 focus:ring-[#936DA2] focus:outline-hidden"
                     />
                   </div>
                 </div>
               </div>
 
               {/* Section 6: Mood & Reflections */}
-              <div className="p-4 rounded-2xl bg-[#FAF8FD] border border-[#EDE9FE] space-y-3">
+              <div className="p-4 rounded-2xl bg-[#FCF4F5] border border-[#F4DDE2] space-y-3">
                 <h4 className="font-bold text-xs uppercase tracking-wider text-indigo-700 flex items-center gap-1.5">
                   <Smile className="w-4 h-4 text-indigo-700" /> 6. Mood & Reflections
                 </h4>
@@ -1255,7 +1255,7 @@ export default function UserTracker() {
                     <select
                       value={trackerInput.mood}
                       onChange={(e) => setTrackerInput({ ...trackerInput, mood: e.target.value })}
-                      className="w-full p-2.5 rounded-xl border border-[#EDE9FE] bg-white font-medium"
+                      className="w-full p-2.5 rounded-xl border border-[#F4DDE2] bg-white font-medium"
                     >
                       <option value="Energetic">✨ Energetic & Vibrant</option>
                       <option value="Good">😊 Good / Positive</option>
@@ -1271,24 +1271,24 @@ export default function UserTracker() {
                       placeholder="e.g. Felt great after morning walk, drank 2.5L water..."
                       value={trackerInput.notes}
                       onChange={(e) => setTrackerInput({ ...trackerInput, notes: e.target.value })}
-                      className="w-full p-2.5 rounded-xl border border-[#EDE9FE] bg-white focus:ring-2 focus:ring-[#7C3AED] focus:outline-hidden"
+                      className="w-full p-2.5 rounded-xl border border-[#F4DDE2] bg-white focus:ring-2 focus:ring-[#936DA2] focus:outline-hidden"
                     />
                   </div>
                 </div>
               </div>
 
               {/* Modal Actions */}
-              <div className="flex justify-end gap-3 pt-3 border-t border-[#EDE9FE]">
+              <div className="flex justify-end gap-3 pt-3 border-t border-[#F4DDE2]">
                 <button
                   type="button"
                   onClick={() => setIsActivityModalOpen(false)}
-                  className="px-5 py-2.5 border border-[#EDE9FE] rounded-2xl font-bold text-xs hover:bg-gray-50 transition-colors cursor-pointer"
+                  className="px-5 py-2.5 border border-[#F4DDE2] rounded-2xl font-bold text-xs hover:bg-gray-50 transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2.5 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-2xl font-bold text-xs shadow-md transition-all cursor-pointer"
+                  className="px-6 py-2.5 bg-[#936DA2] hover:bg-[#835A92] text-white rounded-2xl font-bold text-xs shadow-md transition-all cursor-pointer"
                 >
                   {editingTrackerId ? 'Update Record' : 'Save Daily Record'}
                 </button>
@@ -1303,8 +1303,8 @@ export default function UserTracker() {
       {/* MODAL 2: SYMPTOM FORM MODAL */}
       {isSymptomModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/45 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in">
-          <div className="bg-white rounded-3xl border border-[#EDE9FE] shadow-2xl max-w-lg w-full p-6 space-y-5">
-            <div className="flex items-center justify-between border-b border-[#EDE9FE] pb-3">
+          <div className="bg-white rounded-3xl border border-[#F4DDE2] shadow-2xl max-w-lg w-full p-6 space-y-5">
+            <div className="flex items-center justify-between border-b border-[#F4DDE2] pb-3">
               <h3 className="font-bold text-base text-[#201538] flex items-center gap-2">
                 <AlertCircle className="w-5 h-5 text-amber-500" />
                 {editingSymptomId ? 'Edit Symptom' : 'Log Health Symptom'}
@@ -1332,7 +1332,7 @@ export default function UserTracker() {
                   placeholder="e.g. Migraine, Cramps, Nausea"
                   value={symptomInput.symptomName}
                   onChange={(e) => setSymptomInput({ ...symptomInput, symptomName: e.target.value })}
-                  className="w-full p-2.5 rounded-xl border border-[#EDE9FE] bg-[#FAF8FD] focus:bg-white focus:ring-2 focus:ring-[#7C3AED] focus:outline-hidden"
+                  className="w-full p-2.5 rounded-xl border border-[#F4DDE2] bg-[#FCF4F5] focus:bg-white focus:ring-2 focus:ring-[#936DA2] focus:outline-hidden"
                   required
                 />
               </div>
@@ -1343,7 +1343,7 @@ export default function UserTracker() {
                   <select
                     value={symptomInput.severity}
                     onChange={(e) => setSymptomInput({ ...symptomInput, severity: e.target.value })}
-                    className="w-full p-2.5 rounded-xl border border-[#EDE9FE] bg-[#FAF8FD] font-medium"
+                    className="w-full p-2.5 rounded-xl border border-[#F4DDE2] bg-[#FCF4F5] font-medium"
                   >
                     <option value="Low">Low</option>
                     <option value="Moderate">Moderate</option>
@@ -1357,7 +1357,7 @@ export default function UserTracker() {
                     type="date"
                     value={symptomInput.date}
                     onChange={(e) => setSymptomInput({ ...symptomInput, date: e.target.value })}
-                    className="w-full p-2.5 rounded-xl border border-[#EDE9FE] bg-[#FAF8FD]"
+                    className="w-full p-2.5 rounded-xl border border-[#F4DDE2] bg-[#FCF4F5]"
                     required
                   />
                 </div>
@@ -1370,21 +1370,21 @@ export default function UserTracker() {
                   placeholder="e.g. Mild headache post workout, subsided with water"
                   value={symptomInput.description}
                   onChange={(e) => setSymptomInput({ ...symptomInput, description: e.target.value })}
-                  className="w-full p-2.5 rounded-xl border border-[#EDE9FE] bg-[#FAF8FD]"
+                  className="w-full p-2.5 rounded-xl border border-[#F4DDE2] bg-[#FCF4F5]"
                 />
               </div>
 
-              <div className="flex justify-end gap-2 pt-3 border-t border-[#EDE9FE]">
+              <div className="flex justify-end gap-2 pt-3 border-t border-[#F4DDE2]">
                 <button
                   type="button"
                   onClick={() => setIsSymptomModalOpen(false)}
-                  className="px-4 py-2 border border-[#EDE9FE] rounded-xl font-bold cursor-pointer hover:bg-gray-50"
+                  className="px-4 py-2 border border-[#F4DDE2] rounded-xl font-bold cursor-pointer hover:bg-gray-50"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl font-bold cursor-pointer shadow-xs"
+                  className="px-5 py-2 bg-[#936DA2] hover:bg-[#835A92] text-white rounded-xl font-bold cursor-pointer shadow-xs"
                 >
                   {editingSymptomId ? 'Update Symptom' : 'Save Symptom'}
                 </button>

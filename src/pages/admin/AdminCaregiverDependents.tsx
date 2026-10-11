@@ -94,24 +94,24 @@ export default function AdminCaregiverDependents() {
   });
 
   return (
-    <div className="bg-white rounded-2xl p-5 md:p-6 border border-[#EDE9FE] shadow-xs space-y-4 font-inter">
+    <div className="bg-white rounded-2xl p-5 md:p-6 border border-[#F4DDE2] shadow-xs space-y-4 font-inter">
       {/* NAVIGATION BREADCRUMB / BACK LINK */}
       <div className="flex items-center justify-between">
         <Link
           to="/admin/caregivers"
-          className="inline-flex items-center gap-1.5 text-xs font-bold text-[#7C3AED] hover:underline"
+          className="inline-flex items-center gap-1.5 text-xs font-bold text-[#936DA2] hover:underline"
         >
           <ArrowLeft className="w-3.5 h-3.5" /> Back to Caregiver Directory
         </Link>
       </div>
 
       {/* TOP HEADER & SEARCH */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-[#EDE9FE] pb-3.5">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-[#F4DDE2] pb-3.5">
         <div>
           <h3 className="font-bold text-xl text-[#3a3135] flex items-center gap-2">
             <span>Dependents List</span>
             {caregiver && (
-              <span className="text-xs px-2.5 py-0.5 rounded-full bg-purple-50 text-[#7C3AED] border border-purple-100 font-bold">
+              <span className="text-xs px-2.5 py-0.5 rounded-full bg-purple-50 text-[#936DA2] border border-purple-100 font-bold">
                 Caregiver: {caregiver.full_name || caregiver.username}
               </span>
             )}
@@ -134,7 +134,7 @@ export default function AdminCaregiverDependents() {
               placeholder="Search dependents..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-8 pr-3 py-1.5 rounded-xl border border-[#EDE9FE] text-xs focus:ring-2 focus:ring-[#7C3AED] outline-none"
+              className="pl-8 pr-3 py-1.5 rounded-xl border border-[#F4DDE2] text-xs focus:ring-2 focus:ring-[#936DA2] outline-none"
             />
           </div>
         </div>
@@ -151,14 +151,14 @@ export default function AdminCaregiverDependents() {
       {/* LOADING STATE */}
       {loading ? (
         <div className="py-12 text-center text-[#7a6f75] text-xs flex flex-col items-center justify-center gap-2">
-          <div className="w-6 h-6 border-2 border-[#7C3AED] border-t-transparent rounded-full animate-spin" />
+          <div className="w-6 h-6 border-2 border-[#936DA2] border-t-transparent rounded-full animate-spin" />
           <p>Loading dependent records...</p>
         </div>
       ) : (
         /* DEPENDENTS TABLE */
-        <div className="overflow-x-auto rounded-xl border border-[#EDE9FE]">
+        <div className="overflow-x-auto rounded-xl border border-[#F4DDE2]">
           <table className="w-full text-left text-xs font-inter">
-            <thead className="bg-[#FAF8FC] text-[#3a3135] uppercase text-[11px] font-bold border-b border-[#EDE9FE]">
+            <thead className="bg-[#FCF4F5] text-[#3a3135] uppercase text-[11px] font-bold border-b border-[#F4DDE2]">
               <tr>
                 <th className="p-3">Dependent ID</th>
                 <th className="p-3">Full Name</th>
@@ -169,20 +169,20 @@ export default function AdminCaregiverDependents() {
                 <th className="p-3 text-right">Date Linked</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#EDE9FE]">
+            <tbody className="divide-y divide-[#F4DDE2]">
               {filteredDependents.map((dep) => (
-                <tr key={dep.id} className="hover:bg-[#FAF8FC] transition-colors">
-                  <td className="p-3 font-bold text-[#7C3AED]">#DEP-{dep.id}</td>
+                <tr key={dep.id} className="hover:bg-[#FCF4F5] transition-colors">
+                  <td className="p-3 font-bold text-[#936DA2]">#DEP-{dep.id}</td>
                   <td className="p-3 font-bold text-[#3a3135]">
                     <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-full bg-purple-100 text-[#7C3AED] flex items-center justify-center font-bold text-[10px]">
+                      <div className="w-6 h-6 rounded-full bg-purple-100 text-[#936DA2] flex items-center justify-center font-bold text-[10px]">
                         {dep.full_name?.charAt(0)?.toUpperCase() || 'D'}
                       </div>
                       <span>{dep.full_name}</span>
                     </div>
                   </td>
                   <td className="p-3">
-                    <span className="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-[#FAF8FC] text-[#4A3B42] border border-[#EDE9FE]">
+                    <span className="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-[#FCF4F5] text-[#4A3B42] border border-[#F4DDE2]">
                       {dep.relationship || 'Dependent'}
                     </span>
                   </td>
@@ -224,7 +224,7 @@ export default function AdminCaregiverDependents() {
       )}
 
       {/* SUMMARY BOTTOM BAR */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-3.5 bg-[#FAF8FC] rounded-xl border border-[#EDE9FE] text-xs font-inter">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-3.5 bg-[#FCF4F5] rounded-xl border border-[#F4DDE2] text-xs font-inter">
         <div className="flex items-center gap-2">
           <span className="font-bold text-[#3a3135]">
             Total: {dependents.length} dependent{dependents.length === 1 ? '' : 's'} linked
@@ -233,7 +233,7 @@ export default function AdminCaregiverDependents() {
         <div className="flex items-center gap-2">
           <Link
             to="/admin/caregivers"
-            className="text-[#7C3AED] font-bold hover:underline"
+            className="text-[#936DA2] font-bold hover:underline"
           >
             ← Return to Caregiver Management
           </Link>

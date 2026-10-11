@@ -68,7 +68,7 @@ export default function HealthScoreRing({
             {/* Dynamic Progress Stroke with Gradient */}
             <defs>
               <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#7C3AED" />
+                <stop offset="0%" stopColor="#936DA2" />
                 <stop offset="50%" stopColor="#EC4899" />
                 <stop offset="100%" stopColor="#10B981" />
               </linearGradient>

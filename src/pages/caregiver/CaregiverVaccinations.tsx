@@ -48,7 +48,7 @@ export default function CaregiverVaccinations() {
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
       {/* Header */}
-      <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#EDE9FE] shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-white rounded-3xl p-6 md:p-8 border border-[#F4DDE2] shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 text-teal-600 mb-1">
             <Syringe className="w-5 h-5" />
@@ -70,7 +70,7 @@ export default function CaregiverVaccinations() {
 
       {/* Vaccinations List or Empty State */}
       {vaccinations.length === 0 ? (
-        <div className="bg-white rounded-3xl p-12 border border-[#EDE9FE] shadow-sm text-center space-y-4">
+        <div className="bg-white rounded-3xl p-12 border border-[#F4DDE2] shadow-sm text-center space-y-4">
           <div className="w-16 h-16 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center mx-auto">
             <Syringe className="w-8 h-8" />
           </div>
@@ -90,7 +90,7 @@ export default function CaregiverVaccinations() {
         {vaccinations.map((v) => (
           <div
             key={v.id}
-            className="p-5 rounded-2xl border border-[#EDE9FE] bg-white hover:border-teal-200 hover:shadow-xs transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs"
+            className="p-5 rounded-2xl border border-[#F4DDE2] bg-white hover:border-teal-200 hover:shadow-xs transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs"
           >
             <div className="flex items-start sm:items-center gap-4">
               <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center font-bold">
@@ -99,14 +99,14 @@ export default function CaregiverVaccinations() {
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
                   <h4 className="font-bold text-[#3a3135] text-base">{v.vaccineName}</h4>
-                  <span className="px-2.5 py-0.5 rounded-full bg-purple-50 text-[#7C3AED] font-bold text-[10px]">
+                  <span className="px-2.5 py-0.5 rounded-full bg-purple-50 text-[#936DA2] font-bold text-[10px]">
                     {v.dependent}
                   </span>
                 </div>
                 <p className="text-[#7a6f75] flex items-center gap-3">
                   <span>Administered: <b className="text-gray-700">{v.date}</b></span>
                   <span>•</span>
-                  <span>Next Due Date: <b className="text-[#7C3AED]">{v.nextDueDate}</b></span>
+                  <span>Next Due Date: <b className="text-[#936DA2]">{v.nextDueDate}</b></span>
                 </p>
               </div>
             </div>
@@ -131,8 +131,8 @@ export default function CaregiverVaccinations() {
       {/* Add Vaccination Modal */}
       {showAddVacModal && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 font-inter">
-          <div className="bg-white rounded-3xl p-6 md:p-8 max-w-md w-full border border-[#EDE9FE] shadow-2xl space-y-4">
-            <div className="flex items-center justify-between border-b border-[#EDE9FE] pb-3">
+          <div className="bg-white rounded-3xl p-6 md:p-8 max-w-md w-full border border-[#F4DDE2] shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-[#F4DDE2] pb-3">
               <h3 className="font-bold text-base text-[#3a3135]">Add Vaccination Record</h3>
               <button onClick={() => setShowAddVacModal(false)} className="p-1 text-gray-400 hover:text-gray-600">
                 <X className="w-4 h-4" />
@@ -151,7 +151,7 @@ export default function CaregiverVaccinations() {
                 <select
                   value={newVac.dependent}
                   onChange={(e) => setNewVac({ ...newVac, dependent: e.target.value })}
-                  className="w-full p-3 rounded-xl border border-[#EDE9FE] bg-white font-medium"
+                  className="w-full p-3 rounded-xl border border-[#F4DDE2] bg-white font-medium"
                 >
                   {dependents.map((d) => (
                     <option key={d.id} value={d.name}>
@@ -171,7 +171,7 @@ export default function CaregiverVaccinations() {
                   className={`w-full p-3 rounded-xl border ${
                     newVac.vaccineName.trim() && newVac.vaccineName.trim().length < 2
                       ? 'border-red-400 focus:border-red-500'
-                      : 'border-[#EDE9FE]'
+                      : 'border-[#F4DDE2]'
                   } text-xs font-medium`}
                   required
                 />
@@ -186,7 +186,7 @@ export default function CaregiverVaccinations() {
                   type="date"
                   value={newVac.date}
                   onChange={(e) => setNewVac({ ...newVac, date: e.target.value })}
-                  className="w-full p-3 rounded-xl border border-[#EDE9FE] bg-white"
+                  className="w-full p-3 rounded-xl border border-[#F4DDE2] bg-white"
                   required
                 />
               </div>
@@ -197,12 +197,12 @@ export default function CaregiverVaccinations() {
                   type="date"
                   value={newVac.nextDueDate}
                   onChange={(e) => setNewVac({ ...newVac, nextDueDate: e.target.value })}
-                  className="w-full p-3 rounded-xl border border-[#EDE9FE] bg-white"
+                  className="w-full p-3 rounded-xl border border-[#F4DDE2] bg-white"
                   required
                 />
               </div>
 
-              <div className="flex gap-2 pt-3 border-t border-[#EDE9FE]">
+              <div className="flex gap-2 pt-3 border-t border-[#F4DDE2]">
                 <button
                   type="submit"
                   className="flex-1 py-3 bg-[#14B8A6] hover:bg-[#0D9488] text-white font-bold rounded-xl cursor-pointer"
@@ -212,7 +212,7 @@ export default function CaregiverVaccinations() {
                 <button
                   type="button"
                   onClick={() => setShowAddVacModal(false)}
-                  className="py-3 px-5 border border-[#EDE9FE] rounded-xl font-bold hover:bg-gray-50 cursor-pointer"
+                  className="py-3 px-5 border border-[#F4DDE2] rounded-xl font-bold hover:bg-gray-50 cursor-pointer"
                 >
                   Cancel
                 </button>

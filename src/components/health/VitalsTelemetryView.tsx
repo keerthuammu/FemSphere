@@ -141,7 +141,7 @@ export default function VitalsTelemetryView() {
               return (
                 <>
                   <path d={areaString} fill="url(#vitalsGrad)" />
-                  <path d={`M ${lineString}`} fill="none" stroke="#7C3AED" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d={`M ${lineString}`} fill="none" stroke="#936DA2" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
                   {currentChartPoints.map((val, idx) => {
                     const x = (idx / (currentChartPoints.length - 1)) * 300;
                     const y = 85 - ((val - minVal) / range) * 65;

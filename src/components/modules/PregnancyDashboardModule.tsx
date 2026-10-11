@@ -118,9 +118,9 @@ export default function PregnancyDashboardModule() {
   };
 
   return (
-    <div className="bg-white rounded-3xl p-6 border border-[#EDE9FE] shadow-sm space-y-6 font-inter">
+    <div className="bg-white rounded-3xl p-6 border border-[#F4DDE2] shadow-sm space-y-6 font-inter">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#EDE9FE] pb-4 gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#F4DDE2] pb-4 gap-4">
         <div className="flex items-center gap-3">
           <div className="w-11 h-11 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center font-bold text-xl shadow-xs">
             🤰
@@ -132,40 +132,40 @@ export default function PregnancyDashboardModule() {
         </div>
 
         <div className="flex items-center gap-2 self-start sm:self-auto">
-          <span className="text-xs px-3.5 py-1.5 rounded-full bg-purple-100 text-[#7C3AED] font-bold shadow-2xs">
+          <span className="text-xs px-3.5 py-1.5 rounded-full bg-purple-100 text-[#936DA2] font-bold shadow-2xs">
             Week {gestationalInfo.weeks} + {gestationalInfo.days}d ({gestationalInfo.trimester})
           </span>
         </div>
       </div>
 
       {/* LMP & Dynamic Gestational Timeline Calculator */}
-      <div className="bg-[#FAF8FC] p-5 rounded-2xl border border-[#EDE9FE] space-y-4">
+      <div className="bg-[#FCF4F5] p-5 rounded-2xl border border-[#F4DDE2] space-y-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2 text-xs">
-            <Calendar className="w-4 h-4 text-[#7C3AED]" />
+            <Calendar className="w-4 h-4 text-[#936DA2]" />
             <span className="font-bold text-[#3a3135]">Last Menstrual Period (LMP):</span>
             <input 
               type="date"
               value={lmpDate}
               onChange={(e) => setLmpDate(e.target.value)}
-              className="px-2.5 py-1 bg-white border border-[#EDE9FE] rounded-lg text-xs font-semibold text-[#7C3AED] focus:outline-none focus:ring-2 focus:ring-[#7C3AED]/20"
+              className="px-2.5 py-1 bg-white border border-[#F4DDE2] rounded-lg text-xs font-semibold text-[#936DA2] focus:outline-none focus:ring-2 focus:ring-[#936DA2]/20"
             />
           </div>
           <div className="text-xs font-semibold text-[#64595e]">
-            Estimated Due Date: <span className="font-bold text-[#7C3AED]">{gestationalInfo.edd}</span>
+            Estimated Due Date: <span className="font-bold text-[#936DA2]">{gestationalInfo.edd}</span>
           </div>
         </div>
 
         <div className="space-y-2">
           <div className="flex justify-between items-center text-xs font-bold text-[#3a3135]">
             <span>Timeline: Week {gestationalInfo.weeks} of 40</span>
-            <span className="text-[#7C3AED] font-semibold flex items-center gap-1.5">
+            <span className="text-[#936DA2] font-semibold flex items-center gap-1.5">
               <Baby className="w-3.5 h-3.5" /> Baby size: {gestationalInfo.babySize}
             </span>
           </div>
-          <div className="w-full bg-[#EDE9FE] h-3 rounded-full overflow-hidden">
+          <div className="w-full bg-[#F4DDE2] h-3 rounded-full overflow-hidden">
             <div 
-              className="bg-gradient-to-r from-[#7C3AED] to-[#EC4899] h-full rounded-full transition-all duration-500" 
+              className="bg-gradient-to-r from-[#936DA2] to-[#EC4899] h-full rounded-full transition-all duration-500" 
               style={{ width: `${Math.min(100, (gestationalInfo.weeks / 40) * 100)}%` }}
             ></div>
           </div>
@@ -174,10 +174,10 @@ export default function PregnancyDashboardModule() {
 
       <div className="grid md:grid-cols-2 gap-5">
         {/* Interactive Fetal Kick Counter */}
-        <div className="bg-[#FAF8FC] p-5 rounded-2xl border border-[#EDE9FE] space-y-4">
+        <div className="bg-[#FCF4F5] p-5 rounded-2xl border border-[#F4DDE2] space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h4 className="font-bold text-xs text-[#7C3AED] uppercase tracking-wider flex items-center gap-1.5">
+              <h4 className="font-bold text-xs text-[#936DA2] uppercase tracking-wider flex items-center gap-1.5">
                 <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500" /> Interactive Fetal Kick Counter
               </h4>
               <p className="text-[11px] text-[#7a6f75]">American College of Obstetricians recommends tracking 10 kicks in 2 hours</p>
@@ -190,10 +190,10 @@ export default function PregnancyDashboardModule() {
           </div>
 
           {/* Kick Counter Tap Surface */}
-          <div className="bg-white p-5 rounded-2xl border border-[#EDE9FE] text-center space-y-4 shadow-2xs">
+          <div className="bg-white p-5 rounded-2xl border border-[#F4DDE2] text-center space-y-4 shadow-2xs">
             <div className="flex items-center justify-center gap-6">
               <div>
-                <span className="text-3xl font-extrabold text-[#7C3AED]">{kickCount}</span>
+                <span className="text-3xl font-extrabold text-[#936DA2]">{kickCount}</span>
                 <span className="text-[11px] text-[#7a6f75] block font-semibold">Kicks Logged</span>
               </div>
               <div className="w-px h-8 bg-gray-200"></div>
@@ -209,7 +209,7 @@ export default function PregnancyDashboardModule() {
               <button
                 type="button"
                 onClick={handleRegisterKick}
-                className="px-6 py-3 bg-gradient-to-r from-[#7C3AED] to-[#EC4899] text-white rounded-xl font-bold text-sm shadow-md hover:opacity-95 active:scale-95 transition-all flex items-center gap-2 cursor-pointer"
+                className="px-6 py-3 bg-gradient-to-r from-[#936DA2] to-[#EC4899] text-white rounded-xl font-bold text-sm shadow-md hover:opacity-95 active:scale-95 transition-all flex items-center gap-2 cursor-pointer"
               >
                 👣 Tap on Movement
               </button>
@@ -225,7 +225,7 @@ export default function PregnancyDashboardModule() {
                 <button
                   type="button"
                   onClick={handleStartKickSession}
-                  className="px-3.5 py-3 bg-purple-100 hover:bg-purple-200 text-[#7C3AED] rounded-xl font-bold text-xs transition-all flex items-center gap-1 cursor-pointer"
+                  className="px-3.5 py-3 bg-purple-100 hover:bg-purple-200 text-[#936DA2] rounded-xl font-bold text-xs transition-all flex items-center gap-1 cursor-pointer"
                 >
                   <Play className="w-3.5 h-3.5" /> Start
                 </button>
@@ -243,20 +243,20 @@ export default function PregnancyDashboardModule() {
           <div className="space-y-1.5 text-xs">
             <span className="text-[10px] font-bold uppercase text-[#7a6f75] tracking-wider">Past Movement Sessions</span>
             {kickHistory.map((s, idx) => (
-              <div key={idx} className="bg-white p-2.5 rounded-xl border border-[#EDE9FE] flex items-center justify-between text-xs">
+              <div key={idx} className="bg-white p-2.5 rounded-xl border border-[#F4DDE2] flex items-center justify-between text-xs">
                 <span className="text-[#3a3135] font-semibold">{s.time}</span>
-                <span className="text-[#7C3AED] font-bold">{s.count} kicks in {s.durationMinutes} min</span>
+                <span className="text-[#936DA2] font-bold">{s.count} kicks in {s.durationMinutes} min</span>
               </div>
             ))}
           </div>
         </div>
 
         {/* Doctor Questions Checklist */}
-        <div className="bg-[#FAF8FC] p-5 rounded-2xl border border-[#EDE9FE] space-y-4 flex flex-col justify-between">
+        <div className="bg-[#FCF4F5] p-5 rounded-2xl border border-[#F4DDE2] space-y-4 flex flex-col justify-between">
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <h4 className="font-bold text-xs text-[#7C3AED] uppercase tracking-wider flex items-center gap-1.5">
-                <Stethoscope className="w-4 h-4 text-[#7C3AED]" /> OB/GYN Consultation Checklist
+              <h4 className="font-bold text-xs text-[#936DA2] uppercase tracking-wider flex items-center gap-1.5">
+                <Stethoscope className="w-4 h-4 text-[#936DA2]" /> OB/GYN Consultation Checklist
               </h4>
               <span className="text-[10px] text-[#7a6f75] font-bold">
                 {checklist.filter(c => c.checked).length}/{checklist.length} Completed
@@ -268,13 +268,13 @@ export default function PregnancyDashboardModule() {
                 <div 
                   key={idx} 
                   onClick={() => toggleCheck(idx)} 
-                  className="bg-white p-3 rounded-xl border border-[#EDE9FE] flex items-center gap-2.5 cursor-pointer hover:border-purple-200 transition-colors shadow-2xs"
+                  className="bg-white p-3 rounded-xl border border-[#F4DDE2] flex items-center gap-2.5 cursor-pointer hover:border-purple-200 transition-colors shadow-2xs"
                 >
                   <input 
                     type="checkbox" 
                     checked={item.checked} 
                     onChange={() => {}} 
-                    className="rounded text-[#7C3AED] cursor-pointer" 
+                    className="rounded text-[#936DA2] cursor-pointer" 
                   />
                   <span className={item.checked ? 'line-through text-gray-400 font-normal' : 'text-[#3a3135] font-medium'}>
                     {item.text}
@@ -291,11 +291,11 @@ export default function PregnancyDashboardModule() {
               placeholder="Add question for next consultation..."
               value={newChecklistText}
               onChange={(e) => setNewChecklistText(e.target.value)}
-              className="flex-1 px-3 py-2 bg-white border border-[#EDE9FE] rounded-xl text-xs text-[#3a3135] focus:outline-none focus:ring-2 focus:ring-[#7C3AED]/20"
+              className="flex-1 px-3 py-2 bg-white border border-[#F4DDE2] rounded-xl text-xs text-[#3a3135] focus:outline-none focus:ring-2 focus:ring-[#936DA2]/20"
             />
             <button
               type="submit"
-              className="px-3 py-2 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1 cursor-pointer shrink-0"
+              className="px-3 py-2 bg-[#936DA2] hover:bg-[#835A92] text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1 cursor-pointer shrink-0"
             >
               <Plus className="w-3.5 h-3.5" /> Add
             </button>

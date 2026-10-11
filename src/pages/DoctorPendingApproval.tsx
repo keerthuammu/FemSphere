@@ -3,7 +3,6 @@ import { useNavigate, Link } from 'react-router-dom';
 import { 
   Clock, 
   ShieldAlert, 
-  Sparkles, 
   RefreshCw, 
   LogOut, 
   Stethoscope, 
@@ -108,10 +107,14 @@ export default function DoctorPendingApproval() {
   return (
     <div className="min-h-screen bg-[#fbf9f6] flex flex-col justify-between font-sans">
       {/* Header Bar */}
-      <header className="px-6 py-4 bg-white border-b border-[#EDE9FE] shadow-sm flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2">
-          <span className="font-serif text-2xl font-bold text-[#7C3AED]">FemSphere</span>
-          <Sparkles className="w-4 h-4 text-[#14B8A6]" />
+      <header className="px-6 py-4 bg-white border-b border-[#F4DDE2] shadow-sm flex items-center justify-between">
+        <Link to="/" className="flex items-center gap-2.5 group">
+          <img
+            src="/femsphere_logo.png"
+            alt="FemSphere Logo"
+            className="w-8 h-8 rounded-full object-contain shadow-xs transition-transform group-hover:scale-105"
+          />
+          <span className="font-serif text-2xl font-bold text-[#936DA2]">FemSphere</span>
         </Link>
         <button
           onClick={handleLogout}
@@ -124,7 +127,7 @@ export default function DoctorPendingApproval() {
 
       {/* Main Content Card */}
       <main className="flex-1 flex items-center justify-center p-6">
-        <div className="max-w-2xl w-full bg-white rounded-3xl shadow-xl border border-[#EDE9FE] p-8 md:p-10 text-center space-y-6">
+        <div className="max-w-2xl w-full bg-white rounded-3xl shadow-xl border border-[#F4DDE2] p-8 md:p-10 text-center space-y-6">
           
           {/* Animated Status Icon */}
           <div className="mx-auto w-20 h-20 rounded-3xl bg-amber-50 border-2 border-amber-200 flex items-center justify-center relative">
@@ -170,15 +173,15 @@ export default function DoctorPendingApproval() {
           )}
 
           {/* Submitted Doctor Details Card */}
-          <div className="bg-[#FAF8FC] rounded-2xl border border-[#EDE9FE] p-5 text-left space-y-3">
+          <div className="bg-[#FCF4F5] rounded-2xl border border-[#F4DDE2] p-5 text-left space-y-3">
             <h3 className="text-xs font-bold text-[#7a6f75] uppercase tracking-wider">Submitted Clinical Details</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
               <div className="flex items-center gap-2.5 text-[#3a3135]">
-                <Stethoscope className="w-4 h-4 text-[#7C3AED] flex-shrink-0" />
+                <Stethoscope className="w-4 h-4 text-[#936DA2] flex-shrink-0" />
                 <span className="font-semibold">Dr. {doctorName}</span>
               </div>
               <div className="flex items-center gap-2.5 text-[#3a3135]">
-                <Mail className="w-4 h-4 text-[#7C3AED] flex-shrink-0" />
+                <Mail className="w-4 h-4 text-[#936DA2] flex-shrink-0" />
                 <span className="truncate">{user?.email || 'doctor@femsphere.health'}</span>
               </div>
               <div className="flex items-center gap-2.5 text-[#3a3135]">
@@ -190,7 +193,7 @@ export default function DoctorPendingApproval() {
                 <span className="truncate">{doctorInfo.hospital_clinic || 'FemSphere Health'}</span>
               </div>
             </div>
-            <div className="pt-2 border-t border-[#EDE9FE] flex items-center justify-between text-xs text-[#7a6f75]">
+            <div className="pt-2 border-t border-[#F4DDE2] flex items-center justify-between text-xs text-[#7a6f75]">
               <span>Specialization: <strong className="text-[#3a3135]">{doctorInfo.specialization || 'Obstetrics & Gynecology'}</strong></span>
               <span className="font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">Pending Review</span>
             </div>
@@ -201,7 +204,7 @@ export default function DoctorPendingApproval() {
             <button
               onClick={checkStatus}
               disabled={isChecking}
-              className="w-full sm:w-auto px-6 py-3 rounded-xl bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-bold text-sm shadow-md shadow-purple-200 flex items-center justify-center gap-2 transition disabled:opacity-60"
+              className="w-full sm:w-auto px-6 py-3 rounded-xl bg-[#936DA2] hover:bg-[#835A92] text-white font-bold text-sm shadow-md shadow-purple-200 flex items-center justify-center gap-2 transition disabled:opacity-60"
             >
               <RefreshCw className={`w-4 h-4 ${isChecking ? 'animate-spin' : ''}`} />
               <span>{isChecking ? 'Checking Admission Status...' : 'Check Approval Status'}</span>
@@ -209,7 +212,7 @@ export default function DoctorPendingApproval() {
 
             <button
               onClick={handleLogout}
-              className="w-full sm:w-auto px-6 py-3 rounded-xl border border-[#EDE9FE] text-[#64595e] hover:bg-gray-50 font-semibold text-sm transition"
+              className="w-full sm:w-auto px-6 py-3 rounded-xl border border-[#F4DDE2] text-[#64595e] hover:bg-gray-50 font-semibold text-sm transition"
             >
               Sign Out
             </button>
@@ -217,7 +220,7 @@ export default function DoctorPendingApproval() {
 
           {/* Reassurance Footer */}
           <p className="text-xs text-[#9c8e96] pt-4 border-t border-[#F3EEFA]">
-            Need immediate administrative assistance? Contact <a href="mailto:admin@femsphere.health" className="text-[#7C3AED] underline">admin@femsphere.health</a> with your Medical License ID.
+            Need immediate administrative assistance? Contact <a href="mailto:admin@femsphere.health" className="text-[#936DA2] underline">admin@femsphere.health</a> with your Medical License ID.
           </p>
         </div>
       </main>

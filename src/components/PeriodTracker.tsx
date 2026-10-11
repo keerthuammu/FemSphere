@@ -143,10 +143,10 @@ export default function PeriodTracker() {
   const moodOptions = ['Energetic', 'Happy', 'Calm', 'Tired', 'Irritable', 'Anxious'];
 
   return (
-    <div className="bg-white rounded-3xl p-6 border border-[#EDE9FE] shadow-sm space-y-6">
+    <div className="bg-white rounded-3xl p-6 border border-[#F4DDE2] shadow-sm space-y-6">
       
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-[#EDE9FE] pb-4">
+      <div className="flex items-center justify-between border-b border-[#F4DDE2] pb-4">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center font-bold">
             🩸
@@ -165,7 +165,7 @@ export default function PeriodTracker() {
       {/* Overview Cards: Current Phase & Predictions */}
       <div className="grid md:grid-cols-3 gap-4">
         {/* Card 1: Cycle Day & Phase */}
-        <div className="bg-[#FAF8FC] p-5 rounded-2xl border border-[#EDE9FE] flex flex-col justify-between space-y-3">
+        <div className="bg-[#FCF4F5] p-5 rounded-2xl border border-[#F4DDE2] flex flex-col justify-between space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-bold text-[#7a6f75] uppercase tracking-wider">Current Cycle Status</span>
             <span className={`text-[11px] px-2.5 py-0.5 rounded-full font-bold border ${metrics.phaseColor}`}>
@@ -179,7 +179,7 @@ export default function PeriodTracker() {
           </div>
 
           {/* Cycle Ring Progress Bar */}
-          <div className="w-full bg-[#EDE9FE] h-2.5 rounded-full overflow-hidden">
+          <div className="w-full bg-[#F4DDE2] h-2.5 rounded-full overflow-hidden">
             <div 
               className="bg-rose-500 h-full rounded-full transition-all duration-500" 
               style={{ width: `${(metrics.currentDay / cycleLengthDays) * 100}%` }}
@@ -188,7 +188,7 @@ export default function PeriodTracker() {
         </div>
 
         {/* Card 2: Next Period Estimate */}
-        <div className="bg-[#FAF8FC] p-5 rounded-2xl border border-[#EDE9FE] flex flex-col justify-between space-y-3">
+        <div className="bg-[#FCF4F5] p-5 rounded-2xl border border-[#F4DDE2] flex flex-col justify-between space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-bold text-[#7a6f75] uppercase tracking-wider">Next Period Prediction</span>
             <Calendar className="w-4 h-4 text-rose-500" />
@@ -200,14 +200,14 @@ export default function PeriodTracker() {
             <p className="text-xs text-rose-600 font-semibold mt-1">Predictions are estimated based on your 28-day historical average.</p>
           </div>
 
-          <div className="p-2 bg-white rounded-xl border border-[#EDE9FE] text-[11px] text-[#64595e] flex items-center justify-between font-mono">
+          <div className="p-2 bg-white rounded-xl border border-[#F4DDE2] text-[11px] text-[#64595e] flex items-center justify-between font-mono">
             <span>Cycle Length:</span>
-            <span className="font-bold text-[#7C3AED]">{cycleLengthDays} Days</span>
+            <span className="font-bold text-[#936DA2]">{cycleLengthDays} Days</span>
           </div>
         </div>
 
         {/* Card 3: Fertile Window */}
-        <div className="bg-[#FAF8FC] p-5 rounded-2xl border border-[#EDE9FE] flex flex-col justify-between space-y-3">
+        <div className="bg-[#FCF4F5] p-5 rounded-2xl border border-[#F4DDE2] flex flex-col justify-between space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-bold text-[#7a6f75] uppercase tracking-wider">Estimated Fertile Window</span>
             <Sparkles className="w-4 h-4 text-purple-500" />
@@ -219,7 +219,7 @@ export default function PeriodTracker() {
             <p className="text-xs text-purple-700 font-medium mt-1">Peak ovulation estimated around Day 14 of your cycle.</p>
           </div>
 
-          <div className="p-2 bg-white rounded-xl border border-[#EDE9FE] text-[11px] text-[#64595e] flex items-center justify-between font-mono">
+          <div className="p-2 bg-white rounded-xl border border-[#F4DDE2] text-[11px] text-[#64595e] flex items-center justify-between font-mono">
             <span>LH Peak Window:</span>
             <span className="font-bold text-purple-600">Optimal</span>
           </div>
@@ -227,9 +227,9 @@ export default function PeriodTracker() {
       </div>
 
       {/* Log Period Entry Form */}
-      <div className="bg-[#FAF8FC] p-6 rounded-3xl border border-[#EDE9FE] space-y-5">
-        <div className="flex items-center justify-between border-b border-[#EDE9FE] pb-3">
-          <div className="flex items-center gap-2 text-[#7C3AED]">
+      <div className="bg-[#FCF4F5] p-6 rounded-3xl border border-[#F4DDE2] space-y-5">
+        <div className="flex items-center justify-between border-b border-[#F4DDE2] pb-3">
+          <div className="flex items-center gap-2 text-[#936DA2]">
             <Plus className="w-4 h-4" />
             <h4 className="font-bold text-xs uppercase tracking-wider">Log New Period & Menstrual Symptoms</h4>
           </div>
@@ -258,7 +258,7 @@ export default function PeriodTracker() {
                 className={`w-full px-4 py-2.5 rounded-xl border ${
                   periodStartDate && !isPastOrToday(periodStartDate)
                     ? 'border-red-400 focus:border-red-500'
-                    : 'border-[#EDE9FE] focus:border-[#7C3AED]'
+                    : 'border-[#F4DDE2] focus:border-[#936DA2]'
                 } outline-none text-sm bg-white font-medium`}
                 required
               />
@@ -276,7 +276,7 @@ export default function PeriodTracker() {
                 className={`w-full px-4 py-2.5 rounded-xl border ${
                   periodStartDate && periodEndDate && !isChronological(periodStartDate, periodEndDate)
                     ? 'border-red-400 focus:border-red-500'
-                    : 'border-[#EDE9FE] focus:border-[#7C3AED]'
+                    : 'border-[#F4DDE2] focus:border-[#936DA2]'
                 } outline-none text-sm bg-white font-medium`}
                 required
               />
@@ -290,7 +290,7 @@ export default function PeriodTracker() {
               <select
                 value={flowRate}
                 onChange={(e) => setFlowRate(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] outline-none text-sm bg-white font-bold text-[#7C3AED]"
+                className="w-full px-4 py-2.5 rounded-xl border border-[#F4DDE2] focus:border-[#936DA2] outline-none text-sm bg-white font-bold text-[#936DA2]"
               >
                 <option value="Spotting">Spotting (Very Light)</option>
                 <option value="Light">Light Flow</option>
@@ -316,7 +316,7 @@ export default function PeriodTracker() {
                     className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all ${
                       isSelected
                         ? 'bg-rose-500 text-white border-rose-500 shadow-xs'
-                        : 'bg-white text-[#64595e] border-[#EDE9FE] hover:border-rose-300'
+                        : 'bg-white text-[#64595e] border-[#F4DDE2] hover:border-rose-300'
                     }`}
                   >
                     {sym} {isSelected ? '✓' : '+'}
@@ -341,8 +341,8 @@ export default function PeriodTracker() {
                     onClick={() => setSelectedMood(m)}
                     className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold border transition-all ${
                       isSelected
-                        ? 'bg-[#7C3AED] text-white border-[#7C3AED] shadow-xs'
-                        : 'bg-white text-[#64595e] border-[#EDE9FE] hover:border-[#7C3AED]'
+                        ? 'bg-[#936DA2] text-white border-[#936DA2] shadow-xs'
+                        : 'bg-white text-[#64595e] border-[#F4DDE2] hover:border-[#936DA2]'
                     }`}
                   >
                     {m}
@@ -369,9 +369,9 @@ export default function PeriodTracker() {
           <span className="text-xs text-[#7a6f75]">Showing past {cycleHistory.length} cycles</span>
         </div>
 
-        <div className="overflow-x-auto rounded-2xl border border-[#EDE9FE]">
+        <div className="overflow-x-auto rounded-2xl border border-[#F4DDE2]">
           <table className="w-full text-left text-xs">
-            <thead className="bg-[#FAF8FC] text-[#7C3AED] font-bold border-b border-[#EDE9FE]">
+            <thead className="bg-[#FCF4F5] text-[#936DA2] font-bold border-b border-[#F4DDE2]">
               <tr>
                 <th className="p-3.5">Period Dates</th>
                 <th className="p-3.5">Duration</th>
@@ -380,9 +380,9 @@ export default function PeriodTracker() {
                 <th className="p-3.5">Symptoms Logged</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#EDE9FE] bg-white">
+            <tbody className="divide-y divide-[#F4DDE2] bg-white">
               {cycleHistory.map((cyc) => (
-                <tr key={cyc.id} className="hover:bg-[#F5F3FF]/50 transition-colors">
+                <tr key={cyc.id} className="hover:bg-[#F9E8EC]/50 transition-colors">
                   <td className="p-3.5 font-bold text-[#3a3135]">{cyc.startDate} → {cyc.endDate}</td>
                   <td className="p-3.5">{cyc.duration} Days</td>
                   <td className="p-3.5">{cyc.cycleLength} Days</td>
