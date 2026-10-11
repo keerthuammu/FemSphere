@@ -1,4 +1,5 @@
 import pool from '../config/db.js';
+import { determineBiologicalLifeStage } from '../services/lifeStageService.js';
 
 export const getUsers = async (req, res) => {
   try {
@@ -49,6 +50,8 @@ export const updateUserProfile = async (req, res) => {
       emergencyContactPhone,
       emergencyContact,
       address,
+      menarcheStarted,
+      menarche_started,
       specialization,
       spec,
       hospitalClinic,
@@ -60,13 +63,28 @@ export const updateUserProfile = async (req, res) => {
 
     const resolvedName = fullName || name;
     const resolvedDob = (dob && typeof dob === 'string' && dob.trim() !== '') ? dob.trim() : null;
-    const resolvedBloodGroup = bloodGroup || blood_group;
+    const normalizeBloodGroup = (bg) => {
+      if (!bg || typeof bg !== 'string') return null;
+      const clean = bg.trim();
+      const match = clean.match(/\((A\+|A-|B\+|B-|AB\+|AB-|O\+|O-)\)/i);
+      if (match) return match[1].toUpperCase();
+      const direct = clean.toUpperCase();
+      const valid = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'UNKNOWN'];
+      if (valid.includes(direct)) {
+        return direct === 'UNKNOWN' ? 'Unknown' : direct;
+      }
+      return 'Unknown';
+    };
+    const resolvedBloodGroup = normalizeBloodGroup(bloodGroup || blood_group);
     const resolvedHeight = (heightCm || height) ? parseFloat(heightCm || height) : null;
     const resolvedWeight = (weightKg || weight) ? parseFloat(weightKg || weight) : null;
     const resolvedPhone = phone || mobile || emergencyContactPhone;
     const resolvedEmergencyName = emergencyContactName || (emergencyContact ? emergencyContact.split('(')[0].trim() : null);
     const resolvedEmergencyPhone = emergencyContactPhone || (emergencyContact && emergencyContact.includes('+') ? emergencyContact.match(/\+[\d\s-()]*/)?.[0] : null) || resolvedPhone;
     const resolvedAddress = address || null;
+    const resolvedMenarche = menarcheStarted !== undefined 
+      ? Boolean(menarcheStarted) 
+      : (menarche_started !== undefined ? Boolean(menarche_started) : null);
 
     // 1. Update email in users table if provided
     if (email && email.trim() !== '') {
@@ -87,6 +105,7 @@ export const updateUserProfile = async (req, res) => {
            emergency_contact_name = COALESCE($6, emergency_contact_name),
            emergency_contact_phone = COALESCE($7, emergency_contact_phone),
            address = COALESCE($8, address),
+           menarche_started = COALESCE($10, menarche_started),
            updated_at = CURRENT_TIMESTAMP
        WHERE user_id = $9 RETURNING *`,
       [
@@ -98,15 +117,16 @@ export const updateUserProfile = async (req, res) => {
         resolvedEmergencyName, 
         resolvedEmergencyPhone, 
         resolvedAddress, 
-        userId
+        userId,
+        resolvedMenarche
       ]
     );
 
     if (profileRes.rows.length === 0) {
       profileRes = await pool.query(
         `INSERT INTO user_profiles (
-          user_id, full_name, dob, blood_group, height_cm, weight_kg, emergency_contact_name, emergency_contact_phone, address
-        ) VALUES ($1, $2, COALESCE($3, '1995-01-01'::date), $4, $5, $6, $7, $8, $9) RETURNING *`,
+          user_id, full_name, dob, blood_group, height_cm, weight_kg, emergency_contact_name, emergency_contact_phone, address, menarche_started
+        ) VALUES ($1, $2, COALESCE($3, '1995-01-01'::date), $4, $5, $6, $7, $8, $9, COALESCE($10, TRUE)) RETURNING *`,
         [
           userId, 
           resolvedName || 'User', 
@@ -116,10 +136,38 @@ export const updateUserProfile = async (req, res) => {
           resolvedWeight || 60, 
           resolvedEmergencyName || '', 
           resolvedEmergencyPhone || '',
-          resolvedAddress || ''
+          resolvedAddress || '',
+          resolvedMenarche
         ]
       );
     }
+
+    // Check pregnancy status to determine biological life stage
+    const pregCheck = await pool.query(`SELECT is_pregnant FROM period_settings WHERE user_id = $1`, [userId]);
+    const isUserPregnant = Boolean(pregCheck.rows[0]?.is_pregnant);
+    const activeDob = profileRes.rows[0]?.dob;
+    const activeMenarche = profileRes.rows[0]?.menarche_started !== false;
+
+    const dynamicStage = determineBiologicalLifeStage({
+      dob: activeDob,
+      menarcheStarted: activeMenarche,
+      isPregnant: isUserPregnant
+    });
+
+    await pool.query(
+      `UPDATE user_profiles SET life_stage = $1 WHERE user_id = $2`,
+      [dynamicStage.name, userId]
+    );
+
+    await pool.query(
+      `UPDATE user_life_stages SET is_current = FALSE WHERE user_id = $1`,
+      [userId]
+    );
+    await pool.query(
+      `INSERT INTO user_life_stages (user_id, life_stage_code, is_current, manually_set, enabled_modules)
+       VALUES ($1, $2, TRUE, FALSE, $3)`,
+      [userId, dynamicStage.code, JSON.stringify(dynamicStage.enabledModules || [])]
+    );
 
     // 3. Update doctors table if doctor fields provided
     if (specialization || spec || hospitalClinic || hospital) {

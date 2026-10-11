@@ -138,6 +138,8 @@ class ApiConstants {
   static String get consents => '$baseUrl/privacy/consents';
   static String get partnerSharedHealth => '$baseUrl/privacy/partner/shared-health';
   static String get periodTrackerOverview => '$baseUrl/period-tracker/overview';
+  static String get pregnancyActivate => '$baseUrl/period-tracker/pregnancy/activate';
+  static String get pregnancyDeactivate => '$baseUrl/period-tracker/pregnancy/deactivate';
 
   // Universal Wearables & Smartwatches
   static String get wearablesDevices => '$baseUrl/wearables/devices';

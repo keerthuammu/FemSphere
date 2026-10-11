@@ -81,6 +81,43 @@ export const register = async (req, res) => {
 
     const newUser = userResult.rows[0];
 
+    // Helper to normalize blood group (e.g., 'A Positive (A+)' -> 'A+')
+    const normalizeBloodGroup = (bg) => {
+      if (!bg || typeof bg !== 'string') return 'Unknown';
+      const clean = bg.trim();
+      const match = clean.match(/\((A\+|A-|B\+|B-|AB\+|AB-|O\+|O-)\)/i);
+      if (match) return match[1].toUpperCase();
+      const direct = clean.toUpperCase();
+      const valid = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'UNKNOWN'];
+      if (valid.includes(direct)) {
+        return direct === 'UNKNOWN' ? 'Unknown' : direct;
+      }
+      return 'Unknown';
+    };
+
+    const finalBloodGroup = normalizeBloodGroup(bloodGroup);
+
+    // Compute automatic life stage from DOB if not explicitly specified
+    let finalLifeStage = lifeStage;
+    if (!finalLifeStage || finalLifeStage.trim() === '') {
+      if (dob) {
+        const birthDate = new Date(dob);
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const m = today.getMonth() - birthDate.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+          age--;
+        }
+        if (age < 12) finalLifeStage = 'Childhood';
+        else if (age <= 18) finalLifeStage = 'Adolescence';
+        else if (age <= 42) finalLifeStage = 'Reproductive Age';
+        else if (age <= 50) finalLifeStage = 'Perimenopause';
+        else finalLifeStage = 'Menopause';
+      } else {
+        finalLifeStage = 'Reproductive Age';
+      }
+    }
+
     // Insert into user_profiles table
     const profileResult = await client.query(
       `INSERT INTO user_profiles (
@@ -93,12 +130,12 @@ export const register = async (req, res) => {
         fullName || username,
         dob || '1995-01-01',
         gender || 'Female',
-        bloodGroup || 'A+',
+        finalBloodGroup,
         heightCm ? parseFloat(heightCm) : 165,
         weightKg ? parseFloat(weightKg) : 60,
         maritalStatus || 'Single',
-        lifeStage || 'Reproductive Age',
-        wearableDevice || 'Apple Watch',
+        finalLifeStage,
+        wearableDevice || 'None',
         emergencyContactName || '',
         emergencyContactPhone || mobileNumber || ''
       ]
@@ -155,7 +192,7 @@ export const register = async (req, res) => {
             dependentName,
             dependentDob || '2020-01-01',
             relationship || 'Child',
-            dependentBloodGroup || 'A+',
+            normalizeBloodGroup(dependentBloodGroup),
             dependentMedicalNotes || ''
           ]
         );

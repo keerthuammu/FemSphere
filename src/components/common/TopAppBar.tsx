@@ -5,8 +5,6 @@ import {
   Moon,
   Sun,
   ShieldAlert,
-  Smartphone,
-  Maximize2,
   Sparkles,
   ChevronDown
 } from 'lucide-react';
@@ -19,8 +17,6 @@ export default function TopAppBar() {
     setRole,
     isDark,
     toggleTheme,
-    isPhoneFrame,
-    togglePhoneFrame,
     notifications,
     setIsNotificationOpen,
     setIsSearchOpen,
@@ -124,16 +120,6 @@ export default function TopAppBar() {
             title={isDark ? 'Light Theme' : 'Dark Theme'}
           >
             {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-600" />}
-          </button>
-
-          {/* Frame Toggle (Phone frame / Full width) */}
-          <button
-            onClick={togglePhoneFrame}
-            aria-label={isPhoneFrame ? 'Switch to responsive view' : 'Switch to mobile phone frame view'}
-            className="hidden sm:flex w-9 h-9 rounded-full items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-purple-50 dark:hover:bg-slate-800 transition-colors"
-            title={isPhoneFrame ? 'Expand to Full View' : 'Switch to Phone View'}
-          >
-            {isPhoneFrame ? <Maximize2 className="w-4 h-4" /> : <Smartphone className="w-4 h-4" />}
           </button>
 
           {/* Profile mini avatar */}

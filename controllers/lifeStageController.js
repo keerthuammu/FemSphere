@@ -1,4 +1,5 @@
 import pool from '../config/db.js';
+import { determineBiologicalLifeStage, calculateAgeFromDob } from '../services/lifeStageService.js';
 
 // Get all reference life stages
 export const getAllLifeStages = async (req, res) => {
@@ -10,105 +11,159 @@ export const getAllLifeStages = async (req, res) => {
   }
 };
 
-// Get user's current life stage
+// Get user's dynamic biological life stage (derived from DOB, age, menarche onset, and pregnancy)
 export const getUserLifeStage = async (req, res) => {
   try {
     const userId = req.user.id;
-    const currentStageQuery = await pool.query(
-      `SELECT uls.*, ls.name, ls.description, ls.min_age, ls.max_age
-       FROM user_life_stages uls
-       JOIN life_stages ls ON uls.life_stage_code = ls.code
-       WHERE uls.user_id = $1 AND uls.is_current = TRUE
-       LIMIT 1`,
+
+    // Fetch user profile (dob, menarche_started)
+    const profileRes = await pool.query(
+      `SELECT dob, menarche_started, full_name, life_stage FROM user_profiles WHERE user_id = $1`,
       [userId]
     );
 
-    if (currentStageQuery.rows.length > 0) {
-      return res.json({ success: true, currentStage: currentStageQuery.rows[0] });
-    }
-
-    // Auto-suggest stage based on user DOB or profile if available
-    const userProfileQuery = await pool.query(
-      `SELECT dob, life_stage FROM user_profiles WHERE user_id = $1`,
+    // Fetch period settings (pregnancy state)
+    const settingsRes = await pool.query(
+      `SELECT is_pregnant, pregnancy_start_date FROM period_settings WHERE user_id = $1`,
       [userId]
     );
 
-    let suggestedCode = 'REPRODUCTIVE_AGE';
-    if (userProfileQuery.rows.length > 0 && userProfileQuery.rows[0].dob) {
-      const dob = new Date(userProfileQuery.rows[0].dob);
-      const age = new Date().getFullYear() - dob.getFullYear();
+    const profile = profileRes.rows[0] || {};
+    const periodSettings = settingsRes.rows[0] || {};
 
-      if (age <= 5) suggestedCode = 'EARLY_CHILDHOOD';
-      else if (age <= 10) suggestedCode = 'PRE_PUBERTY';
-      else if (age <= 13) suggestedCode = 'PUBERTY';
-      else if (age <= 17) suggestedCode = 'MENSTRUATING_ADOLESCENT';
-      else if (age <= 24) suggestedCode = 'YOUNG_ADULT';
-      else if (age <= 39) suggestedCode = 'REPRODUCTIVE_AGE';
-      else if (age <= 54) suggestedCode = 'PERIMENOPAUSE';
-      else if (age <= 64) suggestedCode = 'MENOPAUSE';
-      else suggestedCode = 'OLDER_ADULT';
+    const isPregnant = Boolean(periodSettings.is_pregnant);
+    const menarcheStarted = profile.menarche_started !== false;
+    const dob = profile.dob || '1998-05-15';
+
+    // Determine biological life stage dynamically
+    const stage = determineBiologicalLifeStage({
+      dob,
+      menarcheStarted,
+      isPregnant
+    });
+
+    // Synchronize user_profiles table if stage name differs
+    if (profile.life_stage !== stage.name) {
+      await pool.query(
+        `UPDATE user_profiles SET life_stage = $1, updated_at = CURRENT_TIMESTAMP WHERE user_id = $2`,
+        [stage.name, userId]
+      );
     }
 
-    const lsRef = await pool.query(`SELECT * FROM life_stages WHERE code = $1`, [suggestedCode]);
+    // Synchronize user_life_stages active record
+    await pool.query(
+      `UPDATE user_life_stages SET is_current = FALSE WHERE user_id = $1`,
+      [userId]
+    );
+    await pool.query(
+      `INSERT INTO user_life_stages (user_id, life_stage_code, is_current, manually_set, enabled_modules)
+       VALUES ($1, $2, TRUE, FALSE, $3)`,
+      [userId, stage.code, JSON.stringify(stage.enabledModules || [])]
+    );
+
     res.json({
       success: true,
       currentStage: {
         user_id: userId,
-        life_stage_code: suggestedCode,
+        life_stage_code: stage.code,
+        name: stage.name,
+        description: stage.description,
+        age: stage.age,
+        dob: stage.dob,
+        menarche_started: stage.menarcheStarted,
+        is_pregnant: stage.isPregnant,
         is_current: true,
         manually_set: false,
-        name: lsRef.rows[0]?.name || 'Reproductive Age',
-        description: lsRef.rows[0]?.description || '',
-        enabled_modules: ['General Health', 'Cycle & Periods', 'Personal Insights']
+        enabled_modules: stage.enabledModules
       }
     });
   } catch (err) {
+    console.error('Error fetching dynamic life stage:', err);
     res.status(500).json({ success: false, message: err.message });
   }
 };
 
-// Set or update user's active life stage
+// Set or fine-tune user's biological life stage factors (e.g., DOB or menarche onset)
 export const setUserLifeStage = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { lifeStageCode, enabledModules, isManual } = req.body;
+    const { dob, menarcheStarted, lifeStageCode } = req.body;
 
-    if (!lifeStageCode) {
-      return res.status(400).json({ success: false, message: 'lifeStageCode is required.' });
-    }
-
-    // Verify stage exists
-    const lsCheck = await pool.query(`SELECT code FROM life_stages WHERE code = $1`, [lifeStageCode]);
-    if (lsCheck.rows.length === 0) {
-      return res.status(400).json({ success: false, message: 'Invalid lifeStageCode.' });
-    }
-
-    // Mark previous active stage as not current
-    await pool.query(`UPDATE user_life_stages SET is_current = FALSE WHERE user_id = $1`, [userId]);
-
-    // Insert new active stage
-    const insertRes = await pool.query(
-      `INSERT INTO user_life_stages (user_id, life_stage_code, is_current, manually_set, enabled_modules)
-       VALUES ($1, $2, TRUE, $3, $4)
-       RETURNING *`,
-      [userId, lifeStageCode, isManual !== false, JSON.stringify(enabledModules || [])]
+    // Fetch existing profile
+    const profileRes = await pool.query(
+      `SELECT dob, menarche_started FROM user_profiles WHERE user_id = $1`,
+      [userId]
     );
 
-    // Update user_profiles life_stage string as well
-    const lsInfo = await pool.query(`SELECT name FROM life_stages WHERE code = $1`, [lifeStageCode]);
-    if (lsInfo.rows.length > 0) {
-      await pool.query(`UPDATE user_profiles SET life_stage = $1 WHERE user_id = $2`, [lsInfo.rows[0].name, userId]);
+    const effectiveDob = dob || profileRes.rows[0]?.dob || '1998-05-15';
+    let effectiveMenarche = menarcheStarted !== undefined 
+      ? Boolean(menarcheStarted) 
+      : (profileRes.rows[0]?.menarche_started !== false);
+
+    // If an explicit lifeStageCode was sent (e.g. from legacy UI or adolescent toggle)
+    if (lifeStageCode === 'PUBERTY') {
+      // User indicates puberty stage (menarche may not have started yet if young)
+      effectiveMenarche = false;
+    } else if (lifeStageCode === 'MENSTRUATING_ADOLESCENT') {
+      effectiveMenarche = true;
     }
+
+    // Check pregnancy state
+    const settingsRes = await pool.query(
+      `SELECT is_pregnant FROM period_settings WHERE user_id = $1`,
+      [userId]
+    );
+    const isPregnant = Boolean(settingsRes.rows[0]?.is_pregnant);
+
+    // Update user profile with calibrated biological factors
+    await pool.query(
+      `UPDATE user_profiles 
+       SET dob = COALESCE($1, dob), 
+           menarche_started = $2,
+           updated_at = CURRENT_TIMESTAMP
+       WHERE user_id = $3`,
+      [dob || null, effectiveMenarche, userId]
+    );
+
+    // Calculate dynamic stage
+    const stage = determineBiologicalLifeStage({
+      dob: effectiveDob,
+      menarcheStarted: effectiveMenarche,
+      isPregnant
+    });
+
+    await pool.query(
+      `UPDATE user_profiles SET life_stage = $1, updated_at = CURRENT_TIMESTAMP WHERE user_id = $2`,
+      [stage.name, userId]
+    );
+
+    await pool.query(
+      `UPDATE user_life_stages SET is_current = FALSE WHERE user_id = $1`,
+      [userId]
+    );
+    const insertRes = await pool.query(
+      `INSERT INTO user_life_stages (user_id, life_stage_code, is_current, manually_set, enabled_modules)
+       VALUES ($1, $2, TRUE, TRUE, $3)
+       RETURNING *`,
+      [userId, stage.code, JSON.stringify(stage.enabledModules || [])]
+    );
 
     res.json({
       success: true,
-      message: 'Life stage updated successfully.',
+      message: `Biological profile updated: Life stage set to ${stage.name}.`,
       currentStage: {
         ...insertRes.rows[0],
-        name: lsInfo.rows[0]?.name
+        name: stage.name,
+        description: stage.description,
+        age: stage.age,
+        dob: stage.dob,
+        menarche_started: stage.menarcheStarted,
+        is_pregnant: stage.isPregnant,
+        enabled_modules: stage.enabledModules
       }
     });
   } catch (err) {
+    console.error('Error updating biological life stage:', err);
     res.status(500).json({ success: false, message: err.message });
   }
 };

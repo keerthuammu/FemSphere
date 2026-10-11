@@ -40,7 +40,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   String _bloodGroup = 'A+';
   final _heightController = TextEditingController(text: '165');
   final _weightController = TextEditingController(text: '58');
-  String _lifeStage = 'Reproductive Age (25–39)';
   final _emergencyNameController = TextEditingController();
   final _emergencyPhoneController = TextEditingController();
 
@@ -70,20 +69,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     'CREDENTIALS',
     'HEALTH INFO',
     'CONSENT',
-  ];
-
-  final List<String> _lifeStageOptions = const [
-    'Early Childhood (0–5)',
-    'Pre-Puberty (6–10)',
-    'Puberty (11–13)',
-    'Adolescent (14–17)',
-    'Young Adult (18–24)',
-    'Reproductive Age (25–39)',
-    'Pregnancy (40 Weeks)',
-    'Postpartum (4th Trimester)',
-    'Perimenopause (40–48)',
-    'Menopause (49–59)',
-    'Older Adult (60+)',
   ];
 
   final List<String> _specializationOptions = const [
@@ -233,7 +218,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
       'bloodGroup': _bloodGroup,
       'heightCm': _heightController.text,
       'weightKg': _weightController.text,
-      'lifeStage': _lifeStage,
       'emergencyContactName': _emergencyNameController.text.trim(),
       'emergencyContactPhone': _emergencyPhoneController.text.trim(),
       'caregiverRelationship': _caregiverRelationship,
@@ -1150,14 +1134,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
             ),
           ],
-        ),
-        const SizedBox(height: 14),
-
-        _buildTextFieldLabel('ADAPTIVE LIFE STAGE'),
-        _buildDropdown(
-          value: _lifeStage,
-          items: _lifeStageOptions,
-          onChanged: (val) => setState(() => _lifeStage = val!),
         ),
         const SizedBox(height: 14),
 

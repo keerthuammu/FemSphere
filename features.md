@@ -12,10 +12,11 @@
 ---
 
 ### 2. Adaptive Life Stage Navigation & Specialized Health Modules
-- **Life Stage Transition Selector & Onboarding**:
-  - Dynamic adaptation across female biological life stages: Early Childhood, Puberty & Adolescence, Young Adult, Reproductive Age, Perimenopause, Menopause, and Healthy Aging.
+- **Dynamic Biological Life Stage Engine**:
+  - Automatically derives the user's biological health stage from Date of Birth (DOB) and clinical milestones (Early Childhood, Pre-Puberty, Puberty, Adolescent Health, Young Adult, Reproductive Age, Perimenopause, Menopause, Older Adult).
+  - Eliminates artificial manual dropdowns while supporting physiological onset calibration in Settings & Profile (e.g. adolescent menarche / first period started status).
 - **Specialty Health Journeys**:
-  - **Pregnancy Mode**: Trimester-by-trimester tracking, gestational week calculations, fetal development milestones, kick counter, and prenatal checkup logs.
+  - **Pregnancy & Maternity Mode**: Directly integrated with the Period Tracker; activates gestational weeks & days computation, EDD countdown, fetal milestones (fruit size), daily kick counter, and prenatal clinical checklist.
   - **Postpartum Care**: Fourth trimester recovery tracking, pelvic floor rehabilitation, lochia monitoring, breastfeeding/pumping logs, and postpartum depression (EPDS) screening.
   - **Perimenopause & Menopause Navigator**: Vasomotor symptom tracking (hot flashes, night sweats), hormone balance metrics, bone density monitoring, and sleep disruption analysis.
   - **PCOS / Endometriosis Management**: Symptom logging, cycle irregularity assessment, basal body temperature charting, and ovulation flare-up detection.
@@ -31,6 +32,10 @@
   - Fertile window predictions, next period forecast, cycle length and period duration calculations.
   - Flow intensity logging (Light, Medium, Heavy, Spotting).
   - Cycle delay adjustment and historical cycle logging.
+- **Embedded Pregnancy / Maternity Hub**:
+  - Positive pregnancy test logging directly inside the Period Tracker.
+  - Automatically pauses menstrual countdown and replaces normal cycle dial with real-time **Maternity & Fetal Hub** (gestational weeks/days, trimester progress, EDD countdown, interactive kick counter, clinical checklist).
+  - One-click option to conclude pregnancy and resume standard menstrual tracking seamlessly.
 - **Doctor Cycle Sharing**:
   - Secure clinical sharing of cycle history with treating physicians during consultations.
 

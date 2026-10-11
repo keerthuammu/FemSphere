@@ -44,6 +44,7 @@ CREATE TABLE IF NOT EXISTS user_profiles (
     weight_kg NUMERIC(5,2) CHECK (weight_kg IS NULL OR (weight_kg > 2.0 AND weight_kg < 450.0)),
     marital_status VARCHAR(30) CHECK (marital_status IS NULL OR marital_status IN ('Single', 'Married', 'Divorced', 'Widowed', 'Partnered')),
     life_stage VARCHAR(50),
+    menarche_started BOOLEAN DEFAULT TRUE,
     wearable_device VARCHAR(50) DEFAULT 'Apple Watch',
     emergency_contact_name VARCHAR(150),
     emergency_contact_phone VARCHAR(50),
@@ -338,6 +339,9 @@ CREATE TABLE IF NOT EXISTS period_settings (
     period_duration INT NOT NULL DEFAULT 5,
     cycle_length INT NOT NULL DEFAULT 28,
     is_configured BOOLEAN DEFAULT TRUE,
+    is_pregnant BOOLEAN DEFAULT FALSE,
+    pregnancy_start_date DATE,
+    gestational_target_edd DATE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );

@@ -53,6 +53,7 @@ export interface UserProfile {
   email: string;
   address: string;
   emergencyContact: string;
+  menarcheStarted?: boolean;
 }
 
 export interface MedicalRecordItem {
@@ -197,6 +198,9 @@ export interface PeriodSettings {
   periodDuration: number;
   cycleLength: number;
   isConfigured: boolean;
+  isPregnant?: boolean;
+  pregnancyStartDate?: string | null;
+  gestationalTargetEdd?: string | null;
   updatedAt?: string;
 }
 
@@ -218,7 +222,7 @@ export interface PeriodMetrics {
   cycleLength: number;
   periodDuration: number;
   lastPeriodStart: string;
-  phaseCode: 'MENSTRUAL' | 'FOLLICULAR' | 'OVULATORY' | 'LUTEAL' | 'DELAYED';
+  phaseCode: 'MENSTRUAL' | 'FOLLICULAR' | 'OVULATORY' | 'LUTEAL' | 'DELAYED' | 'PREGNANCY';
   phaseName: string;
   phaseBadge: string;
   phaseColor: string;
@@ -230,7 +234,19 @@ export interface PeriodMetrics {
   nextPeriodDateStr: string;
   ovulationDateStr: string;
   fertileWindowStr: string;
-  phasesOverview: PhaseOverviewItem[];
+  phasesOverview?: PhaseOverviewItem[];
+  isPregnant?: boolean;
+  pregnancyStartDate?: string;
+  gestationalWeeks?: number;
+  gestationalDays?: number;
+  totalDaysPregnant?: number;
+  edd?: string;
+  daysRemaining?: number;
+  trimester?: number;
+  trimesterName?: string;
+  babySize?: string;
+  babyIcon?: string;
+  prenatalChecklist?: Array<{ id: number; week: string; title: string; completed: boolean }>;
 }
 
 export interface CycleHistoryItem {
@@ -427,6 +443,8 @@ interface UserContextType {
   handleSavePeriodSetup: (data: { lastPeriodStart: string; periodDuration: number; cycleLength: number }) => Promise<boolean>;
   handleLogPeriodEntry: (data: { startDate: string; endDate?: string; durationDays?: number; flowIntensity: string; symptoms: string[]; mood: string; notes?: string }) => Promise<boolean>;
   handleAdjustCycleDelay: (newCycleLength?: number, delayDays?: number) => Promise<boolean>;
+  handleActivatePregnancy: (lmpDate?: string) => Promise<boolean>;
+  handleDeactivatePregnancy: (resumePeriodDate?: string) => Promise<boolean>;
 
   // Logout
   handleLogout: () => void;
@@ -615,7 +633,6 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [activeVideoConsultation, setActiveVideoConsultation] = useState<ActiveVideoConsultation | null>(null);
 
   // Period & Menstrual Cycle Tracker State
-  const isReproductiveAgeUser = currentStageCode === 'REPRODUCTIVE_AGE' || currentStageCode === 'YOUNG_ADULT';
   const [isPeriodTrackerConfigured, setIsPeriodTrackerConfigured] = useState(false);
   const [periodSettings, setPeriodSettings] = useState<PeriodSettings | null>(null);
   const [periodMetrics, setPeriodMetrics] = useState<PeriodMetrics | null>(null);
@@ -624,6 +641,14 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [menstrualTips, setMenstrualTips] = useState<MenstrualTip[]>([]);
   const [isLoadingPeriodData, setIsLoadingPeriodData] = useState(false);
   const [periodErrorMsg, setPeriodErrorMsg] = useState<string | null>(null);
+
+  const isReproductiveAgeUser = 
+    Boolean(periodSettings?.isPregnant) ||
+    currentStageCode === 'PREGNANCY' ||
+    currentStageCode === 'REPRODUCTIVE_AGE' || 
+    currentStageCode === 'YOUNG_ADULT' ||
+    currentStageCode === 'MENSTRUATING_ADOLESCENT' ||
+    currentStageCode === 'PERIMENOPAUSE';
 
   // ==============================================================================
   // BACKEND API FETCH FUNCTIONS
@@ -642,9 +667,29 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const dobStr = p.dob ? (p.dob.includes('T') ? p.dob.split('T')[0] : p.dob) : '1996-08-14';
         const userAge = calculateAge(dobStr);
 
-        const autoStage = getStageFromAge(userAge);
-        setCurrentStageCode(autoStage.code);
-        setStageName(autoStage.name);
+        let dynamicCode = 'REPRODUCTIVE_AGE';
+        let dynamicName = 'Reproductive Age';
+        try {
+          const stageRes = await fetch('/api/life-stages/current', {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          const stageData = await stageRes.json();
+          if (stageData.success && stageData.currentStage) {
+            dynamicCode = stageData.currentStage.life_stage_code;
+            dynamicName = stageData.currentStage.name;
+          } else {
+            const autoStage = getStageFromAge(userAge);
+            dynamicCode = autoStage.code;
+            dynamicName = autoStage.name;
+          }
+        } catch (_) {
+          const autoStage = getStageFromAge(userAge);
+          dynamicCode = autoStage.code;
+          dynamicName = autoStage.name;
+        }
+
+        setCurrentStageCode(dynamicCode);
+        setStageName(dynamicName);
 
         const loadedProfile: UserProfile = {
           fullName: p.full_name || data.user?.username || '',
@@ -658,7 +703,8 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
           height: p.height_cm ? String(p.height_cm) : '',
           weight: p.weight_kg ? String(p.weight_kg) : '',
           address: p.address || '',
-          emergencyContact: p.emergency_contact_name || ''
+          emergencyContact: p.emergency_contact_name || '',
+          menarcheStarted: p.menarche_started !== false
         };
 
         setUserProfile(loadedProfile);
@@ -980,6 +1026,56 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const handleActivatePregnancy = async (lmpDate?: string): Promise<boolean> => {
+    setPeriodErrorMsg(null);
+    try {
+      const token = localStorage.getItem('femsphere_token');
+      if (!token) return false;
+      const res = await fetch('/api/period-tracker/pregnancy/activate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ lmpDate })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        await fetchPeriodData();
+        await fetchUserProfile();
+        return true;
+      } else {
+        setPeriodErrorMsg(data.message || 'Failed to activate maternity mode.');
+        return false;
+      }
+    } catch (e: any) {
+      setPeriodErrorMsg(e.message || 'Error activating maternity mode.');
+      return false;
+    }
+  };
+
+  const handleDeactivatePregnancy = async (resumePeriodDate?: string): Promise<boolean> => {
+    setPeriodErrorMsg(null);
+    try {
+      const token = localStorage.getItem('femsphere_token');
+      if (!token) return false;
+      const res = await fetch('/api/period-tracker/pregnancy/deactivate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ resumePeriodDate })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        await fetchPeriodData();
+        await fetchUserProfile();
+        return true;
+      } else {
+        setPeriodErrorMsg(data.message || 'Failed to conclude maternity mode.');
+        return false;
+      }
+    } catch (e: any) {
+      setPeriodErrorMsg(e.message || 'Error concluding maternity mode.');
+      return false;
+    }
+  };
+
   // Initial Load from Backend
   useEffect(() => {
     fetchUserProfile();
@@ -1214,15 +1310,18 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
             heightCm: updatedProfile.height,
             weightKg: updatedProfile.weight,
             address: updatedProfile.address,
-            emergencyContact: updatedProfile.emergencyContact
+            emergencyContact: updatedProfile.emergencyContact,
+            menarcheStarted: updatedProfile.menarcheStarted
           })
         });
+        await fetchUserProfile();
+        await fetchPeriodData();
       }
     } catch (apiErr) {}
 
     await addNotification({
       title: 'Profile Updated',
-      message: 'Your profile details were updated and saved successfully.',
+      message: 'Your profile details and biological health stage were updated successfully.',
       type: 'profile'
     });
   };
@@ -2086,6 +2185,8 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         handleSavePeriodSetup,
         handleLogPeriodEntry,
         handleAdjustCycleDelay,
+        handleActivatePregnancy,
+        handleDeactivatePregnancy,
         handleLogout
       }}
     >

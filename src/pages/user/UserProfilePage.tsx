@@ -5,6 +5,8 @@ import { isValidName, isValidPhone, isValidEmail, isPastOrToday } from '../../ut
 
 export default function UserProfilePage() {
   const {
+    stageName,
+    currentStageCode,
     userProfile,
     editProfileForm,
     setEditProfileForm,
@@ -129,6 +131,17 @@ export default function UserProfilePage() {
               <p className="font-bold text-[#3a3135] text-base">{userProfile.email || '--'}</p>
             </div>
 
+            <div className="p-4 rounded-2xl bg-purple-50/50 border border-purple-200 md:col-span-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <div>
+                <span className="block font-bold text-[#7C3AED] uppercase text-[10px] mb-1">Biological Life Stage (Dynamic)</span>
+                <p className="font-bold text-[#3a3135] text-base">{stageName || 'Reproductive Age'} ({currentStageCode})</p>
+                <p className="text-[11px] text-[#7a6f75] mt-0.5">Calculated dynamically based on your Date of Birth ({userProfile.dob}) and clinical markers</p>
+              </div>
+              <div className="px-3 py-1.5 rounded-xl bg-white border border-purple-200 text-xs font-bold text-[#7C3AED]">
+                {userProfile.menarcheStarted !== false ? '🩸 Menarche Commenced' : '🌱 Awaiting Menarche'}
+              </div>
+            </div>
+
             <div className="p-4 rounded-2xl bg-[#FAF8FC] border border-[#EDE9FE] md:col-span-2">
               <span className="block font-bold text-[#7a6f75] uppercase text-[10px] mb-1">Street Address</span>
               <p className="font-bold text-[#3a3135] text-base">{userProfile.address || '--'}</p>
@@ -211,6 +224,19 @@ export default function UserProfilePage() {
                 <option value="AB+">AB Positive (AB+)</option>
                 <option value="AB-">AB Negative (AB-)</option>
               </select>
+            </div>
+
+            <div>
+              <label className="block font-bold text-[#4a4145] uppercase mb-1">First Period (Menarche) Status</label>
+              <select 
+                value={editProfileForm.menarcheStarted !== false ? 'started' : 'awaiting'} 
+                onChange={(e) => setEditProfileForm({...editProfileForm, menarcheStarted: e.target.value === 'started'})} 
+                className="w-full p-3 rounded-xl border border-[#EDE9FE] bg-white font-medium"
+              >
+                <option value="started">Started (Menstrual Cycles Active)</option>
+                <option value="awaiting">Not Yet (Awaiting First Period / Pubertal Development)</option>
+              </select>
+              <p className="text-[10px] text-gray-500 mt-1">For adolescents: selecting 'Not Yet' pauses cycle countdowns until first period occurs.</p>
             </div>
 
             <div className="grid grid-cols-2 gap-2">

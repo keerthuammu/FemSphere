@@ -15,7 +15,6 @@ import '../user/notifications_screen.dart';
 import '../user/user_profile_screen.dart';
 import '../user/user_settings_screen.dart';
 import '../user/specialty_journeys_screen.dart';
-import '../../providers/life_stage_provider.dart';
 import '../../features/wearables/core/wearable_manager.dart';
 import '../../features/wearables/core/wearable_capabilities.dart';
 import '../../features/wearables/core/wearable_health_data.dart';
@@ -54,6 +53,17 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
   String _nextPeriodDate = 'Sep 18, 2026';
   String _fertileWindow = 'Sep 01 – Sep 06';
   String _selectedFlow = 'Medium';
+
+  // Maternity & Pregnancy State
+  bool _isPregnant = false;
+  int _gestationalWeeks = 14;
+  int _gestationalDays = 2;
+  int _daysRemaining = 180;
+  String _eddDate = 'Nov 12, 2026';
+  String _trimesterName = 'Second Trimester (Weeks 13–27)';
+  String _babySize = 'Lemon (~8.7 cm)';
+  String _babyIcon = '🍋';
+  int _kickCount = 0;
 
   // Fitness & Healthify State
   final int _calorieBudget = 2000;
@@ -179,30 +189,57 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
         }
 
         if (period.isNotEmpty) {
-          if (period['current_day'] != null) {
-            _cycleDay = int.tryParse(period['current_day'].toString()) ?? _cycleDay;
-          } else if (period['currentDay'] != null) {
-            _cycleDay = int.tryParse(period['currentDay'].toString()) ?? _cycleDay;
-          }
-          if (period['cycle_length'] != null) {
-            _totalCycleDays = int.tryParse(period['cycle_length'].toString()) ?? _totalCycleDays;
-          } else if (period['cycleLength'] != null) {
-            _totalCycleDays = int.tryParse(period['cycleLength'].toString()) ?? _totalCycleDays;
-          }
-          if (period['current_phase'] != null) {
-            _cyclePhase = period['current_phase'].toString();
-          } else if (period['currentPhase'] != null) {
-            _cyclePhase = period['currentPhase'].toString();
-          }
-          if (period['next_period_date'] != null) {
-            _nextPeriodDate = period['next_period_date'].toString();
-          } else if (period['nextPeriodDate'] != null) {
-            _nextPeriodDate = period['nextPeriodDate'].toString();
-          }
-          if (period['fertile_window'] != null) {
-            _fertileWindow = period['fertile_window'].toString();
-          } else if (period['fertileWindow'] != null) {
-            _fertileWindow = period['fertileWindow'].toString();
+          final isPreg = period['isPregnant'] == true || period['is_pregnant'] == true;
+          _isPregnant = isPreg;
+          final metrics = (period['metrics'] is Map<String, dynamic>) 
+              ? period['metrics'] as Map<String, dynamic> 
+              : <String, dynamic>{};
+
+          if (isPreg) {
+            _gestationalWeeks = int.tryParse(metrics['gestationalWeeks']?.toString() ?? '14') ?? 14;
+            _gestationalDays = int.tryParse(metrics['gestationalDays']?.toString() ?? '2') ?? 2;
+            _daysRemaining = int.tryParse(metrics['daysRemaining']?.toString() ?? '180') ?? 180;
+            _eddDate = metrics['edd']?.toString() ?? 'Nov 12, 2026';
+            _trimesterName = metrics['trimesterName']?.toString() ?? 'Second Trimester (Weeks 13–27)';
+            _babySize = metrics['babySize']?.toString() ?? 'Lemon (~8.7 cm)';
+            _babyIcon = metrics['babyIcon']?.toString() ?? '🍋';
+            _cyclePhase = '🤰 Maternity Mode (Cycle Paused)';
+          } else {
+            if (metrics['cycleDay'] != null) {
+              _cycleDay = int.tryParse(metrics['cycleDay'].toString()) ?? _cycleDay;
+            } else if (period['current_day'] != null) {
+              _cycleDay = int.tryParse(period['current_day'].toString()) ?? _cycleDay;
+            } else if (period['currentDay'] != null) {
+              _cycleDay = int.tryParse(period['currentDay'].toString()) ?? _cycleDay;
+            }
+            if (metrics['cycleLength'] != null) {
+              _totalCycleDays = int.tryParse(metrics['cycleLength'].toString()) ?? _totalCycleDays;
+            } else if (period['cycle_length'] != null) {
+              _totalCycleDays = int.tryParse(period['cycle_length'].toString()) ?? _totalCycleDays;
+            } else if (period['cycleLength'] != null) {
+              _totalCycleDays = int.tryParse(period['cycleLength'].toString()) ?? _totalCycleDays;
+            }
+            if (metrics['phaseName'] != null) {
+              _cyclePhase = metrics['phaseName'].toString();
+            } else if (period['current_phase'] != null) {
+              _cyclePhase = period['current_phase'].toString();
+            } else if (period['currentPhase'] != null) {
+              _cyclePhase = period['currentPhase'].toString();
+            }
+            if (metrics['nextPeriodDateStr'] != null) {
+              _nextPeriodDate = metrics['nextPeriodDateStr'].toString();
+            } else if (period['next_period_date'] != null) {
+              _nextPeriodDate = period['next_period_date'].toString();
+            } else if (period['nextPeriodDate'] != null) {
+              _nextPeriodDate = period['nextPeriodDate'].toString();
+            }
+            if (metrics['fertileWindowStr'] != null) {
+              _fertileWindow = metrics['fertileWindowStr'].toString();
+            } else if (period['fertile_window'] != null) {
+              _fertileWindow = period['fertile_window'].toString();
+            } else if (period['fertileWindow'] != null) {
+              _fertileWindow = period['fertileWindow'].toString();
+            }
           }
         }
 
@@ -210,6 +247,19 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
           _medicalRecords = records;
         }
       });
+
+      // Also sync dynamic biological stage from engine
+      try {
+        final dynamicStage = await ApiService.getDynamicLifeStage();
+        if (dynamicStage['success'] == true && dynamicStage['currentStage'] != null) {
+          final cur = dynamicStage['currentStage'] as Map<String, dynamic>;
+          if (mounted && cur['name'] != null) {
+            setState(() {
+              _currentStageName = cur['name'].toString();
+            });
+          }
+        }
+      } catch (_) {}
     } catch (_) {
     } finally {
       if (mounted) {
@@ -274,17 +324,17 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
-                  children: const [
+                  children: [
                     Text(
-                      '🌸 Stage',
-                      style: TextStyle(
+                      _isPregnant ? '🤰 Maternity' : (_currentStageName.isNotEmpty ? _currentStageName.split('(').first.trim() : '🌸 Stage'),
+                      style: const TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
                         color: Color(0xFF7C3AED),
                       ),
                     ),
-                    SizedBox(width: 2),
-                    Icon(Icons.arrow_drop_down, size: 14, color: Color(0xFF7C3AED)),
+                    const SizedBox(width: 2),
+                    const Icon(Icons.arrow_drop_down, size: 14, color: Color(0xFF7C3AED)),
                   ],
                 ),
               ),
@@ -307,6 +357,16 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
             },
           ),
         ],
+        bottom: _isLoadingDashboard
+            ? const PreferredSize(
+                preferredSize: Size.fromHeight(2),
+                child: LinearProgressIndicator(
+                  minHeight: 2,
+                  backgroundColor: Colors.transparent,
+                  valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryPurple),
+                ),
+              )
+            : null,
       ),
       drawer: _buildUserDrawer(context, user, auth),
       bottomNavigationBar: NavigationBar(
@@ -557,8 +617,184 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
     );
   }
 
-  // TAB 2: PERIOD TRACKER
+  // TAB 2: PERIOD TRACKER & MATERNITY HUB
   Widget _buildPeriodTrackerTab() {
+    if (_isPregnant) {
+      return Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: const Color(0xFFDDD6FE)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('🤰 Maternity & Fetal Hub', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppTheme.textDark)),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF3E8FF),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFFE9D5FF)),
+                  ),
+                  child: const Text('Cycle Paused', style: TextStyle(color: Color(0xFF7C3AED), fontWeight: FontWeight.bold, fontSize: 11)),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+
+            // Gestational Age Circle
+            Center(
+              child: Container(
+                width: 140,
+                height: 140,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFFC084FC), Color(0xFF7C3AED)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF7C3AED).withOpacity(0.3),
+                      blurRadius: 16,
+                      offset: const Offset(0, 6),
+                    )
+                  ],
+                ),
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text('GESTATIONAL AGE', style: TextStyle(color: Colors.white70, fontSize: 9, fontWeight: FontWeight.bold)),
+                      Text('$_gestationalWeeks w', style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.w900)),
+                      Text('+ $_gestationalDays Days', style: const TextStyle(color: Colors.white, fontSize: 11)),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            // Due Date & Fetal Size Row
+            Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFAF8FC),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppTheme.borderPurple),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('ESTIMATED DUE DATE', style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Colors.grey)),
+                        const SizedBox(height: 4),
+                        Text(_eddDate, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: AppTheme.textDark)),
+                        Text('$_daysRemaining days remaining', style: const TextStyle(fontSize: 10, color: Color(0xFF7C3AED), fontWeight: FontWeight.w600)),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFAF8FC),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppTheme.borderPurple),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('BABY SIZE', style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Colors.grey)),
+                        const SizedBox(height: 4),
+                        Text('$_babyIcon $_babySize', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: AppTheme.textDark)),
+                        Text(_trimesterName.split('(').first.trim(), style: const TextStyle(fontSize: 10, color: Color(0xFF10B981), fontWeight: FontWeight.w600)),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 20),
+
+            // Active Kick Counter Box
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFAF8FC),
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: const Color(0xFFE9D5FF)),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Daily Kick Counter', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppTheme.textDark)),
+                      const SizedBox(height: 2),
+                      Text('$_kickCount / 10 kicks felt today', style: const TextStyle(fontSize: 11, color: Color(0xFF7C3AED), fontWeight: FontWeight.w600)),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.refresh, size: 20, color: Colors.grey),
+                        onPressed: () => setState(() => _kickCount = 0),
+                        tooltip: 'Reset kicks',
+                      ),
+                      ElevatedButton.icon(
+                        icon: const Text('👣', style: TextStyle(fontSize: 14)),
+                        label: const Text('+ Kick', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF7C3AED),
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        ),
+                        onPressed: () => setState(() => _kickCount = (_kickCount + 1).clamp(0, 30)),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            // Conclude Pregnancy / Resume Menstrual Cycle Button
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                icon: const Icon(Icons.rotate_left, size: 16, color: _roseColor),
+                label: const Text('Conclude Pregnancy / Resume Period', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: _roseColor)),
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: Color(0xFFFECDD3)),
+                  backgroundColor: const Color(0xFFFFF1F2),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                ),
+                onPressed: () => _showResumeMenstrualCycleDialog(context),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Normal Cycle View
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -698,7 +934,220 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
               );
             }).toList(),
           ),
+
+          const SizedBox(height: 18),
+
+          // Log Positive Pregnancy Button
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              icon: const Text('🤰', style: TextStyle(fontSize: 15)),
+              label: const Text('Positive Pregnancy Test? Enter Maternity Mode', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF7C3AED))),
+              style: OutlinedButton.styleFrom(
+                side: const BorderSide(color: Color(0xFFDDD6FE)),
+                backgroundColor: const Color(0xFFF5F3FF),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                padding: const EdgeInsets.symmetric(vertical: 12),
+              ),
+              onPressed: () => _showPregnancyActivationDialog(context),
+            ),
+          ),
         ],
+      ),
+    );
+  }
+
+  void _showPregnancyActivationDialog(BuildContext context) {
+    DateTime selectedDate = DateTime.now();
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          title: Row(
+            children: const [
+              Text('🤰', style: TextStyle(fontSize: 22)),
+              SizedBox(width: 8),
+              Text('Enter Maternity Mode', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Congratulations! When you enter Maternity Mode, menstrual cycle countdowns are paused. Gestational milestones, baby size, and fetal kick counting will activate.',
+                style: TextStyle(fontSize: 12, color: Colors.black54),
+              ),
+              const SizedBox(height: 16),
+              const Text('First day of Last Menstrual Period (LMP):', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              InkWell(
+                onTap: () async {
+                  final picked = await showDatePicker(
+                    context: context,
+                    initialDate: selectedDate,
+                    firstDate: DateTime.now().subtract(const Duration(days: 300)),
+                    lastDate: DateTime.now(),
+                  );
+                  if (picked != null) {
+                    setDialogState(() => selectedDate = picked);
+                  }
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFAF8FC),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: AppTheme.borderPurple),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        '${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}',
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                      ),
+                      const Icon(Icons.calendar_month, size: 18, color: AppTheme.primaryPurple),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'EDD is calculated as 280 days from this date.',
+                style: TextStyle(fontSize: 10, color: Colors.grey),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.primaryPurple,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              onPressed: () async {
+                Navigator.pop(ctx);
+                final lmpStr = '${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}';
+                final res = await ApiService.activatePregnancy(lmpStr);
+                if (res['success'] == true) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('🤰 Maternity Mode activated! Menstrual cycle paused.'),
+                      backgroundColor: AppTheme.primaryPurple,
+                    ),
+                  );
+                  await _fetchLiveDashboardData();
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(res['message']?.toString() ?? 'Failed to activate maternity mode')),
+                  );
+                }
+              },
+              child: const Text('Activate'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showResumeMenstrualCycleDialog(BuildContext context) {
+    DateTime selectedDate = DateTime.now();
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          title: Row(
+            children: const [
+              Text('🔄', style: TextStyle(fontSize: 22)),
+              SizedBox(width: 8),
+              Text('Resume Menstrual Cycle', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'This will conclude active Maternity Mode and restart menstrual cycle predictions and ovulation calculations.',
+                style: TextStyle(fontSize: 12, color: Colors.black54),
+              ),
+              const SizedBox(height: 16),
+              const Text('Resumed Period Start Date:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              InkWell(
+                onTap: () async {
+                  final picked = await showDatePicker(
+                    context: context,
+                    initialDate: selectedDate,
+                    firstDate: DateTime.now().subtract(const Duration(days: 60)),
+                    lastDate: DateTime.now(),
+                  );
+                  if (picked != null) {
+                    setDialogState(() => selectedDate = picked);
+                  }
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFAF8FC),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: AppTheme.borderPurple),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        '${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}',
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                      ),
+                      const Icon(Icons.calendar_month, size: 18, color: AppTheme.primaryPurple),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _roseColor,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              onPressed: () async {
+                Navigator.pop(ctx);
+                final resumeStr = '${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}';
+                final res = await ApiService.deactivatePregnancy(resumeStr);
+                if (res['success'] == true) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('🔄 Menstrual cycle tracking resumed!'),
+                      backgroundColor: _roseColor,
+                    ),
+                  );
+                  await _fetchLiveDashboardData();
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(res['message']?.toString() ?? 'Failed to resume cycle')),
+                  );
+                }
+              },
+              child: const Text('Resume Cycle'),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1230,8 +1679,8 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
                   },
                 ),
                 _buildDrawerTile(
-                  title: 'Switch Life Stage',
-                  icon: Icons.swap_horiz_rounded,
+                  title: 'Biological Health Stage',
+                  icon: Icons.auto_awesome,
                   color: const Color(0xFF8B5CF6),
                   onTap: () {
                     Navigator.pop(context);
@@ -1459,59 +1908,56 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 4,
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFECFDF5),
-                            borderRadius: BorderRadius.circular(10),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFECFDF5),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.arrow_upward, color: Color(0xFF059669), size: 12),
+                          SizedBox(width: 2),
+                          Text(
+                            '+3 pts',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF059669),
+                            ),
                           ),
-                          child: const Row(
+                        ],
+                      ),
+                    ),
+                    if (_wearableManager.activeDevice != null || _connectedWearableDevice != null)
+                      InkWell(
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const UniversalWearablesScreen())),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF3E8FF),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: const Color(0xFFDDD6FE)),
+                          ),
+                          child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.arrow_upward, color: Color(0xFF059669), size: 12),
-                              SizedBox(width: 2),
+                              const Icon(Icons.watch_rounded, color: Color(0xFF7C3AED), size: 11),
+                              const SizedBox(width: 3),
                               Text(
-                                '+3 pts vs last week',
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xFF059669),
-                                ),
+                                _wearableManager.activeDevice?.name ?? _connectedWearableDevice?['device_name'] ?? 'Watch',
+                                style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF7C3AED)),
                               ),
                             ],
                           ),
                         ),
-                        if (_wearableManager.activeDevice != null || _connectedWearableDevice != null) ...[
-                          const SizedBox(width: 6),
-                          InkWell(
-                            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const UniversalWearablesScreen())),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFF3E8FF),
-                                borderRadius: BorderRadius.circular(10),
-                                border: Border.all(color: const Color(0xFFDDD6FE)),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(Icons.watch_rounded, color: Color(0xFF7C3AED), size: 11),
-                                  const SizedBox(width: 3),
-                                  Text(
-                                    _wearableManager.activeDevice?.name ?? _connectedWearableDevice?['device_name'] ?? 'Watch Synced',
-                                    style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF7C3AED)),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
+                      ),
                   ],
                 ),
                 const SizedBox(height: 6),
@@ -2184,20 +2630,6 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
   }
 
   void _showLifeStageSelectionModal(BuildContext context) {
-    final stages = [
-      {'code': 'EARLY_CHILDHOOD', 'name': 'Early Childhood (0–5 yrs)', 'icon': '👶'},
-      {'code': 'PRE_PUBERTY', 'name': 'Pre-Puberty (6–10 yrs)', 'icon': '👧'},
-      {'code': 'PUBERTY', 'name': 'Puberty & Development (11–13 yrs)', 'icon': '🌱'},
-      {'code': 'MENSTRUATING_ADOLESCENT', 'name': 'Adolescent Health (14–17 yrs)', 'icon': '🩸'},
-      {'code': 'YOUNG_ADULT', 'name': 'Young Adult (18–24 yrs)', 'icon': '✨'},
-      {'code': 'REPRODUCTIVE_AGE', 'name': 'Reproductive Age (25–39 yrs)', 'icon': '🌸'},
-      {'code': 'PREGNANCY', 'name': 'Pregnancy Journey', 'icon': '🤰'},
-      {'code': 'POSTPARTUM', 'name': 'Postpartum Recovery', 'icon': '🤱'},
-      {'code': 'PERIMENOPAUSE', 'name': 'Perimenopause', 'icon': '🌿'},
-      {'code': 'MENOPAUSE', 'name': 'Menopause Transition', 'icon': '🌙'},
-      {'code': 'OLDER_ADULT', 'name': 'Healthy Aging (60+ yrs)', 'icon': '👵'},
-    ];
-
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -2235,74 +2667,172 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
                     child: const Icon(Icons.auto_awesome, color: AppTheme.primaryPurple, size: 20),
                   ),
                   const SizedBox(width: 12),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
-                      Text(
-                        'Select Active Life Stage',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.textDark),
-                      ),
-                      Text(
-                        'Dynamically adjusts AI insights & digital health twin',
-                        style: TextStyle(fontSize: 11, color: Colors.black54),
-                      ),
-                    ],
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: const [
+                        Text(
+                          'Biological Life Stage',
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.textDark),
+                        ),
+                        Text(
+                          'Dynamic & personalized to your physiology',
+                          style: TextStyle(fontSize: 11, color: Colors.black54),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
               const SizedBox(height: 16),
-              ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxHeight: MediaQuery.of(context).size.height * 0.55,
+              // Current Stage Badge Card
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: _isPregnant
+                        ? [const Color(0xFFFDF2F8), const Color(0xFFFCE7F3)]
+                        : [const Color(0xFFFAF5FF), const Color(0xFFF3E8FF)],
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: _isPregnant ? const Color(0xFFFBCFE8) : const Color(0xFFE9D5FF),
+                  ),
                 ),
-                child: ListView.separated(
-                  shrinkWrap: true,
-                  itemCount: stages.length,
-                  separatorBuilder: (_, __) => const Divider(height: 1),
-                  itemBuilder: (context, index) {
-                    final st = stages[index];
-                    final isCurrent = _currentStageName.toLowerCase().contains(st['code']!.toLowerCase()) ||
-                        _currentStageName.toLowerCase().contains(st['name']!.toLowerCase().split('(').first.trim());
-
-                    return ListTile(
-                      dense: true,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                      leading: Text(st['icon']!, style: const TextStyle(fontSize: 22)),
-                      title: Text(
-                        st['name']!,
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: isCurrent ? FontWeight.bold : FontWeight.w500,
-                          color: isCurrent ? AppTheme.primaryPurple : AppTheme.textDark,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(_isPregnant ? '🤰' : '🌸', style: const TextStyle(fontSize: 22)),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            _isPregnant
+                                ? 'Pregnancy Journey (Active)'
+                                : _currentStageName,
+                            style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              color: AppTheme.textDark,
+                            ),
+                          ),
                         ),
-                      ),
-                      trailing: isCurrent
-                          ? const Icon(Icons.check_circle, color: AppTheme.primaryPurple, size: 18)
-                          : null,
-                      onTap: () async {
-                        Navigator.pop(ctx);
-                        setState(() {
-                          _currentStageName = st['name']!;
-                        });
-
-                        final auth = Provider.of<AuthProvider>(context, listen: false);
-                        final token = auth.token;
-                        if (token != null && token.isNotEmpty) {
-                          try {
-                            final lsp = Provider.of<LifeStageProvider>(context, listen: false);
-                            await lsp.setLifeStage(token, st['code']!);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Switched to ${st['name']} successfully!'),
-                                backgroundColor: AppTheme.primaryPurple,
-                              ),
-                            );
-                          } catch (_) {}
-                        }
-                      },
-                    );
-                  },
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            _isPregnant ? 'Maternity Mode' : 'Age-Calculated',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: _isPregnant ? const Color(0xFFDB2777) : AppTheme.primaryPurple,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      _isPregnant
+                          ? 'Week $_gestationalWeeks + $_gestationalDays Days • Due $_eddDate • Menstrual cycle safely paused.'
+                          : 'FemSphere automatically synchronizes your life stage from your Date of Birth, hormonal milestones, and active health states.',
+                      style: const TextStyle(fontSize: 12, color: Colors.black87),
+                    ),
+                  ],
                 ),
+              ),
+              const SizedBox(height: 16),
+              // Actions
+              if (!_isPregnant)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      icon: const Text('🤰', style: TextStyle(fontSize: 16)),
+                      label: const Text('Enter Pregnancy / Maternity Mode'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFEC4899),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      ),
+                      onPressed: () {
+                        Navigator.pop(ctx);
+                        _showPregnancyActivationDialog(context);
+                      },
+                    ),
+                  ),
+                )
+              else
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      icon: const Icon(Icons.pregnant_woman, size: 18),
+                      label: const Text('Go to Maternity Hub & Kick Counter'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFDB2777),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      ),
+                      onPressed: () {
+                        Navigator.pop(ctx);
+                        setState(() => _selectedNavIndex = 1);
+                      },
+                    ),
+                  ),
+                ),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      icon: const Icon(Icons.settings, size: 16, color: AppTheme.primaryPurple),
+                      label: const Text('Calibrate in Settings', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.primaryPurple)),
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: AppTheme.borderPurple),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                      ),
+                      onPressed: () {
+                        Navigator.pop(ctx);
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => const UserSettingsScreen())).then((_) {
+                          _fetchLiveDashboardData();
+                        });
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      icon: const Icon(Icons.explore, size: 16, color: Color(0xFF2563EB)),
+                      label: const Text('Specialty Journeys', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF2563EB))),
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Color(0xFFBFDBFE)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                      ),
+                      onPressed: () {
+                        Navigator.pop(ctx);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => SpecialtyJourneysScreen(
+                              initialJourney: _isPregnant ? 'Pregnancy' : null,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

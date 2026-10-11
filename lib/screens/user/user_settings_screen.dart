@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/app_theme.dart';
 import '../../providers/auth_provider.dart';
+import '../../services/api_service.dart';
 import '../auth/login_screen.dart';
 
 class UserSettingsScreen extends StatefulWidget {
@@ -20,6 +21,93 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
   bool _aiTwinTrainingOptIn = true;
   bool _darkMode = false;
 
+  // Biological stage calibration
+  String _stageName = 'Reproductive Age (25–39)';
+  int _age = 28;
+  String _dob = '1998-05-15';
+  bool _menarcheStarted = true;
+  bool _isPregnant = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadLifeStage();
+  }
+
+  Future<void> _loadLifeStage() async {
+    try {
+      final res = await ApiService.getDynamicLifeStage();
+      if (res['success'] == true && res['currentStage'] != null) {
+        final cur = res['currentStage'];
+        if (mounted) {
+          setState(() {
+            _stageName = cur['name']?.toString() ?? _stageName;
+            _age = cur['age'] != null ? int.tryParse(cur['age'].toString()) ?? _age : _age;
+            _dob = cur['dob']?.toString() ?? _dob;
+            if (cur['menarche_started'] != null) {
+              _menarcheStarted = cur['menarche_started'] == true;
+            }
+            if (cur['is_pregnant'] != null) {
+              _isPregnant = cur['is_pregnant'] == true;
+            }
+          });
+        }
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _updateMenarche(bool val) async {
+    setState(() => _menarcheStarted = val);
+    try {
+      final res = await ApiService.updateProfile({'menarcheStarted': val});
+      if (res['success'] == true || res['profile'] != null) {
+        await _loadLifeStage();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('✨ Biological stage updated to: $_stageName'),
+              backgroundColor: AppTheme.secondaryTeal,
+            ),
+          );
+        }
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to update stage calibration')),
+        );
+      }
+    }
+  }
+
+  Future<void> _pickDob() async {
+    DateTime initial = DateTime.tryParse(_dob) ?? DateTime(1998, 5, 15);
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: initial,
+      firstDate: DateTime(1920),
+      lastDate: DateTime.now(),
+    );
+    if (picked != null) {
+      final formatted = '${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}';
+      setState(() => _dob = formatted);
+      try {
+        final res = await ApiService.updateProfile({'dob': formatted});
+        if (res['success'] == true || res['profile'] != null) {
+          await _loadLifeStage();
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('✨ Age & stage recalibrated: $_stageName ($_age yrs)'),
+                backgroundColor: AppTheme.secondaryTeal,
+              ),
+            );
+          }
+        }
+      } catch (_) {}
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final auth = Provider.of<AuthProvider>(context);
@@ -34,6 +122,91 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Biological Life Stage Calibration
+            _buildSection(
+              title: '🌸 Biological Life Stage Calibration',
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: _isPregnant
+                            ? [const Color(0xFFFDF2F8), const Color(0xFFFCE7F3)]
+                            : [const Color(0xFFFAF5FF), const Color(0xFFF3E8FF)],
+                      ),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: _isPregnant ? const Color(0xFFFBCFE8) : const Color(0xFFE9D5FF),
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Text(_isPregnant ? '🤰' : '🧬', style: const TextStyle(fontSize: 22)),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                _stageName,
+                                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppTheme.textDark),
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Text(
+                                'Age: $_age',
+                                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppTheme.primaryPurple),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        const Text(
+                          'FemSphere automatically determines your life stage from your Date of Birth. Calibrate menarche onset below if periods started earlier or later.',
+                          style: TextStyle(fontSize: 11, color: Colors.black54),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.cake, color: AppTheme.primaryPurple),
+                  title: const Text('Date of Birth'),
+                  subtitle: Text('$_dob (Age: $_age yrs)'),
+                  trailing: OutlinedButton(
+                    onPressed: _pickDob,
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      side: const BorderSide(color: AppTheme.borderPurple),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    ),
+                    child: const Text('Change', style: TextStyle(fontSize: 11)),
+                  ),
+                ),
+                SwitchListTile(
+                  secondary: const Icon(Icons.water_drop, color: Color(0xFFF43F5E)),
+                  title: const Text('First Period (Menarche) Started'),
+                  subtitle: Text(
+                    _menarcheStarted
+                        ? 'Active: Cycle tracking and fertile window enabled'
+                        : 'Not yet: Prep mode, body literacy & puberty guidance enabled',
+                    style: const TextStyle(fontSize: 11),
+                  ),
+                  value: _menarcheStarted,
+                  activeColor: const Color(0xFFF43F5E),
+                  onChanged: (val) => _updateMenarche(val),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+
             // Security & Authentication
             _buildSection(
               title: '🔒 Security & Access',

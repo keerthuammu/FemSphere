@@ -1,68 +1,97 @@
 import React, { useState } from 'react';
-import { Sparkles, ChevronDown, Check, Shield } from 'lucide-react';
+import { Sparkles, Info, ShieldCheck, ChevronDown, Calendar, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 interface Props {
   currentStageCode: string;
   stageName: string;
-  onSelectStage: (code: string) => void;
+  onSelectStage?: (code: string) => void;
 }
 
-export default function LifeStageSelector({ currentStageCode, stageName, onSelectStage }: Props) {
+export default function LifeStageSelector({ currentStageCode, stageName }: Props) {
   const [isOpen, setIsOpen] = useState(false);
 
-  const stages = [
-    { code: 'EARLY_CHILDHOOD', name: 'Early Childhood (0–5 yrs)' },
-    { code: 'PRE_PUBERTY', name: 'Pre-Puberty (6–10 yrs)' },
-    { code: 'PUBERTY', name: 'Puberty & Development (11–13 yrs)' },
-    { code: 'MENSTRUATING_ADOLESCENT', name: 'Adolescent Health (14–17 yrs)' },
-    { code: 'YOUNG_ADULT', name: 'Young Adult (18–24 yrs)' },
-    { code: 'REPRODUCTIVE_AGE', name: 'Reproductive Age (25–39 yrs)' },
-    { code: 'PREGNANCY', name: 'Pregnancy Journey' },
-    { code: 'POSTPARTUM', name: 'Postpartum Recovery' },
-    { code: 'PERIMENOPAUSE', name: 'Perimenopause' },
-    { code: 'MENOPAUSE', name: 'Menopause Transition' },
-    { code: 'OLDER_ADULT', name: 'Healthy Aging (60+ yrs)' },
-  ];
+  const isPregnancy = currentStageCode === 'PREGNANCY';
 
   return (
-    <div className="relative">
+    <div className="relative font-inter">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-[#F5F3FF] border border-[#EDE9FE] hover:border-[#7C3AED] text-[#7C3AED] text-xs font-bold transition-all shadow-xs"
+        className={`flex items-center gap-2 px-3.5 py-2 rounded-2xl border text-xs font-bold transition-all shadow-xs cursor-pointer ${
+          isPregnancy
+            ? 'bg-purple-100 border-purple-300 text-purple-900 hover:bg-purple-200'
+            : 'bg-[#F5F3FF] border-[#EDE9FE] hover:border-[#7C3AED] text-[#7C3AED]'
+        }`}
+        title="View Biological Stage Information"
       >
-        <Sparkles className="w-3.5 h-3.5 text-[#7C3AED]" />
-        <span>Stage: {stageName || 'Reproductive Age'}</span>
+        <span className="text-sm">{isPregnancy ? '🤰' : '🌱'}</span>
+        <span>{stageName || 'Reproductive Age'}</span>
+        <span className="text-[10px] bg-white/80 px-1.5 py-0.5 rounded-full border border-purple-200 font-extrabold text-[#7C3AED]">
+          Dynamic
+        </span>
         <ChevronDown className="w-3.5 h-3.5 opacity-70" />
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-[#EDE9FE] p-2 z-50 animate-in fade-in zoom-in duration-150">
-          <div className="px-3 py-2 border-b border-[#EDE9FE] mb-1">
-            <span className="text-[11px] font-bold text-[#7C3AED] uppercase tracking-wider block">Select Active Life Stage</span>
-            <span className="text-[10px] text-[#7a6f75]">Adapts features and AI insights</span>
+        <div className="absolute right-0 mt-2 w-80 bg-white rounded-3xl shadow-2xl border border-[#EDE9FE] p-4 z-50 animate-in fade-in zoom-in-95 duration-150 space-y-3">
+          <div className="flex items-center justify-between border-b border-[#EDE9FE] pb-2.5">
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-xl bg-purple-100 text-[#7C3AED] flex items-center justify-center">
+                <ShieldCheck className="w-4 h-4" />
+              </div>
+              <div>
+                <h4 className="text-xs font-bold text-[#3a3135]">Biological Health Twin</h4>
+                <p className="text-[10px] text-gray-500">Clinical stage derived from DOB</p>
+              </div>
+            </div>
+            <button
+              onClick={() => setIsOpen(false)}
+              className="text-gray-400 hover:text-gray-600 text-xs font-bold p-1"
+            >
+              ✕
+            </button>
           </div>
 
-          <div className="max-h-60 overflow-y-auto space-y-1">
-            {stages.map((st) => {
-              const isSelected = st.code === currentStageCode;
-              return (
-                <button
-                  key={st.code}
-                  onClick={() => {
-                    onSelectStage(st.code);
-                    setIsOpen(false);
-                  }}
-                  className={`w-full text-left px-3 py-2 rounded-xl text-xs flex items-center justify-between font-semibold transition-all ${
-                    isSelected
-                      ? 'bg-[#7C3AED] text-white font-bold'
-                      : 'text-[#3a3135] hover:bg-[#F5F3FF] hover:text-[#7C3AED]'
-                  }`}
-                >
-                  <span>{st.name}</span>
-                  {isSelected && <Check className="w-3.5 h-3.5 text-white" />}
-                </button>
-              );
-            })}
+          <div className="p-3 bg-[#FAF8FC] rounded-2xl border border-[#EDE9FE] space-y-1.5 text-xs">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] text-gray-500 font-semibold">Active Stage</span>
+              <span className="font-bold text-[#7C3AED]">{stageName || 'Reproductive Age'}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] text-gray-500 font-semibold">Stage Engine</span>
+              <span className="font-semibold text-emerald-700 text-[10px] bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                ✓ Automated Clinical Rules
+              </span>
+            </div>
+          </div>
+
+          <div className="space-y-2 text-[11px] text-gray-600 leading-relaxed">
+            <p className="flex items-start gap-1.5">
+              <Info className="w-3.5 h-3.5 text-[#7C3AED] shrink-0 mt-0.5" />
+              <span>
+                Your life stage dynamically calculates from your <b>Date of Birth</b>, onset of <b>menarche</b>, and active <b>pregnancy state</b>.
+              </span>
+            </p>
+          </div>
+
+          <div className="border-t border-[#EDE9FE] pt-2.5 flex flex-col gap-2">
+            <Link
+              to="/settings"
+              onClick={() => setIsOpen(false)}
+              className="text-center py-2 px-3 bg-[#FAF8FC] hover:bg-purple-50 text-[#7C3AED] font-bold text-xs rounded-xl border border-[#EDE9FE] transition-colors flex items-center justify-center gap-1.5"
+            >
+              <span>Calibrate DOB / Menarche in Settings</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+
+            <Link
+              to="/tracker"
+              onClick={() => setIsOpen(false)}
+              className="text-center py-2 px-3 bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-bold text-xs rounded-xl transition-colors flex items-center justify-center gap-1.5"
+            >
+              <span>Manage Maternity in Period Tracker</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
           </div>
         </div>
       )}

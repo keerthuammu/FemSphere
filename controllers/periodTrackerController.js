@@ -1,4 +1,5 @@
 import pool from '../config/db.js';
+import { calculateGestationalMetrics, determineBiologicalLifeStage } from '../services/lifeStageService.js';
 
 // ==============================================================================
 // MENSTRUAL PHASE WELLNESS AFFIRMATIONS & RANDOM HEALTHY TIPS
@@ -265,8 +266,17 @@ export const getPeriodSettings = async (req, res) => {
     }
 
     const row = settingsRes.rows[0];
+    const isPregnant = Boolean(row.is_pregnant);
     const lastStartStr = row.last_period_start.toISOString().split('T')[0];
-    const metrics = calculatePhaseMetrics(lastStartStr, row.period_duration, row.cycle_length);
+    const pregnancyStartStr = row.pregnancy_start_date ? row.pregnancy_start_date.toISOString().split('T')[0] : lastStartStr;
+    const eddStr = row.gestational_target_edd ? row.gestational_target_edd.toISOString().split('T')[0] : null;
+
+    let metrics;
+    if (isPregnant) {
+      metrics = calculateGestationalMetrics(pregnancyStartStr);
+    } else {
+      metrics = calculatePhaseMetrics(lastStartStr, row.period_duration, row.cycle_length);
+    }
 
     // Fetch cycle history
     const historyRes = await pool.query(
@@ -284,12 +294,16 @@ export const getPeriodSettings = async (req, res) => {
     res.json({
       success: true,
       isConfigured: true,
+      isPregnant,
       settings: {
         id: row.id,
         lastPeriodStart: lastStartStr,
         periodDuration: row.period_duration,
         cycleLength: row.cycle_length,
         isConfigured: row.is_configured,
+        isPregnant,
+        pregnancyStartDate: isPregnant ? pregnancyStartStr : null,
+        gestationalTargetEdd: isPregnant ? (eddStr || metrics.edd) : null,
         updatedAt: row.updated_at
       },
       metrics,
@@ -653,3 +667,185 @@ export const getPatientCycleForDoctor = async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
+
+// ==============================================================================
+// 6. ACTIVATE MATERNITY / PREGNANCY MODE (PAUSES MENSTRUAL CYCLE)
+// ==============================================================================
+export const activatePregnancy = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { lmpDate } = req.body;
+
+    const settingsRes = await pool.query(
+      `SELECT * FROM period_settings WHERE user_id = $1`,
+      [userId]
+    );
+
+    let effectiveLmp = lmpDate;
+    if (!effectiveLmp) {
+      if (settingsRes.rows.length > 0 && settingsRes.rows[0].last_period_start) {
+        effectiveLmp = settingsRes.rows[0].last_period_start.toISOString().split('T')[0];
+      } else {
+        effectiveLmp = new Date().toISOString().split('T')[0];
+      }
+    }
+
+    const lmp = new Date(effectiveLmp + 'T00:00:00');
+    const edd = new Date(lmp);
+    edd.setDate(edd.getDate() + 280);
+    const eddStr = edd.toISOString().split('T')[0];
+
+    // Upsert into period_settings
+    const upsertRes = await pool.query(
+      `INSERT INTO period_settings (
+         user_id, last_period_start, period_duration, cycle_length, is_configured, 
+         is_pregnant, pregnancy_start_date, gestational_target_edd, updated_at
+       )
+       VALUES ($1, $2, 5, 28, TRUE, TRUE, $2, $3, CURRENT_TIMESTAMP)
+       ON CONFLICT (user_id)
+       DO UPDATE SET 
+         is_pregnant = TRUE,
+         pregnancy_start_date = EXCLUDED.pregnancy_start_date,
+         gestational_target_edd = EXCLUDED.gestational_target_edd,
+         updated_at = CURRENT_TIMESTAMP
+       RETURNING *`,
+      [userId, effectiveLmp, eddStr]
+    );
+
+    // Synchronize active life stage to Pregnancy Journey
+    await pool.query(
+      `UPDATE user_profiles SET life_stage = 'Pregnancy Journey', updated_at = CURRENT_TIMESTAMP WHERE user_id = $1`,
+      [userId]
+    );
+
+    // Sync to user_life_stages
+    await pool.query(
+      `UPDATE user_life_stages SET is_current = FALSE WHERE user_id = $1`,
+      [userId]
+    );
+    await pool.query(
+      `INSERT INTO user_life_stages (user_id, life_stage_code, is_current, manually_set, enabled_modules)
+       VALUES ($1, 'PREGNANCY', TRUE, FALSE, '["Maternity Hub", "Gestational Milestones", "Kick Counter", "Prenatal Care"]')`,
+      [userId]
+    );
+
+    // Log to health_events
+    try {
+      await pool.query(
+        `INSERT INTO health_events (user_id, event_type, event_date, title, metadata, source)
+         VALUES ($1, 'Pregnancy', $2, 'Entered Maternity Mode', $3, 'Period Tracker')`,
+        [
+          userId,
+          effectiveLmp,
+          JSON.stringify({ lmpDate: effectiveLmp, edd: eddStr, note: 'Period tracker cycle paused for pregnancy' })
+        ]
+      );
+    } catch (e) {}
+
+    const maternityMetrics = calculateGestationalMetrics(effectiveLmp);
+
+    res.status(200).json({
+      success: true,
+      message: 'Maternity mode activated. Menstrual cycle tracker paused.',
+      isPregnant: true,
+      settings: upsertRes.rows[0],
+      metrics: maternityMetrics
+    });
+  } catch (err) {
+    console.error('Error activating pregnancy mode:', err);
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// ==============================================================================
+// 7. DEACTIVATE MATERNITY / RESUME MENSTRUAL CYCLE
+// ==============================================================================
+export const deactivatePregnancy = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { resumePeriodDate } = req.body;
+
+    const settingsRes = await pool.query(
+      `SELECT * FROM period_settings WHERE user_id = $1`,
+      [userId]
+    );
+
+    if (settingsRes.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'No period tracking profile found.' });
+    }
+
+    const current = settingsRes.rows[0];
+    const effectiveStart = resumePeriodDate || (current.last_period_start ? current.last_period_start.toISOString().split('T')[0] : new Date().toISOString().split('T')[0]);
+
+    const updateRes = await pool.query(
+      `UPDATE period_settings
+       SET is_pregnant = FALSE,
+           pregnancy_start_date = NULL,
+           gestational_target_edd = NULL,
+           last_period_start = $1,
+           updated_at = CURRENT_TIMESTAMP
+       WHERE user_id = $2
+       RETURNING *`,
+      [effectiveStart, userId]
+    );
+
+    // Recalibrate normal menstrual metrics
+    const metrics = calculatePhaseMetrics(
+      effectiveStart, 
+      updateRes.rows[0].period_duration || 5, 
+      updateRes.rows[0].cycle_length || 28
+    );
+
+    // Recalculate dynamic life stage from DOB
+    const profileRes = await pool.query(
+      `SELECT dob, menarche_started FROM user_profiles WHERE user_id = $1`,
+      [userId]
+    );
+    if (profileRes.rows.length > 0) {
+      const p = profileRes.rows[0];
+      const normalStage = determineBiologicalLifeStage({
+        dob: p.dob,
+        menarcheStarted: p.menarche_started !== false,
+        isPregnant: false
+      });
+      await pool.query(
+        `UPDATE user_profiles SET life_stage = $1, updated_at = CURRENT_TIMESTAMP WHERE user_id = $2`,
+        [normalStage.name, userId]
+      );
+      await pool.query(
+        `UPDATE user_life_stages SET is_current = FALSE WHERE user_id = $1`,
+        [userId]
+      );
+      await pool.query(
+        `INSERT INTO user_life_stages (user_id, life_stage_code, is_current, manually_set, enabled_modules)
+         VALUES ($1, $2, TRUE, FALSE, $3)`,
+        [userId, normalStage.code, JSON.stringify(normalStage.enabledModules || [])]
+      );
+    }
+
+    // Log to health_events
+    try {
+      await pool.query(
+        `INSERT INTO health_events (user_id, event_type, event_date, title, metadata, source)
+         VALUES ($1, 'Cycle', $2, 'Concluded Maternity Mode (Cycle Resumed)', $3, 'Period Tracker')`,
+        [
+          userId,
+          effectiveStart,
+          JSON.stringify({ resumeDate: effectiveStart, note: 'Resumed standard menstrual cycle tracking' })
+        ]
+      );
+    } catch (e) {}
+
+    res.status(200).json({
+      success: true,
+      message: 'Maternity mode concluded. Menstrual cycle tracker resumed.',
+      isPregnant: false,
+      settings: updateRes.rows[0],
+      metrics
+    });
+  } catch (err) {
+    console.error('Error deactivating pregnancy mode:', err);
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+

@@ -167,7 +167,7 @@ export default function Register() {
               </span>
               <span className="text-xs font-bold text-slate-900 dark:text-white">
                 {step === 1 && 'Basic Information'}
-                {step === 2 && 'Date of Birth & Stage'}
+                {step === 2 && 'Date of Birth'}
                 {step === 3 && 'Health Baseline'}
                 {step === 4 && 'Health Preferences'}
                 {step === 5 && 'Emergency Contact'}
@@ -301,15 +301,15 @@ export default function Register() {
             </div>
           )}
 
-          {/* STEP 2: DATE OF BIRTH & LIFETIME STAGE */}
+          {/* STEP 2: DATE OF BIRTH */}
           {step === 2 && (
             <div className="mt-4 space-y-3.5">
               <div>
                 <h2 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
-                  Your Life Stage Journey
+                  When were you born?
                 </h2>
                 <p className="text-xs text-slate-500 dark:text-slate-400">
-                  FemSphere adapts its AI health model to your exact stage of life.
+                  FemSphere dynamically customizes all health insights based on your age and biological milestones.
                 </p>
               </div>
 
@@ -322,52 +322,36 @@ export default function Register() {
                   <input
                     type="date"
                     value={dob}
-                    onChange={e => setDob(e.target.value)}
+                    onChange={e => {
+                      setDob(e.target.value);
+                      if (e.target.value) {
+                        const birthYear = new Date(e.target.value).getFullYear();
+                        const currentYear = new Date().getFullYear();
+                        const approxAge = currentYear - birthYear;
+                        if (approxAge <= 12) setLifeStage('childhood');
+                        else if (approxAge <= 18) setLifeStage('puberty');
+                        else if (approxAge <= 42) setLifeStage('reproductive_age');
+                        else if (approxAge <= 50) setLifeStage('perimenopause');
+                        else setLifeStage('menopause');
+                      }
+                    }}
                     required
                     className="w-full pl-10 pr-3 py-2.5 rounded-2xl bg-white dark:bg-slate-800 border border-purple-100 dark:border-slate-700 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500/30"
                   />
                 </div>
               </div>
 
-              <div>
-                <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">
-                  Select Your Current Life Stage
-                </label>
-                <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
-                  {lifeStages.map(stage => {
-                    const isSelected = lifeStage === stage.id;
-                    return (
-                      <div
-                        key={stage.id}
-                        onClick={() => setLifeStage(stage.id)}
-                        className={`p-3 rounded-2xl border cursor-pointer transition-all ${
-                          isSelected
-                            ? 'bg-purple-50/80 dark:bg-purple-950/40 border-purple-500 dark:border-purple-400 shadow-xs'
-                            : 'bg-white dark:bg-slate-800 border-purple-100 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-750'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2.5">
-                            <span className="text-xl">{stage.icon}</span>
-                            <div>
-                              <div className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                                <span>{stage.title}</span>
-                                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 font-semibold">
-                                  {stage.age}
-                                </span>
-                              </div>
-                              <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
-                                {stage.desc}
-                              </p>
-                            </div>
-                          </div>
-                          <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${isSelected ? 'bg-purple-600 border-purple-600 text-white' : 'border-slate-300 dark:border-slate-600'}`}>
-                            {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
+              <div className="p-3.5 rounded-2xl bg-purple-50/70 dark:bg-purple-950/30 border border-purple-100 dark:border-purple-900/40">
+                <div className="flex items-start gap-2.5">
+                  <Sparkles className="w-4 h-4 text-purple-600 dark:text-purple-400 shrink-0 mt-0.5" />
+                  <div>
+                    <h4 className="text-xs font-bold text-purple-900 dark:text-purple-200">
+                      Automated Adaptive Intelligence
+                    </h4>
+                    <p className="text-[11px] text-purple-700 dark:text-purple-300 mt-0.5 leading-relaxed">
+                      Your life stage journey and biometric models are automatically personalized based on your date of birth.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -614,7 +598,6 @@ export default function Register() {
 
               <div className="space-y-2.5">
                 {[
-                  { key: 'wearableSync', title: 'Apple Health / BLE Wearable Access', desc: 'Sync sleep, vitals, and steps from connected devices.' },
                   { key: 'aiAnalysis', title: 'FemSphere AI Predictive Analytics', desc: 'Generate risk alerts, circadian trends, and twin forecasts.' },
                   { key: 'biometrics', title: 'Face ID & Biometric Screen Lock', desc: 'Require biometric unlock every time app is opened.' },
                   { key: 'encryptedStorage', title: 'Zero-Knowledge Vault Encryption', desc: 'Hardware-level encryption for uploaded lab reports and notes.' },

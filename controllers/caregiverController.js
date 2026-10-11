@@ -27,7 +27,20 @@ export const addDependent = async (req, res) => {
     const fullName = req.body.fullName || req.body.name;
     const dob = req.body.dob || '2020-01-01';
     const relationship = req.body.relationship || req.body.relation || 'Child';
-    const bloodGroup = req.body.bloodGroup || req.body.blood_group || 'A+';
+    const rawBloodGroup = req.body.bloodGroup || req.body.blood_group || 'A+';
+    const normalizeBloodGroup = (bg) => {
+      if (!bg || typeof bg !== 'string') return 'Unknown';
+      const clean = bg.trim();
+      const match = clean.match(/\((A\+|A-|B\+|B-|AB\+|AB-|O\+|O-)\)/i);
+      if (match) return match[1].toUpperCase();
+      const direct = clean.toUpperCase();
+      const valid = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'UNKNOWN'];
+      if (valid.includes(direct)) {
+        return direct === 'UNKNOWN' ? 'Unknown' : direct;
+      }
+      return 'Unknown';
+    };
+    const bloodGroup = normalizeBloodGroup(rawBloodGroup);
     const medicalNotes = req.body.medicalNotes || '';
 
     if (!fullName) {

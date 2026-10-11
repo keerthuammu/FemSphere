@@ -250,10 +250,6 @@ export default function Register() {
           setErrorMsg('Please select your Marital Status.');
           return false;
         }
-        if (!formData.lifeStage) {
-          setErrorMsg('Please select your Current Life Stage.');
-          return false;
-        }
         if (formData.emergencyContactPhone.trim() && !isValidPhone(formData.emergencyContactPhone)) {
           setErrorMsg('Please enter a valid Emergency Contact Phone.');
           return false;
@@ -947,14 +943,14 @@ export default function Register() {
                         className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm bg-white"
                       >
                         <option value="">Select Blood Group</option>
-                        <option value="A Positive (A+)">A Positive (A+)</option>
-                        <option value="A Negative (A-)">A Negative (A-)</option>
-                        <option value="B Positive (B+)">B Positive (B+)</option>
-                        <option value="B Negative (B-)">B Negative (B-)</option>
-                        <option value="O Positive (O+)">O Positive (O+)</option>
-                        <option value="O Negative (O-)">O Negative (O-)</option>
-                        <option value="AB Positive (AB+)">AB Positive (AB+)</option>
-                        <option value="AB Negative (AB-)">AB Negative (AB-)</option>
+                        <option value="A+">A Positive (A+)</option>
+                        <option value="A-">A Negative (A-)</option>
+                        <option value="B+">B Positive (B+)</option>
+                        <option value="B-">B Negative (B-)</option>
+                        <option value="O+">O Positive (O+)</option>
+                        <option value="O-">O Negative (O-)</option>
+                        <option value="AB+">AB Positive (AB+)</option>
+                        <option value="AB-">AB Negative (AB-)</option>
                       </select>
                     </div>
 
@@ -999,41 +995,6 @@ export default function Register() {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">Current Life Stage</label>
-                      <select 
-                        name="lifeStage" 
-                        value={formData.lifeStage} 
-                        onChange={handleChange}
-                        className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm bg-white"
-                      >
-                        <option value="">Select Life Stage</option>
-                        <option value="Reproductive Age">Reproductive Age</option>
-                        <option value="Adolescence">Adolescence</option>
-                        <option value="Pregnancy / Postpartum">Pregnancy / Postpartum</option>
-                        <option value="Perimenopause">Perimenopause</option>
-                        <option value="Menopause">Menopause</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">Wearable Device (Optional)</label>
-                      <select 
-                        name="wearableDevice" 
-                        value={formData.wearableDevice} 
-                        onChange={handleChange}
-                        className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm bg-white"
-                      >
-                        <option value="">Select Wearable Device (Optional)</option>
-                        <option value="Apple Watch">Apple Watch</option>
-                        <option value="Fitbit">Fitbit</option>
-                        <option value="Google Fit">Google Fit</option>
-                        <option value="Oura Ring">Oura Ring</option>
-                        <option value="Garmin">Garmin</option>
-                        <option value="None">None</option>
-                      </select>
-                    </div>
-
-                    <div>
                       <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">Emergency Contact Name</label>
                       <input 
                         type="text" 
@@ -1045,7 +1006,7 @@ export default function Register() {
                       />
                     </div>
 
-                    <div className="md:col-span-2">
+                    <div>
                       <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">Emergency Contact Phone</label>
                       <input 
                         type="tel" 
@@ -1161,14 +1122,14 @@ export default function Register() {
                             className="w-full px-4 py-3 rounded-xl border border-[#EDE9FE] focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 outline-none text-sm bg-white"
                           >
                             <option value="">Select Blood Group</option>
-                            <option value="A Positive (A+)">A Positive (A+)</option>
-                            <option value="A Negative (A-)">A Negative (A-)</option>
-                            <option value="B Positive (B+)">B Positive (B+)</option>
-                            <option value="B Negative (B-)">B Negative (B-)</option>
-                            <option value="O Positive (O+)">O Positive (O+)</option>
-                            <option value="O Negative (O-)">O Negative (O-)</option>
-                            <option value="AB Positive (AB+)">AB Positive (AB+)</option>
-                            <option value="AB Negative (AB-)">AB Negative (AB-)</option>
+                            <option value="A+">A Positive (A+)</option>
+                            <option value="A-">A Negative (A-)</option>
+                            <option value="B+">B Positive (B+)</option>
+                            <option value="B-">B Negative (B-)</option>
+                            <option value="O+">O Positive (O+)</option>
+                            <option value="O-">O Negative (O-)</option>
+                            <option value="AB+">AB Positive (AB+)</option>
+                            <option value="AB-">AB Negative (AB-)</option>
                           </select>
                         </div>
 

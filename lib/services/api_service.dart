@@ -448,4 +448,37 @@ class ApiService {
     }
     return {};
   }
+
+  static Future<Map<String, dynamic>> activatePregnancy(String lmpDate) async {
+    final response = await http.post(
+      Uri.parse(ApiConstants.pregnancyActivate),
+      headers: _headers,
+      body: jsonEncode({'lmpDate': lmpDate}),
+    );
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    }
+    return {'success': false, 'message': 'Failed to activate pregnancy'};
+  }
+
+  static Future<Map<String, dynamic>> deactivatePregnancy(String resumeDate) async {
+    final response = await http.post(
+      Uri.parse(ApiConstants.pregnancyDeactivate),
+      headers: _headers,
+      body: jsonEncode({'resumePeriodDate': resumeDate}),
+    );
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    }
+    return {'success': false, 'message': 'Failed to conclude maternity mode'};
+  }
+
+  static Future<Map<String, dynamic>> getDynamicLifeStage() async {
+    final response = await http.get(Uri.parse(ApiConstants.userLifeStage), headers: _headers);
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    }
+    return {};
+  }
 }
+

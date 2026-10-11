@@ -155,4 +155,61 @@ describe('FemSphere Node.js Express REST API Automated Test Suite', () => {
     assert.ok(Array.isArray(records));
   });
 
+  test('TC_API_12: GET /api/life-stages/current returns dynamic biological stage derived from DOB', async () => {
+    const res = await fetch(`${baseUrl}/api/life-stages/current`, {
+      headers: { 'Authorization': `Bearer ${patientToken}` }
+    });
+    assert.equal(res.status, 200);
+    const data = await res.json();
+    assert.equal(data.success, true);
+    assert.ok(data.currentStage);
+    assert.ok(data.currentStage.name);
+    assert.ok(data.currentStage.age !== undefined);
+  });
+
+  test('TC_API_13: POST /api/period-tracker/pregnancy/activate pauses cycle and returns gestational metrics', async () => {
+    const lmpDate = '2026-06-01';
+    const res = await fetch(`${baseUrl}/api/period-tracker/pregnancy/activate`, {
+      method: 'POST',
+      headers: { 
+        'Authorization': `Bearer ${patientToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ lmpDate })
+    });
+    assert.equal(res.status, 200);
+    const data = await res.json();
+    assert.equal(data.success, true);
+    assert.equal(data.isPregnant, true);
+    assert.ok(data.metrics.gestationalWeeks !== undefined);
+    assert.equal(data.metrics.phaseCode, 'PREGNANCY');
+    assert.ok(data.metrics.edd);
+
+    // Verify overview also reflects paused cycle
+    const overviewRes = await fetch(`${baseUrl}/api/period-tracker/overview`, {
+      headers: { 'Authorization': `Bearer ${patientToken}` }
+    });
+    const overview = await overviewRes.json();
+    assert.equal(overview.isPregnant, true);
+    assert.equal(overview.metrics.phaseCode, 'PREGNANCY');
+  });
+
+  test('TC_API_14: POST /api/period-tracker/pregnancy/deactivate resumes standard menstrual tracking', async () => {
+    const res = await fetch(`${baseUrl}/api/period-tracker/pregnancy/deactivate`, {
+      method: 'POST',
+      headers: { 
+        'Authorization': `Bearer ${patientToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ resumePeriodDate: '2026-10-01' })
+    });
+    assert.equal(res.status, 200);
+    const data = await res.json();
+    assert.equal(data.success, true);
+    assert.equal(data.isPregnant, false);
+    assert.ok(data.metrics.cycleDay !== undefined);
+    assert.notEqual(data.metrics.phaseCode, 'PREGNANCY');
+  });
+
 });
+
