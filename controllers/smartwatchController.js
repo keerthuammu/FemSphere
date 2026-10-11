@@ -230,22 +230,43 @@ export const syncData = async (req, res) => {
     ]);
     const deviceId = devResult.rows[0].id;
 
-    // 2. Insert Health Telemetry Point
+    // 2. Insert or Upsert Health Telemetry Point (Prevent duplicate records)
     const dataTimestamp = recorded_at ? new Date(recorded_at) : new Date();
-
-    const insertDataQuery = `
-      INSERT INTO smartwatch_health_data
-        (user_id, device_id, recorded_at, heart_rate, resting_heart_rate, steps, calories, distance, distance_meters, sleep_duration, sleep_duration_minutes, spo2, hrv_rmssd, stress_score, body_temperature, blood_pressure_systolic, blood_pressure_diastolic, respiratory_rate, activity_type, source, raw_payload)
-      VALUES
-        ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)
-      RETURNING *;
-    `;
+    const finalSyncKey = req.body.sync_key || `${deviceId}_${dataTimestamp.toISOString().split('T')[0]}`;
 
     const distM = distance_meters !== undefined && distance_meters !== null && distance_meters >= 0 ? parseFloat(distance_meters) : null;
     const distKm = distM !== null ? parseFloat((distM / 1000.0).toFixed(2)) : null;
     const sleepM = sleep_duration_minutes !== undefined && sleep_duration_minutes !== null && sleep_duration_minutes >= 0 ? parseInt(sleep_duration_minutes) : null;
 
-    const dataResult = await client.query(insertDataQuery, [
+    const upsertDataQuery = `
+      INSERT INTO smartwatch_health_data
+        (user_id, device_id, recorded_at, heart_rate, resting_heart_rate, steps, calories, distance, distance_meters, sleep_duration, sleep_duration_minutes, spo2, hrv_rmssd, stress_score, body_temperature, blood_pressure_systolic, blood_pressure_diastolic, respiratory_rate, activity_type, source, raw_payload, sync_key)
+      VALUES
+        ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22)
+      ON CONFLICT (user_id, sync_key) WHERE sync_key IS NOT NULL
+      DO UPDATE SET
+        recorded_at = EXCLUDED.recorded_at,
+        heart_rate = COALESCE(EXCLUDED.heart_rate, smartwatch_health_data.heart_rate),
+        resting_heart_rate = COALESCE(EXCLUDED.resting_heart_rate, smartwatch_health_data.resting_heart_rate),
+        steps = COALESCE(EXCLUDED.steps, smartwatch_health_data.steps),
+        calories = COALESCE(EXCLUDED.calories, smartwatch_health_data.calories),
+        distance = COALESCE(EXCLUDED.distance, smartwatch_health_data.distance),
+        distance_meters = COALESCE(EXCLUDED.distance_meters, smartwatch_health_data.distance_meters),
+        sleep_duration_minutes = COALESCE(EXCLUDED.sleep_duration_minutes, smartwatch_health_data.sleep_duration_minutes),
+        spo2 = COALESCE(EXCLUDED.spo2, smartwatch_health_data.spo2),
+        hrv_rmssd = COALESCE(EXCLUDED.hrv_rmssd, smartwatch_health_data.hrv_rmssd),
+        stress_score = COALESCE(EXCLUDED.stress_score, smartwatch_health_data.stress_score),
+        body_temperature = COALESCE(EXCLUDED.body_temperature, smartwatch_health_data.body_temperature),
+        blood_pressure_systolic = COALESCE(EXCLUDED.blood_pressure_systolic, smartwatch_health_data.blood_pressure_systolic),
+        blood_pressure_diastolic = COALESCE(EXCLUDED.blood_pressure_diastolic, smartwatch_health_data.blood_pressure_diastolic),
+        respiratory_rate = COALESCE(EXCLUDED.respiratory_rate, smartwatch_health_data.respiratory_rate),
+        activity_type = COALESCE(EXCLUDED.activity_type, smartwatch_health_data.activity_type),
+        source = COALESCE(EXCLUDED.source, smartwatch_health_data.source),
+        raw_payload = COALESCE(EXCLUDED.raw_payload, smartwatch_health_data.raw_payload)
+      RETURNING *;
+    `;
+
+    const dataResult = await client.query(upsertDataQuery, [
       userId,
       deviceId,
       dataTimestamp,
@@ -266,29 +287,51 @@ export const syncData = async (req, res) => {
       respiratory_rate !== undefined && respiratory_rate !== null ? parseFloat(respiratory_rate) : null,
       activity_type || 'General',
       dataSource,
-      JSON.stringify(raw_payload || {})
+      JSON.stringify(raw_payload || {}),
+      finalSyncKey
     ]);
 
-    // 3. Keep standard FemSphere health_tracker daily log in sync if sleep was read
-    if (sleep_duration_minutes !== null && sleep_duration_minutes > 0) {
-      const sleepHours = (sleep_duration_minutes / 60.0).toFixed(2);
-      await client.query(`
-        INSERT INTO health_tracker (user_id, log_date, sleep_hours)
-        VALUES ($1, CURRENT_DATE, $2)
-        ON CONFLICT (user_id, log_date)
-        DO UPDATE SET sleep_hours = EXCLUDED.sleep_hours;
-      `, [userId, sleepHours]);
-    }
+    // 3. Keep standard FemSphere health_tracker daily log in sync with all wearable telemetry
+    const logDateStr = dataTimestamp.toISOString().split('T')[0];
+    const bpStr = (blood_pressure_systolic && blood_pressure_diastolic)
+      ? `${blood_pressure_systolic}/${blood_pressure_diastolic}`
+      : null;
+    const sleepHoursVal = sleepM ? parseFloat((sleepM / 60.0).toFixed(2)) : null;
 
-    // 4. Keep standard FemSphere health_tracker daily log in sync if water intake was recorded
+    await client.query(`
+      INSERT INTO health_tracker (
+        user_id, log_date, steps, calories_burned, distance_km, heart_rate, sleep_hours, blood_pressure
+      ) VALUES (
+        $1, $2, $3, $4, $5, $6, $7, $8
+      )
+      ON CONFLICT (user_id, log_date)
+      DO UPDATE SET
+        steps = COALESCE(EXCLUDED.steps, health_tracker.steps),
+        calories_burned = COALESCE(EXCLUDED.calories_burned, health_tracker.calories_burned),
+        distance_km = COALESCE(EXCLUDED.distance_km, health_tracker.distance_km),
+        heart_rate = COALESCE(EXCLUDED.heart_rate, health_tracker.heart_rate),
+        sleep_hours = COALESCE(EXCLUDED.sleep_hours, health_tracker.sleep_hours),
+        blood_pressure = COALESCE(EXCLUDED.blood_pressure, health_tracker.blood_pressure);
+    `, [
+      userId,
+      logDateStr,
+      steps !== undefined && steps !== null ? parseInt(steps, 10) : null,
+      calories !== undefined && calories !== null ? Math.round(parseFloat(calories)) : null,
+      distKm,
+      heart_rate !== undefined && heart_rate !== null ? parseInt(heart_rate, 10) : null,
+      sleepHoursVal,
+      bpStr
+    ]);
+
+    // 4. Also keep water intake updated if provided
     const waterIntakeLiters = req.body.water_intake_liters || (req.body.water_intake_ml ? (req.body.water_intake_ml / 1000.0) : null);
     if (waterIntakeLiters !== null && waterIntakeLiters > 0) {
       await client.query(`
         INSERT INTO health_tracker (user_id, log_date, water_intake_liters)
-        VALUES ($1, CURRENT_DATE, $2)
+        VALUES ($1, $2, $3)
         ON CONFLICT (user_id, log_date)
         DO UPDATE SET water_intake_liters = EXCLUDED.water_intake_liters;
-      `, [userId, parseFloat(waterIntakeLiters.toFixed(2))]);
+      `, [userId, logDateStr, parseFloat(waterIntakeLiters.toFixed(2))]);
     }
 
     await client.query('COMMIT');
@@ -565,3 +608,40 @@ export const deleteDevice = async (req, res) => {
     return res.status(500).json({ success: false, message: 'Server error deleting device.' });
   }
 };
+
+/**
+ * Update connection status or details of a registered device.
+ * PATCH /api/wearables/devices/:id/status or PUT /api/wearables/devices/:id
+ */
+export const updateDeviceStatus = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { id } = req.params;
+    const { connection_status, battery_level, device_name } = req.body;
+
+    const result = await pool.query(
+      `UPDATE smartwatch_devices 
+       SET connection_status = COALESCE($1, connection_status),
+           battery_level = COALESCE($2, battery_level),
+           device_name = COALESCE($3, device_name),
+           updated_at = CURRENT_TIMESTAMP
+       WHERE id = $4 AND user_id = $5
+       RETURNING *;`,
+      [connection_status, battery_level, device_name, id, userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Device not found or not owned by user.' });
+    }
+
+    return res.json({
+      success: true,
+      message: 'Device status updated successfully.',
+      device: result.rows[0]
+    });
+  } catch (err) {
+    console.error('Error in updateDeviceStatus:', err);
+    return res.status(500).json({ success: false, message: 'Server error updating device status.' });
+  }
+};
+

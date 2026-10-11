@@ -5,11 +5,12 @@ import {
   LogOut, Bell, Watch, Bluetooth, Wifi, RefreshCw, 
   Battery, CheckCircle2, Clock, Printer, Camera, 
   X, FileCheck, Scan, User, Sliders, Video, VideoOff, Mic, MicOff, PhoneCall, PhoneOff,
-  MapPin, Search, Stethoscope, AlertCircle, AlertTriangle, ShieldCheck, Users, ChevronRight, Droplet
+  MapPin, Search, Stethoscope, AlertCircle, AlertTriangle, ShieldCheck, Users, ChevronRight, Droplet, Upload
 } from 'lucide-react';
 import { useUser } from '../../context/UserContext';
 import LifeStageSelector from '../../components/LifeStageSelector';
 import LifeStageOnboardingModal from '../../components/LifeStageOnboardingModal';
+import ConnectDeviceModal from '../../components/wearables/ConnectDeviceModal';
 import { isFutureDate } from '../../utils/validation';
 
 export default function UserLayout() {
@@ -24,8 +25,11 @@ export default function UserLayout() {
     currentTime,
     showBluetoothModal,
     setShowBluetoothModal,
+    showConnectDeviceModal,
+    setShowConnectDeviceModal,
     bluetoothConnected,
     connectedDevice,
+    wearableDevices,
     isScanning,
     foundDevices,
     smartwatchVitals,
@@ -106,7 +110,7 @@ export default function UserLayout() {
     { name: 'Dashboard', path: '/dashboard', icon: Activity, end: true },
     { name: 'Medical Records', path: '/dashboard/records', icon: FileText },
     { name: 'Health Tracker', path: '/dashboard/tracker', icon: Heart, iconColor: 'text-[#F472B6]' },
-    { name: 'Smartwatch Hub', path: '/dashboard/smartwatch', icon: Watch, iconColor: 'text-[#7C3AED]' },
+    { name: 'Connect Devices', path: '/dashboard/devices', icon: Watch, iconColor: 'text-[#7C3AED]' },
     ...(isReproductiveAgeUser ? [
       { name: 'Period Tracker', path: '/dashboard/period-tracker', icon: Droplet, iconColor: 'text-rose-500' }
     ] : []),
@@ -118,19 +122,19 @@ export default function UserLayout() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#FAF7F4] flex font-sans text-[#2E2428]">
+    <div className="min-h-screen bg-[#FAF8FD] flex font-sans text-[#201538]">
       
-      {/* --- SIDEBAR --- Identical to DoctorLayout */}
-      <aside className="hidden md:flex flex-col justify-between fixed top-0 left-0 h-screen w-64 z-40 bg-[#F2EBE5] border-r border-[#E5CDBC] p-6 overflow-y-auto print:hidden">
-        <div className="space-y-8">
-          {/* Brand */}
-          <Link to="/" className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-2xl bg-[#7C3AED] text-white flex items-center justify-center font-bold text-lg shadow-sm">
-              <Activity className="w-5 h-5" />
+      {/* --- SIDEBAR --- Elegant minimal lavender theme matching reference UI */}
+      <aside className="hidden md:flex flex-col justify-between fixed top-0 left-0 h-screen w-64 z-40 bg-[#FAF8FD] border-r border-[#F0EAF8] p-5 overflow-y-auto print:hidden">
+        <div className="space-y-6">
+          {/* Brand Logo & Name */}
+          <Link to="/" className="flex items-center gap-3 px-1 py-1">
+            <div className="w-10 h-10 rounded-2xl bg-[#201538] text-white flex items-center justify-center font-bold text-lg shadow-sm">
+              <Sparkles className="w-5 h-5 text-[#C4B5FD]" />
             </div>
             <div>
-              <span className="font-serif text-xl font-bold tracking-tight text-[#2E2428] block leading-none">FemSphere</span>
-              <span className="text-[10px] uppercase font-bold text-[#7C3AED] tracking-widest block mt-0.5">Patient Portal</span>
+              <span className="font-sans text-xl font-extrabold tracking-tight text-[#201538] block leading-none">FemSphere</span>
+              <span className="text-[10px] uppercase font-bold text-[#8B5CF6] tracking-widest block mt-0.5">Health Portal</span>
             </div>
           </Link>
           
@@ -146,8 +150,8 @@ export default function UserLayout() {
                   className={({ isActive }) =>
                     `w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl font-bold text-xs transition-all ${
                       isActive 
-                        ? 'bg-white text-[#7C3AED] shadow-xs border border-[#E5CDBC]' 
-                        : 'text-[#4A3B42] hover:bg-white/40 hover:text-[#2E2428]'
+                        ? 'bg-white text-[#201538] shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-[#EDE8F5]' 
+                        : 'text-[#8A8197] hover:bg-white/60 hover:text-[#201538]'
                     }`
                   }
                 >
@@ -156,7 +160,7 @@ export default function UserLayout() {
                     <span className="truncate">{item.name}</span>
                   </div>
                   {item.badge !== undefined && (
-                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-[#7C3AED] text-white">
+                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-[#FB7185] text-white">
                       {item.badge}
                     </span>
                   )}
@@ -164,58 +168,96 @@ export default function UserLayout() {
               );
             })}
 
-            {/* Connect Watch (Bluetooth) in nav */}
+            {/* Connect Device in nav */}
             <button 
-              onClick={() => {
-                setShowBluetoothModal(true);
-                if (!bluetoothConnected && foundDevices.length === 0) {
-                  handleScanBluetoothDevices();
-                }
-              }} 
-              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl font-bold text-xs transition-all cursor-pointer ${
-                bluetoothConnected 
-                  ? 'bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-2xs' 
-                  : 'text-[#4A3B42] hover:bg-white/40 hover:text-[#2E2428]'
-              }`}
+              onClick={() => setShowConnectDeviceModal(true)} 
+              className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl font-bold text-xs transition-all cursor-pointer bg-white/70 hover:bg-white text-[#7C3AED] hover:text-[#6D28D9] border border-[#E9D5FF] shadow-2xs hover:shadow-xs group"
             >
-              <Watch className={`w-4 h-4 shrink-0 ${bluetoothConnected ? 'text-emerald-600' : 'text-[#7C3AED]'}`} />
-              <span className="truncate">{bluetoothConnected ? 'Watch Paired' : 'Connect Watch'}</span>
+              <div className="flex items-center gap-3">
+                <Watch className="w-4 h-4 shrink-0 text-[#7C3AED] group-hover:scale-110 transition-transform" />
+                <span className="truncate">Connect Device</span>
+              </div>
+              <span className="text-[10px] bg-[#EDE9FE] text-[#7C3AED] px-2 py-0.5 rounded-full font-bold">
+                {wearableDevices.length > 0 ? `${wearableDevices.length} Active` : '+ Add'}
+              </span>
             </button>
           </nav>
         </div>
 
-        {/* User Identity & Logout Footer */}
-        <div className="pt-6 border-t border-[#E5CDBC] space-y-4">
-          <div className="flex items-center gap-3">
-            <div 
-              className="w-10 h-10 rounded-xl text-white flex items-center justify-center font-bold text-sm shadow-sm overflow-hidden shrink-0"
-              style={{ backgroundColor: userProfile.avatarBg || '#7C3AED' }}
-            >
-              {userProfile.avatarUrl ? (
-                <img src={userProfile.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
-              ) : (
-                <span>{userProfile.fullName ? userProfile.fullName.charAt(0).toUpperCase() : 'U'}</span>
-              )}
+        {/* Bottom Section: Upgrade Promotion Card + User Identity */}
+        <div className="pt-4 space-y-4">
+          {/* Upgrade Card matching reference UI */}
+          <div className="bg-white p-4 rounded-3xl border border-[#EDE8F5] shadow-[0_4px_20px_rgba(124,58,237,0.03)] relative overflow-hidden group">
+            <div className="pr-2">
+              <h5 className="font-extrabold text-xs text-[#201538] leading-tight">
+                Let's upgrade to premium feature
+              </h5>
+              <p className="text-[10px] text-[#8E859E] mt-1 leading-snug">
+                Upgrade to premium and get continuous biomarker analytics
+              </p>
             </div>
-            <div className="overflow-hidden">
-              <h4 className="font-bold text-xs text-[#2E2428] truncate">{userProfile.fullName || 'User'}</h4>
-              <p className="text-[10px] text-[#7A6A72] truncate">{stageName || 'Patient'}</p>
+            
+            <div className="mt-4 flex items-end justify-between">
+              {/* Minimal celebration / wellness outline illustration */}
+              <div className="relative w-12 h-12 flex items-center justify-center">
+                <svg viewBox="0 0 48 48" className="w-12 h-12 text-[#8B5CF6]" fill="none">
+                  <circle cx="24" cy="20" r="10" stroke="#201538" strokeWidth="2" fill="#F3EEFC" />
+                  <path d="M19 19C19 19 21 21 24 21C27 21 29 19 29 19" stroke="#201538" strokeWidth="1.5" strokeLinecap="round" />
+                  <circle cx="21" cy="17" r="1.5" fill="#201538" />
+                  <circle cx="27" cy="17" r="1.5" fill="#201538" />
+                  <path d="M14 38C14 32 18 30 24 30C30 30 34 32 34 38" stroke="#201538" strokeWidth="2" strokeLinecap="round" />
+                  {/* Confetti / Sparkles */}
+                  <circle cx="10" cy="12" r="1.5" fill="#FB7185" />
+                  <path d="M37 12L39 14M39 12L37 14" stroke="#8B5CF6" strokeWidth="1.5" strokeLinecap="round" />
+                  <path d="M8 26L10 28" stroke="#FB7185" strokeWidth="1.5" strokeLinecap="round" />
+                  <circle cx="40" cy="24" r="1.5" fill="#7C3AED" />
+                </svg>
+              </div>
+
+              {/* Circular dark arrow button */}
+              <button
+                onClick={() => navigate('/dashboard/reports')}
+                className="w-8 h-8 rounded-full bg-[#201538] hover:bg-[#7C3AED] text-white flex items-center justify-center shadow-xs transition-all hover:scale-105 cursor-pointer"
+                title="Upgrade to Premium"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <Link
-              to="/dashboard/profile"
-              className="flex-1 flex items-center justify-center py-2 px-3 bg-white/60 hover:bg-white border border-[#E5CDBC] rounded-xl text-xs font-bold text-[#4A3B42] hover:text-[#2E2428] transition-all cursor-pointer shadow-2xs"
-            >
-              Profile
-            </Link>
-            <button
-              onClick={handleLogout}
-              className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 bg-white/60 hover:bg-white border border-[#E5CDBC] rounded-xl text-xs font-bold text-rose-700 transition-all cursor-pointer shadow-2xs"
-            >
-              <LogOut className="w-3.5 h-3.5" /> Log Out
-            </button>
+          {/* User Profile Pill & Actions */}
+          <div className="pt-3 border-t border-[#F0EAF8] space-y-3">
+            <div className="flex items-center gap-3">
+              <div 
+                className="w-9 h-9 rounded-full text-white flex items-center justify-center font-bold text-xs shadow-xs overflow-hidden shrink-0 border border-white"
+                style={{ backgroundColor: userProfile.avatarBg || '#7C3AED' }}
+              >
+                {userProfile.avatarUrl ? (
+                  <img src={userProfile.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                ) : (
+                  <span>{userProfile.fullName ? userProfile.fullName.charAt(0).toUpperCase() : 'U'}</span>
+                )}
+              </div>
+              <div className="overflow-hidden flex-1">
+                <h4 className="font-bold text-xs text-[#201538] truncate">{userProfile.fullName || 'User'}</h4>
+                <p className="text-[10px] text-[#8E859E] truncate">{stageName || 'Patient'}</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Link
+                to="/dashboard/profile"
+                className="flex-1 flex items-center justify-center py-1.5 px-2.5 bg-white hover:bg-white/80 border border-[#EDE8F5] rounded-xl text-xs font-semibold text-[#6E6480] hover:text-[#201538] transition-all cursor-pointer shadow-2xs"
+              >
+                Profile
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="flex-1 flex items-center justify-center gap-1 py-1.5 px-2.5 bg-white hover:bg-rose-50 border border-[#EDE8F5] hover:border-rose-200 rounded-xl text-xs font-semibold text-rose-600 transition-all cursor-pointer shadow-2xs"
+              >
+                <LogOut className="w-3.5 h-3.5" /> Log Out
+              </button>
+            </div>
           </div>
         </div>
       </aside>
@@ -223,18 +265,21 @@ export default function UserLayout() {
       {/* --- MAIN CONTENT AREA --- */}
       <div className="flex-1 flex flex-col min-w-0 min-h-screen md:ml-64">
         {/* Top Header */}
-        <header className="bg-white/80 backdrop-blur-md sticky top-0 z-30 border-b border-[#E5CDBC] px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 print:hidden">
-          <div className="flex items-center gap-3 flex-wrap">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200 shadow-2xs">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" /> Patient Active
-            </span>
-            <span className="text-xs text-[#7A6A72] hidden sm:inline">•</span>
-            <span className="text-xs text-[#7A6A72] font-semibold hidden sm:inline">
-              Welcome back, <strong className="text-[#2E2428]">{userProfile.fullName || 'User'}</strong>
-            </span>
+        <header className="bg-white/80 backdrop-blur-md sticky top-0 z-30 border-b border-[#F0EAF8] px-6 lg:px-8 py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 print:hidden">
+          {/* Left: Wide Search Pill matching reference UI */}
+          <div className="relative flex-1 max-w-xl">
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[#9E95AD]">
+              <Search className="w-4 h-4" />
+            </div>
+            <input
+              type="text"
+              placeholder="Search for class, task, etc..."
+              className="w-full pl-10 pr-4 py-2.5 rounded-full bg-[#FAF8FD] border border-[#EDE8F5] text-xs font-medium text-[#201538] placeholder-[#9E95AD] focus:outline-none focus:ring-2 focus:ring-[#7C3AED]/20 focus:border-[#7C3AED] focus:bg-white transition-all shadow-2xs"
+            />
           </div>
           
-          <div className="flex items-center gap-3">
+          {/* Right: Stage selector, Notifications, User Avatar */}
+          <div className="flex items-center gap-3 self-end sm:self-auto">
             {/* Life Stage Selector */}
             <LifeStageSelector
               currentStageCode={currentStageCode}
@@ -242,42 +287,52 @@ export default function UserLayout() {
               onSelectStage={handleSelectStage}
             />
 
-            {/* Smartwatch Status Pill */}
-            {bluetoothConnected && (
-              <button 
-                onClick={() => setShowBluetoothModal(true)}
-                className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold cursor-pointer hover:bg-emerald-100 transition-colors shadow-2xs"
-              >
-                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></div>
-                <Watch className="w-3.5 h-3.5 text-emerald-600" />
-                <span>{smartwatchVitals.heartRate} bpm</span>
-              </button>
-            )}
+            {/* Connect Device Button in Navigation Bar */}
+            <button
+              onClick={() => setShowConnectDeviceModal(true)}
+              className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-full bg-white hover:bg-[#FAF8FD] border border-[#EDE8F5] hover:border-[#DDD6FE] text-[#201538] text-xs font-bold transition-all shadow-2xs cursor-pointer group"
+              title="Connect smartwatch or health data source"
+            >
+              <Watch className="w-3.5 h-3.5 text-[#7C3AED] group-hover:rotate-12 transition-transform" />
+              <span className="hidden sm:inline">Connect Device</span>
+              {wearableDevices.length > 0 ? (
+                <span className="flex items-center gap-1 text-[10px] text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded-full font-bold">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                  {wearableDevices.length} Connected
+                </span>
+              ) : null}
+            </button>
 
-            {/* Live Clock */}
-            <div className="hidden lg:flex items-center gap-2 bg-[#FAF7F4] px-3.5 py-1.5 rounded-xl border border-[#E5CDBC] text-xs font-mono font-bold text-[#7A6A72]">
-              <Clock className="w-3.5 h-3.5 text-[#7C3AED]" />
-              {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-            </div>
-
-            {/* Notification Bell */}
+            {/* Notification Bell matching reference UI */}
             <Link
               to="/dashboard/notifications"
-              className="relative p-2 rounded-xl bg-white text-[#4A3B42] hover:text-[#7C3AED] transition-colors border border-[#E5CDBC] cursor-pointer shadow-2xs"
+              className="relative p-2.5 rounded-full bg-white text-[#6E6480] hover:text-[#7C3AED] hover:bg-[#F3EEFC] transition-colors border border-[#EDE8F5] cursor-pointer shadow-2xs"
               title="Notifications"
             >
               <Bell className="w-4 h-4" />
-              {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#7C3AED] text-white text-[10px] font-bold rounded-full flex items-center justify-center border border-white">
-                  {unreadCount}
-                </span>
+              <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#FB7185] text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white shadow-2xs">
+                {unreadCount > 0 ? unreadCount : '2'}
+              </span>
+            </Link>
+
+            {/* Profile Avatar Circle matching top right in reference UI */}
+            <Link
+              to="/dashboard/profile"
+              className="w-9 h-9 rounded-full overflow-hidden border border-[#EDE8F5] shadow-2xs flex items-center justify-center cursor-pointer hover:ring-2 hover:ring-[#7C3AED]/30 transition-all shrink-0"
+              style={{ backgroundColor: userProfile.avatarBg || '#7C3AED' }}
+              title="Profile"
+            >
+              {userProfile.avatarUrl ? (
+                <img src={userProfile.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-white text-xs font-bold">{userProfile.fullName ? userProfile.fullName.charAt(0).toUpperCase() : 'U'}</span>
               )}
             </Link>
           </div>
         </header>
 
         {/* Mobile Navigation Strip */}
-        <div className="md:hidden flex overflow-x-auto gap-2 p-3 bg-[#F2EBE5] border-b border-[#E5CDBC]">
+        <div className="md:hidden flex overflow-x-auto gap-2 p-3 bg-[#FAF8FD] border-b border-[#EDE8F5]">
           {navItems.map((item) => (
             <NavLink
               key={item.path}
@@ -286,8 +341,8 @@ export default function UserLayout() {
               className={({ isActive }) =>
                 `px-3 py-1.5 rounded-xl font-bold text-xs whitespace-nowrap transition-all ${
                   isActive
-                    ? 'bg-white text-[#7C3AED] shadow-xs border border-[#E5CDBC]'
-                    : 'text-[#4A3B42] hover:bg-white/40'
+                    ? 'bg-white text-[#201538] shadow-xs border border-[#EDE8F5]'
+                    : 'text-[#8A8197] hover:bg-white/40'
                 }`
               }
             >
@@ -318,179 +373,81 @@ export default function UserLayout() {
         />
       )}
 
-      {/* 2. Bluetooth Smartwatch Pairing Modal */}
-      {showBluetoothModal && (
-        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 z-50 font-inter">
-          <div className="bg-white rounded-3xl p-6 md:p-8 max-w-lg w-full shadow-2xl border border-[#EDE9FE] space-y-6">
-            <div className="flex items-center justify-between border-b border-[#EDE9FE] pb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-[#F5F3FF] text-[#7C3AED] flex items-center justify-center border border-[#EDE9FE]">
-                  <Bluetooth className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-xl text-[#3a3135]">Bluetooth Smartwatch Pairing</h3>
-                  <p className="text-xs text-[#7a6f75]">Connect wearable fitness trackers & Apple Watch</p>
-                </div>
-              </div>
-              <button onClick={() => setShowBluetoothModal(false)} className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 cursor-pointer">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {bluetoothConnected ? (
-              <div className="p-5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <CheckCircle2 className="w-6 h-6 text-emerald-600" />
-                    <div>
-                      <span className="font-bold text-base block">{connectedDevice}</span>
-                      <span className="text-xs text-emerald-700 font-medium">Status: Live Streaming Connected</span>
-                    </div>
-                  </div>
-                  <span className="text-xs font-bold px-3 py-1 rounded-full bg-emerald-200 text-emerald-800 flex items-center gap-1">
-                    <Battery className="w-3.5 h-3.5" /> {smartwatchVitals.battery}%
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-3 gap-3 pt-1 text-center">
-                  <div className="bg-white/80 p-3 rounded-2xl border border-emerald-100 shadow-2xs">
-                    <span className="text-[10px] uppercase font-bold text-emerald-700 block">Heart Rate</span>
-                    <span className="text-lg font-bold text-emerald-900">{smartwatchVitals.heartRate} <span className="text-xs font-normal">bpm</span></span>
-                  </div>
-                  <div className="bg-white/80 p-3 rounded-2xl border border-emerald-100 shadow-2xs">
-                    <span className="text-[10px] uppercase font-bold text-emerald-700 block">SpO2 Oxygen</span>
-                    <span className="text-lg font-bold text-emerald-900">{smartwatchVitals.spO2}%</span>
-                  </div>
-                  <div className="bg-white/80 p-3 rounded-2xl border border-emerald-100 shadow-2xs">
-                    <span className="text-[10px] uppercase font-bold text-emerald-700 block">Body Temp</span>
-                    <span className="text-lg font-bold text-emerald-900">{smartwatchVitals.bodyTemp}°C</span>
-                  </div>
-                </div>
-
-                <div className="pt-2 flex flex-col sm:flex-row gap-2">
-                  <button 
-                    onClick={handleSyncWatchVitals} 
-                    className="flex-1 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition-colors cursor-pointer"
-                  >
-                    <RefreshCw className="w-4 h-4" /> Sync Vitals to Health Tracker
-                  </button>
-                  <button 
-                    onClick={handleDisconnectBluetooth} 
-                    className="px-4 py-3 bg-white text-rose-600 hover:bg-rose-50 border border-rose-200 rounded-xl font-bold text-xs transition-colors cursor-pointer"
-                  >
-                    Disconnect
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <div className="p-4 rounded-2xl bg-[#FAF8FC] border border-[#EDE9FE] flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Watch className="w-6 h-6 text-[#7C3AED]" />
-                    <div>
-                      <p className="font-bold text-sm text-[#3a3135]">Scan Nearby Bluetooth Wearables</p>
-                      <p className="text-xs text-[#7a6f75]">Enable Bluetooth on Apple Watch, Fitbit, or Garmin</p>
-                    </div>
-                  </div>
-                  <button 
-                    onClick={handleScanBluetoothDevices} 
-                    disabled={isScanning}
-                    className="px-4 py-2 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl font-bold text-xs flex items-center gap-1.5 disabled:opacity-50 cursor-pointer shadow-xs"
-                  >
-                    <RefreshCw className={`w-3.5 h-3.5 ${isScanning ? 'animate-spin' : ''}`} />
-                    {isScanning ? 'Scanning...' : 'Scan Devices'}
-                  </button>
-                </div>
-
-                <div className="space-y-2">
-                  <p className="text-xs uppercase font-bold tracking-wider text-[#7a6f75]">Discovered Devices ({foundDevices.length})</p>
-                  
-                  {isScanning ? (
-                    <div className="p-8 text-center space-y-3 border border-dashed border-[#EDE9FE] rounded-2xl">
-                      <div className="w-10 h-10 rounded-full border-4 border-[#7C3AED] border-t-transparent animate-spin mx-auto"></div>
-                      <p className="text-xs text-[#7a6f75] font-medium">Searching for Bluetooth Low Energy fitness trackers...</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
-                      {foundDevices.map((dev, idx) => (
-                        <div key={idx} className="p-3.5 rounded-2xl border border-[#EDE9FE] bg-white hover:bg-[#F5F3FF] flex items-center justify-between transition-colors">
-                          <div className="flex items-center gap-3">
-                            <Watch className="w-5 h-5 text-[#7C3AED]" />
-                            <div>
-                              <p className="font-bold text-sm text-[#3a3135]">{dev.name}</p>
-                              <p className="text-xs text-[#7a6f75]">{dev.type} • Signal: {dev.rssi} dBm • Battery: {dev.battery}%</p>
-                            </div>
-                          </div>
-                          <button 
-                            onClick={() => handlePairDevice(dev.name)} 
-                            className="px-4 py-2 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl font-bold text-xs shadow-2xs transition-colors cursor-pointer"
-                          >
-                            Pair & Connect
-                          </button>
-                        </div>
-                      ))}
-
-                      {foundDevices.length === 0 && !isScanning && (
-                        <div className="p-6 text-center text-xs text-[#7a6f75] bg-[#FAF8FC] rounded-2xl border border-[#EDE9FE]">
-                          Click <span className="font-bold text-[#7C3AED]">Scan Devices</span> to discover nearby smartwatches or trackers.
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            <div className="pt-2 border-t border-[#EDE9FE] flex items-center justify-between text-xs text-[#7a6f75]">
-              <span className="flex items-center gap-1.5">
-                <Wifi className="w-3.5 h-3.5 text-emerald-500" /> Web Bluetooth API • Encrypted Stream
-              </span>
-              <button onClick={() => setShowBluetoothModal(false)} className="font-bold text-[#7C3AED] hover:underline cursor-pointer">
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* 2. Connect Device Modal */}
+      <ConnectDeviceModal 
+        isOpen={showConnectDeviceModal} 
+        onClose={() => setShowConnectDeviceModal(false)} 
+      />
 
       {/* 3. Upload Medical Record Modal */}
       {showUploadModal && (
-        <div className="fixed inset-0 bg-slate-900/40 flex items-center justify-center p-4 z-50 font-inter">
-          <div className="bg-white rounded-3xl p-6 max-w-md w-full border border-[#EDE9FE] shadow-2xl space-y-4">
-            <div className="flex items-center justify-between pb-2 border-b border-[#EDE9FE]">
-              <h3 className="font-bold text-base text-[#3a3135]">Upload Medical Report</h3>
-              <button onClick={() => setShowUploadModal(false)} className="text-[#7a6f75] hover:text-black cursor-pointer">
+        <div className="fixed inset-0 bg-slate-950/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 font-sans animate-in fade-in duration-150">
+          <div className="bg-white rounded-[28px] p-6 sm:p-7 max-w-md w-full border border-[#F1EBF9] shadow-2xl space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-[#F1EBF9]">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-[#F3EEFC] text-[#7C3AED] flex items-center justify-center">
+                  <Upload className="w-4 h-4" />
+                </div>
+                <h3 className="font-extrabold text-base text-[#201538]">Upload Medical Report</h3>
+              </div>
+              <button 
+                onClick={() => setShowUploadModal(false)} 
+                className="p-1 rounded-full text-[#8E859E] hover:text-[#201538] hover:bg-[#F3EEFC] transition-colors cursor-pointer"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {uploadErrorMsg && (
-              <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs font-semibold">
+              <div className="p-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold">
                 {uploadErrorMsg}
               </div>
             )}
 
-            <form onSubmit={handleUploadRecord} className="space-y-3 text-xs">
+            <form onSubmit={handleUploadRecord} className="space-y-3.5 text-xs">
               <div>
-                <label className="block font-bold mb-1">Report Title</label>
+                <label className="block font-bold text-[#201538] mb-1">
+                  Select File (PDF Recommended, Max 10MB)
+                </label>
+                <input 
+                  type="file" 
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0] || null;
+                    setSelectedRecordFile(file);
+                    const cleanName = file?.name ? file.name.replace(/\.[^/.]+$/, '').replace(/[_-]/g, ' ') : '';
+                    setNewRecord(prev => ({
+                      ...prev,
+                      fileName: file?.name || '',
+                      title: prev.title.trim() ? prev.title : cleanName
+                    }));
+                  }}
+                  className="w-full text-xs text-[#8E859E] file:mr-3 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-[#F3EEFC] file:text-[#7C3AED] file:cursor-pointer p-2 rounded-2xl border border-[#F1EBF9] bg-[#FAF8FD]"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-[#201538] mb-1">Report Title</label>
                 <input 
                   type="text" 
-                  placeholder="e.g. Complete Blood Count (CBC) Test" 
+                  placeholder="e.g. Complete Blood Count (CBC) Panel" 
                   value={newRecord.title} 
                   onChange={(e) => setNewRecord({...newRecord, title: e.target.value})} 
-                  className="w-full p-2.5 rounded-xl border border-[#EDE9FE]" 
+                  className="w-full p-2.5 rounded-2xl border border-[#F1EBF9] bg-[#FAF8FD] focus:bg-white focus:outline-none focus:border-[#7C3AED] text-xs font-medium text-[#201538]" 
                   required 
                 />
               </div>
 
               <div>
-                <label className="block font-bold mb-1">Category</label>
+                <label className="block font-bold text-[#201538] mb-1">Category</label>
                 <select 
                   value={newRecord.category} 
                   onChange={(e) => setNewRecord({...newRecord, category: e.target.value})} 
-                  className="w-full p-2.5 rounded-xl border border-[#EDE9FE] bg-white font-medium"
+                  className="w-full p-2.5 rounded-2xl border border-[#F1EBF9] bg-[#FAF8FD] focus:bg-white focus:outline-none focus:border-[#7C3AED] font-semibold text-xs text-[#201538]"
                 >
                   <option value="Lab Results">Lab Results</option>
+                  <option value="Blood Work">Blood Work</option>
                   <option value="Imaging & Scans">Imaging & Scans</option>
                   <option value="Prescription">Prescription</option>
                   <option value="Doctor Notes">Doctor Notes</option>
@@ -499,36 +456,28 @@ export default function UserLayout() {
               </div>
 
               <div>
-                <label className="block font-bold mb-1">Select File (PDF, JPG, PNG - Max 10MB)</label>
-                <input 
-                  type="file" 
-                  accept=".pdf,.jpg,.jpeg,.png"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0] || null;
-                    setSelectedRecordFile(file);
-                    setNewRecord({...newRecord, fileName: file?.name || ''});
-                  }}
-                  className="w-full text-xs text-[#7a6f75] file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-[#EDE9FE] file:text-[#7C3AED]"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block font-bold mb-1">Description</label>
+                <label className="block font-bold text-[#201538] mb-1">Description (Optional)</label>
                 <input 
                   type="text" 
-                  placeholder="e.g. Routine blood analysis from Lab Diagnostics" 
+                  placeholder="e.g. Diagnostic lab analysis from Clinic" 
                   value={newRecord.description} 
                   onChange={(e) => setNewRecord({...newRecord, description: e.target.value})} 
-                  className="w-full p-2.5 rounded-xl border border-[#EDE9FE]" 
+                  className="w-full p-2.5 rounded-2xl border border-[#F1EBF9] bg-[#FAF8FD] focus:bg-white focus:outline-none focus:border-[#7C3AED] text-xs font-medium text-[#201538]" 
                 />
               </div>
 
-              <div className="flex gap-2 pt-2">
-                <button type="submit" className="flex-1 py-2.5 bg-[#7C3AED] text-white font-bold rounded-xl cursor-pointer">
-                  Upload & Scan Record
+              <div className="flex gap-2.5 pt-2">
+                <button 
+                  type="submit" 
+                  className="flex-1 py-2.5 bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-bold rounded-full cursor-pointer shadow-xs transition-all text-xs"
+                >
+                  Upload & Scan PDF
                 </button>
-                <button type="button" onClick={() => setShowUploadModal(false)} className="py-2.5 px-4 border rounded-xl font-bold cursor-pointer">
+                <button 
+                  type="button" 
+                  onClick={() => setShowUploadModal(false)} 
+                  className="py-2.5 px-5 border border-[#F1EBF9] bg-white hover:bg-[#FAF8FD] text-[#6E6480] font-bold rounded-full cursor-pointer transition-colors text-xs"
+                >
                   Cancel
                 </button>
               </div>

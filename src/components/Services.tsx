@@ -2,7 +2,7 @@ import { Brain, HeartPulse, Shield, LineChart, FileText, Database } from 'lucide
 
 export default function Services() {
   return (
-    <section id="why" className="px-6 md:px-16 max-w-7xl mx-auto mb-32 relative z-20">
+    <section id="services" className="px-6 md:px-16 max-w-7xl mx-auto mb-32 relative z-20">
       <div className="grid lg:grid-cols-12 gap-12 lg:gap-8">
         
         <div className="lg:col-span-4 flex flex-col justify-center">

@@ -313,11 +313,16 @@ interface UserContextType {
   // Clock
   currentTime: Date;
 
-  // Bluetooth & Smartwatch
+  // Bluetooth & Smartwatch / Connected Devices
   showBluetoothModal: boolean;
   setShowBluetoothModal: React.Dispatch<React.SetStateAction<boolean>>;
+  showConnectDeviceModal: boolean;
+  setShowConnectDeviceModal: React.Dispatch<React.SetStateAction<boolean>>;
   bluetoothConnected: boolean;
   connectedDevice: string | null;
+  wearableDevices: any[];
+  activeWearable: any | null;
+  fetchWearables: () => Promise<void>;
   isScanning: boolean;
   foundDevices: Array<{ name: string; type: string; rssi: number; battery: number }>;
   smartwatchVitals: {
@@ -330,6 +335,10 @@ interface UserContextType {
     lastSynced: string;
   };
   handleScanBluetoothDevices: () => Promise<void>;
+  handleConnectBleDevice: () => Promise<{ success: boolean; message: string; device?: any }>;
+  handleRegisterWearableDevice: (deviceData: any) => Promise<boolean>;
+  handleDisconnectWearableDevice: (deviceId: number) => Promise<boolean>;
+  handleSyncWearableTelemetry: (telemetryData: any) => Promise<boolean>;
   handlePairDevice: (deviceName: string) => void;
   handleDisconnectBluetooth: () => void;
   handleSyncWatchVitals: () => Promise<void>;
@@ -535,20 +544,23 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [stageName, setStageName] = useState<string>('Reproductive Age');
   const [showLifeStageModal, setShowLifeStageModal] = useState(false);
 
-  // Bluetooth Smartwatch State
+  // Bluetooth & Smartwatch / Connected Devices State (Pure Backend)
   const [showBluetoothModal, setShowBluetoothModal] = useState(false);
+  const [showConnectDeviceModal, setShowConnectDeviceModal] = useState(false);
+  const [wearableDevices, setWearableDevices] = useState<any[]>([]);
+  const [activeWearable, setActiveWearable] = useState<any | null>(null);
   const [bluetoothConnected, setBluetoothConnected] = useState(false);
   const [connectedDevice, setConnectedDevice] = useState<string | null>(null);
   const [isScanning, setIsScanning] = useState(false);
   const [foundDevices, setFoundDevices] = useState<Array<{ name: string; type: string; rssi: number; battery: number }>>([]);
   const [smartwatchVitals, setSmartwatchVitals] = useState({
-    heartRate: 74,
-    spO2: 98,
-    bodyTemp: 36.6,
-    steps: 8420,
-    calories: 420,
-    battery: 88,
-    lastSynced: 'Just now'
+    heartRate: 0,
+    spO2: 0,
+    bodyTemp: 0,
+    steps: 0,
+    calories: 0,
+    battery: 0,
+    lastSynced: ''
   });
 
   // Medical Records State (Pure Backend - Starts empty)
@@ -568,6 +580,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [trackerLogs, setTrackerLogs] = useState<HealthTrackerLog[]>([]);
   const [trackerErrorMsg, setTrackerErrorMsg] = useState<string | null>(null);
   const [trackerInput, setTrackerInput] = useState({
+    date: new Date().toISOString().split('T')[0],
     weight: '',
     water: '',
     sleep: '',
@@ -756,7 +769,16 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const data = await res.json();
       if (Array.isArray(data)) {
         const mapped: HealthTrackerLog[] = data.map((l: any) => {
-          const logDateStr = l.log_date ? (l.log_date.includes('T') ? l.log_date.split('T')[0] : l.log_date) : '';
+          let logDateStr = '';
+          if (l.log_date) {
+            if (typeof l.log_date === 'string') {
+              logDateStr = l.log_date.includes('T') ? l.log_date.split('T')[0] : l.log_date;
+            } else if (l.log_date instanceof Date) {
+              logDateStr = l.log_date.toISOString().split('T')[0];
+            } else {
+              logDateStr = String(l.log_date).split('T')[0];
+            }
+          }
           return {
             id: l.id,
             date: logDateStr,
@@ -803,6 +825,79 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     } catch (err) {
       console.error('Error fetching symptoms:', err);
+    }
+  }, []);
+
+  const fetchWearables = useCallback(async () => {
+    try {
+      const token = localStorage.getItem('femsphere_token');
+      if (!token) return;
+
+      const devRes = await fetch('/api/wearables/devices', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const devData = await devRes.json();
+      const devList = Array.isArray(devData.devices) ? devData.devices : [];
+      setWearableDevices(devList);
+
+      const activeDev = devList.find((d: any) => d.connection_status === 'CONNECTED') || devList[0] || null;
+      setActiveWearable(activeDev);
+
+      if (activeDev) {
+        setConnectedDevice(activeDev.device_name);
+        setBluetoothConnected(activeDev.connection_status === 'CONNECTED');
+
+        const latestRes = await fetch(`/api/wearables/data/latest?device_id=${activeDev.id}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const latestData = await latestRes.json();
+        if (latestData.success) {
+          const reading = latestData.latest_reading;
+          const summary = latestData.today_summary;
+
+          const stepsVal = summary?.today_steps || reading?.steps || 0;
+          const hrVal = summary?.avg_heart_rate || reading?.heart_rate || 0;
+          const calVal = summary?.today_calories || reading?.calories || 0;
+          const spo2Val = summary?.latest_spo2 || reading?.spo2 || 0;
+          const tempVal = summary?.latest_body_temp || reading?.body_temperature || 0;
+          const batteryVal = activeDev.battery_level || 0;
+
+          let lastSyncStr = '';
+          if (activeDev.last_synced_at) {
+            try {
+              lastSyncStr = new Date(activeDev.last_synced_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            } catch {}
+          } else if (reading?.recorded_at) {
+            try {
+              lastSyncStr = new Date(reading.recorded_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            } catch {}
+          }
+
+          setSmartwatchVitals({
+            heartRate: Number(hrVal),
+            spO2: Number(spo2Val),
+            bodyTemp: Number(tempVal),
+            steps: Number(stepsVal),
+            calories: Number(calVal),
+            battery: Number(batteryVal),
+            lastSynced: lastSyncStr
+          });
+        }
+      } else {
+        setConnectedDevice(null);
+        setBluetoothConnected(false);
+        setSmartwatchVitals({
+          heartRate: 0,
+          spO2: 0,
+          bodyTemp: 0,
+          steps: 0,
+          calories: 0,
+          battery: 0,
+          lastSynced: ''
+        });
+      }
+    } catch (err) {
+      console.error('Error fetching wearable data:', err);
     }
   }, []);
 
@@ -1087,7 +1182,8 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     fetchNotifications();
     fetchConsultationNotes();
     fetchPeriodData();
-  }, [fetchUserProfile, fetchRecords, fetchTrackerLogs, fetchSymptoms, fetchAppointments, fetchDoctors, fetchNotifications, fetchConsultationNotes, fetchPeriodData]);
+    fetchWearables();
+  }, [fetchUserProfile, fetchRecords, fetchTrackerLogs, fetchSymptoms, fetchAppointments, fetchDoctors, fetchNotifications, fetchConsultationNotes, fetchPeriodData, fetchWearables]);
 
   // Telehealth Incoming Call Ringtone Audio chime
   useEffect(() => {
@@ -1526,36 +1622,26 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
         const data = await res.json();
         if (data.success && data.record) {
-          const rec = data.record;
-          const returnedScan = rec.scan_results ? (typeof rec.scan_results === 'string' ? JSON.parse(rec.scan_results) : rec.scan_results) : null;
-          const created: MedicalRecordItem = {
-            id: rec.id,
-            title: rec.title || newRecord.title,
-            type: rec.file_type || fileExt,
-            date: todayStr,
-            month: monthStr,
-            description: rec.description || newRecord.description || 'Uploaded medical report',
-            size: rec.file_size_bytes ? `${(rec.file_size_bytes / (1024 * 1024)).toFixed(1)} MB` : '2.4 MB',
-            category: rec.category || newRecord.category || 'Lab Results',
-            isScanned: true,
-            scanResults: returnedScan
-          };
-          setRecords(prev => [created, ...prev]);
+          await fetchRecords();
+          setNewRecord({ title: '', type: 'PDF', description: '', category: 'Lab Results', fileName: '' });
+          setSelectedRecordFile(null);
+          setShowUploadModal(false);
+
+          await addNotification({
+            title: 'Medical Report Uploaded & Scanned',
+            message: `Report "${newRecord.title}" parsed and saved to your vault.`,
+            type: 'record'
+          });
+          return;
+        } else {
+          setUploadErrorMsg(data.message || 'Failed to scan and upload report.');
+          return;
         }
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error('Error saving record to database:', e);
+      setUploadErrorMsg(e.message || 'An error occurred while uploading.');
     }
-
-    setNewRecord({ title: '', type: 'PDF', description: '', category: 'Lab Results', fileName: '' });
-    setSelectedRecordFile(null);
-    setShowUploadModal(false);
-
-    await addNotification({
-      title: 'Medical Report Uploaded & Scanned',
-      message: `Report "${newRecord.title}" parsed for ${monthStr}.`,
-      type: 'record'
-    });
   };
 
   const handleDeleteRecord = async (id: string | number) => {
@@ -1618,9 +1704,9 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (token) {
         const payload = {
           weightKg: trackerInput.weight || userProfile.weight || null,
-          waterIntakeLiters: trackerInput.water || 2.5,
-          sleepHours: trackerInput.sleep || 8.0,
-          exerciseMinutes: trackerInput.exercise || 30,
+          waterIntakeLiters: trackerInput.water || null,
+          sleepHours: trackerInput.sleep || null,
+          exerciseMinutes: trackerInput.exercise || null,
           heartRate: trackerInput.heartRate || null,
           bloodPressure: trackerInput.bloodPressure || null,
           steps: trackerInput.steps || null,
@@ -1630,7 +1716,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
           caloriesIntake: trackerInput.caloriesIntake || null,
           mood: trackerInput.mood || 'Good',
           notes: trackerInput.notes || null,
-          logDate: new Date().toISOString().split('T')[0]
+          logDate: trackerInput.date || new Date().toISOString().split('T')[0]
         };
 
         if (editingTrackerId) {
@@ -1654,18 +1740,19 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     setEditingTrackerId(null);
     setTrackerInput({
-      weight: userProfile.weight,
-      water: '2.5',
-      sleep: '8.0',
-      exerciseType: 'Running & Cardio',
-      exercise: '30',
-      caloriesBurned: '250',
-      steps: '7500',
-      distanceKm: '5.0',
+      date: new Date().toISOString().split('T')[0],
+      weight: userProfile.weight || '',
+      water: '',
+      sleep: '',
+      exerciseType: '',
+      exercise: '',
+      caloriesBurned: '',
+      steps: '',
+      distanceKm: '',
       foodMeals: '',
-      caloriesIntake: '1800',
-      bloodPressure: '120/78',
-      heartRate: '72',
+      caloriesIntake: '',
+      bloodPressure: '',
+      heartRate: '',
       mood: 'Good',
       symptomName: '',
       symptomSeverity: 'Low',
@@ -1682,10 +1769,11 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const handleEditTrackerLog = (log: HealthTrackerLog) => {
     setEditingTrackerId(log.id);
     setTrackerInput({
+      date: log.date || new Date().toISOString().split('T')[0],
       weight: log.weight || userProfile.weight || '',
       water: log.water || '',
       sleep: log.sleep || '',
-      exerciseType: log.exerciseType || 'General Exercise',
+      exerciseType: log.exerciseType || '',
       exercise: log.exercise || '',
       caloriesBurned: log.caloriesBurned || '',
       steps: log.steps || '',
@@ -1913,130 +2001,221 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (e) {}
   };
 
-  // Bluetooth Handlers
-  const handleScanBluetoothDevices = async () => {
+  const handleConnectBleDevice = async (): Promise<{ success: boolean; message: string; device?: any }> => {
     setIsScanning(true);
     setFoundDevices([]);
-
     const nav = navigator as any;
-    if (nav.bluetooth) {
-      try {
-        const device = await nav.bluetooth.requestDevice({
-          acceptAllDevices: true,
-          optionalServices: ['heart_rate', 'battery_service', 'health_thermometer']
-        });
-        if (device) {
-          setConnectedDevice(device.name || 'Smart Watch Device');
-          setBluetoothConnected(true);
-          setIsScanning(false);
-          setShowBluetoothModal(false);
-          await addNotification({
-            title: 'Bluetooth Smartwatch Connected',
-            message: `Paired with ${device.name || 'Smart Watch'}. Live vitals streaming enabled.`,
-            type: 'system'
-          });
-          return;
-        }
-      } catch (err) {
-        console.log('Web Bluetooth fallback to discovery list...');
-      }
+
+    if (!nav.bluetooth) {
+      setIsScanning(false);
+      return { 
+        success: false, 
+        message: 'Web Bluetooth is supported on Google Chrome, Microsoft Edge, and Opera on Windows, Mac, Linux, and Android. It is not accessible on Safari or Firefox due to browser OS restrictions.' 
+      };
     }
 
-    setTimeout(() => {
-      setFoundDevices([
-        { name: 'Apple Watch Series 9 (Bluetooth 5.3)', type: 'Smart Watch', rssi: -52, battery: 92 },
-        { name: 'Fitbit Sense 2 (BLE)', type: 'Fitness Tracker', rssi: -64, battery: 85 },
-        { name: 'Samsung Galaxy Watch 6', type: 'Smart Watch', rssi: -71, battery: 78 },
-        { name: 'Garmin Venu 3 (ANT+/BLE)', type: 'Sports Watch', rssi: -79, battery: 90 },
-      ]);
+    try {
+      const device = await nav.bluetooth.requestDevice({
+        acceptAllDevices: true,
+        optionalServices: [
+          'heart_rate',
+          'battery_service',
+          0x180d,
+          0x180f,
+          0x1809
+        ]
+      });
+
+      if (!device) {
+        setIsScanning(false);
+        return { success: false, message: 'No device selected.' };
+      }
+
+      const devName = device.name || 'Bluetooth Wearable';
+      let batteryVal = 85;
+
+      try {
+        const server = await device.gatt?.connect();
+        if (server) {
+          try {
+            const batteryService = await server.getPrimaryService('battery_service');
+            const batteryChar = await batteryService.getCharacteristic('battery_level');
+            const val = await batteryChar.readValue();
+            batteryVal = val.getUint8(0);
+          } catch (_) {}
+        }
+      } catch (_) {}
+
+      let detectedBrand = 'GENERIC_BLE';
+      const lower = devName.toLowerCase();
+      if (lower.includes('apple')) detectedBrand = 'APPLE_WATCH';
+      else if (lower.includes('galaxy') || lower.includes('samsung')) detectedBrand = 'SAMSUNG';
+      else if (lower.includes('pixel')) detectedBrand = 'PIXEL_WATCH';
+      else if (lower.includes('garmin')) detectedBrand = 'GARMIN';
+      else if (lower.includes('fitbit')) detectedBrand = 'FITBIT';
+      else if (lower.includes('amazfit')) detectedBrand = 'AMAZFIT';
+      else if (lower.includes('polar')) detectedBrand = 'POLAR';
+      else if (lower.includes('boat')) detectedBrand = 'BOAT';
+      else if (lower.includes('noise')) detectedBrand = 'NOISE';
+
+      const token = localStorage.getItem('femsphere_token');
+      const regRes = await fetch('/api/wearables/devices', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          device_identifier: device.id || `BLE-${devName.replace(/\s+/g, '-')}`,
+          device_name: devName,
+          device_model: devName,
+          brand: detectedBrand,
+          connection_status: 'CONNECTED',
+          battery_level: batteryVal,
+          capabilities: {
+            heart_rate: true,
+            battery: true,
+            real_time_stream: true
+          }
+        })
+      });
+      const regData = await regRes.json();
+
       setIsScanning(false);
-    }, 1200);
+      await fetchWearables();
+      await addNotification({
+        title: 'Device Connected',
+        message: `${devName} successfully connected and registered.`,
+        type: 'system'
+      });
+
+      return { success: true, message: `Connected to ${devName}`, device: regData.device };
+    } catch (err: any) {
+      setIsScanning(false);
+      if (err.name === 'NotFoundError') {
+        return { success: false, message: 'Device pairing was cancelled or no device was selected.' };
+      }
+      return { success: false, message: err.message || 'Bluetooth connection failed.' };
+    }
+  };
+
+  const handleScanBluetoothDevices = async () => {
+    const res = await handleConnectBleDevice();
+    if (res.success) {
+      setShowBluetoothModal(false);
+      setShowConnectDeviceModal(false);
+    }
+  };
+
+  const handleRegisterWearableDevice = async (deviceData: any): Promise<boolean> => {
+    try {
+      const token = localStorage.getItem('femsphere_token');
+      if (!token) return false;
+
+      const res = await fetch('/api/wearables/devices', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(deviceData)
+      });
+      const data = await res.json();
+      if (data.success) {
+        await fetchWearables();
+        await addNotification({
+          title: 'Device Registered',
+          message: `${deviceData.device_name || 'Wearable'} registered successfully.`,
+          type: 'system'
+        });
+        return true;
+      }
+      return false;
+    } catch (e) {
+      console.error('Error registering device:', e);
+      return false;
+    }
+  };
+
+  const handleDisconnectWearableDevice = async (deviceId: number): Promise<boolean> => {
+    try {
+      const token = localStorage.getItem('femsphere_token');
+      if (!token) return false;
+
+      const res = await fetch(`/api/wearables/devices/${deviceId}/status`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ connection_status: 'DISCONNECTED' })
+      });
+      if (res.ok) {
+        await fetchWearables();
+        await addNotification({
+          title: 'Device Disconnected',
+          message: 'Wearable device has been disconnected.',
+          type: 'system'
+        });
+        return true;
+      }
+      return false;
+    } catch (e) {
+      console.error('Error disconnecting device:', e);
+      return false;
+    }
+  };
+
+  const handleSyncWearableTelemetry = async (telemetryData: any): Promise<boolean> => {
+    try {
+      const token = localStorage.getItem('femsphere_token');
+      if (!token) return false;
+
+      const res = await fetch('/api/wearables/sync', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(telemetryData)
+      });
+      const data = await res.json();
+      if (data.success) {
+        await fetchWearables();
+        await fetchTrackerLogs();
+        await addNotification({
+          title: 'Activity Telemetry Synced',
+          message: 'Device daily activity telemetry updated successfully.',
+          type: 'tracker'
+        });
+        return true;
+      }
+      return false;
+    } catch (e) {
+      console.error('Error syncing telemetry:', e);
+      return false;
+    }
   };
 
   const handlePairDevice = (deviceName: string) => {
     setConnectedDevice(deviceName);
     setBluetoothConnected(true);
     setShowBluetoothModal(false);
-
-    setTrackerInput(prev => ({
-      ...prev,
-      heartRate: smartwatchVitals.heartRate.toString(),
-      steps: smartwatchVitals.steps.toString(),
-      caloriesBurned: smartwatchVitals.calories.toString(),
-      distanceKm: (smartwatchVitals.steps * 0.00075).toFixed(1),
-      notes: prev.notes || `Live watch readings synced from ${deviceName}`
-    }));
-
-    addNotification({
-      title: 'Smartwatch Paired via Bluetooth',
-      message: `Connected to ${deviceName}. Real-time vitals synced to FemSphere.`,
-      type: 'system'
-    });
+    setShowConnectDeviceModal(false);
   };
 
   const handleDisconnectBluetooth = () => {
-    setBluetoothConnected(false);
-    setConnectedDevice(null);
-    addNotification({
-      title: 'Bluetooth Watch Disconnected',
-      message: 'Smartwatch disconnected.',
-      type: 'system'
-    });
+    if (activeWearable) {
+      handleDisconnectWearableDevice(activeWearable.id);
+    } else {
+      setBluetoothConnected(false);
+      setConnectedDevice(null);
+    }
   };
 
   const handleSyncWatchVitals = async () => {
-    const updatedHR = Math.floor(68 + Math.random() * 12);
-    const updatedSpO2 = Math.floor(97 + Math.random() * 3);
-    const updatedTemp = parseFloat((36.5 + Math.random() * 0.4).toFixed(1));
-    const updatedSteps = smartwatchVitals.steps + Math.floor(120 + Math.random() * 250);
-    const updatedCalories = Math.floor(updatedSteps * 0.045);
-    const updatedDist = (updatedSteps * 0.00075).toFixed(1);
-
-    setSmartwatchVitals({
-      heartRate: updatedHR,
-      spO2: updatedSpO2,
-      bodyTemp: updatedTemp,
-      steps: updatedSteps,
-      calories: updatedCalories,
-      battery: Math.max(10, smartwatchVitals.battery - 1),
-      lastSynced: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    });
-
-    setTrackerInput(prev => ({
-      ...prev,
-      heartRate: updatedHR.toString(),
-      steps: updatedSteps.toString(),
-      caloriesBurned: updatedCalories.toString(),
-      distanceKm: updatedDist,
-    }));
-
-    // Auto persist to backend
-    try {
-      const token = localStorage.getItem('femsphere_token');
-      if (token) {
-        await fetch('/api/health-tracker/vitals', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-          body: JSON.stringify({
-            heartRate: updatedHR,
-            steps: updatedSteps,
-            caloriesBurned: updatedCalories,
-            distanceKm: updatedDist,
-            waterIntakeLiters: 2.8,
-            sleepHours: 8.0,
-            exerciseMinutes: 45,
-            notes: `Auto-synced live via Bluetooth smartwatch (${connectedDevice || 'Smartwatch'})`
-          })
-        });
-        await fetchTrackerLogs();
-      }
-    } catch (e) {}
-
-    await addNotification({
-      title: 'Watch Vitals Auto-Synced',
-      message: `Heart rate: ${updatedHR} bpm, SpO2: ${updatedSpO2}%, Steps: ${updatedSteps}.`,
-      type: 'system'
-    });
+    await fetchWearables();
+    await fetchTrackerLogs();
   };
 
   const handlePrintPDFReport = () => {
@@ -2086,12 +2265,21 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         currentTime,
         showBluetoothModal,
         setShowBluetoothModal,
+        showConnectDeviceModal,
+        setShowConnectDeviceModal,
         bluetoothConnected,
         connectedDevice,
+        wearableDevices,
+        activeWearable,
+        fetchWearables,
         isScanning,
         foundDevices,
         smartwatchVitals,
         handleScanBluetoothDevices,
+        handleConnectBleDevice,
+        handleRegisterWearableDevice,
+        handleDisconnectWearableDevice,
+        handleSyncWearableTelemetry,
         handlePairDevice,
         handleDisconnectBluetooth,
         handleSyncWatchVitals,

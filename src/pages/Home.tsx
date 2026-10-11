@@ -1,4 +1,4 @@
-import Navbar from '../components/Navbar';
+import React from 'react';
 import Hero from '../components/Hero';
 import Stats from '../components/Stats';
 import Services from '../components/Services';
@@ -9,15 +9,16 @@ import Footer from '../components/Footer';
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-[#fbf9f6] text-[#4a4145] font-sans overflow-x-hidden selection:bg-[#EDE9FE] selection:text-[#7C3AED]">
-      <Navbar />
+    <div className="min-h-screen bg-white text-[#4a4145] font-sans overflow-x-hidden selection:bg-[#EDE9FE] selection:text-[#7C3AED]">
       <main>
         <Hero />
-        <Stats />
-        <Services />
-        <Features />
-        <Projects />
-        <Process />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <Stats />
+          <Services />
+          <Features />
+          <Projects />
+          <Process />
+        </div>
       </main>
       <Footer />
     </div>

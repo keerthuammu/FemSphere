@@ -24,6 +24,7 @@ import UserNotifications from './pages/user/UserNotifications';
 import UserProfilePage from './pages/user/UserProfilePage';
 import UserSettings from './pages/user/UserSettings';
 import UserPeriodTracker from './pages/user/UserPeriodTracker';
+import ConnectDevices from './pages/user/ConnectDevices';
 import SmartwatchDashboard from './pages/user/SmartwatchDashboard';
 
 // Admin Sub-Pages & Layout
@@ -163,7 +164,8 @@ export default function App() {
           <Route path="notifications" element={<UserNotifications />} />
           <Route path="profile" element={<UserProfilePage />} />
           <Route path="settings" element={<UserSettings />} />
-          <Route path="smartwatch" element={<SmartwatchDashboard />} />
+          <Route path="devices" element={<ConnectDevices />} />
+          <Route path="smartwatch" element={<ConnectDevices />} />
         </Route>
 
         {/* Admin dashboard with nested modular sub-routes */}

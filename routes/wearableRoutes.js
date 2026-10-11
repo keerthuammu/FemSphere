@@ -7,7 +7,8 @@ import {
   getData,
   getLatestData,
   getHistory,
-  deleteDevice
+  deleteDevice,
+  updateDeviceStatus
 } from '../controllers/smartwatchController.js';
 import { authenticateToken } from '../middleware/auth.js';
 
@@ -18,6 +19,8 @@ router.use(authenticateToken);
 
 router.post('/devices', registerDevice);
 router.get('/devices', getDevices);
+router.patch('/devices/:id/status', updateDeviceStatus);
+router.put('/devices/:id', updateDeviceStatus);
 router.get('/status', getStatus);
 router.post('/sync', syncData);
 router.get('/data', getData);

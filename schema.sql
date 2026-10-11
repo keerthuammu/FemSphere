@@ -421,8 +421,11 @@ CREATE TABLE IF NOT EXISTS smartwatch_health_data (
     activity_type VARCHAR(100) DEFAULT 'General',
     source VARCHAR(100) CHECK (length(source) > 0),
     raw_payload JSONB DEFAULT '{}'::jsonb,
+    sync_key VARCHAR(255),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_smartwatch_data_sync_key ON smartwatch_health_data (user_id, sync_key) WHERE sync_key IS NOT NULL;
 
 -- Wearable Views for Universal Compatibility
 CREATE OR REPLACE VIEW wearable_devices AS SELECT * FROM smartwatch_devices;

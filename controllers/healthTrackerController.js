@@ -4,7 +4,15 @@ export const getHealthLogs = async (req, res) => {
   try {
     const userId = req.user.id;
     const result = await pool.query(
-      'SELECT * FROM health_tracker WHERE user_id = $1 ORDER BY log_date DESC LIMIT 60',
+      `SELECT id, 
+              TO_CHAR(log_date, 'YYYY-MM-DD') AS log_date,
+              weight_kg, water_intake_liters, sleep_hours, exercise_minutes,
+              heart_rate, blood_pressure, steps, calories_burned, distance_km,
+              food_meals, calories_intake, mood, notes, created_at
+       FROM health_tracker 
+       WHERE user_id = $1 
+       ORDER BY log_date DESC 
+       LIMIT 365`,
       [userId]
     );
     res.json(result.rows);
@@ -43,10 +51,22 @@ export const createHealthLog = async (req, res) => {
       notes
     } = req.body;
 
-    const finalWeight = weightKg || weight ? parseFloat(weightKg || weight) : null;
-    const finalWater = waterIntakeLiters || water ? parseFloat(waterIntakeLiters || water) : 2.0;
-    const finalSleep = sleepHours || sleep ? parseFloat(sleepHours || sleep) : 7.5;
-    const finalExercise = exerciseMinutes || exercise ? parseInt(exerciseMinutes || exercise, 10) : 30;
+    const finalWeight = (weightKg !== undefined && weightKg !== '' && weightKg !== null)
+      ? parseFloat(weightKg)
+      : ((weight !== undefined && weight !== '' && weight !== null) ? parseFloat(weight) : null);
+
+    const finalWater = (waterIntakeLiters !== undefined && waterIntakeLiters !== '' && waterIntakeLiters !== null)
+      ? parseFloat(waterIntakeLiters)
+      : ((water !== undefined && water !== '' && water !== null) ? parseFloat(water) : null);
+
+    const finalSleep = (sleepHours !== undefined && sleepHours !== '' && sleepHours !== null)
+      ? parseFloat(sleepHours)
+      : ((sleep !== undefined && sleep !== '' && sleep !== null) ? parseFloat(sleep) : null);
+
+    const finalExercise = (exerciseMinutes !== undefined && exerciseMinutes !== '' && exerciseMinutes !== null)
+      ? parseInt(exerciseMinutes, 10)
+      : ((exercise !== undefined && exercise !== '' && exercise !== null) ? parseInt(exercise, 10) : null);
+
     const finalHeartRate = heartRate || heart_rate ? parseInt(heartRate || heart_rate, 10) : null;
     const finalBP = bloodPressure || blood_pressure || null;
     const finalSteps = steps ? parseInt(steps, 10) : null;
@@ -79,7 +99,7 @@ export const createHealthLog = async (req, res) => {
         calories_intake = COALESCE(EXCLUDED.calories_intake, health_tracker.calories_intake),
         mood = COALESCE(EXCLUDED.mood, health_tracker.mood),
         notes = COALESCE(EXCLUDED.notes, health_tracker.notes)
-      RETURNING *`,
+      RETURNING id, TO_CHAR(log_date, 'YYYY-MM-DD') AS log_date, weight_kg, water_intake_liters, sleep_hours, exercise_minutes, heart_rate, blood_pressure, steps, calories_burned, distance_km, food_meals, calories_intake, mood, notes, created_at`,
       [
         userId, finalDate, finalWeight, finalWater, finalSleep, finalExercise,
         finalHeartRate, finalBP, finalSteps, finalCaloriesBurned, finalDistance,
@@ -98,11 +118,14 @@ export const updateHealthLog = async (req, res) => {
     const userId = req.user.id;
     const { id } = req.params;
     const {
+      logDate, log_date,
       weightKg, weight, waterIntakeLiters, water, sleepHours, sleep,
       exerciseMinutes, exercise, heartRate, heart_rate, bloodPressure, blood_pressure,
       steps, caloriesBurned, calories_burned, distanceKm, distance_km, foodMeals, food_meals,
       caloriesIntake, calories_intake, mood, notes
     } = req.body;
+
+    const finalDate = logDate || log_date || null;
 
     const result = await pool.query(
       `UPDATE health_tracker
@@ -118,14 +141,15 @@ export const updateHealthLog = async (req, res) => {
            food_meals = COALESCE($10, food_meals),
            calories_intake = COALESCE($11, calories_intake),
            mood = COALESCE($12, mood),
-           notes = COALESCE($13, notes)
-       WHERE id = $14 AND user_id = $15
-       RETURNING *`,
+           notes = COALESCE($13, notes),
+           log_date = COALESCE($14, log_date)
+       WHERE id = $15 AND user_id = $16
+       RETURNING id, TO_CHAR(log_date, 'YYYY-MM-DD') AS log_date, weight_kg, water_intake_liters, sleep_hours, exercise_minutes, heart_rate, blood_pressure, steps, calories_burned, distance_km, food_meals, calories_intake, mood, notes, created_at`,
       [
-        weightKg || weight ? parseFloat(weightKg || weight) : null,
-        waterIntakeLiters || water ? parseFloat(waterIntakeLiters || water) : null,
-        sleepHours || sleep ? parseFloat(sleepHours || sleep) : null,
-        exerciseMinutes || exercise ? parseInt(exerciseMinutes || exercise, 10) : null,
+        (weightKg !== undefined && weightKg !== '' && weightKg !== null) ? parseFloat(weightKg) : ((weight !== undefined && weight !== '' && weight !== null) ? parseFloat(weight) : null),
+        (waterIntakeLiters !== undefined && waterIntakeLiters !== '' && waterIntakeLiters !== null) ? parseFloat(waterIntakeLiters) : ((water !== undefined && water !== '' && water !== null) ? parseFloat(water) : null),
+        (sleepHours !== undefined && sleepHours !== '' && sleepHours !== null) ? parseFloat(sleepHours) : ((sleep !== undefined && sleep !== '' && sleep !== null) ? parseFloat(sleep) : null),
+        (exerciseMinutes !== undefined && exerciseMinutes !== '' && exerciseMinutes !== null) ? parseInt(exerciseMinutes, 10) : ((exercise !== undefined && exercise !== '' && exercise !== null) ? parseInt(exercise, 10) : null),
         heartRate || heart_rate ? parseInt(heartRate || heart_rate, 10) : null,
         bloodPressure || blood_pressure || null,
         steps ? parseInt(steps, 10) : null,
@@ -135,6 +159,7 @@ export const updateHealthLog = async (req, res) => {
         caloriesIntake || calories_intake ? parseInt(caloriesIntake || calories_intake, 10) : null,
         mood || null,
         notes || null,
+        finalDate,
         id,
         userId
       ]
