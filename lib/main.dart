@@ -6,8 +6,13 @@ import 'providers/life_stage_provider.dart';
 import 'app/app.dart';
 export 'app/app.dart';
 
-void main() {
+import 'package:flutter/services.dart';
+
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+  ]);
   runApp(
     ProviderScope(
       child: provider.MultiProvider(

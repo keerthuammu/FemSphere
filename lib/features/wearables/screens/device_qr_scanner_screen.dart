@@ -973,71 +973,11 @@ class _DeviceQrScannerScreenState extends State<DeviceQrScannerScreen> with Sing
 
                 const Spacer(),
 
-                // 3. Quick Simulated QR Presets (For instant testing without printed QR code)
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Column(
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.bolt, size: 14, color: _accentColor),
-                          const SizedBox(width: 4),
-                          Text(
-                            'Quick Demo Pair:',
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: Colors.white.withValues(alpha: 0.6),
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          InkWell(
-                            onTap: () {
-                              if (_currentTarget == ScannerTarget.waterBottle) {
-                                _processQrPayload('{"device": "Smart Hydration Bottle", "type": "water", "mac": "BOTTLE-H2O-9821"}');
-                              } else {
-                                _processQrPayload('boat://connect?mac=DC:1B:44:A2:89:12&model=boAt+Wave+Beat');
-                              }
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: _accentColor.withValues(alpha: 0.15),
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: _accentColor.withValues(alpha: 0.4)),
-                              ),
-                              child: Text(
-                                _currentTarget == ScannerTarget.waterBottle ? '⚡ Pair Bottle (H2O)' : '⚡ Pair boAt (Wave Beat)',
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  color: _accentColor,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 6),
-                          InkWell(
-                            onTap: () => _processQrPayload('zepp://bind?mac=C3:12:4A:88:9F:10&model=Amazfit+Bip+U+Pro'),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
-                              ),
-                              child: const Text(
-                                '⚡ Amazfit',
-                                style: TextStyle(fontSize: 11, color: Colors.white70),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-
-                      // 4. Action Buttons (Gallery & Manual Entry)
+                      // Action Buttons (Gallery & Manual Entry)
                       Row(
                         children: [
                           Expanded(

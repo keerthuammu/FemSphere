@@ -140,10 +140,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
         setState(() => _validationError = 'Please provide your Medical License Number (e.g., MD-8821).');
         return false;
       }
-      if (_accountType == 'Caregiver' && _dependentNameController.text.trim().isEmpty) {
-        setState(() => _validationError = 'Please provide dependent name.');
-        return false;
-      }
     } else if (step == 5) {
       if (!_termsAgreed || !_hipaaConsent) {
         setState(() => _validationError = 'Please accept the Terms of Service and HIPAA Privacy Agreement.');
@@ -221,9 +217,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
       'emergencyContactName': _emergencyNameController.text.trim(),
       'emergencyContactPhone': _emergencyPhoneController.text.trim(),
       'caregiverRelationship': _caregiverRelationship,
-      'dependentName': _dependentNameController.text.trim(),
-      'dependentDob': _dependentDobController.text,
-      'dependentBloodGroup': _dependentBloodGroup,
       'caregiverScopes': _caregiverScopes,
       'licenseNumber': _licenseController.text.trim(),
       'specialization': _specialization,
@@ -1017,43 +1010,46 @@ class _RegisterScreenState extends State<RegisterScreen> {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildTextFieldLabel('RELATIONSHIP TO DEPENDENT'),
-          _buildDropdown(
-            value: _caregiverRelationship,
-            items: const ['Child (Daughter)', 'Parent (Mother)', 'Spouse / Partner', 'Sister', 'Elderly Relative', 'Other Dependent'],
-            onChanged: (val) => setState(() => _caregiverRelationship = val!),
-          ),
-          const SizedBox(height: 14),
-
-          _buildTextFieldLabel('DEPENDENT FULL NAME (REQUIRED)'),
-          _buildCustomInput(
-            controller: _dependentNameController,
-            hint: 'Maya Vance',
-            icon: Icons.child_care_rounded,
-          ),
-          const SizedBox(height: 14),
-
-          _buildTextFieldLabel('DEPENDENT DATE OF BIRTH'),
-          InkWell(
-            onTap: () => _pickDate(_dependentDobController),
-            borderRadius: BorderRadius.circular(16),
-            child: IgnorePointer(
-              child: _buildCustomInput(
-                controller: _dependentDobController,
-                hint: 'YYYY-MM-DD',
-                icon: Icons.calendar_today_rounded,
-              ),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF3E8FF),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFFD8B4FE)),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(Icons.shield_outlined, color: Color(0xFF7C3AED), size: 24),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Account Ownership & Privacy',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF581C87),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'In FemSphere, female users create and manage their own accounts independently. Once registered, female users can search for your account, specify their relationship with you, and grant you consent-based access to their health records.',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.purple.shade900,
+                          height: 1.35,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 14),
-
-          _buildTextFieldLabel('DEPENDENT BLOOD GROUP'),
-          _buildDropdown(
-            value: _dependentBloodGroup,
-            items: _bloodGroups,
-            onChanged: (val) => setState(() => _dependentBloodGroup = val!),
-          ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 18),
 
           _buildTextFieldLabel('PRIMARY CAREGIVER SCOPES'),
           Wrap(
@@ -1065,6 +1061,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               'Telemetry Monitoring',
               'Elderly Mobility',
               'Vaccine Radar',
+              'Family Health Sync',
             ].map((scope) {
               final isSel = _caregiverScopes.contains(scope);
               return FilterChip(

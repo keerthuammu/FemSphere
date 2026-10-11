@@ -48,6 +48,47 @@ class WearableSyncService {
     }
   }
 
+  /// Manually log and sync health activity for a specific date
+  Future<bool> syncManualTelemetry({
+    required String date,
+    int? steps,
+    int? calories,
+    int? heartRate,
+    int? sleepDurationMinutes,
+    int? spo2,
+    double? waterIntakeLiters,
+  }) async {
+    try {
+      final payload = <String, dynamic>{
+        'device_identifier': 'MANUAL_ENTRY',
+        'device_name': 'Manual Health Entry',
+        'device_model': 'Manual Activity',
+        'brand': 'MANUAL',
+        'device_type': 'MANUAL',
+        'connection_status': 'SYNCED',
+        'recorded_at': date,
+        'sync_key': 'manual_${date}',
+        'source': 'MANUAL_INPUT',
+      };
+      if (steps != null) payload['steps'] = steps;
+      if (calories != null) payload['calories'] = calories;
+      if (heartRate != null) payload['heart_rate'] = heartRate;
+      if (sleepDurationMinutes != null) payload['sleep_duration_minutes'] = sleepDurationMinutes;
+      if (spo2 != null) payload['spo2'] = spo2;
+      if (waterIntakeLiters != null) payload['water_intake_liters'] = waterIntakeLiters;
+
+      final res = await http.post(
+        Uri.parse(ApiConstants.wearablesSync),
+        headers: _headers,
+        body: jsonEncode(payload),
+      );
+
+      return res.statusCode == 200 || res.statusCode == 201;
+    } catch (_) {
+      return false;
+    }
+  }
+
   /// Register or update a wearable device
   Future<Map<String, dynamic>?> registerDevice({
     required String deviceIdentifier,

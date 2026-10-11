@@ -260,35 +260,10 @@ export default function Register() {
           setErrorMsg(`Caregiver must be at least 16 years of age (current age: ${caregiverAge} yrs).`);
           return false;
         }
-        if (!formData.dependentName.trim()) {
-          setErrorMsg('Please enter Dependent / Care Recipient Full Name.');
+        if (!formData.emergencyContactPhone || !formData.emergencyContactPhone.trim()) {
+          setErrorMsg('Please enter an Emergency Contact Phone number.');
           return false;
         }
-        if (!isValidName(formData.dependentName)) {
-          setErrorMsg('Dependent Full Name must contain letters only.');
-          return false;
-        }
-        if (!formData.relationship) {
-          setErrorMsg('Please select Relationship to Dependent.');
-          return false;
-        }
-        if (!formData.dependentDob.trim()) {
-          setErrorMsg('Please select Dependent Date of Birth.');
-          return false;
-        }
-        if (!isPastOrToday(formData.dependentDob)) {
-          setErrorMsg('Dependent Date of Birth cannot be a future date.');
-          return false;
-        }
-        if (!formData.dependentGender) {
-          setErrorMsg('Please select Dependent Gender.');
-          return false;
-        }
-        // Automatically calculate caregiver sub-type from relationship and dependent category from dependent DOB
-        const derivedType = getCaregiverTypeFromRelationship(formData.relationship);
-        const derivedCategory = getDependentCategoryFromDob(formData.dependentDob);
-        formData.caregiverType = derivedType;
-        formData.dependentCategory = derivedCategory;
         if (formData.caregiverScopes.length === 0) {
           setErrorMsg('Please select at least one Caregiver Primary Scope.');
           return false;
@@ -1031,115 +1006,41 @@ export default function Register() {
                       <div className="flex items-center gap-2 text-[#936DA2] pb-2 border-b border-[#F4DDE2]">
                         <Users className="w-5 h-5 flex-shrink-0" />
                         <h3 className="font-bold text-base text-[#3a3135] font-inter">
-                          Caregiver & Dependent Health Profile
+                          Caregiver & Companion Profile
                         </h3>
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                      <div className="p-4 rounded-xl bg-purple-50/70 border border-purple-100 flex items-start gap-3 text-xs text-[#4a4145]">
+                        <Shield className="w-4 h-4 text-[#936DA2] flex-shrink-0 mt-0.5" />
                         <div>
-                          <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">
-                            Dependent / Care Recipient Full Name
-                          </label>
-                          <input 
-                            type="text" 
-                            name="dependentName" 
-                            value={formData.dependentName} 
-                            onChange={handleChange}
-                            placeholder="e.g. Sophia Rostova" 
-                            className="w-full px-4 py-3 rounded-xl border border-[#F4DDE2] focus:border-[#936DA2] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
-                            required
-                          />
+                          <strong className="text-[#936DA2]">FemSphere Account Ownership Policy:</strong> Female users own and manage their personal health records independently. Once registered, female users can search for your account and send you a secure companion connection request with consent-controlled data sharing.
                         </div>
+                      </div>
 
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div>
                           <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">
-                            Relationship to Dependent
+                            Caregiver Type / Role
                           </label>
                           <select 
-                            name="relationship" 
-                            value={formData.relationship} 
+                            name="caregiverType" 
+                            value={formData.caregiverType} 
                             onChange={handleChange}
                             className="w-full px-4 py-3 rounded-xl border border-[#F4DDE2] focus:border-[#936DA2] focus:ring-2 focus:ring-purple-100 outline-none text-sm bg-white"
                           >
-                            <option value="">Select Relationship</option>
-                            <option value="Daughter">Daughter</option>
-                            <option value="Son">Son</option>
-                            <option value="Mother">Mother</option>
-                            <option value="Father">Father</option>
-                            <option value="Spouse / Partner">Spouse / Partner</option>
-                            <option value="Sister">Sister</option>
-                            <option value="Brother">Brother</option>
-                            <option value="Grandparent">Grandparent</option>
-                            <option value="Other Relative">Other Relative</option>
-                          </select>
-                          {formData.relationship && (
-                            <p className="text-[11px] text-[#936DA2] font-semibold mt-1">
-                              Calculated Role: <span className="font-bold">{getCaregiverTypeFromRelationship(formData.relationship)}</span>
-                            </p>
-                          )}
-                        </div>
-
-                        <div>
-                          <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">
-                            Dependent Date of Birth
-                          </label>
-                          <input 
-                            type="date" 
-                            name="dependentDob" 
-                            value={formData.dependentDob} 
-                            onChange={handleChange}
-                            className="w-full px-4 py-3 rounded-xl border border-[#F4DDE2] focus:border-[#936DA2] focus:ring-2 focus:ring-purple-100 outline-none text-sm bg-white" 
-                            required
-                          />
-                          {formData.dependentDob && isPastOrToday(formData.dependentDob) && (
-                            <p className="text-[11px] text-[#14B8A6] font-semibold mt-1">
-                              Stage: <span className="font-bold">{getDependentCategoryFromDob(formData.dependentDob)}</span> ({calculateAge(formData.dependentDob)} yrs)
-                            </p>
-                          )}
-                        </div>
-
-                        <div>
-                          <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">
-                            Dependent Gender
-                          </label>
-                          <select 
-                            name="dependentGender" 
-                            value={formData.dependentGender} 
-                            onChange={handleChange}
-                            className="w-full px-4 py-3 rounded-xl border border-[#F4DDE2] focus:border-[#936DA2] focus:ring-2 focus:ring-purple-100 outline-none text-sm bg-white"
-                          >
-                            <option value="">Select Gender</option>
-                            <option value="Female">Female</option>
-                            <option value="Male">Male</option>
-                            <option value="Other">Other</option>
+                            <option value="">Select Caregiver Role</option>
+                            <option value="Parent">Parent</option>
+                            <option value="Partner / Spouse">Partner / Spouse</option>
+                            <option value="Sibling">Sibling</option>
+                            <option value="Relative">Family Relative</option>
+                            <option value="Friend">Trusted Friend / Companion</option>
+                            <option value="Nurse">Professional Nurse / Caretaker</option>
                           </select>
                         </div>
 
                         <div>
                           <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">
-                            Dependent Blood Group (Optional)
-                          </label>
-                          <select 
-                            name="dependentBloodGroup" 
-                            value={formData.dependentBloodGroup} 
-                            onChange={handleChange}
-                            className="w-full px-4 py-3 rounded-xl border border-[#F4DDE2] focus:border-[#936DA2] focus:ring-2 focus:ring-purple-100 outline-none text-sm bg-white"
-                          >
-                            <option value="">Select Blood Group</option>
-                            <option value="A+">A Positive (A+)</option>
-                            <option value="A-">A Negative (A-)</option>
-                            <option value="B+">B Positive (B+)</option>
-                            <option value="B-">B Negative (B-)</option>
-                            <option value="O+">O Positive (O+)</option>
-                            <option value="O-">O Negative (O-)</option>
-                            <option value="AB+">AB Positive (AB+)</option>
-                            <option value="AB-">AB Negative (AB-)</option>
-                          </select>
-                        </div>
-
-                        <div>
-                          <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">
-                            Caregiver Emergency Contact Phone
+                            Emergency Contact Phone <span className="text-rose-500">*</span>
                           </label>
                           <input 
                             type="tel" 
@@ -1149,44 +1050,6 @@ export default function Register() {
                             placeholder="e.g. +1 (555) 902-4118" 
                             className="w-full px-4 py-3 rounded-xl border border-[#F4DDE2] focus:border-[#936DA2] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
                             required
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">Height (cm)</label>
-                          <input 
-                            type="number" 
-                            name="dependentHeightCm" 
-                            value={formData.dependentHeightCm} 
-                            onChange={handleChange}
-                            placeholder="e.g. 110" 
-                            className="w-full px-4 py-3 rounded-xl border border-[#F4DDE2] focus:border-[#936DA2] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">Weight (kg)</label>
-                          <input 
-                            type="number" 
-                            name="dependentWeightKg" 
-                            value={formData.dependentWeightKg} 
-                            onChange={handleChange}
-                            placeholder="e.g. 18" 
-                            className="w-full px-4 py-3 rounded-xl border border-[#F4DDE2] focus:border-[#936DA2] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
-                          />
-                        </div>
-
-                        <div className="md:col-span-3">
-                          <label className="block text-xs font-bold text-[#4a4145] uppercase tracking-wider mb-1">
-                            Existing Conditions / Allergies / Notes (Optional)
-                          </label>
-                          <input 
-                            type="text" 
-                            name="dependentMedicalNotes" 
-                            value={formData.dependentMedicalNotes} 
-                            onChange={handleChange}
-                            placeholder="e.g. Asthma, Penicillin Allergy, Diabetes, Daily Insulin" 
-                            className="w-full px-4 py-3 rounded-xl border border-[#F4DDE2] focus:border-[#936DA2] focus:ring-2 focus:ring-purple-100 outline-none text-sm" 
                           />
                         </div>
                       </div>

@@ -479,6 +479,7 @@ export const getPeriodSettings = async (req, res) => {
     res.json({
       success: true,
       isConfigured: true,
+      configured: true,
       isPregnant,
       settings: {
         id: row.id,

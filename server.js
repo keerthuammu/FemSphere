@@ -22,6 +22,7 @@ import periodTrackerRoutes from './routes/periodTrackerRoutes.js';
 import smartwatchRoutes from './routes/smartwatchRoutes.js';
 import wearableRoutes from './routes/wearableRoutes.js';
 import partnerRoutes from './routes/partnerRoutes.js';
+import connectionRoutes from './routes/connectionRoutes.js';
 
 import helmet from 'helmet';
 import { apiLimiter } from './middleware/rateLimiter.js';
@@ -102,6 +103,7 @@ app.use('/api/period-tracker', periodTrackerRoutes);
 app.use('/api/smartwatch', smartwatchRoutes);
 app.use('/api/wearables', wearableRoutes);
 app.use('/api/partner', partnerRoutes);
+app.use('/api/connections', connectionRoutes);
 
 // Global Error Handler
 app.use((err, req, res, next) => {

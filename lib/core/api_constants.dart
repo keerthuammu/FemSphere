@@ -158,4 +158,20 @@ class ApiConstants {
   static String get wearablesDataLatest => '$baseUrl/wearables/data/latest';
   static String get wearablesDataHistory => '$baseUrl/wearables/data/history';
   static String wearableDeviceDelete(dynamic id) => '$baseUrl/wearables/devices/$id';
+
+  // Companion & Caregiver Connections
+  static String get connectionSearch => '$baseUrl/connections/search';
+  static String get connectionRequest => '$baseUrl/connections/request';
+  static String get connectionOutgoing => '$baseUrl/connections/outgoing';
+  static String get connectionIncoming => '$baseUrl/connections/incoming';
+  static String get connectionPendingCount => '$baseUrl/connections/pending-count';
+  static String connectionAccept(dynamic id) => '$baseUrl/connections/$id/accept';
+  static String connectionReject(dynamic id) => '$baseUrl/connections/$id/reject';
+  static String connectionCancel(dynamic id) => '$baseUrl/connections/$id/cancel';
+  static String connectionRevoke(dynamic id) => '$baseUrl/connections/$id/revoke';
+  static String connectionPermissions(dynamic id) => '$baseUrl/connections/$id/permissions';
+  static String connectionSharedData(dynamic id) => '$baseUrl/connections/$id/shared-data';
+  static String connectionConsent(dynamic id) => '$baseUrl/connections/$id/consent';
+  static String get connectionAccessHistory => '$baseUrl/connections/access-history';
+  static String connectionRequestCategory(dynamic id) => '$baseUrl/connections/$id/request-category';
 }

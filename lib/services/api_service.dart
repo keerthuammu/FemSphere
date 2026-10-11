@@ -649,5 +649,195 @@ class ApiService {
     }
     return {'success': false, 'message': 'Failed to save daily health activity'};
   }
+
+  // ===========================================================================
+  // COMPANION & CAREGIVER CONNECTIONS WORKFLOW
+  // ===========================================================================
+
+  static Future<List<dynamic>> searchCompanions(String query) async {
+    final uri = Uri.parse('${ApiConstants.connectionSearch}?query=${Uri.encodeComponent(query)}');
+    final response = await http.get(uri, headers: _headers);
+    if (response.statusCode == 200) {
+      final decoded = jsonDecode(response.body);
+      if (decoded['success'] == true && decoded['results'] is List) {
+        return decoded['results'] as List<dynamic>;
+      }
+    }
+    return [];
+  }
+
+  static Future<Map<String, dynamic>> sendConnectionRequest({
+    required int caregiverId,
+    required String relationship,
+    Map<String, bool>? permissions,
+    String? notes,
+  }) async {
+    final response = await http.post(
+      Uri.parse(ApiConstants.connectionRequest),
+      headers: _headers,
+      body: jsonEncode({
+        'caregiver_id': caregiverId,
+        'relationship': relationship,
+        'permissions': permissions ?? {
+          'daily_activities': true,
+          'menstrual_cycle': true,
+          'medical_records': true,
+          'appointments': true,
+        },
+        'notes': notes ?? '',
+      }),
+    );
+    return jsonDecode(response.body);
+  }
+
+  static Future<List<dynamic>> getOutgoingConnections() async {
+    final response = await http.get(Uri.parse(ApiConstants.connectionOutgoing), headers: _headers);
+    if (response.statusCode == 200) {
+      final decoded = jsonDecode(response.body);
+      if (decoded['success'] == true && decoded['connections'] is List) {
+        return decoded['connections'] as List<dynamic>;
+      }
+    }
+    return [];
+  }
+
+  static Future<Map<String, dynamic>> getOutgoingConnectionsData() async {
+    final response = await http.get(Uri.parse(ApiConstants.connectionOutgoing), headers: _headers);
+    if (response.statusCode == 200) {
+      final decoded = jsonDecode(response.body);
+      if (decoded['success'] == true) {
+        return decoded;
+      }
+    }
+    return {};
+  }
+
+  static Future<List<dynamic>> getIncomingConnections() async {
+    final response = await http.get(Uri.parse(ApiConstants.connectionIncoming), headers: _headers);
+    if (response.statusCode == 200) {
+      final decoded = jsonDecode(response.body);
+      if (decoded['success'] == true && decoded['requests'] is List) {
+        return decoded['requests'] as List<dynamic>;
+      }
+    }
+    return [];
+  }
+
+  static Future<Map<String, dynamic>> getIncomingConnectionsData() async {
+    final response = await http.get(Uri.parse(ApiConstants.connectionIncoming), headers: _headers);
+    if (response.statusCode == 200) {
+      final decoded = jsonDecode(response.body);
+      if (decoded['success'] == true) {
+        return decoded;
+      }
+    }
+    return {};
+  }
+
+  static Future<int> getPendingConnectionCount() async {
+    try {
+      final response = await http.get(Uri.parse(ApiConstants.connectionPendingCount), headers: _headers);
+      if (response.statusCode == 200) {
+        final decoded = jsonDecode(response.body);
+        if (decoded['success'] == true && decoded['count'] != null) {
+          return int.tryParse(decoded['count'].toString()) ?? 0;
+        }
+      }
+    } catch (_) {}
+    return 0;
+  }
+
+  static Future<Map<String, dynamic>> acceptConnection(int connectionId) async {
+    final response = await http.post(
+      Uri.parse(ApiConstants.connectionAccept(connectionId)),
+      headers: _headers,
+    );
+    return jsonDecode(response.body);
+  }
+
+  static Future<Map<String, dynamic>> rejectConnection(int connectionId) async {
+    final response = await http.post(
+      Uri.parse(ApiConstants.connectionReject(connectionId)),
+      headers: _headers,
+    );
+    return jsonDecode(response.body);
+  }
+
+  static Future<Map<String, dynamic>> cancelConnection(int connectionId) async {
+    final response = await http.post(
+      Uri.parse(ApiConstants.connectionCancel(connectionId)),
+      headers: _headers,
+    );
+    return jsonDecode(response.body);
+  }
+
+  static Future<Map<String, dynamic>> revokeConnection(int connectionId) async {
+    final response = await http.post(
+      Uri.parse(ApiConstants.connectionRevoke(connectionId)),
+      headers: _headers,
+    );
+    return jsonDecode(response.body);
+  }
+
+  static Future<Map<String, dynamic>> updateConnectionPermissions(
+    int connectionId,
+    Map<String, bool> permissions,
+  ) async {
+    final response = await http.put(
+      Uri.parse(ApiConstants.connectionPermissions(connectionId)),
+      headers: _headers,
+      body: jsonEncode({'permissions': permissions}),
+    );
+    return jsonDecode(response.body);
+  }
+
+  static Future<Map<String, dynamic>> getConnectionSharedData(int connectionId) async {
+    final response = await http.get(
+      Uri.parse(ApiConstants.connectionSharedData(connectionId)),
+      headers: _headers,
+    );
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    }
+    return {'success': false, 'message': 'Failed to load shared health records'};
+  }
+
+  static Future<Map<String, dynamic>> approveConsent(
+    int connectionId,
+    Map<String, bool> permissions,
+  ) async {
+    final response = await http.post(
+      Uri.parse(ApiConstants.connectionConsent(connectionId)),
+      headers: _headers,
+      body: jsonEncode({'permissions': permissions}),
+    );
+    return jsonDecode(response.body);
+  }
+
+  static Future<List<dynamic>> getAccessHistory() async {
+    final response = await http.get(
+      Uri.parse(ApiConstants.connectionAccessHistory),
+      headers: _headers,
+    );
+    if (response.statusCode == 200) {
+      final decoded = jsonDecode(response.body);
+      if (decoded['success'] == true && decoded['history'] is List) {
+        return decoded['history'] as List<dynamic>;
+      }
+    }
+    return [];
+  }
+
+  static Future<Map<String, dynamic>> requestCategoryAccess(
+    int connectionId,
+    String category,
+  ) async {
+    final response = await http.post(
+      Uri.parse(ApiConstants.connectionRequestCategory(connectionId)),
+      headers: _headers,
+      body: jsonEncode({'category': category}),
+    );
+    return jsonDecode(response.body);
+  }
 }
 

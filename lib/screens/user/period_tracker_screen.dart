@@ -93,16 +93,22 @@ class _PeriodTrackerScreenState extends State<PeriodTrackerScreen> with SingleTi
     super.dispose();
   }
 
-  Future<void> _fetchPeriodData() async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
+  Future<void> _fetchPeriodData({bool isSilent = false}) async {
+    if (!isSilent) {
+      setState(() {
+        _isLoading = true;
+        _errorMessage = null;
+      });
+    }
 
     try {
       final data = await ApiService.getPeriodOverview();
       if (data['success'] == true) {
-        _isConfigured = data['configured'] == true;
+        _isConfigured = data['isConfigured'] == true ||
+            data['configured'] == true ||
+            (data['settings'] != null &&
+                (data['settings']['isConfigured'] == true ||
+                    data['settings']['is_configured'] == true));
 
         if (data['settings'] != null) {
           _settings = PeriodSettingsModel.fromJson(data['settings']);
@@ -115,25 +121,25 @@ class _PeriodTrackerScreenState extends State<PeriodTrackerScreen> with SingleTi
 
         if (data['metrics'] != null) {
           final m = data['metrics'];
-          _cycleDay = m['cycleDay'] ?? 1;
-          _cycleLength = m['cycleLength'] ?? 28;
-          _periodDuration = m['periodDuration'] ?? 5;
-          _phaseName = m['phaseName'] ?? 'Luteal Phase';
-          _nextPeriodDateStr = m['nextPeriodDateStr'] ?? '';
-          _ovulationDateStr = m['ovulationDateStr'] ?? '';
-          _fertileWindowStr = m['fertileWindowStr'] ?? '';
-          _isDelayed = m['isDelayed'] ?? false;
-          _daysDelayed = m['daysDelayed'] ?? 0;
+          _cycleDay = int.tryParse(m['cycleDay']?.toString() ?? '') ?? 1;
+          _cycleLength = int.tryParse(m['cycleLength']?.toString() ?? '') ?? 28;
+          _periodDuration = int.tryParse(m['periodDuration']?.toString() ?? '') ?? 5;
+          _phaseName = m['phaseName']?.toString() ?? 'Luteal Phase';
+          _nextPeriodDateStr = m['nextPeriodDateStr']?.toString() ?? '';
+          _ovulationDateStr = m['ovulationDateStr']?.toString() ?? '';
+          _fertileWindowStr = m['fertileWindowStr']?.toString() ?? '';
+          _isDelayed = m['isDelayed'] == true;
+          _daysDelayed = int.tryParse(m['daysDelayed']?.toString() ?? '') ?? 0;
 
           if (m['isPregnant'] == true) {
             _isPregnant = true;
-            _gestationalWeeks = m['gestationalWeeks'] ?? 14;
-            _gestationalDays = m['gestationalDays'] ?? 2;
-            _daysRemaining = m['daysRemaining'] ?? 180;
-            _eddDate = m['edd'] ?? '';
-            _trimesterName = m['trimesterName'] ?? 'Second Trimester';
-            _babySize = m['babySize'] ?? 'Lemon';
-            _babyIcon = m['babyIcon'] ?? '🍋';
+            _gestationalWeeks = int.tryParse(m['gestationalWeeks']?.toString() ?? '') ?? 14;
+            _gestationalDays = int.tryParse(m['gestationalDays']?.toString() ?? '') ?? 2;
+            _daysRemaining = int.tryParse(m['daysRemaining']?.toString() ?? '') ?? 180;
+            _eddDate = m['edd']?.toString() ?? '';
+            _trimesterName = m['trimesterName']?.toString() ?? 'Second Trimester';
+            _babySize = m['babySize']?.toString() ?? 'Lemon';
+            _babyIcon = m['babyIcon']?.toString() ?? '🍋';
           }
         }
 
@@ -155,12 +161,14 @@ class _PeriodTrackerScreenState extends State<PeriodTrackerScreen> with SingleTi
           _todayLog = DailyLogModel.fromJson(data['todayLog']);
         }
 
-        _affirmation = data['affirmation'] ?? 'Your body is performing restorative biological work.';
+        _affirmation = data['affirmation']?.toString() ?? 'Your body is performing restorative biological work.';
 
         // Load daily logs for current calendar month
         final monthStr = DateFormat('yyyy-MM').format(_currentCalendarMonth);
         final logsList = await ApiService.getDailyLogs(month: monthStr);
         _dailyLogs = logsList.map((d) => DailyLogModel.fromJson(d)).toList();
+      } else if (data['message'] != null) {
+        _errorMessage = data['message'].toString();
       }
     } catch (e) {
       _errorMessage = 'Failed to load period tracker records: $e';
@@ -644,7 +652,12 @@ class _PeriodTrackerScreenState extends State<PeriodTrackerScreen> with SingleTi
                         _predictions?.estimatedOvulationDate ?? _ovulationDateStr,
                         style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13, color: Color(0xFF0D9488)),
                       ),
-                      const Text('Fertile peak estimate', style: const TextStyle(fontSize: 10, color: Colors.grey)),
+                      Text(
+                        _predictions?.fertileWindowStartDate != null
+                            ? 'Fertile: ${_predictions!.fertileWindowStartDate} - ${_predictions!.fertileWindowEndDate}'
+                            : (_fertileWindowStr.isNotEmpty ? _fertileWindowStr : 'Fertile peak estimate'),
+                        style: const TextStyle(fontSize: 10, color: Colors.grey),
+                      ),
                     ],
                   ),
                 ),
@@ -1584,7 +1597,7 @@ class _PeriodTrackerScreenState extends State<PeriodTrackerScreen> with SingleTi
         'reminderOvulationEnabled': _reminderOvulationEnabled,
         'reminderDailyLoggingEnabled': _reminderDailyLoggingEnabled,
       });
-      if (res['success'] == true) {
+      if (res['success'] == true && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Reminder preferences updated successfully.')),
         );
@@ -1724,6 +1737,31 @@ class _PeriodTrackerScreenState extends State<PeriodTrackerScreen> with SingleTi
 
                     const SizedBox(height: 10),
 
+                    // Sleep & Mucus Row
+                    Row(
+                      children: [
+                        Expanded(
+                          child: DropdownButtonFormField<String>(
+                            value: sleep,
+                            decoration: const InputDecoration(labelText: 'Sleep Quality', labelStyle: TextStyle(fontSize: 11)),
+                            items: _sleepOptions.map((s) => DropdownMenuItem(value: s, child: Text(s, style: const TextStyle(fontSize: 12)))).toList(),
+                            onChanged: (val) => setSheetState(() => sleep = val ?? 'Good'),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: DropdownButtonFormField<String>(
+                            value: mucus,
+                            decoration: const InputDecoration(labelText: 'Cervical Mucus', labelStyle: TextStyle(fontSize: 11)),
+                            items: _mucusOptions.map((m) => DropdownMenuItem(value: m, child: Text(m, style: const TextStyle(fontSize: 12)))).toList(),
+                            onChanged: (val) => setSheetState(() => mucus = val ?? 'None'),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 10),
+
                     // Notes
                     TextField(
                       decoration: const InputDecoration(
@@ -1747,7 +1785,7 @@ class _PeriodTrackerScreenState extends State<PeriodTrackerScreen> with SingleTi
                             onPressed: () async {
                               Navigator.pop(ctx);
                               await ApiService.deleteDailyLog(dateStr);
-                              _fetchPeriodData();
+                              _fetchPeriodData(isSilent: true);
                             },
                           ),
                         const SizedBox(width: 8),
@@ -1770,7 +1808,7 @@ class _PeriodTrackerScreenState extends State<PeriodTrackerScreen> with SingleTi
                               'cervicalMucus': mucus,
                               'notes': notes,
                             });
-                            _fetchPeriodData();
+                            _fetchPeriodData(isSilent: true);
                           },
                         ),
                       ],
@@ -1792,53 +1830,79 @@ class _PeriodTrackerScreenState extends State<PeriodTrackerScreen> with SingleTi
         : DateFormat('yyyy-MM-dd').format(DateTime.now());
     int cycleLen = _settings?.cycleLength ?? 28;
     int duration = _settings?.periodDuration ?? 5;
+    final lmpController = TextEditingController(text: lmp);
 
     showDialog(
       context: context,
       builder: (ctx) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: const Text('Configure Cycle Baseline', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextFormField(
-                initialValue: lmp,
-                decoration: const InputDecoration(labelText: 'Last Period Start Date (YYYY-MM-DD)'),
-                onChanged: (val) => lmp = val,
+        return StatefulBuilder(
+          builder: (context, setDlgState) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              title: const Text('Configure Cycle Baseline', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextFormField(
+                    controller: lmpController,
+                    decoration: InputDecoration(
+                      labelText: 'Last Period Start Date',
+                      hintText: 'YYYY-MM-DD',
+                      suffixIcon: IconButton(
+                        icon: const Icon(Icons.calendar_today, size: 20, color: AppTheme.primaryPurple),
+                        onPressed: () async {
+                          final initial = DateTime.tryParse(lmp) ?? DateTime.now();
+                          final picked = await showDatePicker(
+                            context: context,
+                            initialDate: initial,
+                            firstDate: DateTime.now().subtract(const Duration(days: 120)),
+                            lastDate: DateTime.now(),
+                          );
+                          if (picked != null) {
+                            setDlgState(() {
+                              lmp = DateFormat('yyyy-MM-dd').format(picked);
+                              lmpController.text = lmp;
+                            });
+                          }
+                        },
+                      ),
+                    ),
+                    onChanged: (val) => lmp = val,
+                  ),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    initialValue: '$cycleLen',
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(labelText: 'Cycle Length (Days, e.g. 28)'),
+                    onChanged: (val) => cycleLen = int.tryParse(val) ?? 28,
+                  ),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    initialValue: '$duration',
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(labelText: 'Period Duration (Bleeding Days, e.g. 5)'),
+                    onChanged: (val) => duration = int.tryParse(val) ?? 5,
+                  ),
+                ],
               ),
-              const SizedBox(height: 10),
-              TextFormField(
-                initialValue: '$cycleLen',
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Cycle Length (Days, e.g. 28)'),
-                onChanged: (val) => cycleLen = int.tryParse(val) ?? 28,
-              ),
-              const SizedBox(height: 10),
-              TextFormField(
-                initialValue: '$duration',
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Period Duration (Days of bleeding, e.g. 5)'),
-                onChanged: (val) => duration = int.tryParse(val) ?? 5,
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primaryPurple, foregroundColor: Colors.white),
-              child: const Text('Save Baseline'),
-              onPressed: () async {
-                Navigator.pop(ctx);
-                await ApiService.savePeriodSettings({
-                  'lastPeriodStart': lmp,
-                  'cycleLength': cycleLen,
-                  'periodDuration': duration,
-                });
-                _fetchPeriodData();
-              },
-            ),
-          ],
+              actions: [
+                TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primaryPurple, foregroundColor: Colors.white),
+                  child: const Text('Save Baseline'),
+                  onPressed: () async {
+                    Navigator.pop(ctx);
+                    await ApiService.savePeriodSettings({
+                      'lastPeriodStart': lmp,
+                      'cycleLength': cycleLen,
+                      'periodDuration': duration,
+                    });
+                    _fetchPeriodData();
+                  },
+                ),
+              ],
+            );
+          },
         );
       },
     );
@@ -1849,48 +1913,83 @@ class _PeriodTrackerScreenState extends State<PeriodTrackerScreen> with SingleTi
     String startDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
     int duration = 5;
     String flow = 'Medium';
+    final dateController = TextEditingController(text: startDate);
 
     showDialog(
       context: context,
       builder: (ctx) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: const Text('Log Period Cycle', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextFormField(
-                initialValue: startDate,
-                decoration: const InputDecoration(labelText: 'Period Start Date (YYYY-MM-DD)'),
-                onChanged: (val) => startDate = val,
+        return StatefulBuilder(
+          builder: (context, setDlgState) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              title: const Text('Log Period Cycle', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextFormField(
+                    controller: dateController,
+                    decoration: InputDecoration(
+                      labelText: 'Period Start Date',
+                      hintText: 'YYYY-MM-DD',
+                      suffixIcon: IconButton(
+                        icon: const Icon(Icons.calendar_today, size: 20, color: AppTheme.primaryPurple),
+                        onPressed: () async {
+                          final initial = DateTime.tryParse(startDate) ?? DateTime.now();
+                          final picked = await showDatePicker(
+                            context: context,
+                            initialDate: initial,
+                            firstDate: DateTime.now().subtract(const Duration(days: 365)),
+                            lastDate: DateTime.now().add(const Duration(days: 1)),
+                          );
+                          if (picked != null) {
+                            setDlgState(() {
+                              startDate = DateFormat('yyyy-MM-dd').format(picked);
+                              dateController.text = startDate;
+                            });
+                          }
+                        },
+                      ),
+                    ),
+                    onChanged: (val) => startDate = val,
+                  ),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    initialValue: '$duration',
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(labelText: 'Bleeding Duration (Days)'),
+                    onChanged: (val) => duration = int.tryParse(val) ?? 5,
+                  ),
+                  const SizedBox(height: 10),
+                  DropdownButtonFormField<String>(
+                    value: flow,
+                    decoration: const InputDecoration(labelText: 'Flow Intensity'),
+                    items: ['Spotting', 'Light', 'Medium', 'Heavy']
+                        .map((f) => DropdownMenuItem(value: f, child: Text(f)))
+                        .toList(),
+                    onChanged: (val) => setDlgState(() => flow = val ?? 'Medium'),
+                  ),
+                ],
               ),
-              const SizedBox(height: 10),
-              TextFormField(
-                initialValue: '$duration',
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Bleeding Duration (Days)'),
-                onChanged: (val) => duration = int.tryParse(val) ?? 5,
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primaryPurple, foregroundColor: Colors.white),
-              child: const Text('Save Cycle'),
-              onPressed: () async {
-                Navigator.pop(ctx);
-                await ApiService.logPeriodCycle({
-                  'startDate': startDate,
-                  'durationDays': duration,
-                  'flowIntensity': flow,
-                  'symptoms': ['Cramps'],
-                  'mood': 'Calm',
-                });
-                _fetchPeriodData();
-              },
-            ),
-          ],
+              actions: [
+                TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primaryPurple, foregroundColor: Colors.white),
+                  child: const Text('Save Cycle'),
+                  onPressed: () async {
+                    Navigator.pop(ctx);
+                    await ApiService.logPeriodCycle({
+                      'startDate': startDate,
+                      'durationDays': duration,
+                      'flowIntensity': flow,
+                      'symptoms': ['Cramps'],
+                      'mood': 'Calm',
+                    });
+                    _fetchPeriodData(isSilent: true);
+                  },
+                ),
+              ],
+            );
+          },
         );
       },
     );
@@ -1901,46 +2000,81 @@ class _PeriodTrackerScreenState extends State<PeriodTrackerScreen> with SingleTi
     String startDate = cycle.startDate;
     int duration = cycle.durationDays;
     String flow = cycle.flowIntensity;
+    final dateController = TextEditingController(text: startDate);
 
     showDialog(
       context: context,
       builder: (ctx) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: const Text('Edit Cycle Record', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextFormField(
-                initialValue: startDate,
-                decoration: const InputDecoration(labelText: 'Period Start Date'),
-                onChanged: (val) => startDate = val,
+        return StatefulBuilder(
+          builder: (context, setDlgState) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              title: const Text('Edit Cycle Record', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextFormField(
+                    controller: dateController,
+                    decoration: InputDecoration(
+                      labelText: 'Period Start Date',
+                      hintText: 'YYYY-MM-DD',
+                      suffixIcon: IconButton(
+                        icon: const Icon(Icons.calendar_today, size: 20, color: AppTheme.primaryPurple),
+                        onPressed: () async {
+                          final initial = DateTime.tryParse(startDate) ?? DateTime.now();
+                          final picked = await showDatePicker(
+                            context: context,
+                            initialDate: initial,
+                            firstDate: DateTime.now().subtract(const Duration(days: 365)),
+                            lastDate: DateTime.now().add(const Duration(days: 1)),
+                          );
+                          if (picked != null) {
+                            setDlgState(() {
+                              startDate = DateFormat('yyyy-MM-dd').format(picked);
+                              dateController.text = startDate;
+                            });
+                          }
+                        },
+                      ),
+                    ),
+                    onChanged: (val) => startDate = val,
+                  ),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    initialValue: '$duration',
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(labelText: 'Duration (Days)'),
+                    onChanged: (val) => duration = int.tryParse(val) ?? 5,
+                  ),
+                  const SizedBox(height: 10),
+                  DropdownButtonFormField<String>(
+                    value: flow,
+                    decoration: const InputDecoration(labelText: 'Flow Intensity'),
+                    items: ['Spotting', 'Light', 'Medium', 'Heavy']
+                        .map((f) => DropdownMenuItem(value: f, child: Text(f)))
+                        .toList(),
+                    onChanged: (val) => setDlgState(() => flow = val ?? 'Medium'),
+                  ),
+                ],
               ),
-              const SizedBox(height: 10),
-              TextFormField(
-                initialValue: '$duration',
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Duration (Days)'),
-                onChanged: (val) => duration = int.tryParse(val) ?? 5,
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primaryPurple, foregroundColor: Colors.white),
-              child: const Text('Update Record'),
-              onPressed: () async {
-                Navigator.pop(ctx);
-                await ApiService.updatePeriodCycle(cycle.id, {
-                  'startDate': startDate,
-                  'durationDays': duration,
-                  'flowIntensity': flow,
-                });
-                _fetchPeriodData();
-              },
-            ),
-          ],
+              actions: [
+                TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primaryPurple, foregroundColor: Colors.white),
+                  child: const Text('Update Record'),
+                  onPressed: () async {
+                    Navigator.pop(ctx);
+                    await ApiService.updatePeriodCycle(cycle.id, {
+                      'startDate': startDate,
+                      'durationDays': duration,
+                      'flowIntensity': flow,
+                    });
+                    _fetchPeriodData(isSilent: true);
+                  },
+                ),
+              ],
+            );
+          },
         );
       },
     );
@@ -1963,7 +2097,7 @@ class _PeriodTrackerScreenState extends State<PeriodTrackerScreen> with SingleTi
               onPressed: () async {
                 Navigator.pop(ctx);
                 await ApiService.deletePeriodCycle(id);
-                _fetchPeriodData();
+                _fetchPeriodData(isSilent: true);
               },
             ),
           ],
@@ -2011,7 +2145,7 @@ class _PeriodTrackerScreenState extends State<PeriodTrackerScreen> with SingleTi
                   onPressed: () async {
                     Navigator.pop(ctx);
                     await ApiService.adjustPeriodDelay(_cycleLength + extendDays, extendDays);
-                    _fetchPeriodData();
+                    _fetchPeriodData(isSilent: true);
                   },
                 ),
               ],

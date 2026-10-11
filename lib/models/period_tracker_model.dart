@@ -1,3 +1,25 @@
+import 'dart:convert';
+
+int _parseInt(dynamic val, [int fallback = 0]) {
+  if (val == null) return fallback;
+  if (val is int) return val;
+  if (val is num) return val.toInt();
+  if (val is String) return int.tryParse(val) ?? fallback;
+  return fallback;
+}
+
+bool _parseBool(dynamic val, [bool fallback = false]) {
+  if (val == null) return fallback;
+  if (val is bool) return val;
+  if (val is num) return val != 0;
+  if (val is String) {
+    final lower = val.toLowerCase().trim();
+    if (lower == 'true' || lower == '1' || lower == 't') return true;
+    if (lower == 'false' || lower == '0' || lower == 'f') return false;
+  }
+  return fallback;
+}
+
 class PeriodSettingsModel {
   final String lastPeriodStart;
   final int periodDuration;
@@ -23,15 +45,15 @@ class PeriodSettingsModel {
 
   factory PeriodSettingsModel.fromJson(Map<String, dynamic> json) {
     return PeriodSettingsModel(
-      lastPeriodStart: json['lastPeriodStart'] ?? json['last_period_start'] ?? '',
-      periodDuration: json['periodDuration'] ?? json['period_duration'] ?? 5,
-      cycleLength: json['cycleLength'] ?? json['cycle_length'] ?? 28,
-      isPregnant: json['isPregnant'] ?? json['is_pregnant'] ?? false,
-      pregnancyStartDate: json['pregnancyStartDate'] ?? json['pregnancy_start_date'],
-      reminderPeriodDaysBefore: json['reminderPeriodDaysBefore'] ?? json['reminder_period_days_before'] ?? 2,
-      reminderPeriodEnabled: json['reminderPeriodEnabled'] ?? json['reminder_period_enabled'] ?? true,
-      reminderOvulationEnabled: json['reminderOvulationEnabled'] ?? json['reminder_ovulation_enabled'] ?? false,
-      reminderDailyLoggingEnabled: json['reminderDailyLoggingEnabled'] ?? json['reminder_daily_logging_enabled'] ?? false,
+      lastPeriodStart: json['lastPeriodStart']?.toString() ?? json['last_period_start']?.toString() ?? '',
+      periodDuration: _parseInt(json['periodDuration'] ?? json['period_duration'], 5),
+      cycleLength: _parseInt(json['cycleLength'] ?? json['cycle_length'], 28),
+      isPregnant: _parseBool(json['isPregnant'] ?? json['is_pregnant'], false),
+      pregnancyStartDate: json['pregnancyStartDate']?.toString() ?? json['pregnancy_start_date']?.toString(),
+      reminderPeriodDaysBefore: _parseInt(json['reminderPeriodDaysBefore'] ?? json['reminder_period_days_before'] ?? json['periodDaysBefore'], 2),
+      reminderPeriodEnabled: _parseBool(json['reminderPeriodEnabled'] ?? json['reminder_period_enabled'] ?? json['periodEnabled'], true),
+      reminderOvulationEnabled: _parseBool(json['reminderOvulationEnabled'] ?? json['reminder_ovulation_enabled'] ?? json['ovulationEnabled'], false),
+      reminderDailyLoggingEnabled: _parseBool(json['reminderDailyLoggingEnabled'] ?? json['reminder_daily_logging_enabled'] ?? json['dailyLoggingEnabled'], false),
     );
   }
 
@@ -81,18 +103,18 @@ class CyclePredictionModel {
 
   factory CyclePredictionModel.fromJson(Map<String, dynamic> json) {
     return CyclePredictionModel(
-      nextPeriodStartDate: json['nextPeriodStartDate'],
-      predictionRangeStart: json['predictionRangeStart'],
-      predictionRangeEnd: json['predictionRangeEnd'],
-      estimatedOvulationDate: json['estimatedOvulationDate'],
-      fertileWindowStartDate: json['fertileWindowStartDate'],
-      fertileWindowEndDate: json['fertileWindowEndDate'],
-      estimatedPeriodDuration: json['estimatedPeriodDuration'] ?? 5,
-      cycleDaysElapsed: json['cycleDaysElapsed'] ?? 1,
-      daysUntilPeriod: json['daysUntilPeriod'] ?? 0,
-      isDelayed: json['isDelayed'] ?? false,
-      daysDelayed: json['daysDelayed'] ?? 0,
-      predictionDisclaimer: json['predictionDisclaimer'] ?? '',
+      nextPeriodStartDate: json['nextPeriodStartDate']?.toString(),
+      predictionRangeStart: json['predictionRangeStart']?.toString(),
+      predictionRangeEnd: json['predictionRangeEnd']?.toString(),
+      estimatedOvulationDate: json['estimatedOvulationDate']?.toString(),
+      fertileWindowStartDate: json['fertileWindowStartDate']?.toString(),
+      fertileWindowEndDate: json['fertileWindowEndDate']?.toString(),
+      estimatedPeriodDuration: _parseInt(json['estimatedPeriodDuration'] ?? json['periodDuration'], 5),
+      cycleDaysElapsed: _parseInt(json['cycleDaysElapsed'], 1),
+      daysUntilPeriod: _parseInt(json['daysUntilPeriod'], 0),
+      isDelayed: _parseBool(json['isDelayed'], false),
+      daysDelayed: _parseInt(json['daysDelayed'], 0),
+      predictionDisclaimer: json['predictionDisclaimer']?.toString() ?? '',
     );
   }
 }
@@ -120,14 +142,14 @@ class CycleStatisticsModel {
 
   factory CycleStatisticsModel.fromJson(Map<String, dynamic> json) {
     return CycleStatisticsModel(
-      recordedCyclesCount: json['recordedCyclesCount'] ?? 0,
-      averageCycleLength: json['averageCycleLength'] ?? 28,
-      averagePeriodDuration: json['averagePeriodDuration'] ?? 5,
-      cycleVariabilityDays: json['cycleVariabilityDays'] ?? 0,
-      minCycleLength: json['minCycleLength'] ?? 28,
-      maxCycleLength: json['maxCycleLength'] ?? 28,
-      isIrregular: json['isIrregular'] ?? false,
-      confidenceLevel: json['confidenceLevel'] ?? 'Default',
+      recordedCyclesCount: _parseInt(json['recordedCyclesCount'] ?? json['count'], 0),
+      averageCycleLength: _parseInt(json['averageCycleLength'], 28),
+      averagePeriodDuration: _parseInt(json['averagePeriodDuration'], 5),
+      cycleVariabilityDays: _parseInt(json['cycleVariabilityDays'], 0),
+      minCycleLength: _parseInt(json['minCycleLength'], 28),
+      maxCycleLength: _parseInt(json['maxCycleLength'], 28),
+      isIrregular: _parseBool(json['isIrregular'], false),
+      confidenceLevel: json['confidenceLevel']?.toString() ?? 'Default',
     );
   }
 }
@@ -161,18 +183,27 @@ class PeriodCycleModel {
     List<String> parsedSymptoms = [];
     if (json['symptoms'] is List) {
       parsedSymptoms = (json['symptoms'] as List).map((e) => e.toString()).toList();
+    } else if (json['symptoms'] is String && (json['symptoms'] as String).isNotEmpty) {
+      try {
+        final decoded = jsonDecode(json['symptoms'] as String);
+        if (decoded is List) {
+          parsedSymptoms = decoded.map((e) => e.toString()).toList();
+        }
+      } catch (_) {
+        parsedSymptoms = [json['symptoms'] as String];
+      }
     }
     return PeriodCycleModel(
       id: json['id'],
-      startDate: json['startDate'] ?? json['start_date'] ?? '',
-      endDate: json['endDate'] ?? json['end_date'],
-      durationDays: json['durationDays'] ?? json['duration_days'] ?? 5,
-      cycleLengthDays: json['cycleLengthDays'] ?? json['cycle_length_days'] ?? 28,
-      flowIntensity: json['flowIntensity'] ?? json['flow_intensity'] ?? 'Medium',
+      startDate: json['startDate']?.toString() ?? json['start_date']?.toString() ?? '',
+      endDate: json['endDate']?.toString() ?? json['end_date']?.toString(),
+      durationDays: _parseInt(json['durationDays'] ?? json['duration_days'], 5),
+      cycleLengthDays: _parseInt(json['cycleLengthDays'] ?? json['cycle_length_days'], 28),
+      flowIntensity: json['flowIntensity']?.toString() ?? json['flow_intensity']?.toString() ?? 'Medium',
       symptoms: parsedSymptoms,
-      mood: json['mood'] ?? 'Calm',
-      status: json['status'] ?? 'Regular Cycle',
-      notes: json['notes'] ?? '',
+      mood: json['mood']?.toString() ?? 'Calm',
+      status: json['status']?.toString() ?? 'Regular Cycle',
+      notes: json['notes']?.toString() ?? '',
     );
   }
 
@@ -219,18 +250,27 @@ class DailyLogModel {
     List<String> parsedSymptoms = [];
     if (json['symptoms'] is List) {
       parsedSymptoms = (json['symptoms'] as List).map((e) => e.toString()).toList();
+    } else if (json['symptoms'] is String && (json['symptoms'] as String).isNotEmpty) {
+      try {
+        final decoded = jsonDecode(json['symptoms'] as String);
+        if (decoded is List) {
+          parsedSymptoms = decoded.map((e) => e.toString()).toList();
+        }
+      } catch (_) {
+        parsedSymptoms = [json['symptoms'] as String];
+      }
     }
     return DailyLogModel(
       id: json['id'],
-      date: json['date'] ?? '',
-      isPeriodDay: json['isPeriodDay'] ?? json['is_period_day'] ?? false,
-      flowIntensity: json['flowIntensity'] ?? json['flow_intensity'] ?? 'None',
+      date: json['date']?.toString() ?? json['log_date']?.toString() ?? '',
+      isPeriodDay: _parseBool(json['isPeriodDay'] ?? json['is_period_day'], false),
+      flowIntensity: json['flowIntensity']?.toString() ?? json['flow_intensity']?.toString() ?? 'None',
       symptoms: parsedSymptoms,
-      mood: json['mood'] ?? 'Calm',
-      energyLevel: json['energyLevel'] ?? json['energy_level'] ?? 'Medium',
-      sleepQuality: json['sleepQuality'] ?? json['sleep_quality'] ?? 'Good',
-      cervicalMucus: json['cervicalMucus'] ?? json['cervical_mucus'] ?? 'None',
-      notes: json['notes'] ?? '',
+      mood: json['mood']?.toString() ?? 'Calm',
+      energyLevel: json['energyLevel']?.toString() ?? json['energy_level']?.toString() ?? 'Medium',
+      sleepQuality: json['sleepQuality']?.toString() ?? json['sleep_quality']?.toString() ?? 'Good',
+      cervicalMucus: json['cervicalMucus']?.toString() ?? json['cervical_mucus']?.toString() ?? 'None',
+      notes: json['notes']?.toString() ?? '',
     );
   }
 

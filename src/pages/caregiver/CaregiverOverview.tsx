@@ -24,7 +24,7 @@ export default function CaregiverOverview() {
             to="/caregiver-dashboard/dependents"
             className="px-4 py-2.5 bg-[#936DA2] hover:bg-[#835A92] text-white text-xs font-bold rounded-xl shadow-sm flex items-center gap-2 transition-all"
           >
-            <Users className="w-4 h-4" /> Manage Dependents
+            <Users className="w-4 h-4" /> Connected Profiles
           </Link>
           <Link
             to="/caregiver-dashboard/appointments"
@@ -84,9 +84,9 @@ export default function CaregiverOverview() {
 
           {dependents.length === 0 ? (
             <div className="p-8 text-center bg-[#FCF4F5] rounded-2xl border border-dashed border-[#F4DDE2]">
-              <p className="text-xs text-[#7a6f75]">No dependents registered yet.</p>
+              <p className="text-xs text-[#7a6f75]">No care recipients or dependents linked yet.</p>
               <Link to="/caregiver-dashboard/dependents" className="mt-2 inline-block text-xs font-bold text-[#936DA2] hover:underline">
-                + Add your first dependent
+                View connection requests & profiles
               </Link>
             </div>
           ) : (

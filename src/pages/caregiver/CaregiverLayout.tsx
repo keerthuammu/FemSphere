@@ -24,15 +24,30 @@ export default function CaregiverLayout() {
   } = useCaregiver();
 
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [pendingCount, setPendingCount] = useState(0);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    fetchPendingCount();
     return () => clearInterval(timer);
   }, []);
 
+  const fetchPendingCount = async () => {
+    try {
+      const token = localStorage.getItem('femsphere_token');
+      const res = await fetch('/api/connections/pending-count', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.success) {
+        setPendingCount(data.pendingCount || 0);
+      }
+    } catch (_) {}
+  };
+
   const navItems = [
     { name: 'Dashboard Overview', path: '/caregiver-dashboard', icon: Users, end: true },
-    { name: 'Manage Dependents', path: '/caregiver-dashboard/dependents', icon: Users },
+    { name: 'Connected Profiles', path: '/caregiver-dashboard/dependents', icon: Users, badge: pendingCount },
     { name: 'Medical Records', path: '/caregiver-dashboard/records', icon: FileText },
     { name: 'Vaccination Records', path: '/caregiver-dashboard/vaccinations', icon: Syringe },
     { name: 'Medication Reminder', path: '/caregiver-dashboard/medications', icon: Bell },
@@ -69,15 +84,22 @@ export default function CaregiverLayout() {
                   to={item.path}
                   end={item.end}
                   className={({ isActive }) =>
-                    `w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl font-bold text-xs transition-all ${
+                    `w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl font-bold text-xs transition-all ${
                       isActive
                         ? 'bg-white text-[#936DA2] shadow-xs border border-[#E5CDBC]'
                         : 'text-[#4A3B42] hover:bg-white/40 hover:text-[#2E2428]'
                     }`
                   }
                 >
-                  <IconComponent className="w-4 h-4 shrink-0" />
-                  <span className="truncate">{item.name}</span>
+                  <div className="flex items-center gap-3 truncate">
+                    <IconComponent className="w-4 h-4 shrink-0" />
+                    <span className="truncate">{item.name}</span>
+                  </div>
+                  {Boolean(item.badge && item.badge > 0) && (
+                    <span className="px-1.5 py-0.5 rounded-full bg-amber-500 text-white text-[10px] font-bold">
+                      {item.badge}
+                    </span>
+                  )}
                 </NavLink>
               );
             })}

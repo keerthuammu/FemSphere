@@ -11,10 +11,23 @@ export const getCaregiverProfile = async (req, res) => {
 
     const dependents = await pool.query('SELECT * FROM dependents WHERE caregiver_id = $1 ORDER BY id ASC', [cg.rows[0].id]);
 
+    // Fetch active connected female users via consent-based connections
+    const connectedUsers = await pool.query(`
+      SELECT pc.id as connection_id, pc.relationship_type, pc.created_at, pc.accepted_at,
+             u.id as user_id, u.username, u.email,
+             up.full_name, up.dob, up.blood_group, up.life_stage
+      FROM partner_connections pc
+      JOIN users u ON u.id = pc.patient_user_id
+      LEFT JOIN user_profiles up ON up.user_id = u.id
+      WHERE pc.partner_user_id = $1 AND pc.status = 'accepted'
+      ORDER BY pc.accepted_at DESC;
+    `, [userId]);
+
     res.json({
       success: true,
       caregiver: cg.rows[0],
-      dependents: dependents.rows
+      dependents: dependents.rows,
+      connected_users: connectedUsers.rows
     });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -22,54 +35,11 @@ export const getCaregiverProfile = async (req, res) => {
 };
 
 export const addDependent = async (req, res) => {
-  try {
-    const userId = req.user.id;
-    const fullName = req.body.fullName || req.body.name;
-    const dob = req.body.dob || '2020-01-01';
-    const relationship = req.body.relationship || req.body.relation || 'Child';
-    const rawBloodGroup = req.body.bloodGroup || req.body.blood_group || 'A+';
-    const normalizeBloodGroup = (bg) => {
-      if (!bg || typeof bg !== 'string') return 'Unknown';
-      const clean = bg.trim();
-      const match = clean.match(/\((A\+|A-|B\+|B-|AB\+|AB-|O\+|O-)\)/i);
-      if (match) return match[1].toUpperCase();
-      const direct = clean.toUpperCase();
-      const valid = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'UNKNOWN'];
-      if (valid.includes(direct)) {
-        return direct === 'UNKNOWN' ? 'Unknown' : direct;
-      }
-      return 'Unknown';
-    };
-    const bloodGroup = normalizeBloodGroup(rawBloodGroup);
-    const medicalNotes = req.body.medicalNotes || '';
-
-    if (!fullName) {
-      return res.status(400).json({ success: false, message: 'Dependent full name is required.' });
-    }
-
-    let cg = await pool.query('SELECT id FROM caregivers WHERE user_id = $1', [userId]);
-    let caregiverId;
-
-    if (cg.rows.length === 0) {
-      const newCg = await pool.query(
-        'INSERT INTO caregivers (user_id, caregiver_type, emergency_phone) VALUES ($1, $2, $3) RETURNING id',
-        [userId, 'Parent', '+1 (555) 000-0000']
-      );
-      caregiverId = newCg.rows[0].id;
-    } else {
-      caregiverId = cg.rows[0].id;
-    }
-
-    const dep = await pool.query(
-      `INSERT INTO dependents (caregiver_id, full_name, dob, relationship, blood_group, medical_notes)
-       VALUES ($1, $2, COALESCE($3::date, '2020-01-01'::date), $4, $5, $6) RETURNING *`,
-      [caregiverId, fullName, dob || '2020-01-01', relationship, bloodGroup, medicalNotes]
-    );
-
-    res.status(201).json({ success: true, dependent: dep.rows[0] });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
+  // Prohibit caregivers creating female user profiles
+  return res.status(403).json({
+    success: false,
+    message: 'Caregivers cannot create female user profiles. Female users must register their own FemSphere account and send a connection request.'
+  });
 };
 
 export const deleteDependent = async (req, res) => {

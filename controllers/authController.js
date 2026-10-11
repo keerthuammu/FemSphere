@@ -182,23 +182,6 @@ export const register = async (req, res) => {
         [newUser.id, finalCaregiverType, 'Family Care', emergencyContactPhone || mobileNumber || '']
       );
       roleDetails.caregiver = cgResult.rows[0];
-
-      if (dependentName) {
-        const depResult = await client.query(
-          `INSERT INTO dependents (caregiver_id, full_name, dob, relationship, blood_group, medical_notes)
-           VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-          [
-            roleDetails.caregiver.id,
-            dependentName,
-            dependentDob || '2020-01-01',
-            relationship || 'Child',
-            normalizeBloodGroup(dependentBloodGroup),
-            dependentMedicalNotes || ''
-          ]
-        );
-        roleDetails.dependent = depResult.rows[0];
-        roleDetails.dependents = [depResult.rows[0]];
-      }
     } else if (role === 'Doctor') {
       const docResult = await client.query(
         `INSERT INTO doctors (user_id, license_number, specialization, hospital_clinic, years_experience, approval_status)

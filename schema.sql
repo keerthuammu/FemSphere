@@ -242,9 +242,11 @@ CREATE TABLE IF NOT EXISTS relationships (
     id SERIAL PRIMARY KEY,
     owner_user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     related_user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    relationship_type VARCHAR(50) NOT NULL CHECK (relationship_type IN ('Parent', 'Partner', 'Sibling', 'Caregiver', 'Doctor', 'Adult Child', 'Friend')),
-    status VARCHAR(30) DEFAULT 'Active' CHECK (status IN ('Pending', 'Active', 'Suspended', 'Revoked')),
+    relationship_type VARCHAR(100) NOT NULL,
+    status VARCHAR(30) DEFAULT 'Pending' CHECK (status IN ('Pending', 'Active', 'Accepted', 'Rejected', 'Cancelled', 'Revoked', 'Suspended')),
+    permissions JSONB DEFAULT '["DailyActivities", "Cycle", "MedicalRecords", "Appointments"]'::jsonb,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT uq_user_relationship UNIQUE (owner_user_id, related_user_id, relationship_type),
     CONSTRAINT chk_different_relationship_users CHECK (owner_user_id != related_user_id)
 );
@@ -256,7 +258,7 @@ CREATE TABLE IF NOT EXISTS consents (
     owner_user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     related_user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     consent_type VARCHAR(50) NOT NULL CHECK (consent_type IN ('PARTNER_SHARING', 'PARENT_MANAGEMENT', 'CAREGIVER_ACCESS', 'CLINICAL_SHARE')),
-    status VARCHAR(30) DEFAULT 'Granted' CHECK (status IN ('Granted', 'Modified', 'Revoked', 'Expired')),
+    status VARCHAR(30) DEFAULT 'Granted' CHECK (status IN ('Pending', 'Granted', 'Modified', 'Revoked', 'Expired')),
     granted_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     expires_at TIMESTAMP WITH TIME ZONE,
     revoked_at TIMESTAMP WITH TIME ZONE,
@@ -269,7 +271,7 @@ CREATE TABLE IF NOT EXISTS consents (
 CREATE TABLE IF NOT EXISTS permissions (
     id SERIAL PRIMARY KEY,
     consent_id INT NOT NULL REFERENCES consents(id) ON DELETE CASCADE,
-    resource VARCHAR(50) NOT NULL CHECK (resource IN ('Cycle', 'Symptoms', 'Medications', 'MedicalRecords', 'Appointments', 'Mood', 'Journal', 'Wearables', 'Emergency')),
+    resource VARCHAR(50) NOT NULL CHECK (resource IN ('Cycle', 'Symptoms', 'Medications', 'MedicalRecords', 'Appointments', 'Mood', 'Journal', 'Wearables', 'Emergency', 'DailyActivities')),
     action VARCHAR(30) DEFAULT 'Read' CHECK (action IN ('Read', 'Write', 'Notify')),
     allowed BOOLEAN DEFAULT TRUE,
     CONSTRAINT uq_consent_resource_action UNIQUE (consent_id, resource, action)
@@ -305,7 +307,11 @@ CREATE TABLE IF NOT EXISTS audit_logs (
     accessor_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     resource VARCHAR(50) NOT NULL,
     action VARCHAR(50) NOT NULL,
-    status VARCHAR(30) DEFAULT 'Success' CHECK (status IN ('Success', 'Denied', 'Revoked')),
+    status VARCHAR(30) DEFAULT 'Success',
+    category VARCHAR(100),
+    previous_state VARCHAR(255),
+    new_state VARCHAR(255),
+    details JSONB DEFAULT '{}'::jsonb,
     accessed_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -462,8 +468,11 @@ CREATE TABLE IF NOT EXISTS partner_connections (
     id SERIAL PRIMARY KEY,
     patient_user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     partner_user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    status VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'accepted', 'rejected', 'revoked')),
+    status VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'accepted', 'rejected', 'revoked', 'cancelled')),
     relationship_type VARCHAR(50) DEFAULT 'Spouse / Partner',
+    consent_status VARCHAR(50) DEFAULT 'awaiting_consent',
+    consent_granted_at TIMESTAMP WITH TIME ZONE,
+    last_consent_updated_at TIMESTAMP WITH TIME ZONE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     accepted_at TIMESTAMP WITH TIME ZONE,
     revoked_at TIMESTAMP WITH TIME ZONE,

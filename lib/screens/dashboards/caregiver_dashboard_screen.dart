@@ -24,15 +24,16 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
   int _selectedNavIndex = 0;
   List<DependentModel> _dependents = [];
   late DependentModel _activeDependent;
+  int _pendingCount = 0;
 
   @override
   void initState() {
     super.initState();
     _activeDependent = DependentModel(
       id: 0,
-      fullName: 'Dependent',
-      relationship: 'Care Recipient',
-      dob: '2022-01-01',
+      fullName: 'Care Recipient',
+      relationship: 'Companion',
+      dob: '2000-01-01',
       bloodGroup: 'A+',
     );
     _loadDependents();
@@ -40,17 +41,47 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
 
   Future<void> _loadDependents() async {
     try {
-      final raw = await ApiService.getDependents();
+      final results = await Future.wait([
+        ApiService.getCaregiverProfile().catchError((_) => <String, dynamic>{}),
+        ApiService.getDependents().catchError((_) => <dynamic>[]),
+        ApiService.getPendingConnectionCount().catchError((_) => 0),
+      ]);
+
+      final profile = results[0] as Map<String, dynamic>;
+      final raw = results[1] as List<dynamic>;
+      final pending = results[2] as int;
+
       final List<DependentModel> list = [];
+
+      // Add connected female users first
+      if (profile['connected_users'] is List) {
+        for (var cu in profile['connected_users']) {
+          list.add(
+            DependentModel(
+              id: int.tryParse(cu['user_id']?.toString() ?? '0') ?? 0,
+              fullName: cu['name'] ?? 'User',
+              relationship: cu['relationship'] ?? 'Care Recipient',
+              dob: '1998-01-01',
+              bloodGroup: 'A+',
+            ),
+          );
+        }
+      }
+
+      // Add legacy dependents
       for (var item in raw) {
         if (item is Map<String, dynamic>) {
           list.add(DependentModel.fromJson(item));
         }
       }
-      if (mounted && list.isNotEmpty) {
+
+      if (mounted) {
         setState(() {
           _dependents = list;
-          _activeDependent = list.first;
+          _pendingCount = pending;
+          if (list.isNotEmpty) {
+            _activeDependent = list.first;
+          }
         });
       }
     } catch (e) {
@@ -82,52 +113,61 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
             ),
           ),
         ),
-        title: DropdownButtonHideUnderline(
-          child: DropdownButton<int>(
-            value: _activeDependent.id,
-            icon: const Icon(Icons.keyboard_arrow_down, color: Color(0xFFEC4899)),
-            items: _dependents.map((dep) {
-              return DropdownMenuItem<int>(
-                value: dep.id,
-                child: Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 12,
-                      backgroundColor: const Color(0xFFFCE7F3),
-                      child: Text(
-                        dep.fullName[0],
-                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFFEC4899)),
+        title: _dependents.isEmpty
+            ? const Text(
+                'Caregiver Hub',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.textDark),
+              )
+            : DropdownButtonHideUnderline(
+                child: DropdownButton<int>(
+                  value: _activeDependent.id,
+                  icon: const Icon(Icons.keyboard_arrow_down, color: Color(0xFFEC4899)),
+                  items: _dependents.map((dep) {
+                    return DropdownMenuItem<int>(
+                      value: dep.id,
+                      child: Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 12,
+                            backgroundColor: const Color(0xFFFCE7F3),
+                            child: Text(
+                              dep.fullName.isNotEmpty ? dep.fullName[0] : 'U',
+                              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFFEC4899)),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            dep.fullName,
+                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppTheme.textDark),
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            '(${dep.relationship.split(' ')[0]})',
+                            style: const TextStyle(fontSize: 11, color: AppTheme.textMuted),
+                          ),
+                        ],
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      dep.fullName,
-                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppTheme.textDark),
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      '(${dep.relationship.split(' ')[0]})',
-                      style: const TextStyle(fontSize: 11, color: AppTheme.textMuted),
-                    ),
-                  ],
+                    );
+                  }).toList(),
+                  onChanged: (id) {
+                    if (id != null) {
+                      setState(() {
+                        _activeDependent = _dependents.firstWhere((d) => d.id == id);
+                      });
+                    }
+                  },
                 ),
-              );
-            }).toList(),
-            onChanged: (id) {
-              if (id != null) {
-                setState(() {
-                  _activeDependent = _dependents.firstWhere((d) => d.id == id);
-                });
-              }
-            },
-          ),
-        ),
+              ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.group_add_outlined, color: Color(0xFFEC4899)),
-            tooltip: 'Manage Dependents',
-            onPressed: () {
-              Navigator.push(
+            icon: Badge(
+              isLabelVisible: _pendingCount > 0,
+              label: Text('$_pendingCount'),
+              child: const Icon(Icons.group_outlined, color: Color(0xFFEC4899)),
+            ),
+            tooltip: 'Care Recipients & Connection Requests',
+            onPressed: () async {
+              await Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (_) => DependentsScreen(
@@ -137,6 +177,7 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
                   ),
                 ),
               );
+              _loadDependents();
             },
           ),
           IconButton(

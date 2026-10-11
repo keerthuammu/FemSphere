@@ -106,7 +106,16 @@ export default function UserLayout() {
     }
   }, [showBookModal, fetchAvailableDoctors]);
 
-  const navItems = [
+  interface NavItem {
+    name: string;
+    path: string;
+    icon: any;
+    end?: boolean;
+    iconColor?: string;
+    badge?: number | string;
+  }
+
+  const navItems: NavItem[] = [
     { name: 'Dashboard', path: '/dashboard', icon: Activity, end: true },
     { name: 'Medical Records', path: '/dashboard/records', icon: FileText },
     { name: 'Health Tracker', path: '/dashboard/tracker', icon: Heart, iconColor: 'text-[#F472B6]' },
