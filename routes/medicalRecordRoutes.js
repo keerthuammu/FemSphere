@@ -10,9 +10,19 @@ import {
 } from '../controllers/medicalRecordController.js';
 import { authenticateToken } from '../middleware/auth.js';
 
-const uploadDir = path.join(process.cwd(), 'uploads', 'records');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
+import os from 'os';
+
+const uploadDir = process.env.VERCEL
+  ? path.join(os.tmpdir(), 'records')
+  : path.join(process.cwd(), 'uploads', 'records');
+
+try {
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
+} catch (err) {
+  // Suppress EROFS errors in serverless environments
+  console.warn('Notice: upload directory creation deferred:', err.message);
 }
 
 const storage = multer.diskStorage({
