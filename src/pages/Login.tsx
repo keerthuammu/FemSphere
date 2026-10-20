@@ -50,10 +50,15 @@ export default function Login() {
         body: JSON.stringify({ email, password })
       });
 
-      const data = await response.json();
+      let data: any = {};
+      try {
+        data = await response.json();
+      } catch (parseErr) {
+        throw new Error(`Server returned status ${response.status}: ${response.statusText || 'Unexpected response'}`);
+      }
 
       if (!response.ok || !data.success) {
-        setErrorMsg(data.message || 'Login failed. Invalid credentials.');
+        setErrorMsg(data.message || `Login failed (HTTP ${response.status})`);
         setIsLoading(false);
         return;
       }
@@ -64,7 +69,7 @@ export default function Login() {
 
       navigateRoleDashboard(data.user.role, data.user.email, data.user);
     } catch (err: any) {
-      setErrorMsg('Unable to reach the server. Please check your connection and try again.');
+      setErrorMsg(err.message || 'Unable to reach the server. Please check your connection and try again.');
     } finally {
       setIsLoading(false);
     }
