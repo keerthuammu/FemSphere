@@ -136,16 +136,16 @@ export function calculatePhaseMetrics(lastPeriodStartStr, periodDurationDays = 5
     phaseDescription = 'Cycle start is scheduled for ' + lastPeriodStartStr;
     hormonalState = 'Baseline';
   } else if (diffDays >= cycleLength) {
-    // Cycle is delayed / late
+    // Cycle is delayed / lack of period detected
     isDelayed = true;
     daysDelayed = diffDays - cycleLength + 1;
     cycleDay = diffDays + 1;
     phaseCode = 'DELAYED';
-    phaseName = 'Period Delayed / Late';
-    phaseBadge = `⏳ +${daysDelayed} Day${daysDelayed > 1 ? 's' : ''} Delayed`;
+    phaseName = 'Lack of Period / Menstrual Delay';
+    phaseBadge = `⏳ +${daysDelayed} Day${daysDelayed > 1 ? 's' : ''} Period Delay`;
     phaseColor = 'amber';
-    phaseDescription = `Your period is currently ${daysDelayed} day${daysDelayed > 1 ? 's' : ''} past your expected ${cycleLength}-day cycle window. Track any PMS symptoms or log when bleeding commences.`;
-    hormonalState = 'Extended Luteal / Delayed Ovulation';
+    phaseDescription = `A lack of period has been detected based on your system timeline (+${daysDelayed} day${daysDelayed > 1 ? 's' : ''} past expected menses). Cycle delays are commonly caused by hormonal rhythm shifts, acute stress, physical fatigue, travel, or nutritional changes. Keep tracking your menstrual symptoms and record your period as soon as bleeding occurs.`;
+    hormonalState = 'Extended Luteal / Menstrual Delay';
   } else {
     // Within normal cycle length
     cycleDay = diffDays + 1;
@@ -281,42 +281,47 @@ export function calculateCycleStatistics(cycles = [], baselineCycleLength = 28, 
     : baselinePeriodDuration;
 
   // Calculate inter-cycle intervals from chronological cycles
-  const intervals = [];
+  const normalIntervals = [];
+  const lackOfPeriodIntervals = [];
+
   for (let i = 1; i < cycles.length; i++) {
     const prevDate = new Date(cycles[i - 1].start_date);
     const currDate = new Date(cycles[i].start_date);
     const diffDays = Math.round((currDate.getTime() - prevDate.getTime()) / (1000 * 60 * 60 * 24));
-    if (diffDays >= 18 && diffDays <= 60) {
-      intervals.push(diffDays);
+    
+    // Normal biological menstrual cycle is 21 to 35 days (up to 38 days maximum)
+    if (diffDays >= 20 && diffDays <= 38) {
+      normalIntervals.push(diffDays);
+    } else if (diffDays > 38) {
+      // Gaps > 38 days represent Lack of Period (missed cycle / oligomenorrhea), NOT normal cadence
+      lackOfPeriodIntervals.push(diffDays);
     }
   }
 
-  if (intervals.length === 0) {
-    return {
-      recordedCyclesCount: cycles.length,
-      averageCycleLength: baselineCycleLength,
-      averagePeriodDuration: avgDuration,
-      cycleVariabilityDays: 0,
-      minCycleLength: baselineCycleLength,
-      maxCycleLength: baselineCycleLength,
-      isIrregular: false,
-      confidenceLevel: cycles.length === 1 ? 'Initial Cycle Recorded' : 'Baseline Estimate'
-    };
-  }
+  const hasLackOfPeriod = lackOfPeriodIntervals.length > 0;
+  const latestLackDays = hasLackOfPeriod ? Math.max(...lackOfPeriodIntervals) : null;
 
-  const avgCycle = Math.round(intervals.reduce((a, b) => a + b, 0) / intervals.length);
-  const minCycle = Math.min(...intervals);
-  const maxCycle = Math.max(...intervals);
-  const variability = maxCycle - minCycle;
-  const isIrregular = variability > 7;
+  // If normal intervals exist, average them. If not, use the baseline cycle length (e.g. 28 days)
+  const avgCycle = normalIntervals.length > 0
+    ? Math.round(normalIntervals.reduce((a, b) => a + b, 0) / normalIntervals.length)
+    : Math.min(35, Math.max(21, Number(baselineCycleLength) || 28));
 
-  let confidenceLevel = 'Moderate Confidence';
-  if (intervals.length >= 3 && variability <= 3) {
+  const allIntervals = [...normalIntervals, ...lackOfPeriodIntervals];
+  const minCycle = allIntervals.length > 0 ? Math.min(...allIntervals) : avgCycle;
+  const maxCycle = allIntervals.length > 0 ? Math.max(...allIntervals) : avgCycle;
+  const variability = normalIntervals.length > 1
+    ? Math.max(...normalIntervals) - Math.min(...normalIntervals)
+    : (hasLackOfPeriod ? 14 : 0);
+
+  const isIrregular = hasLackOfPeriod || variability > 7;
+
+  let confidenceLevel = 'Baseline Estimate';
+  if (normalIntervals.length >= 3 && variability <= 3) {
     confidenceLevel = 'High (Consistent Pattern)';
-  } else if (intervals.length >= 2 && variability <= 5) {
+  } else if (normalIntervals.length >= 2 && variability <= 5) {
     confidenceLevel = 'Moderate Confidence';
   } else if (isIrregular) {
-    confidenceLevel = 'Irregular Variation';
+    confidenceLevel = 'Baseline (28d)';
   } else {
     confidenceLevel = 'Learning Pattern';
   }
@@ -329,6 +334,9 @@ export function calculateCycleStatistics(cycles = [], baselineCycleLength = 28, 
     minCycleLength: minCycle,
     maxCycleLength: maxCycle,
     isIrregular,
+    hasLackOfPeriod,
+    lackOfPeriodDays: latestLackDays,
+    lackOfPeriodCount: lackOfPeriodIntervals.length,
     confidenceLevel
   };
 }
@@ -396,24 +404,51 @@ export const getPeriodSettings = async (req, res) => {
   try {
     const userId = req.user.id;
 
-    const settingsRes = await pool.query(
+    let settingsRes = await pool.query(
       `SELECT * FROM period_settings WHERE user_id = $1`,
       [userId]
     );
 
     if (settingsRes.rows.length === 0 || !settingsRes.rows[0].is_configured) {
-      return res.json({
-        success: true,
-        isConfigured: false,
-        message: 'Period tracking is not yet configured for this user.'
-      });
+      // Auto-heal from period_cycles if user previously recorded a period
+      const cycleCheck = await pool.query(
+        `SELECT * FROM period_cycles WHERE user_id = $1 ORDER BY start_date DESC LIMIT 1`,
+        [userId]
+      );
+      if (cycleCheck.rows.length > 0) {
+        const c = cycleCheck.rows[0];
+        const lastStart = formatLocalDate(c.start_date);
+        const duration = c.duration_days || 5;
+        const cycleLen = c.cycle_length_days || 28;
+        await pool.query(
+          `INSERT INTO period_settings (user_id, last_period_start, period_duration, cycle_length, is_configured, updated_at)
+           VALUES ($1, $2, $3, $4, TRUE, CURRENT_TIMESTAMP)
+           ON CONFLICT (user_id) DO UPDATE SET
+             last_period_start = EXCLUDED.last_period_start,
+             period_duration = EXCLUDED.period_duration,
+             cycle_length = EXCLUDED.cycle_length,
+             is_configured = TRUE,
+             updated_at = CURRENT_TIMESTAMP`,
+          [userId, lastStart, duration, cycleLen]
+        );
+        settingsRes = await pool.query(
+          `SELECT * FROM period_settings WHERE user_id = $1`,
+          [userId]
+        );
+      } else {
+        return res.json({
+          success: true,
+          isConfigured: false,
+          message: 'Period tracking is not yet configured for this user.'
+        });
+      }
     }
 
     const row = settingsRes.rows[0];
     const isPregnant = Boolean(row.is_pregnant);
-    const lastStartStr = row.last_period_start.toISOString().split('T')[0];
-    const pregnancyStartStr = row.pregnancy_start_date ? row.pregnancy_start_date.toISOString().split('T')[0] : lastStartStr;
-    const eddStr = row.gestational_target_edd ? row.gestational_target_edd.toISOString().split('T')[0] : null;
+    const lastStartStr = formatLocalDate(row.last_period_start);
+    const pregnancyStartStr = row.pregnancy_start_date ? formatLocalDate(row.pregnancy_start_date) : lastStartStr;
+    const eddStr = row.gestational_target_edd ? formatLocalDate(row.gestational_target_edd) : null;
 
     // Fetch all user cycles for actual historical statistics
     const allCyclesRes = await pool.query(
@@ -435,6 +470,11 @@ export const getPeriodSettings = async (req, res) => {
       metrics = calculateGestationalMetrics(pregnancyStartStr);
     } else {
       metrics = calculatePhaseMetrics(lastStartStr, effectivePeriodDuration, effectiveCycleLength);
+      metrics.hasLackOfPeriod = Boolean(historicalStats.hasLackOfPeriod || metrics.isDelayed);
+      metrics.lackOfPeriodDays = historicalStats.lackOfPeriodDays || metrics.daysDelayed || null;
+      if (historicalStats.hasLackOfPeriod) {
+        metrics.lackOfPeriodNote = `A previous interval of ${historicalStats.lackOfPeriodDays} days represents a lack of period / missed cycle. Baseline rhythm preserved.`;
+      }
     }
 
     const predictions = calculatePredictions(
@@ -472,6 +512,13 @@ export const getPeriodSettings = async (req, res) => {
       notes: todayLogRes.rows[0].notes
     } : null;
 
+    // Fetch user marital status to dynamically determine maternity mode availability
+    const profileRes = await pool.query(
+      `SELECT marital_status FROM user_profiles WHERE user_id = $1`,
+      [userId]
+    );
+    const maritalStatus = profileRes.rows[0]?.marital_status || 'Single';
+
     // Pick a random mental wellness affirmation and shuffle healthy tips
     const affirmation = MENSTRUAL_AFFIRMATIONS[Math.floor(Math.random() * MENSTRUAL_AFFIRMATIONS.length)];
     const tips = [...HEALTHY_MENSTRUAL_TIPS].sort(() => 0.5 - Math.random());
@@ -481,6 +528,7 @@ export const getPeriodSettings = async (req, res) => {
       isConfigured: true,
       configured: true,
       isPregnant,
+      maritalStatus,
       settings: {
         id: row.id,
         lastPeriodStart: lastStartStr,
@@ -688,6 +736,7 @@ export const logPeriodCycle = async (req, res) => {
        DO UPDATE SET 
          last_period_start = EXCLUDED.last_period_start,
          period_duration = EXCLUDED.period_duration,
+         is_configured = TRUE,
          updated_at = CURRENT_TIMESTAMP`,
       [userId, startDate, calculatedDuration, prevCycleLength]
     );
@@ -1305,6 +1354,19 @@ export const activatePregnancy = async (req, res) => {
   try {
     const userId = req.user.id;
     const { lmpDate } = req.body;
+
+    // Verify female user's marital status allows Maternity Mode
+    const profileRes = await pool.query(
+      `SELECT marital_status FROM user_profiles WHERE user_id = $1`,
+      [userId]
+    );
+    const userMarital = profileRes.rows[0]?.marital_status || 'Single';
+    if (userMarital !== 'Married' && userMarital !== 'Partnered') {
+      return res.status(403).json({
+        success: false,
+        message: 'Maternity Mode is only accessible based on marital status (Married/Partnered). Please update your marital status in your profile if this has changed.'
+      });
+    }
 
     const settingsRes = await pool.query(
       `SELECT * FROM period_settings WHERE user_id = $1`,

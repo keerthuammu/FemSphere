@@ -51,6 +51,7 @@ class _PeriodTrackerScreenState extends State<PeriodTrackerScreen> with SingleTi
   String _fertileWindowStr = '';
   bool _isDelayed = false;
   int _daysDelayed = 0;
+  String _maritalStatus = 'Single';
   String _affirmation = '';
 
   // Calendar State
@@ -157,10 +158,15 @@ class _PeriodTrackerScreenState extends State<PeriodTrackerScreen> with SingleTi
               .toList();
         }
 
+        if (_settings != null || _cycleHistory.isNotEmpty) {
+          _isConfigured = true;
+        }
+
         if (data['todayLog'] != null) {
           _todayLog = DailyLogModel.fromJson(data['todayLog']);
         }
 
+        _maritalStatus = data['maritalStatus']?.toString() ?? 'Single';
         _affirmation = data['affirmation']?.toString() ?? 'Your body is performing restorative biological work.';
 
         // Load daily logs for current calendar month
@@ -685,11 +691,11 @@ class _PeriodTrackerScreenState extends State<PeriodTrackerScreen> with SingleTi
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Cycle Delayed (+$_daysDelayed Days)',
+                          'Lack of Period / Delay (+$_daysDelayed Days)',
                           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFF92400E)),
                         ),
                         const Text(
-                          'You can extend your expected cycle length to calibrate predictions.',
+                          'Your menstrual period has not commenced within your expected schedule. You can extend your cycle duration or log your period bleeding.',
                           style: TextStyle(fontSize: 10, color: Color(0xFFB45309)),
                         ),
                       ],
@@ -1293,7 +1299,12 @@ class _PeriodTrackerScreenState extends State<PeriodTrackerScreen> with SingleTi
           Row(
             children: [
               Expanded(
-                child: _buildInsightStatCard('AVG CYCLE', '$avgCycle Days', 'Calculated from gap', AppTheme.primaryPurple),
+                child: _buildInsightStatCard(
+                  'AVG CYCLE', 
+                  '$avgCycle Days', 
+                  'Calibrated baseline', 
+                  AppTheme.primaryPurple
+                ),
               ),
               const SizedBox(width: 10),
               Expanded(
@@ -1305,6 +1316,30 @@ class _PeriodTrackerScreenState extends State<PeriodTrackerScreen> with SingleTi
               ),
             ],
           ),
+
+          if (_isDelayed) ...[
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFFBEB),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: const Color(0xFFFDE68A)),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.info_outline, color: Color(0xFFB45309), size: 20),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      'Menstrual delay detected (+$_daysDelayed days). Keep logging your symptoms and record your period when bleeding starts.',
+                      style: const TextStyle(fontSize: 11, color: Color(0xFF92400E), height: 1.3),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
 
           const SizedBox(height: 16),
 
@@ -1543,42 +1578,43 @@ class _PeriodTrackerScreenState extends State<PeriodTrackerScreen> with SingleTi
             ),
           ),
 
-          const SizedBox(height: 16),
-
-          // Positive Pregnancy Test Button
-          Container(
-            padding: const EdgeInsets.all(18),
-            decoration: BoxDecoration(
-              color: const Color(0xFFFAF5FF),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: const Color(0xFFE9D5FF)),
-            ),
-            child: Row(
-              children: [
-                const Text('🤰', style: TextStyle(fontSize: 26)),
-                const SizedBox(width: 12),
-                const Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Positive Pregnancy Test?', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppTheme.textDark)),
-                      Text('Switch to Maternity Mode to pause menstrual calculations and track fetal development.', style: TextStyle(fontSize: 10, color: Colors.grey)),
-                    ],
+          // Positive Pregnancy Test Button (Accessible only based on marital status: Married / Partnered)
+          if (_maritalStatus == 'Married' || _maritalStatus == 'Partnered') ...[
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFAF5FF),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: const Color(0xFFE9D5FF)),
+              ),
+              child: Row(
+                children: [
+                  const Text('🤰', style: TextStyle(fontSize: 26)),
+                  const SizedBox(width: 12),
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Positive Pregnancy Test?', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppTheme.textDark)),
+                        Text('Switch to Maternity Mode to pause menstrual calculations and track fetal development.', style: TextStyle(fontSize: 10, color: Colors.grey)),
+                      ],
+                    ),
                   ),
-                ),
-                ElevatedButton(
-                  onPressed: _showPregnancyActivationDialog,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.primaryPurple,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                  ElevatedButton(
+                    onPressed: _showPregnancyActivationDialog,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.primaryPurple,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                    ),
+                    child: const Text('Activate', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
                   ),
-                  child: const Text('Activate', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
+          ],
         ],
       ),
     );

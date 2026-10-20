@@ -131,6 +131,16 @@ export default function UserProfilePage() {
               <p className="font-bold text-[#3a3135] text-base">{userProfile.email || '--'}</p>
             </div>
 
+            <div className="p-4 rounded-2xl bg-[#FCF4F5] border border-[#F4DDE2]">
+              <span className="block font-bold text-[#7a6f75] uppercase text-[10px] mb-1">Marital Status</span>
+              <p className="font-bold text-[#3a3135] text-base">{userProfile.maritalStatus || 'Single'}</p>
+              <p className="text-[10px] text-gray-500 mt-0.5">
+                {userProfile.maritalStatus === 'Married' || userProfile.maritalStatus === 'Partnered'
+                  ? '🤰 Maternity Mode enabled in Period Tracker'
+                  : '🩸 Period & Menstrual Cycle Mode (Maternity hidden)'}
+              </p>
+            </div>
+
             <div className="p-4 rounded-2xl bg-purple-50/50 border border-purple-200 md:col-span-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <div>
                 <span className="block font-bold text-[#936DA2] uppercase text-[10px] mb-1">Biological Life Stage (Dynamic)</span>
@@ -237,6 +247,22 @@ export default function UserProfilePage() {
                 <option value="awaiting">Not Yet (Awaiting First Period / Pubertal Development)</option>
               </select>
               <p className="text-[10px] text-gray-500 mt-1">For adolescents: selecting 'Not Yet' pauses cycle countdowns until first period occurs.</p>
+            </div>
+
+            <div>
+              <label className="block font-bold text-[#4a4145] uppercase mb-1">Marital Status</label>
+              <select 
+                value={editProfileForm.maritalStatus || 'Single'} 
+                onChange={(e) => setEditProfileForm({...editProfileForm, maritalStatus: e.target.value})} 
+                className="w-full p-3 rounded-xl border border-[#F4DDE2] bg-white font-medium"
+              >
+                <option value="Single">Single</option>
+                <option value="Married">Married</option>
+                <option value="Partnered">Partnered</option>
+                <option value="Divorced">Divorced</option>
+                <option value="Widowed">Widowed</option>
+              </select>
+              <p className="text-[10px] text-gray-500 mt-1">Maternity Mode is accessible when marital state is Married or Partnered.</p>
             </div>
 
             <div className="grid grid-cols-2 gap-2">

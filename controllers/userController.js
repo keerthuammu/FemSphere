@@ -58,7 +58,9 @@ export const updateUserProfile = async (req, res) => {
       hospital,
       caregiverType,
       relationship,
-      organizationName
+      organizationName,
+      maritalStatus,
+      marital_status
     } = req.body;
 
     const resolvedName = fullName || name;
@@ -85,6 +87,7 @@ export const updateUserProfile = async (req, res) => {
     const resolvedMenarche = menarcheStarted !== undefined 
       ? Boolean(menarcheStarted) 
       : (menarche_started !== undefined ? Boolean(menarche_started) : null);
+    const resolvedMaritalStatus = (maritalStatus || marital_status) ? String(maritalStatus || marital_status).trim() : null;
 
     // 1. Update email in users table if provided
     if (email && email.trim() !== '') {
@@ -106,6 +109,7 @@ export const updateUserProfile = async (req, res) => {
            emergency_contact_phone = COALESCE($7, emergency_contact_phone),
            address = COALESCE($8, address),
            menarche_started = COALESCE($10, menarche_started),
+           marital_status = COALESCE($11, marital_status),
            updated_at = CURRENT_TIMESTAMP
        WHERE user_id = $9 RETURNING *`,
       [
@@ -118,15 +122,16 @@ export const updateUserProfile = async (req, res) => {
         resolvedEmergencyPhone, 
         resolvedAddress, 
         userId,
-        resolvedMenarche
+        resolvedMenarche,
+        resolvedMaritalStatus
       ]
     );
 
     if (profileRes.rows.length === 0) {
       profileRes = await pool.query(
         `INSERT INTO user_profiles (
-          user_id, full_name, dob, blood_group, height_cm, weight_kg, emergency_contact_name, emergency_contact_phone, address, menarche_started
-        ) VALUES ($1, $2, COALESCE($3, '1995-01-01'::date), $4, $5, $6, $7, $8, $9, COALESCE($10, TRUE)) RETURNING *`,
+          user_id, full_name, dob, blood_group, height_cm, weight_kg, emergency_contact_name, emergency_contact_phone, address, menarche_started, marital_status
+        ) VALUES ($1, $2, COALESCE($3, '1995-01-01'::date), $4, $5, $6, $7, $8, $9, COALESCE($10, TRUE), COALESCE($11, 'Single')) RETURNING *`,
         [
           userId, 
           resolvedName || 'User', 
@@ -137,7 +142,8 @@ export const updateUserProfile = async (req, res) => {
           resolvedEmergencyName || '', 
           resolvedEmergencyPhone || '',
           resolvedAddress || '',
-          resolvedMenarche
+          resolvedMenarche,
+          resolvedMaritalStatus
         ]
       );
     }

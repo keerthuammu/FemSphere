@@ -41,6 +41,7 @@ export interface UserProfile {
   };
   activeMode?: 'standard' | 'pregnancy' | 'postpartum' | 'menopause';
   pregnancyWeek?: number;
+  maritalStatus?: string;
 }
 
 export interface VitalMetric {

@@ -113,7 +113,8 @@ app.use((err, req, res, next) => {
 
 let server;
 const isTestEnv = process.env.NODE_ENV === 'test' || process.argv.some(arg => arg.includes('test'));
-if (!isTestEnv) {
+const isVercel = process.env.VERCEL === '1' || Boolean(process.env.VERCEL);
+if (!isTestEnv && !isVercel) {
   server = app.listen(PORT, () => {
     console.log(`=======================================================`);
     console.log(`🌸 FemSphere Node.js + Express REST API Server Running`);

@@ -71,7 +71,8 @@ export default function ConnectDevices() {
     fetchWearables,
     showConnectDeviceModal,
     setShowConnectDeviceModal,
-    handleDisconnectWearableDevice
+    handleDisconnectWearableDevice,
+    handleRemoveWearableDevice
   } = useUser();
 
   const [selectedDevice, setSelectedDevice] = useState<WearableDeviceEntity | null>(null);
@@ -148,8 +149,8 @@ export default function ConnectDevices() {
   };
 
   const handleRemoveDevice = async (id: number) => {
-    if (window.confirm('Are you sure you want to disconnect and remove this device?')) {
-      await handleDisconnectWearableDevice(id);
+    if (window.confirm('Are you sure you want to disconnect and permanently remove this device?')) {
+      await handleRemoveWearableDevice(id);
       setSelectedDevice(null);
       await fetchWearables();
     }

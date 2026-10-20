@@ -127,6 +127,8 @@ class CycleStatisticsModel {
   final int minCycleLength;
   final int maxCycleLength;
   final bool isIrregular;
+  final bool hasLackOfPeriod;
+  final int? lackOfPeriodDays;
   final String confidenceLevel;
 
   CycleStatisticsModel({
@@ -137,6 +139,8 @@ class CycleStatisticsModel {
     this.minCycleLength = 28,
     this.maxCycleLength = 28,
     this.isIrregular = false,
+    this.hasLackOfPeriod = false,
+    this.lackOfPeriodDays,
     this.confidenceLevel = 'Default',
   });
 
@@ -149,6 +153,8 @@ class CycleStatisticsModel {
       minCycleLength: _parseInt(json['minCycleLength'], 28),
       maxCycleLength: _parseInt(json['maxCycleLength'], 28),
       isIrregular: _parseBool(json['isIrregular'], false),
+      hasLackOfPeriod: _parseBool(json['hasLackOfPeriod'], false),
+      lackOfPeriodDays: json['lackOfPeriodDays'] != null ? _parseInt(json['lackOfPeriodDays'], 0) : null,
       confidenceLevel: json['confidenceLevel']?.toString() ?? 'Default',
     );
   }

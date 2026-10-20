@@ -134,6 +134,25 @@ export default function UserPeriodTracker() {
   const [tipIndex, setTipIndex] = useState(0);
 
   const isPregnant = Boolean(periodMetrics?.isPregnant || periodSettings?.isPregnant);
+  const isMarried = Boolean(userProfile?.maritalStatus === 'Married' || userProfile?.maritalStatus === 'Partnered');
+
+  const hasConfiguredPeriod = Boolean(
+    isPeriodTrackerConfigured || 
+    periodSettings || 
+    (cycleHistory && cycleHistory.length > 0) ||
+    (() => {
+      try {
+        return localStorage.getItem('femsphere_period_configured') === 'true';
+      } catch {
+        return false;
+      }
+    })()
+  );
+
+  // Refresh period tracker overview on screen mount
+  useEffect(() => {
+    fetchPeriodData();
+  }, [fetchPeriodData]);
 
   // Fetch daily logs on month change
   useEffect(() => {
@@ -653,6 +672,12 @@ export default function UserPeriodTracker() {
             <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
               ✓ Database Synced
             </span>
+            {wheelData.isDelayed && (
+              <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 flex items-center gap-1">
+                <Clock className="w-3 h-3 text-amber-600" />
+                <span>Menstrual Delay</span>
+              </span>
+            )}
           </div>
 
           <h1 className="font-bold text-2xl md:text-3xl text-[#3a3135] tracking-tight">
@@ -679,7 +704,7 @@ export default function UserPeriodTracker() {
             </button>
           ) : (
             <>
-              {isPeriodTrackerConfigured && (
+              {hasConfiguredPeriod && (
                 <button
                   onClick={() => {
                     if (periodSettings) {
@@ -699,15 +724,17 @@ export default function UserPeriodTracker() {
                 </button>
               )}
 
-              <button
-                onClick={() => {
-                  setPregnancyLmp(periodSettings?.lastPeriodStart || new Date().toISOString().split('T')[0]);
-                  setShowPregnancyModal(true);
-                }}
-                className="px-3.5 py-2.5 bg-purple-50 hover:bg-purple-100 text-[#936DA2] border border-purple-200 rounded-2xl font-bold text-xs shadow-xs transition-all cursor-pointer flex items-center gap-1.5"
-              >
-                <span>🤰 Maternity</span>
-              </button>
+              {isMarried && (
+                <button
+                  onClick={() => {
+                    setPregnancyLmp(periodSettings?.lastPeriodStart || new Date().toISOString().split('T')[0]);
+                    setShowPregnancyModal(true);
+                  }}
+                  className="px-3.5 py-2.5 bg-purple-50 hover:bg-purple-100 text-[#936DA2] border border-purple-200 rounded-2xl font-bold text-xs shadow-xs transition-all cursor-pointer flex items-center gap-1.5"
+                >
+                  <span>🤰 Maternity</span>
+                </button>
+              )}
 
               <button
                 onClick={() => setShowLogCycleModal(true)}
@@ -878,9 +905,20 @@ export default function UserPeriodTracker() {
             </div>
           </div>
         </div>
-      ) : !isPeriodTrackerConfigured ? (
+      ) : isLoadingPeriodData && !hasConfiguredPeriod ? (
+        /* LOADING STATE (PREVENTS FLASHING SETUP SCREEN) */
+        <div className="bg-white rounded-3xl p-12 border border-[#F4DDE2] shadow-xs text-center max-w-xl mx-auto space-y-4 animate-in fade-in">
+          <div className="w-14 h-14 rounded-2xl bg-purple-50 text-[#936DA2] flex items-center justify-center mx-auto border border-purple-100 shadow-xs">
+            <RefreshCw className="w-7 h-7 animate-spin text-[#936DA2]" />
+          </div>
+          <div className="space-y-1">
+            <h4 className="font-bold text-base text-[#3a3135]">Loading Cycle Tracking...</h4>
+            <p className="text-xs text-[#7a6f75]">Syncing your personalized cycle baseline, predictions, and fertile window.</p>
+          </div>
+        </div>
+      ) : !hasConfiguredPeriod ? (
         /* ===================================================================== */
-        /* 3. INITIAL SETUP CALLOUT (IF NO DATA CONFIGURED YET)                   */
+        /* 3. INITIAL SETUP CALLOUT (ONLY SHOWN IF NEVER CONFIGURED YET)          */
         /* ===================================================================== */
         <div className="bg-gradient-to-br from-purple-50 via-white to-rose-50 rounded-3xl p-8 border border-purple-200 shadow-sm text-center max-w-xl mx-auto space-y-5">
           <div className="w-16 h-16 rounded-3xl bg-white text-[#936DA2] border border-purple-200 flex items-center justify-center mx-auto shadow-xs">
@@ -963,10 +1001,17 @@ export default function UserPeriodTracker() {
                       Your Current Cycle
                     </span>
 
-                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-50 border border-purple-200 text-[#936DA2] text-[11px] font-bold">
-                      <Droplet className="w-3 h-3 fill-current text-rose-500" />
-                      <span>Mode: Menstrual Cycle</span>
-                    </div>
+                    {(historicalStats?.hasLackOfPeriod || periodMetrics?.hasLackOfPeriod || wheelData.isDelayed) ? (
+                      <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 border border-amber-300 text-amber-900 text-[11px] font-bold shadow-2xs">
+                        <Clock className="w-3.5 h-3.5 text-amber-600" />
+                        <span>Status: Lack of Period</span>
+                      </div>
+                    ) : (
+                      <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-50 border border-purple-200 text-[#936DA2] text-[11px] font-bold">
+                        <Droplet className="w-3 h-3 fill-current text-rose-500" />
+                        <span>Mode: Menstrual Cycle</span>
+                      </div>
+                    )}
                   </div>
 
                   {/* THE CIRCULAR CYCLE WHEEL (SVG) */}
@@ -1098,10 +1143,13 @@ export default function UserPeriodTracker() {
                       {wheelData.isDelayed ? (
                         <div className="my-1.5">
                           <span className="text-2xl md:text-3xl font-black text-amber-600 tracking-tight block">
-                            +{wheelData.daysDelayed} Days Late
+                            +{wheelData.daysDelayed} Days Delayed
                           </span>
-                          <span className="text-[11px] text-amber-700 font-semibold">
-                            Cycle running past expected {wheelData.cycleLen} days
+                          <span className="text-[11px] text-amber-700 font-semibold block">
+                            Lack of Period Detected
+                          </span>
+                          <span className="text-[10px] text-gray-500 font-medium block">
+                            Exceeding expected {wheelData.cycleLen}-day cycle
                           </span>
                         </div>
                       ) : periodMetrics?.cycleDay && periodMetrics.cycleDay <= wheelData.duration ? (
@@ -1134,7 +1182,7 @@ export default function UserPeriodTracker() {
                           ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
                           : 'bg-purple-50 text-[#936DA2] border-purple-200'
                       }`}>
-                        {periodMetrics?.phaseName || 'Luteal Phase'}
+                        {periodMetrics?.phaseName || 'Follicular Phase'}
                       </span>
                     </div>
                   </div>
@@ -1180,11 +1228,23 @@ export default function UserPeriodTracker() {
                         <span>Cadence & Estimates</span>
                       </h3>
                       <span className="text-[10px] font-bold text-gray-400">
-                        {historicalStats?.confidenceLevel || 'Active'} Confidence
+                        {wheelData.isDelayed ? '⚠️ Menstrual Delay' : (historicalStats?.confidenceLevel || 'Baseline (28d)')}
                       </span>
                     </div>
 
                     <div className="space-y-3 text-xs">
+                      {wheelData.isDelayed && (
+                        <div className="p-3 rounded-2xl bg-amber-50 border border-amber-300 text-amber-950 space-y-1">
+                          <div className="flex items-center gap-1.5 font-bold text-amber-900 text-xs">
+                            <Clock className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                            <span>Menstrual Delay Detected</span>
+                          </div>
+                          <p className="text-[10px] text-amber-800 leading-relaxed">
+                            Your cycle has exceeded the expected {wheelData.cycleLen}-day baseline. Common causes include acute fatigue, emotional stress, lifestyle changes, or natural hormonal shifts.
+                          </p>
+                        </div>
+                      )}
+
                       <div className="p-3.5 rounded-2xl bg-purple-50/60 border border-purple-100 flex items-center justify-between">
                         <div>
                           <span className="text-[10px] font-bold text-gray-500 uppercase block">Next Expected Period</span>
@@ -1219,6 +1279,9 @@ export default function UserPeriodTracker() {
                           <span className="text-sm font-black text-gray-800 mt-0.5 block">
                             {historicalStats?.averageCycleLength || periodSettings?.cycleLength || 28} Days
                           </span>
+                          <span className="text-[9px] text-gray-400 font-medium block">
+                            Calibrated baseline
+                          </span>
                         </div>
 
                         <div className="p-3 rounded-2xl bg-gray-50 border border-gray-200">
@@ -1230,22 +1293,54 @@ export default function UserPeriodTracker() {
                       </div>
                     </div>
 
-                    {/* Delay Warning if running late */}
+                    {/* Lack of Period / Menstrual Cycle Delay Advisory */}
                     {wheelData.isDelayed && (
-                      <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-xs text-amber-900 space-y-2">
-                        <div className="flex items-center gap-2 font-bold">
-                          <Clock className="w-4 h-4 text-amber-600" />
-                          <span>Period Delayed by +{wheelData.daysDelayed} Days</span>
+                      <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-xs text-amber-900 space-y-2.5">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2 font-bold text-amber-900">
+                            <Clock className="w-4 h-4 text-amber-600" />
+                            <span>Lack of Period (+{wheelData.daysDelayed} Days Delayed)</span>
+                          </div>
+                          <span className="text-[10px] uppercase font-extrabold px-2 py-0.5 rounded-md bg-amber-100 text-amber-800 border border-amber-300">
+                            Period Delay
+                          </span>
                         </div>
                         <p className="text-[11px] text-amber-800 leading-relaxed">
-                          Your cycle has exceeded your standard cadence. You can calibrate the expected delay or log your period when bleeding starts.
+                          Your menstrual period has not commenced within your expected cadence ({wheelData.cycleLen} days). Cycle delays are common and can stem from acute stress, sleep deprivation, nutritional variations, illness, or natural endocrine fluctuations.
                         </p>
-                        <button
-                          onClick={() => setShowDelayModal(true)}
-                          className="px-3 py-1.5 bg-amber-600 text-white rounded-xl font-bold text-[11px] cursor-pointer"
-                        >
-                          Calibrate Delay
-                        </button>
+                        <div className="p-2.5 bg-white/90 rounded-xl border border-amber-200 text-[11px] text-amber-900 space-y-1">
+                          <span className="font-bold text-amber-950 block">Menstrual Health Guidance:</span>
+                          <ul className="list-disc list-inside space-y-0.5 text-[10px] text-amber-800">
+                            <li>Continue logging daily symptoms (cramps, basal temp, spotting, energy).</li>
+                            <li>Record your period bleeding as soon as your menses commences.</li>
+                            <li>If period delay extends beyond 14–21 days, consult a gynecologist for menstrual evaluation.</li>
+                          </ul>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-2 pt-1">
+                          <button
+                            onClick={() => setShowDelayModal(true)}
+                            className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-bold text-[11px] cursor-pointer transition-colors"
+                          >
+                            Calibrate Cycle Delay
+                          </button>
+                          <button
+                            onClick={() => setShowLogCycleModal(true)}
+                            className="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-bold text-[11px] cursor-pointer transition-colors"
+                          >
+                            Log Period Bleeding
+                          </button>
+                          {isMarried && (
+                            <button
+                              onClick={() => {
+                                setPregnancyLmp(periodSettings?.lastPeriodStart || new Date().toISOString().split('T')[0]);
+                                setShowPregnancyModal(true);
+                              }}
+                              className="px-3 py-1.5 bg-purple-100 hover:bg-purple-200 text-[#936DA2] rounded-xl font-bold text-[11px] cursor-pointer transition-colors"
+                            >
+                              🤰 Maternity Mode (Married)
+                            </button>
+                          )}
+                        </div>
                       </div>
                     )}
                   </div>

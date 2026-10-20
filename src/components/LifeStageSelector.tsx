@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Sparkles, Info, ShieldCheck, ChevronDown, Calendar, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useUser } from '../context/UserContext';
 
 interface Props {
   currentStageCode: string;
@@ -10,6 +11,8 @@ interface Props {
 
 export default function LifeStageSelector({ currentStageCode, stageName }: Props) {
   const [isOpen, setIsOpen] = useState(false);
+  const { userProfile } = useUser();
+  const isMarried = userProfile?.maritalStatus === 'Married' || userProfile?.maritalStatus === 'Partnered';
 
   const isPregnancy = currentStageCode === 'PREGNANCY';
 
@@ -84,14 +87,16 @@ export default function LifeStageSelector({ currentStageCode, stageName }: Props
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
 
-            <Link
-              to="/tracker"
-              onClick={() => setIsOpen(false)}
-              className="text-center py-2 px-3 bg-[#936DA2] hover:bg-[#835A92] text-white font-bold text-xs rounded-xl transition-colors flex items-center justify-center gap-1.5"
-            >
-              <span>Manage Maternity in Period Tracker</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
+            {isMarried && (
+              <Link
+                to="/tracker"
+                onClick={() => setIsOpen(false)}
+                className="text-center py-2 px-3 bg-[#936DA2] hover:bg-[#835A92] text-white font-bold text-xs rounded-xl transition-colors flex items-center justify-center gap-1.5"
+              >
+                <span>Manage Maternity in Period Tracker</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            )}
           </div>
         </div>
       )}
