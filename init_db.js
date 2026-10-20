@@ -9,30 +9,44 @@ const __dirname = path.dirname(__filename);
 const { Client } = pg;
 
 async function initPostgreSQL() {
-  let client = new Client({
-    user: 'postgres',
-    host: '127.0.0.1',
-    database: 'postgres',
-    port: 5432
-  });
+  let client;
 
-  await client.connect();
-  try {
-    await client.query('CREATE DATABASE femsphere_db');
-    console.log('Database femsphere_db created successfully!');
-  } catch (err) {
-    console.log('Database notice:', err.message);
+  if (process.env.DATABASE_URL) {
+    console.log('Connecting to cloud PostgreSQL using DATABASE_URL...');
+    client = new Client({
+      connectionString: process.env.DATABASE_URL,
+      ssl: process.env.DB_SSL === 'false' ? false : { rejectUnauthorized: false }
+    });
+    await client.connect();
+    console.log('Connected to cloud PostgreSQL successfully!');
+  } else {
+    client = new Client({
+      user: process.env.DB_USER || 'postgres',
+      host: process.env.DB_HOST || '127.0.0.1',
+      database: 'postgres',
+      port: parseInt(process.env.DB_PORT || '5432'),
+      password: process.env.DB_PASSWORD || 'postgres'
+    });
+
+    await client.connect();
+    try {
+      await client.query('CREATE DATABASE femsphere_db');
+      console.log('Database femsphere_db created successfully!');
+    } catch (err) {
+      console.log('Database notice:', err.message);
+    }
+    await client.end();
+
+    client = new Client({
+      user: process.env.DB_USER || 'postgres',
+      host: process.env.DB_HOST || '127.0.0.1',
+      database: process.env.DB_NAME || 'femsphere_db',
+      port: parseInt(process.env.DB_PORT || '5432'),
+      password: process.env.DB_PASSWORD || 'postgres'
+    });
+
+    await client.connect();
   }
-  await client.end();
-
-  client = new Client({
-    user: 'postgres',
-    host: '127.0.0.1',
-    database: 'femsphere_db',
-    port: 5432
-  });
-
-  await client.connect();
 
   const schemaPath = path.join(__dirname, 'schema.sql');
   const sql = fs.readFileSync(schemaPath, 'utf8');
