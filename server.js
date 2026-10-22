@@ -58,18 +58,18 @@ app.use(cors({
     if (
       !origin ||
       allowedOrigins.includes(origin) ||
+      origin.includes('femsphere.me') ||
       origin.endsWith('.vercel.app') ||
-      origin.endsWith('.femsphere.me') ||
       Boolean(process.env.VERCEL) ||
       process.env.NODE_ENV !== 'production'
     ) {
       return callback(null, true);
     }
-    return callback(new Error(`CORS policy violation for origin: ${origin}`));
+    return callback(null, false);
   },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
 }));
 
 app.use(express.json());
