@@ -44,6 +44,9 @@ services:
       - ./uploads:/app/uploads
 
   frontend:
+    profiles:
+      - frontend
+      - full
     build:
       context: .
       dockerfile: Dockerfile.frontend
