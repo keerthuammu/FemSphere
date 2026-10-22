@@ -1,0 +1,2917 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FemSphere - Detailed Automated Step Log Execution Report</title>
+  <style>
+    :root {
+      --bg: #f9fafb;
+      --card-bg: #ffffff;
+      --border: #e5e7eb;
+      --border-subtle: #f3f4f6;
+      --text-primary: #111827;
+      --text-secondary: #4b5563;
+      --text-muted: #6b7280;
+      --pass: #16a34a;
+      --pass-bg: #f0fdf4;
+      --pass-border: #bbf7d0;
+      --accent: #d946ef;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text-primary);
+      padding: 24px 20px;
+      line-height: 1.5;
+      font-size: 14px;
+    }
+
+    .container {
+      max-width: 1240px;
+      margin: 0 auto;
+    }
+
+    /* Top Sticky Summary Bar */
+    .report-navbar {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .report-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 16px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .report-title-group h1 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .report-title-group p {
+      color: var(--text-muted);
+      font-size: 13px;
+      margin-top: 4px;
+    }
+
+    .metrics-pills {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .metric-pill {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: #334155;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .metric-pill.success {
+      background: var(--pass-bg);
+      color: var(--pass);
+      border-color: var(--pass-border);
+    }
+
+    /* Controls Bar */
+    .controls-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .search-box {
+      flex: 1;
+      min-width: 260px;
+      max-width: 450px;
+      position: relative;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 8px 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.15s ease;
+    }
+
+    .search-input:focus {
+      border-color: #6366f1;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn {
+      padding: 8px 14px;
+      font-size: 12.5px;
+      font-weight: 600;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #ffffff;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn:hover {
+      background: #f3f4f6;
+      color: var(--text-primary);
+    }
+
+    .btn.active {
+      background: #1e293b;
+      color: #ffffff;
+      border-color: #1e293b;
+    }
+
+    /* Test Cards Container */
+    .test-cases-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Single Test Card */
+    .test-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+      overflow: hidden;
+      transition: border-color 0.15s ease;
+    }
+
+    .test-card:hover {
+      border-color: #cbd5e1;
+    }
+
+    /* Test Card Header - Exact Match to Screenshot */
+    .test-header {
+      padding: 14px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      border-bottom: 1px solid #f1f5f9;
+      background: #ffffff;
+    }
+
+    .test-header-left {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .status-badge.passed {
+      color: var(--pass);
+      font-weight: 700;
+      font-size: 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-icon {
+      font-size: 15px;
+      font-weight: 900;
+    }
+
+    .test-identifier {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 13.5px;
+      color: #1f2937;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+    }
+
+    .test-header-right {
+      display: flex;
+      align-items: center;
+    }
+
+    .test-duration {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13px;
+      color: #4b5563;
+      font-weight: 500;
+    }
+
+    /* Detailed Step Log Accordion */
+    .step-log-details {
+      background: #ffffff;
+    }
+
+    .step-log-summary {
+      padding: 12px 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #111827;
+      background: #ffffff;
+      user-select: none;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    .step-log-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .caret {
+      font-size: 10px;
+      transition: transform 0.2s ease;
+      color: #111827;
+      display: inline-block;
+    }
+
+    details[open] .caret {
+      transform: rotate(0deg);
+    }
+
+    details:not([open]) .caret {
+      transform: rotate(-90deg);
+    }
+
+    .summary-title {
+      font-weight: 700;
+    }
+
+    .summary-module {
+      font-size: 12px;
+      font-weight: 500;
+      color: #64748b;
+      margin-left: auto;
+      background: #f1f5f9;
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+
+    /* Table Matching Screenshot */
+    .table-wrapper {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    .step-log-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    .step-log-table th {
+      padding: 10px 20px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #4b5563;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      background-color: #fafafa;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .step-log-table td {
+      padding: 10px 20px;
+      font-size: 13px;
+      color: #1f2937;
+      border-bottom: 1px solid #f3f4f6;
+      vertical-align: top;
+      line-height: 1.45;
+    }
+
+    .step-log-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .step-log-table tr:hover {
+      background-color: #fbfcfd;
+    }
+
+    .col-num {
+      width: 55px;
+      color: #6b7280;
+    }
+
+    .col-time {
+      width: 90px;
+      color: #9ca3af;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12px;
+    }
+
+    .col-action {
+      width: 280px;
+      font-weight: 600;
+      color: #111827;
+    }
+
+    .col-details {
+      color: #374151;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12.5px;
+      word-break: break-word;
+    }
+
+    /* Print Optimizations */
+    @media print {
+      body {
+        background: #fff;
+        padding: 0;
+      }
+      .report-navbar, .controls-bar {
+        box-shadow: none;
+        border: none;
+      }
+      .test-card {
+        page-break-inside: avoid;
+        border: 1px solid #000;
+        margin-bottom: 15px;
+      }
+      .btn, .search-box {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    
+    <!-- Top Summary & Control Bar -->
+    <header class="report-navbar">
+      <div class="report-title-row">
+        <div class="report-title-group">
+          <h1>🌸 FemSphere Automated Test Step Log Report</h1>
+          <p><strong>Framework:</strong> Python 3.14.0 &bull; pytest 9.1.1 &bull; Appium 2.x UiAutomator2 &bull; <strong>Device:</strong> Android 14 (A059)</p>
+        </div>
+        <div class="metrics-pills">
+          <span class="metric-pill success">✓ Passed: 40 (100%)</span>
+          <span class="metric-pill">Total Tests: 40</span>
+          <span class="metric-pill">Duration: 00:04:08 (248.82s)</span>
+          <span class="metric-pill">Engineer: KEERTHANA M</span>
+        </div>
+      </div>
+
+      <div class="controls-bar">
+        <div class="search-box">
+          <input type="text" id="searchInput" class="search-input" placeholder="Search test name, action, or keyword..." onkeyup="filterTests()">
+        </div>
+        <div class="action-buttons">
+          <button class="btn active" onclick="filterStatus('all', this)">All (40)</button>
+          <button class="btn" onclick="filterStatus('passed', this)">Passed (40)</button>
+          <button class="btn" onclick="toggleAllDetails(true)">Expand All</button>
+          <button class="btn" onclick="toggleAllDetails(false)">Collapse All</button>
+          <button class="btn" onclick="window.print()">Print / Save PDF</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Test Cases Cards List -->
+    <div class="test-cases-list" id="testList">
+      
+    <!-- Test Card 1: TC_AUTH_01 -->
+    <div class="test-card" data-status="passed" data-title="tests/appium/test_auth.py::testauthentication::test_tc_auth_01_verify_valid_patient_login_dashboar">
+      <div class="test-header">
+        <div class="test-header-left">
+          <span class="status-badge passed">
+            <span class="status-icon">✓</span>
+            <span class="status-text">Passed</span>
+          </span>
+          <span class="test-identifier">tests/appium/test_auth.py::TestAuthentication::test_tc_auth_01_verify_valid_patient_login_dashboar</span>
+        </div>
+        <div class="test-header-right">
+          <span class="test-duration">00:00:06</span>
+        </div>
+      </div>
+
+      <details class="step-log-details" open>
+        <summary class="step-log-summary">
+          <span class="caret">▼</span>
+          <span class="summary-title">Detailed Step Log (17 steps)</span>
+          <span class="summary-module">Patient Authentication &bull; TC_AUTH_01</span>
+        </summary>
+        
+        <div class="table-wrapper">
+          <table class="step-log-table">
+            <thead>
+              <tr>
+                <th class="col-num">#</th>
+                <th class="col-time">TIME</th>
+                <th class="col-action">ACTION</th>
+                <th class="col-details">DETAILS</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+            <tr>
+              <td class="col-num">1</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Opened</td>
+              <td class="col-details">App Screen: Package: com.example.femsphere</td>
+            </tr>
+            <tr>
+              <td class="col-num">2</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Input Field</td>
+              <td class="col-details">email_input</td>
+            </tr>
+            <tr>
+              <td class="col-num">3</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Type</td>
+              <td class="col-details">email / text</td>
+            </tr>
+            <tr>
+              <td class="col-num">4</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Placeholder</td>
+              <td class="col-details">john@femsphere.health or user@domain.com</td>
+            </tr>
+            <tr>
+              <td class="col-num">5</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Entered Value</td>
+              <td class="col-details">Field ID: login_email_input</td>
+            </tr>
+            <tr>
+              <td class="col-num">6</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Asserted</td>
+              <td class="col-details">Email field is visible, focused, and accepts alphanumeric input -&gt; [Field located and ready for input]</td>
+            </tr>
+            <tr>
+              <td class="col-num">7</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Input Field</td>
+              <td class="col-details">email_input</td>
+            </tr>
+            <tr>
+              <td class="col-num">8</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Type</td>
+              <td class="col-details">email / text</td>
+            </tr>
+            <tr>
+              <td class="col-num">9</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Placeholder</td>
+              <td class="col-details">john@femsphere.health or user@domain.com</td>
+            </tr>
+            <tr>
+              <td class="col-num">10</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Entered Value</td>
+              <td class="col-details">elena.rostova@femsphere.health</td>
+            </tr>
+            <tr>
+              <td class="col-num">11</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Input Field</td>
+              <td class="col-details">password_input</td>
+            </tr>
+            <tr>
+              <td class="col-num">12</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Type</td>
+              <td class="col-details">password</td>
+            </tr>
+            <tr>
+              <td class="col-num">13</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Placeholder</td>
+              <td class="col-details">••••••••••••</td>
+            </tr>
+            <tr>
+              <td class="col-num">14</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Entered Value</td>
+              <td class="col-details">•••••••••••• (Masked)</td>
+            </tr>
+            <tr>
+              <td class="col-num">15</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Clicked</td>
+              <td class="col-details">Login submit button (Element ID: login_submit_button)</td>
+            </tr>
+            <tr>
+              <td class="col-num">16</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Asserted</td>
+              <td class="col-details">User lands on Home Dashboard showing daily summary and health score -&gt; [Dashboard rendered with patient greeting and metrics]</td>
+            </tr>
+            <tr>
+              <td class="col-num">17</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">TEST 1 PASSED - TC_AUTH_01</td>
+              <td class="col-details">Verify Valid Patient Login &amp; Dashboard Redirection verified successfully with zero assertions failed</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </div>
+  
+    <!-- Test Card 2: TC_AUTH_02 -->
+    <div class="test-card" data-status="passed" data-title="tests/appium/test_auth.py::testauthentication::test_tc_auth_02_verify_invalid_credentials_rejectio">
+      <div class="test-header">
+        <div class="test-header-left">
+          <span class="status-badge passed">
+            <span class="status-icon">✓</span>
+            <span class="status-text">Passed</span>
+          </span>
+          <span class="test-identifier">tests/appium/test_auth.py::TestAuthentication::test_tc_auth_02_verify_invalid_credentials_rejectio</span>
+        </div>
+        <div class="test-header-right">
+          <span class="test-duration">00:00:05</span>
+        </div>
+      </div>
+
+      <details class="step-log-details" open>
+        <summary class="step-log-summary">
+          <span class="caret">▼</span>
+          <span class="summary-title">Detailed Step Log (12 steps)</span>
+          <span class="summary-module">Patient Authentication &bull; TC_AUTH_02</span>
+        </summary>
+        
+        <div class="table-wrapper">
+          <table class="step-log-table">
+            <thead>
+              <tr>
+                <th class="col-num">#</th>
+                <th class="col-time">TIME</th>
+                <th class="col-action">ACTION</th>
+                <th class="col-details">DETAILS</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+            <tr>
+              <td class="col-num">1</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Opened</td>
+              <td class="col-details">App Screen: Screen: Login</td>
+            </tr>
+            <tr>
+              <td class="col-num">2</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Input Field</td>
+              <td class="col-details">email_input</td>
+            </tr>
+            <tr>
+              <td class="col-num">3</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Type</td>
+              <td class="col-details">email / text</td>
+            </tr>
+            <tr>
+              <td class="col-num">4</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Placeholder</td>
+              <td class="col-details">john@femsphere.health or user@domain.com</td>
+            </tr>
+            <tr>
+              <td class="col-num">5</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Entered Value</td>
+              <td class="col-details">invalid@user.com</td>
+            </tr>
+            <tr>
+              <td class="col-num">6</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Input Field</td>
+              <td class="col-details">password_input</td>
+            </tr>
+            <tr>
+              <td class="col-num">7</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Type</td>
+              <td class="col-details">password</td>
+            </tr>
+            <tr>
+              <td class="col-num">8</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Placeholder</td>
+              <td class="col-details">••••••••••••</td>
+            </tr>
+            <tr>
+              <td class="col-num">9</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Entered Value</td>
+              <td class="col-details">•••••••••••• (Masked)</td>
+            </tr>
+            <tr>
+              <td class="col-num">10</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Clicked</td>
+              <td class="col-details">Login submit button (Action: Click Submit)</td>
+            </tr>
+            <tr>
+              <td class="col-num">11</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Asserted</td>
+              <td class="col-details">User is not authenticated; login button remains visible and interactive -&gt; [Login button remains displayed; session token not created]</td>
+            </tr>
+            <tr>
+              <td class="col-num">12</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">TEST 2 PASSED - TC_AUTH_02</td>
+              <td class="col-details">Verify Invalid Credentials Rejection &amp; Alert Notification verified successfully with zero assertions failed</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </div>
+  
+    <!-- Test Card 3: TC_AUTH_03 -->
+    <div class="test-card" data-status="passed" data-title="tests/appium/test_auth.py::testauthentication::test_tc_auth_03_verify_admin_superuser_portal_login">
+      <div class="test-header">
+        <div class="test-header-left">
+          <span class="status-badge passed">
+            <span class="status-icon">✓</span>
+            <span class="status-text">Passed</span>
+          </span>
+          <span class="test-identifier">tests/appium/test_auth.py::TestAuthentication::test_tc_auth_03_verify_admin_superuser_portal_login</span>
+        </div>
+        <div class="test-header-right">
+          <span class="test-duration">00:00:06</span>
+        </div>
+      </div>
+
+      <details class="step-log-details" open>
+        <summary class="step-log-summary">
+          <span class="caret">▼</span>
+          <span class="summary-title">Detailed Step Log (13 steps)</span>
+          <span class="summary-module">Super Admin Portal &bull; TC_AUTH_03</span>
+        </summary>
+        
+        <div class="table-wrapper">
+          <table class="step-log-table">
+            <thead>
+              <tr>
+                <th class="col-num">#</th>
+                <th class="col-time">TIME</th>
+                <th class="col-action">ACTION</th>
+                <th class="col-details">DETAILS</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+            <tr>
+              <td class="col-num">1</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Opened</td>
+              <td class="col-details">http://localhost:3000/role-admin</td>
+            </tr>
+            <tr>
+              <td class="col-num">2</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Clicked</td>
+              <td class="col-details">Open application and role tab if available (Role: Admin)</td>
+            </tr>
+            <tr>
+              <td class="col-num">3</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Input Field</td>
+              <td class="col-details">email_input</td>
+            </tr>
+            <tr>
+              <td class="col-num">4</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Type</td>
+              <td class="col-details">email / text</td>
+            </tr>
+            <tr>
+              <td class="col-num">5</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Placeholder</td>
+              <td class="col-details">john@femsphere.health or user@domain.com</td>
+            </tr>
+            <tr>
+              <td class="col-num">6</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Entered Value</td>
+              <td class="col-details">admin@femsphere.health</td>
+            </tr>
+            <tr>
+              <td class="col-num">7</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Input Field</td>
+              <td class="col-details">password_input</td>
+            </tr>
+            <tr>
+              <td class="col-num">8</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Type</td>
+              <td class="col-details">password</td>
+            </tr>
+            <tr>
+              <td class="col-num">9</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Placeholder</td>
+              <td class="col-details">••••••••••••</td>
+            </tr>
+            <tr>
+              <td class="col-num">10</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Entered Value</td>
+              <td class="col-details">•••••••••••• (Masked)</td>
+            </tr>
+            <tr>
+              <td class="col-num">11</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Clicked</td>
+              <td class="col-details">Login submit button (Action: Submit)</td>
+            </tr>
+            <tr>
+              <td class="col-num">12</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Asserted</td>
+              <td class="col-details">Admin management dashboard renders with system metrics and verification queue -&gt; [Super Admin Console loaded with audit and queue controls]</td>
+            </tr>
+            <tr>
+              <td class="col-num">13</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">TEST 3 PASSED - TC_AUTH_03</td>
+              <td class="col-details">Verify Admin Superuser Portal Login &amp; Route Authorization verified successfully with zero assertions failed</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </div>
+  
+    <!-- Test Card 4: TC_AUTH_04 -->
+    <div class="test-card" data-status="passed" data-title="tests/appium/test_auth.py::testauthentication::test_tc_auth_04_verify_doctor_clinical_portal_login">
+      <div class="test-header">
+        <div class="test-header-left">
+          <span class="status-badge passed">
+            <span class="status-icon">✓</span>
+            <span class="status-text">Passed</span>
+          </span>
+          <span class="test-identifier">tests/appium/test_auth.py::TestAuthentication::test_tc_auth_04_verify_doctor_clinical_portal_login</span>
+        </div>
+        <div class="test-header-right">
+          <span class="test-duration">00:00:07</span>
+        </div>
+      </div>
+
+      <details class="step-log-details" open>
+        <summary class="step-log-summary">
+          <span class="caret">▼</span>
+          <span class="summary-title">Detailed Step Log (11 steps)</span>
+          <span class="summary-module">Doctor Clinical Portal &bull; TC_AUTH_04</span>
+        </summary>
+        
+        <div class="table-wrapper">
+          <table class="step-log-table">
+            <thead>
+              <tr>
+                <th class="col-num">#</th>
+                <th class="col-time">TIME</th>
+                <th class="col-action">ACTION</th>
+                <th class="col-details">DETAILS</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+            <tr>
+              <td class="col-num">1</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Opened</td>
+              <td class="col-details">http://localhost:3000/email-dr-jenkins-femsphere-health</td>
+            </tr>
+            <tr>
+              <td class="col-num">2</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Input Field</td>
+              <td class="col-details">email_input</td>
+            </tr>
+            <tr>
+              <td class="col-num">3</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Type</td>
+              <td class="col-details">email / text</td>
+            </tr>
+            <tr>
+              <td class="col-num">4</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Placeholder</td>
+              <td class="col-details">john@femsphere.health or user@domain.com</td>
+            </tr>
+            <tr>
+              <td class="col-num">5</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Entered Value</td>
+              <td class="col-details">dr.jenkins@femsphere.health</td>
+            </tr>
+            <tr>
+              <td class="col-num">6</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Input Field</td>
+              <td class="col-details">password_input</td>
+            </tr>
+            <tr>
+              <td class="col-num">7</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Type</td>
+              <td class="col-details">password</td>
+            </tr>
+            <tr>
+              <td class="col-num">8</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Placeholder</td>
+              <td class="col-details">••••••••••••</td>
+            </tr>
+            <tr>
+              <td class="col-num">9</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Entered Value</td>
+              <td class="col-details">•••••••••••• (Masked)</td>
+            </tr>
+            <tr>
+              <td class="col-num">10</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Asserted</td>
+              <td class="col-details">Clinical dashboard opens showing scheduled appointments and patient records -&gt; [Doctor Workspace loaded with consultation queues]</td>
+            </tr>
+            <tr>
+              <td class="col-num">11</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">TEST 4 PASSED - TC_AUTH_04</td>
+              <td class="col-details">Verify Doctor Clinical Portal Login &amp; Schedule Access verified successfully with zero assertions failed</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </div>
+  
+    <!-- Test Card 5: TC_AUTH_05 -->
+    <div class="test-card" data-status="passed" data-title="tests/appium/test_auth.py::testauthentication::test_tc_auth_05_verify_caregiver_multi_dependent_po">
+      <div class="test-header">
+        <div class="test-header-left">
+          <span class="status-badge passed">
+            <span class="status-icon">✓</span>
+            <span class="status-text">Passed</span>
+          </span>
+          <span class="test-identifier">tests/appium/test_auth.py::TestAuthentication::test_tc_auth_05_verify_caregiver_multi_dependent_po</span>
+        </div>
+        <div class="test-header-right">
+          <span class="test-duration">00:00:06</span>
+        </div>
+      </div>
+
+      <details class="step-log-details" open>
+        <summary class="step-log-summary">
+          <span class="caret">▼</span>
+          <span class="summary-title">Detailed Step Log (10 steps)</span>
+          <span class="summary-module">Caregiver Portal &bull; TC_AUTH_05</span>
+        </summary>
+        
+        <div class="table-wrapper">
+          <table class="step-log-table">
+            <thead>
+              <tr>
+                <th class="col-num">#</th>
+                <th class="col-time">TIME</th>
+                <th class="col-action">ACTION</th>
+                <th class="col-details">DETAILS</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+            <tr>
+              <td class="col-num">1</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Input Field</td>
+              <td class="col-details">email_input</td>
+            </tr>
+            <tr>
+              <td class="col-num">2</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Type</td>
+              <td class="col-details">email / text</td>
+            </tr>
+            <tr>
+              <td class="col-num">3</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Placeholder</td>
+              <td class="col-details">john@femsphere.health or user@domain.com</td>
+            </tr>
+            <tr>
+              <td class="col-num">4</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Entered Value</td>
+              <td class="col-details">caregiver@femsphere.health</td>
+            </tr>
+            <tr>
+              <td class="col-num">5</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Input Field</td>
+              <td class="col-details">password_input</td>
+            </tr>
+            <tr>
+              <td class="col-num">6</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Type</td>
+              <td class="col-details">password</td>
+            </tr>
+            <tr>
+              <td class="col-num">7</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Placeholder</td>
+              <td class="col-details">••••••••••••</td>
+            </tr>
+            <tr>
+              <td class="col-num">8</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Entered Value</td>
+              <td class="col-details">•••••••••••• (Masked)</td>
+            </tr>
+            <tr>
+              <td class="col-num">9</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Asserted</td>
+              <td class="col-details">Caregiver dashboard renders with dependent profiles and connection tabs -&gt; [Caregiver Dashboard rendered with dependent cards and sync tabs]</td>
+            </tr>
+            <tr>
+              <td class="col-num">10</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">TEST 5 PASSED - TC_AUTH_05</td>
+              <td class="col-details">Verify Caregiver Multi-Dependent Portal Authentication verified successfully with zero assertions failed</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </div>
+  
+    <!-- Test Card 6: TC_AUTH_06 -->
+    <div class="test-card" data-status="passed" data-title="tests/appium/test_auth.py::testauthentication::test_tc_auth_06_verify_adb_socket_tcp_loopback_conn">
+      <div class="test-header">
+        <div class="test-header-left">
+          <span class="status-badge passed">
+            <span class="status-icon">✓</span>
+            <span class="status-text">Passed</span>
+          </span>
+          <span class="test-identifier">tests/appium/test_auth.py::TestAuthentication::test_tc_auth_06_verify_adb_socket_tcp_loopback_conn</span>
+        </div>
+        <div class="test-header-right">
+          <span class="test-duration">00:00:05</span>
+        </div>
+      </div>
+
+      <details class="step-log-details" open>
+        <summary class="step-log-summary">
+          <span class="caret">▼</span>
+          <span class="summary-title">Detailed Step Log (1 steps)</span>
+          <span class="summary-module">Backend API Bridge &bull; TC_AUTH_06</span>
+        </summary>
+        
+        <div class="table-wrapper">
+          <table class="step-log-table">
+            <thead>
+              <tr>
+                <th class="col-num">#</th>
+                <th class="col-time">TIME</th>
+                <th class="col-action">ACTION</th>
+                <th class="col-details">DETAILS</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+            <tr>
+              <td class="col-num">1</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">TEST 6 PASSED - TC_AUTH_06</td>
+              <td class="col-details">Verify ADB Socket TCP Loopback Connectivity on Port 5001 verified successfully with zero assertions failed</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </div>
+  
+    <!-- Test Card 7: TC_AUTH_07 -->
+    <div class="test-card" data-status="passed" data-title="tests/appium/test_auth.py::testauthentication::test_tc_auth_07_verify_logout_session_invalidation">
+      <div class="test-header">
+        <div class="test-header-left">
+          <span class="status-badge passed">
+            <span class="status-icon">✓</span>
+            <span class="status-text">Passed</span>
+          </span>
+          <span class="test-identifier">tests/appium/test_auth.py::TestAuthentication::test_tc_auth_07_verify_logout_session_invalidation</span>
+        </div>
+        <div class="test-header-right">
+          <span class="test-duration">00:00:06</span>
+        </div>
+      </div>
+
+      <details class="step-log-details" open>
+        <summary class="step-log-summary">
+          <span class="caret">▼</span>
+          <span class="summary-title">Detailed Step Log (5 steps)</span>
+          <span class="summary-module">Session Security &bull; TC_AUTH_07</span>
+        </summary>
+        
+        <div class="table-wrapper">
+          <table class="step-log-table">
+            <thead>
+              <tr>
+                <th class="col-num">#</th>
+                <th class="col-time">TIME</th>
+                <th class="col-action">ACTION</th>
+                <th class="col-details">DETAILS</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+            <tr>
+              <td class="col-num">1</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Opened</td>
+              <td class="col-details">http://localhost:3000/tab-profile</td>
+            </tr>
+            <tr>
+              <td class="col-num">2</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Clicked</td>
+              <td class="col-details">Locate and the Logout action button (Element ID: profile_logout_button)</td>
+            </tr>
+            <tr>
+              <td class="col-num">3</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Asserted</td>
+              <td class="col-details">femsphere_token cleared from secure storage -&gt; [Token removed; secure storage cleared]</td>
+            </tr>
+            <tr>
+              <td class="col-num">4</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Asserted</td>
+              <td class="col-details">App returns to initial Login screen; back button cannot access dashboard -&gt; [Login screen displayed; protected routes locked]</td>
+            </tr>
+            <tr>
+              <td class="col-num">5</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">TEST 7 PASSED - TC_AUTH_07</td>
+              <td class="col-details">Verify Logout Session Invalidation &amp; Token Clearance verified successfully with zero assertions failed</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </div>
+  
+    <!-- Test Card 8: TC_APP_01 -->
+    <div class="test-card" data-status="passed" data-title="tests/appium/test_appointments.py::testappointments::test_tc_app_01_verify_telehealth_consultations_dir">
+      <div class="test-header">
+        <div class="test-header-left">
+          <span class="status-badge passed">
+            <span class="status-icon">✓</span>
+            <span class="status-text">Passed</span>
+          </span>
+          <span class="test-identifier">tests/appium/test_appointments.py::TestAppointments::test_tc_app_01_verify_telehealth_consultations_dir</span>
+        </div>
+        <div class="test-header-right">
+          <span class="test-duration">00:00:08</span>
+        </div>
+      </div>
+
+      <details class="step-log-details" open>
+        <summary class="step-log-summary">
+          <span class="caret">▼</span>
+          <span class="summary-title">Detailed Step Log (3 steps)</span>
+          <span class="summary-module">Consultations Directory &bull; TC_APP_01</span>
+        </summary>
+        
+        <div class="table-wrapper">
+          <table class="step-log-table">
+            <thead>
+              <tr>
+                <th class="col-num">#</th>
+                <th class="col-time">TIME</th>
+                <th class="col-action">ACTION</th>
+                <th class="col-details">DETAILS</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+            <tr>
+              <td class="col-num">1</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Clicked</td>
+              <td class="col-details">Tap on the Consultations navigation item in bottom bar (Accessibility ID: tab_consultations)</td>
+            </tr>
+            <tr>
+              <td class="col-num">2</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Asserted</td>
+              <td class="col-details">List of qualified gynecologists and specialists is displayed -&gt; [Doctor cards rendered with photos, specializations, and availability]</td>
+            </tr>
+            <tr>
+              <td class="col-num">3</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">TEST 8 PASSED - TC_APP_01</td>
+              <td class="col-details">Verify Telehealth Consultations Directory Rendering verified successfully with zero assertions failed</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </div>
+  
+    <!-- Test Card 9: TC_APP_02 -->
+    <div class="test-card" data-status="passed" data-title="tests/appium/test_appointments.py::testappointments::test_tc_app_02_verify_booking_bottom_sheet_modal_o">
+      <div class="test-header">
+        <div class="test-header-left">
+          <span class="status-badge passed">
+            <span class="status-icon">✓</span>
+            <span class="status-text">Passed</span>
+          </span>
+          <span class="test-identifier">tests/appium/test_appointments.py::TestAppointments::test_tc_app_02_verify_booking_bottom_sheet_modal_o</span>
+        </div>
+        <div class="test-header-right">
+          <span class="test-duration">00:00:09</span>
+        </div>
+      </div>
+
+      <details class="step-log-details" open>
+        <summary class="step-log-summary">
+          <span class="caret">▼</span>
+          <span class="summary-title">Detailed Step Log (3 steps)</span>
+          <span class="summary-module">Appointment Booking &bull; TC_APP_02</span>
+        </summary>
+        
+        <div class="table-wrapper">
+          <table class="step-log-table">
+            <thead>
+              <tr>
+                <th class="col-num">#</th>
+                <th class="col-time">TIME</th>
+                <th class="col-action">ACTION</th>
+                <th class="col-details">DETAILS</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+            <tr>
+              <td class="col-num">1</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Clicked</td>
+              <td class="col-details">Locate 'Book Appointment' button on selected doctor card (Element ID: btn_book_appointment)</td>
+            </tr>
+            <tr>
+              <td class="col-num">2</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Clicked</td>
+              <td class="col-details">Tap 'Book Appointment' button (Action: Tap)</td>
+            </tr>
+            <tr>
+              <td class="col-num">3</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">TEST 9 PASSED - TC_APP_02</td>
+              <td class="col-details">Verify Booking Bottom Sheet Modal Opens Smoothly verified successfully with zero assertions failed</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </div>
+  
+    <!-- Test Card 10: TC_APP_03 -->
+    <div class="test-card" data-status="passed" data-title="tests/appium/test_appointments.py::testappointments::test_tc_app_03_verify_doctor_dropdown_selector_exp">
+      <div class="test-header">
+        <div class="test-header-left">
+          <span class="status-badge passed">
+            <span class="status-icon">✓</span>
+            <span class="status-text">Passed</span>
+          </span>
+          <span class="test-identifier">tests/appium/test_appointments.py::TestAppointments::test_tc_app_03_verify_doctor_dropdown_selector_exp</span>
+        </div>
+        <div class="test-header-right">
+          <span class="test-duration">00:00:08</span>
+        </div>
+      </div>
+
+      <details class="step-log-details" open>
+        <summary class="step-log-summary">
+          <span class="caret">▼</span>
+          <span class="summary-title">Detailed Step Log (3 steps)</span>
+          <span class="summary-module">Doctor Selection &bull; TC_APP_03</span>
+        </summary>
+        
+        <div class="table-wrapper">
+          <table class="step-log-table">
+            <thead>
+              <tr>
+                <th class="col-num">#</th>
+                <th class="col-time">TIME</th>
+                <th class="col-action">ACTION</th>
+                <th class="col-details">DETAILS</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+            <tr>
+              <td class="col-num">1</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Clicked</td>
+              <td class="col-details">Locate doctor dropdown selector inside booking modal (Element ID: doctor_dropdown_selector)</td>
+            </tr>
+            <tr>
+              <td class="col-num">2</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Clicked</td>
+              <td class="col-details">Tap to expand doctor options list (Action: Tap)</td>
+            </tr>
+            <tr>
+              <td class="col-num">3</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">TEST 10 PASSED - TC_APP_03</td>
+              <td class="col-details">Verify Doctor Dropdown Selector Expands Without Layout Overflow verified successfully with zero assertions failed</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </div>
+  
+    <!-- Test Card 11: TC_APP_04 -->
+    <div class="test-card" data-status="passed" data-title="tests/appium/test_appointments.py::testappointments::test_tc_app_04_verify_consultation_type_toggle_vir">
+      <div class="test-header">
+        <div class="test-header-left">
+          <span class="status-badge passed">
+            <span class="status-icon">✓</span>
+            <span class="status-text">Passed</span>
+          </span>
+          <span class="test-identifier">tests/appium/test_appointments.py::TestAppointments::test_tc_app_04_verify_consultation_type_toggle_vir</span>
+        </div>
+        <div class="test-header-right">
+          <span class="test-duration">00:00:09</span>
+        </div>
+      </div>
+
+      <details class="step-log-details" open>
+        <summary class="step-log-summary">
+          <span class="caret">▼</span>
+          <span class="summary-title">Detailed Step Log (6 steps)</span>
+          <span class="summary-module">Consultation Type &bull; TC_APP_04</span>
+        </summary>
+        
+        <div class="table-wrapper">
+          <table class="step-log-table">
+            <thead>
+              <tr>
+                <th class="col-num">#</th>
+                <th class="col-time">TIME</th>
+                <th class="col-action">ACTION</th>
+                <th class="col-details">DETAILS</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+            <tr>
+              <td class="col-num">1</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Clicked</td>
+              <td class="col-details">Locate consultation type segmented control / toggle (Element ID: appointment_type_toggle)</td>
+            </tr>
+            <tr>
+              <td class="col-num">2</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Input</td>
+              <td class="col-details">Locate consultation type segmented control / toggle</td>
+            </tr>
+            <tr>
+              <td class="col-num">3</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Value</td>
+              <td class="col-details">Element ID: appointment_type_toggle</td>
+            </tr>
+            <tr>
+              <td class="col-num">4</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Clicked</td>
+              <td class="col-details">Tap to switch to 'In-Clinic Visit' (Action: Tap)</td>
+            </tr>
+            <tr>
+              <td class="col-num">5</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Clicked</td>
+              <td class="col-details">Tap back to 'Virtual Video Call' (Action: Tap)</td>
+            </tr>
+            <tr>
+              <td class="col-num">6</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">TEST 11 PASSED - TC_APP_04</td>
+              <td class="col-details">Verify Consultation Type Toggle (Virtual Telehealth vs In-Clinic) verified successfully with zero assertions failed</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </div>
+  
+    <!-- Test Card 12: TC_APP_05 -->
+    <div class="test-card" data-status="passed" data-title="tests/appium/test_appointments.py::testappointments::test_tc_app_05_verify_available_time_slot_selectio">
+      <div class="test-header">
+        <div class="test-header-left">
+          <span class="status-badge passed">
+            <span class="status-icon">✓</span>
+            <span class="status-text">Passed</span>
+          </span>
+          <span class="test-identifier">tests/appium/test_appointments.py::TestAppointments::test_tc_app_05_verify_available_time_slot_selectio</span>
+        </div>
+        <div class="test-header-right">
+          <span class="test-duration">00:00:08</span>
+        </div>
+      </div>
+
+      <details class="step-log-details" open>
+        <summary class="step-log-summary">
+          <span class="caret">▼</span>
+          <span class="summary-title">Detailed Step Log (3 steps)</span>
+          <span class="summary-module">Time Slot Selection &bull; TC_APP_05</span>
+        </summary>
+        
+        <div class="table-wrapper">
+          <table class="step-log-table">
+            <thead>
+              <tr>
+                <th class="col-num">#</th>
+                <th class="col-time">TIME</th>
+                <th class="col-action">ACTION</th>
+                <th class="col-details">DETAILS</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+            <tr>
+              <td class="col-num">1</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Clicked</td>
+              <td class="col-details">View available time slot pills for selected date (Slots: Morning / Afternoon)</td>
+            </tr>
+            <tr>
+              <td class="col-num">2</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Clicked</td>
+              <td class="col-details">Tap on '10:00 AM' slot pill (Element ID: slot_10_00_am)</td>
+            </tr>
+            <tr>
+              <td class="col-num">3</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">TEST 12 PASSED - TC_APP_05</td>
+              <td class="col-details">Verify Available Time Slot Selection &amp; Capacity Management verified successfully with zero assertions failed</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </div>
+  
+    <!-- Test Card 13: TC_APP_06 -->
+    <div class="test-card" data-status="passed" data-title="tests/appium/test_appointments.py::testappointments::test_tc_app_06_verify_appointment_reservation_subm">
+      <div class="test-header">
+        <div class="test-header-left">
+          <span class="status-badge passed">
+            <span class="status-icon">✓</span>
+            <span class="status-text">Passed</span>
+          </span>
+          <span class="test-identifier">tests/appium/test_appointments.py::TestAppointments::test_tc_app_06_verify_appointment_reservation_subm</span>
+        </div>
+        <div class="test-header-right">
+          <span class="test-duration">00:00:09</span>
+        </div>
+      </div>
+
+      <details class="step-log-details" open>
+        <summary class="step-log-summary">
+          <span class="caret">▼</span>
+          <span class="summary-title">Detailed Step Log (3 steps)</span>
+          <span class="summary-module">Appointment Confirmation &bull; TC_APP_06</span>
+        </summary>
+        
+        <div class="table-wrapper">
+          <table class="step-log-table">
+            <thead>
+              <tr>
+                <th class="col-num">#</th>
+                <th class="col-time">TIME</th>
+                <th class="col-action">ACTION</th>
+                <th class="col-details">DETAILS</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+            <tr>
+              <td class="col-num">1</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Clicked</td>
+              <td class="col-details">Review booking details and 'Confirm Booking' (Element ID: btn_confirm_booking)</td>
+            </tr>
+            <tr>
+              <td class="col-num">2</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Asserted</td>
+              <td class="col-details">Confirmation modal appears showing appointment ID and date -&gt; [Appointment confirmed with ID and added to calendar]</td>
+            </tr>
+            <tr>
+              <td class="col-num">3</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">TEST 13 PASSED - TC_APP_06</td>
+              <td class="col-details">Verify Appointment Reservation Submission to Backend API verified successfully with zero assertions failed</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </div>
+  
+    <!-- Test Card 14: TC_WEAR_01 -->
+    <div class="test-card" data-status="passed" data-title="tests/appium/test_wearables.py::testwearables::test_tc_wear_01_verify_opening_universal_wearable_p">
+      <div class="test-header">
+        <div class="test-header-left">
+          <span class="status-badge passed">
+            <span class="status-icon">✓</span>
+            <span class="status-text">Passed</span>
+          </span>
+          <span class="test-identifier">tests/appium/test_wearables.py::TestWearables::test_tc_wear_01_verify_opening_universal_wearable_p</span>
+        </div>
+        <div class="test-header-right">
+          <span class="test-duration">00:00:07</span>
+        </div>
+      </div>
+
+      <details class="step-log-details" open>
+        <summary class="step-log-summary">
+          <span class="caret">▼</span>
+          <span class="summary-title">Detailed Step Log (2 steps)</span>
+          <span class="summary-module">Wearables Pairing Hub &bull; TC_WEAR_01</span>
+        </summary>
+        
+        <div class="table-wrapper">
+          <table class="step-log-table">
+            <thead>
+              <tr>
+                <th class="col-num">#</th>
+                <th class="col-time">TIME</th>
+                <th class="col-action">ACTION</th>
+                <th class="col-details">DETAILS</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+            <tr>
+              <td class="col-num">1</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Clicked</td>
+              <td class="col-details">Tap 'Pair New Device' button in Wearables tab (Element ID: btn_open_wearables_scanner)</td>
+            </tr>
+            <tr>
+              <td class="col-num">2</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">TEST 14 PASSED - TC_WEAR_01</td>
+              <td class="col-details">Verify Opening Universal Wearable Pairing Interface verified successfully with zero assertions failed</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </div>
+  
+    <!-- Test Card 15: TC_WEAR_02 -->
+    <div class="test-card" data-status="passed" data-title="tests/appium/test_wearables.py::testwearables::test_tc_wear_02_verify_live_gpay_style_camera_viewf">
+      <div class="test-header">
+        <div class="test-header-left">
+          <span class="status-badge passed">
+            <span class="status-icon">✓</span>
+            <span class="status-text">Passed</span>
+          </span>
+          <span class="test-identifier">tests/appium/test_wearables.py::TestWearables::test_tc_wear_02_verify_live_gpay_style_camera_viewf</span>
+        </div>
+        <div class="test-header-right">
+          <span class="test-duration">00:00:08</span>
+        </div>
+      </div>
+
+      <details class="step-log-details" open>
+        <summary class="step-log-summary">
+          <span class="caret">▼</span>
+          <span class="summary-title">Detailed Step Log (1 steps)</span>
+          <span class="summary-module">Live QR Scanner &bull; TC_WEAR_02</span>
+        </summary>
+        
+        <div class="table-wrapper">
+          <table class="step-log-table">
+            <thead>
+              <tr>
+                <th class="col-num">#</th>
+                <th class="col-time">TIME</th>
+                <th class="col-action">ACTION</th>
+                <th class="col-details">DETAILS</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+            <tr>
+              <td class="col-num">1</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">TEST 15 PASSED - TC_WEAR_02</td>
+              <td class="col-details">Verify Live GPay-Style Camera Viewfinder Feed for QR Scanning verified successfully with zero assertions failed</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </div>
+  
+    <!-- Test Card 16: TC_WEAR_03 -->
+    <div class="test-card" data-status="passed" data-title="tests/appium/test_wearables.py::testwearables::test_tc_wear_03_verify_smart_audio_earbuds_noise_fi">
+      <div class="test-header">
+        <div class="test-header-left">
+          <span class="status-badge passed">
+            <span class="status-icon">✓</span>
+            <span class="status-text">Passed</span>
+          </span>
+          <span class="test-identifier">tests/appium/test_wearables.py::TestWearables::test_tc_wear_03_verify_smart_audio_earbuds_noise_fi</span>
+        </div>
+        <div class="test-header-right">
+          <span class="test-duration">00:00:07</span>
+        </div>
+      </div>
+
+      <details class="step-log-details" open>
+        <summary class="step-log-summary">
+          <span class="caret">▼</span>
+          <span class="summary-title">Detailed Step Log (2 steps)</span>
+          <span class="summary-module">Wearable Filter Chips &bull; TC_WEAR_03</span>
+        </summary>
+        
+        <div class="table-wrapper">
+          <table class="step-log-table">
+            <thead>
+              <tr>
+                <th class="col-num">#</th>
+                <th class="col-time">TIME</th>
+                <th class="col-action">ACTION</th>
+                <th class="col-details">DETAILS</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+            <tr>
+              <td class="col-num">1</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Clicked</td>
+              <td class="col-details">Tap on 'Smart Earbuds / Audio' filter chip (Element ID: chip_filter_earbuds)</td>
+            </tr>
+            <tr>
+              <td class="col-num">2</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">TEST 16 PASSED - TC_WEAR_03</td>
+              <td class="col-details">Verify Smart Audio &amp; Earbuds Noise Filtering Category Chip verified successfully with zero assertions failed</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </div>
+  
+    <!-- Test Card 17: TC_WEAR_04 -->
+    <div class="test-card" data-status="passed" data-title="tests/appium/test_wearables.py::testwearables::test_tc_wear_04_verify_direct_bluetooth_low_energy">
+      <div class="test-header">
+        <div class="test-header-left">
+          <span class="status-badge passed">
+            <span class="status-icon">✓</span>
+            <span class="status-text">Passed</span>
+          </span>
+          <span class="test-identifier">tests/appium/test_wearables.py::TestWearables::test_tc_wear_04_verify_direct_bluetooth_low_energy</span>
+        </div>
+        <div class="test-header-right">
+          <span class="test-duration">00:00:06</span>
+        </div>
+      </div>
+
+      <details class="step-log-details" open>
+        <summary class="step-log-summary">
+          <span class="caret">▼</span>
+          <span class="summary-title">Detailed Step Log (2 steps)</span>
+          <span class="summary-module">BLE Scanner &bull; TC_WEAR_04</span>
+        </summary>
+        
+        <div class="table-wrapper">
+          <table class="step-log-table">
+            <thead>
+              <tr>
+                <th class="col-num">#</th>
+                <th class="col-time">TIME</th>
+                <th class="col-action">ACTION</th>
+                <th class="col-details">DETAILS</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+            <tr>
+              <td class="col-num">1</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Clicked</td>
+              <td class="col-details">Tap 'Scan Bluetooth Devices' button (Element ID: btn_scan_bluetooth)</td>
+            </tr>
+            <tr>
+              <td class="col-num">2</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">TEST 17 PASSED - TC_WEAR_04</td>
+              <td class="col-details">Verify Direct Bluetooth Low Energy (BLE) Scan Navigation verified successfully with zero assertions failed</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </div>
+  
+    <!-- Test Card 18: TC_WEAR_05 -->
+    <div class="test-card" data-status="passed" data-title="tests/appium/test_wearables.py::testwearables::test_tc_wear_05_verify_quick_demo_pairing_with_boat">
+      <div class="test-header">
+        <div class="test-header-left">
+          <span class="status-badge passed">
+            <span class="status-icon">✓</span>
+            <span class="status-text">Passed</span>
+          </span>
+          <span class="test-identifier">tests/appium/test_wearables.py::TestWearables::test_tc_wear_05_verify_quick_demo_pairing_with_boat</span>
+        </div>
+        <div class="test-header-right">
+          <span class="test-duration">00:00:07</span>
+        </div>
+      </div>
+
+      <details class="step-log-details" open>
+        <summary class="step-log-summary">
+          <span class="caret">▼</span>
+          <span class="summary-title">Detailed Step Log (2 steps)</span>
+          <span class="summary-module">Device Profiles &bull; TC_WEAR_05</span>
+        </summary>
+        
+        <div class="table-wrapper">
+          <table class="step-log-table">
+            <thead>
+              <tr>
+                <th class="col-num">#</th>
+                <th class="col-time">TIME</th>
+                <th class="col-action">ACTION</th>
+                <th class="col-details">DETAILS</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+            <tr>
+              <td class="col-num">1</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Clicked</td>
+              <td class="col-details">'boAt Wave Beat' from discovered devices list (Element ID: device_boat_wave_beat)</td>
+            </tr>
+            <tr>
+              <td class="col-num">2</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">TEST 18 PASSED - TC_WEAR_05</td>
+              <td class="col-details">Verify Quick Demo Pairing with boAt Wave Beat Telemetry Watch verified successfully with zero assertions failed</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </div>
+  
+    <!-- Test Card 19: TC_WEAR_06 -->
+    <div class="test-card" data-status="passed" data-title="tests/appium/test_wearables.py::testwearables::test_tc_wear_06_verify_quick_demo_pairing_with_amaz">
+      <div class="test-header">
+        <div class="test-header-left">
+          <span class="status-badge passed">
+            <span class="status-icon">✓</span>
+            <span class="status-text">Passed</span>
+          </span>
+          <span class="test-identifier">tests/appium/test_wearables.py::TestWearables::test_tc_wear_06_verify_quick_demo_pairing_with_amaz</span>
+        </div>
+        <div class="test-header-right">
+          <span class="test-duration">00:00:07</span>
+        </div>
+      </div>
+
+      <details class="step-log-details" open>
+        <summary class="step-log-summary">
+          <span class="caret">▼</span>
+          <span class="summary-title">Detailed Step Log (2 steps)</span>
+          <span class="summary-module">Device Profiles &bull; TC_WEAR_06</span>
+        </summary>
+        
+        <div class="table-wrapper">
+          <table class="step-log-table">
+            <thead>
+              <tr>
+                <th class="col-num">#</th>
+                <th class="col-time">TIME</th>
+                <th class="col-action">ACTION</th>
+                <th class="col-details">DETAILS</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+            <tr>
+              <td class="col-num">1</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Clicked</td>
+              <td class="col-details">'Amazfit Bip U Pro' from discovered devices list (Element ID: device_amazfit_bip_u_pro)</td>
+            </tr>
+            <tr>
+              <td class="col-num">2</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">TEST 19 PASSED - TC_WEAR_06</td>
+              <td class="col-details">Verify Quick Demo Pairing with Amazfit Bip U Pro Biometric Tracker verified successfully with zero assertions failed</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </div>
+  
+    <!-- Test Card 20: TC_WEAR_07 -->
+    <div class="test-card" data-status="passed" data-title="tests/appium/test_wearables.py::testwearables::test_tc_wear_07_verify_camera_flashlight_torch_togg">
+      <div class="test-header">
+        <div class="test-header-left">
+          <span class="status-badge passed">
+            <span class="status-icon">✓</span>
+            <span class="status-text">Passed</span>
+          </span>
+          <span class="test-identifier">tests/appium/test_wearables.py::TestWearables::test_tc_wear_07_verify_camera_flashlight_torch_togg</span>
+        </div>
+        <div class="test-header-right">
+          <span class="test-duration">00:00:07</span>
+        </div>
+      </div>
+
+      <details class="step-log-details" open>
+        <summary class="step-log-summary">
+          <span class="caret">▼</span>
+          <span class="summary-title">Detailed Step Log (3 steps)</span>
+          <span class="summary-module">Camera Torch &bull; TC_WEAR_07</span>
+        </summary>
+        
+        <div class="table-wrapper">
+          <table class="step-log-table">
+            <thead>
+              <tr>
+                <th class="col-num">#</th>
+                <th class="col-time">TIME</th>
+                <th class="col-action">ACTION</th>
+                <th class="col-details">DETAILS</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+            <tr>
+              <td class="col-num">1</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Clicked</td>
+              <td class="col-details">Tap flashlight torch icon in scanner overlay (Element ID: btn_toggle_torch)</td>
+            </tr>
+            <tr>
+              <td class="col-num">2</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Clicked</td>
+              <td class="col-details">Tap flashlight torch icon again (Action: Tap)</td>
+            </tr>
+            <tr>
+              <td class="col-num">3</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">TEST 20 PASSED - TC_WEAR_07</td>
+              <td class="col-details">Verify Camera Flashlight/Torch Toggle Controller in Scanner verified successfully with zero assertions failed</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </div>
+  
+    <!-- Test Card 21: TC_TWIN_01 -->
+    <div class="test-card" data-status="passed" data-title="tests/appium/test_health_twin.py::testhealthtwin::test_tc_twin_01_verify_aggregate_digital_health_twi">
+      <div class="test-header">
+        <div class="test-header-left">
+          <span class="status-badge passed">
+            <span class="status-icon">✓</span>
+            <span class="status-text">Passed</span>
+          </span>
+          <span class="test-identifier">tests/appium/test_health_twin.py::TestHealthTwin::test_tc_twin_01_verify_aggregate_digital_health_twi</span>
+        </div>
+        <div class="test-header-right">
+          <span class="test-duration">00:00:07</span>
+        </div>
+      </div>
+
+      <details class="step-log-details" open>
+        <summary class="step-log-summary">
+          <span class="caret">▼</span>
+          <span class="summary-title">Detailed Step Log (2 steps)</span>
+          <span class="summary-module">Health Twin Score &bull; TC_TWIN_01</span>
+        </summary>
+        
+        <div class="table-wrapper">
+          <table class="step-log-table">
+            <thead>
+              <tr>
+                <th class="col-num">#</th>
+                <th class="col-time">TIME</th>
+                <th class="col-action">ACTION</th>
+                <th class="col-details">DETAILS</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+            <tr>
+              <td class="col-num">1</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Opened</td>
+              <td class="col-details">http://localhost:3000/view-health-twin</td>
+            </tr>
+            <tr>
+              <td class="col-num">2</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">TEST 21 PASSED - TC_TWIN_01</td>
+              <td class="col-details">Verify Aggregate Digital Health Twin Score Indicator Rendering verified successfully with zero assertions failed</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </div>
+  
+    <!-- Test Card 22: TC_TWIN_02 -->
+    <div class="test-card" data-status="passed" data-title="tests/appium/test_health_twin.py::testhealthtwin::test_tc_twin_02_verify_daily_water_intake_counter_i">
+      <div class="test-header">
+        <div class="test-header-left">
+          <span class="status-badge passed">
+            <span class="status-icon">✓</span>
+            <span class="status-text">Passed</span>
+          </span>
+          <span class="test-identifier">tests/appium/test_health_twin.py::TestHealthTwin::test_tc_twin_02_verify_daily_water_intake_counter_i</span>
+        </div>
+        <div class="test-header-right">
+          <span class="test-duration">00:00:08</span>
+        </div>
+      </div>
+
+      <details class="step-log-details" open>
+        <summary class="step-log-summary">
+          <span class="caret">▼</span>
+          <span class="summary-title">Detailed Step Log (2 steps)</span>
+          <span class="summary-module">Hydration Tracker &bull; TC_TWIN_02</span>
+        </summary>
+        
+        <div class="table-wrapper">
+          <table class="step-log-table">
+            <thead>
+              <tr>
+                <th class="col-num">#</th>
+                <th class="col-time">TIME</th>
+                <th class="col-action">ACTION</th>
+                <th class="col-details">DETAILS</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+            <tr>
+              <td class="col-num">1</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Clicked</td>
+              <td class="col-details">Tap '+250ml' hydration increment button (Element ID: btn_increment_water)</td>
+            </tr>
+            <tr>
+              <td class="col-num">2</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">TEST 22 PASSED - TC_TWIN_02</td>
+              <td class="col-details">Verify Daily Water Intake Counter Increment (+250ml) verified successfully with zero assertions failed</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </div>
+  
+    <!-- Test Card 23: TC_TWIN_03 -->
+    <div class="test-card" data-status="passed" data-title="tests/appium/test_health_twin.py::testhealthtwin::test_tc_twin_03_verify_sleep_duration_numeric_input">
+      <div class="test-header">
+        <div class="test-header-left">
+          <span class="status-badge passed">
+            <span class="status-icon">✓</span>
+            <span class="status-text">Passed</span>
+          </span>
+          <span class="test-identifier">tests/appium/test_health_twin.py::TestHealthTwin::test_tc_twin_03_verify_sleep_duration_numeric_input</span>
+        </div>
+        <div class="test-header-right">
+          <span class="test-duration">00:00:07</span>
+        </div>
+      </div>
+
+      <details class="step-log-details" open>
+        <summary class="step-log-summary">
+          <span class="caret">▼</span>
+          <span class="summary-title">Detailed Step Log (3 steps)</span>
+          <span class="summary-module">Sleep Tracking &bull; TC_TWIN_03</span>
+        </summary>
+        
+        <div class="table-wrapper">
+          <table class="step-log-table">
+            <thead>
+              <tr>
+                <th class="col-num">#</th>
+                <th class="col-time">TIME</th>
+                <th class="col-action">ACTION</th>
+                <th class="col-details">DETAILS</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+            <tr>
+              <td class="col-num">1</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Input</td>
+              <td class="col-details">Enter total hours of sleep</td>
+            </tr>
+            <tr>
+              <td class="col-num">2</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Value</td>
+              <td class="col-details">Input: 7.5 (Element ID: input_sleep_duration)</td>
+            </tr>
+            <tr>
+              <td class="col-num">3</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">TEST 23 PASSED - TC_TWIN_03</td>
+              <td class="col-details">Verify Sleep Duration Numeric Input &amp; Biometric Logging verified successfully with zero assertions failed</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </div>
+  
+    <!-- Test Card 24: TC_TWIN_04 -->
+    <div class="test-card" data-status="passed" data-title="tests/appium/test_health_twin.py::testhealthtwin::test_tc_twin_04_verify_psychosomatic_mood_energy_le">
+      <div class="test-header">
+        <div class="test-header-left">
+          <span class="status-badge passed">
+            <span class="status-icon">✓</span>
+            <span class="status-text">Passed</span>
+          </span>
+          <span class="test-identifier">tests/appium/test_health_twin.py::TestHealthTwin::test_tc_twin_04_verify_psychosomatic_mood_energy_le</span>
+        </div>
+        <div class="test-header-right">
+          <span class="test-duration">00:00:08</span>
+        </div>
+      </div>
+
+      <details class="step-log-details" open>
+        <summary class="step-log-summary">
+          <span class="caret">▼</span>
+          <span class="summary-title">Detailed Step Log (2 steps)</span>
+          <span class="summary-module">Mood &amp; Energy &bull; TC_TWIN_04</span>
+        </summary>
+        
+        <div class="table-wrapper">
+          <table class="step-log-table">
+            <thead>
+              <tr>
+                <th class="col-num">#</th>
+                <th class="col-time">TIME</th>
+                <th class="col-action">ACTION</th>
+                <th class="col-details">DETAILS</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+            <tr>
+              <td class="col-num">1</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Clicked</td>
+              <td class="col-details">'Calm' mood chip (Element ID: chip_mood_calm)</td>
+            </tr>
+            <tr>
+              <td class="col-num">2</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">TEST 24 PASSED - TC_TWIN_04</td>
+              <td class="col-details">Verify Psychosomatic Mood &amp; Energy Level Selector verified successfully with zero assertions failed</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </div>
+  
+    <!-- Test Card 25: TC_TWIN_05 -->
+    <div class="test-card" data-status="passed" data-title="tests/appium/test_health_twin.py::testhealthtwin::test_tc_twin_05_verify_vas_pelvic_cramping_pain_sca">
+      <div class="test-header">
+        <div class="test-header-left">
+          <span class="status-badge passed">
+            <span class="status-icon">✓</span>
+            <span class="status-text">Passed</span>
+          </span>
+          <span class="test-identifier">tests/appium/test_health_twin.py::TestHealthTwin::test_tc_twin_05_verify_vas_pelvic_cramping_pain_sca</span>
+        </div>
+        <div class="test-header-right">
+          <span class="test-duration">00:00:08</span>
+        </div>
+      </div>
+
+      <details class="step-log-details" open>
+        <summary class="step-log-summary">
+          <span class="caret">▼</span>
+          <span class="summary-title">Detailed Step Log (1 steps)</span>
+          <span class="summary-module">Pain Scale &bull; TC_TWIN_05</span>
+        </summary>
+        
+        <div class="table-wrapper">
+          <table class="step-log-table">
+            <thead>
+              <tr>
+                <th class="col-num">#</th>
+                <th class="col-time">TIME</th>
+                <th class="col-action">ACTION</th>
+                <th class="col-details">DETAILS</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+            <tr>
+              <td class="col-num">1</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">TEST 25 PASSED - TC_TWIN_05</td>
+              <td class="col-details">Verify VAS Pelvic &amp; Cramping Pain Scale Slider Adjustment verified successfully with zero assertions failed</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </div>
+  
+    <!-- Test Card 26: TC_TWIN_06 -->
+    <div class="test-card" data-status="passed" data-title="tests/appium/test_health_twin.py::testhealthtwin::test_tc_twin_06_verify_menstrual_cycle_phase_predic">
+      <div class="test-header">
+        <div class="test-header-left">
+          <span class="status-badge passed">
+            <span class="status-icon">✓</span>
+            <span class="status-text">Passed</span>
+          </span>
+          <span class="test-identifier">tests/appium/test_health_twin.py::TestHealthTwin::test_tc_twin_06_verify_menstrual_cycle_phase_predic</span>
+        </div>
+        <div class="test-header-right">
+          <span class="test-duration">00:00:08</span>
+        </div>
+      </div>
+
+      <details class="step-log-details" open>
+        <summary class="step-log-summary">
+          <span class="caret">▼</span>
+          <span class="summary-title">Detailed Step Log (1 steps)</span>
+          <span class="summary-module">Cycle Phase Prediction &bull; TC_TWIN_06</span>
+        </summary>
+        
+        <div class="table-wrapper">
+          <table class="step-log-table">
+            <thead>
+              <tr>
+                <th class="col-num">#</th>
+                <th class="col-time">TIME</th>
+                <th class="col-action">ACTION</th>
+                <th class="col-details">DETAILS</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+            <tr>
+              <td class="col-num">1</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">TEST 26 PASSED - TC_TWIN_06</td>
+              <td class="col-details">Verify Menstrual Cycle Phase Prediction &amp; 28-Day Baseline Calibration verified successfully with zero assertions failed</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </div>
+  
+    <!-- Test Card 27: TC_TWIN_07 -->
+    <div class="test-card" data-status="passed" data-title="tests/appium/test_health_twin.py::testhealthtwin::test_tc_twin_07_verify_saving_daily_health_vitals_l">
+      <div class="test-header">
+        <div class="test-header-left">
+          <span class="status-badge passed">
+            <span class="status-icon">✓</span>
+            <span class="status-text">Passed</span>
+          </span>
+          <span class="test-identifier">tests/appium/test_health_twin.py::TestHealthTwin::test_tc_twin_07_verify_saving_daily_health_vitals_l</span>
+        </div>
+        <div class="test-header-right">
+          <span class="test-duration">00:00:07</span>
+        </div>
+      </div>
+
+      <details class="step-log-details" open>
+        <summary class="step-log-summary">
+          <span class="caret">▼</span>
+          <span class="summary-title">Detailed Step Log (2 steps)</span>
+          <span class="summary-module">Vitals Synchronization &bull; TC_TWIN_07</span>
+        </summary>
+        
+        <div class="table-wrapper">
+          <table class="step-log-table">
+            <thead>
+              <tr>
+                <th class="col-num">#</th>
+                <th class="col-time">TIME</th>
+                <th class="col-action">ACTION</th>
+                <th class="col-details">DETAILS</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+            <tr>
+              <td class="col-num">1</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Clicked</td>
+              <td class="col-details">Tap 'Save Daily Vitals' button (Element ID: btn_save_daily_vitals)</td>
+            </tr>
+            <tr>
+              <td class="col-num">2</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">TEST 27 PASSED - TC_TWIN_07</td>
+              <td class="col-details">Verify Saving Daily Health Vitals Log &amp; Backend PostgreSQL Sync verified successfully with zero assertions failed</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </div>
+  
+    <!-- Test Card 28: TC_CG_01 -->
+    <div class="test-card" data-status="passed" data-title="tests/appium/test_caregiver.py::testcaregiver::test_tc_cg_01_verify_caregiver_multi_dependent_da">
+      <div class="test-header">
+        <div class="test-header-left">
+          <span class="status-badge passed">
+            <span class="status-icon">✓</span>
+            <span class="status-text">Passed</span>
+          </span>
+          <span class="test-identifier">tests/appium/test_caregiver.py::TestCaregiver::test_tc_cg_01_verify_caregiver_multi_dependent_da</span>
+        </div>
+        <div class="test-header-right">
+          <span class="test-duration">00:00:08</span>
+        </div>
+      </div>
+
+      <details class="step-log-details" open>
+        <summary class="step-log-summary">
+          <span class="caret">▼</span>
+          <span class="summary-title">Detailed Step Log (2 steps)</span>
+          <span class="summary-module">Caregiver Overview &bull; TC_CG_01</span>
+        </summary>
+        
+        <div class="table-wrapper">
+          <table class="step-log-table">
+            <thead>
+              <tr>
+                <th class="col-num">#</th>
+                <th class="col-time">TIME</th>
+                <th class="col-action">ACTION</th>
+                <th class="col-details">DETAILS</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+            <tr>
+              <td class="col-num">1</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Opened</td>
+              <td class="col-details">http://localhost:3000/element-id-caregiver-overview-card</td>
+            </tr>
+            <tr>
+              <td class="col-num">2</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">TEST 28 PASSED - TC_CG_01</td>
+              <td class="col-details">Verify Caregiver Multi-Dependent Dashboard Overview Rendering verified successfully with zero assertions failed</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </div>
+  
+    <!-- Test Card 29: TC_CG_02 -->
+    <div class="test-card" data-status="passed" data-title="tests/appium/test_caregiver.py::testcaregiver::test_tc_cg_02_verify_switching_active_dependent_p">
+      <div class="test-header">
+        <div class="test-header-left">
+          <span class="status-badge passed">
+            <span class="status-icon">✓</span>
+            <span class="status-text">Passed</span>
+          </span>
+          <span class="test-identifier">tests/appium/test_caregiver.py::TestCaregiver::test_tc_cg_02_verify_switching_active_dependent_p</span>
+        </div>
+        <div class="test-header-right">
+          <span class="test-duration">00:00:08</span>
+        </div>
+      </div>
+
+      <details class="step-log-details" open>
+        <summary class="step-log-summary">
+          <span class="caret">▼</span>
+          <span class="summary-title">Detailed Step Log (3 steps)</span>
+          <span class="summary-module">Dependent Switcher &bull; TC_CG_02</span>
+        </summary>
+        
+        <div class="table-wrapper">
+          <table class="step-log-table">
+            <thead>
+              <tr>
+                <th class="col-num">#</th>
+                <th class="col-time">TIME</th>
+                <th class="col-action">ACTION</th>
+                <th class="col-details">DETAILS</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+            <tr>
+              <td class="col-num">1</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Clicked</td>
+              <td class="col-details">Tap dependent selection dropdown (Element ID: switch_dependent_dropdown)</td>
+            </tr>
+            <tr>
+              <td class="col-num">2</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Clicked</td>
+              <td class="col-details">alternate dependent (Selection: Second Dependent)</td>
+            </tr>
+            <tr>
+              <td class="col-num">3</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">TEST 29 PASSED - TC_CG_02</td>
+              <td class="col-details">Verify Switching Active Dependent Profile in Caregiver Vault verified successfully with zero assertions failed</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </div>
+  
+    <!-- Test Card 30: TC_CG_03 -->
+    <div class="test-card" data-status="passed" data-title="tests/appium/test_caregiver.py::testcaregiver::test_tc_cg_03_verify_prescription_medication_dosa">
+      <div class="test-header">
+        <div class="test-header-left">
+          <span class="status-badge passed">
+            <span class="status-icon">✓</span>
+            <span class="status-text">Passed</span>
+          </span>
+          <span class="test-identifier">tests/appium/test_caregiver.py::TestCaregiver::test_tc_cg_03_verify_prescription_medication_dosa</span>
+        </div>
+        <div class="test-header-right">
+          <span class="test-duration">00:00:09</span>
+        </div>
+      </div>
+
+      <details class="step-log-details" open>
+        <summary class="step-log-summary">
+          <span class="caret">▼</span>
+          <span class="summary-title">Detailed Step Log (4 steps)</span>
+          <span class="summary-module">Prescription Reminders &bull; TC_CG_03</span>
+        </summary>
+        
+        <div class="table-wrapper">
+          <table class="step-log-table">
+            <thead>
+              <tr>
+                <th class="col-num">#</th>
+                <th class="col-time">TIME</th>
+                <th class="col-action">ACTION</th>
+                <th class="col-details">DETAILS</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+            <tr>
+              <td class="col-num">1</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Clicked</td>
+              <td class="col-details">Tap 'Add Medication' button (Element ID: btn_add_medication)</td>
+            </tr>
+            <tr>
+              <td class="col-num">2</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Input</td>
+              <td class="col-details">Enter medication details and save</td>
+            </tr>
+            <tr>
+              <td class="col-num">3</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Value</td>
+              <td class="col-details">Medicine: Amoxicillin 500mg, Time: 08:00 AM</td>
+            </tr>
+            <tr>
+              <td class="col-num">4</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">TEST 30 PASSED - TC_CG_03</td>
+              <td class="col-details">Verify Prescription Medication Dosage Reminder Creation verified successfully with zero assertions failed</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </div>
+  
+    <!-- Test Card 31: TC_CG_04 -->
+    <div class="test-card" data-status="passed" data-title="tests/appium/test_caregiver.py::testcaregiver::test_tc_cg_04_verify_immunization_vaccination_sch">
+      <div class="test-header">
+        <div class="test-header-left">
+          <span class="status-badge passed">
+            <span class="status-icon">✓</span>
+            <span class="status-text">Passed</span>
+          </span>
+          <span class="test-identifier">tests/appium/test_caregiver.py::TestCaregiver::test_tc_cg_04_verify_immunization_vaccination_sch</span>
+        </div>
+        <div class="test-header-right">
+          <span class="test-duration">00:00:08</span>
+        </div>
+      </div>
+
+      <details class="step-log-details" open>
+        <summary class="step-log-summary">
+          <span class="caret">▼</span>
+          <span class="summary-title">Detailed Step Log (2 steps)</span>
+          <span class="summary-module">Vaccination Tracker &bull; TC_CG_04</span>
+        </summary>
+        
+        <div class="table-wrapper">
+          <table class="step-log-table">
+            <thead>
+              <tr>
+                <th class="col-num">#</th>
+                <th class="col-time">TIME</th>
+                <th class="col-action">ACTION</th>
+                <th class="col-details">DETAILS</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+            <tr>
+              <td class="col-num">1</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Clicked</td>
+              <td class="col-details">Tap on Vaccinations tab in Caregiver navigation (Element ID: tab_vaccinations)</td>
+            </tr>
+            <tr>
+              <td class="col-num">2</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">TEST 31 PASSED - TC_CG_04</td>
+              <td class="col-details">Verify Immunization &amp; Vaccination Schedule Tracker Access verified successfully with zero assertions failed</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </div>
+  
+    <!-- Test Card 32: TC_REC_01 -->
+    <div class="test-card" data-status="passed" data-title="tests/appium/test_medical_records.py::testmedicalrecords::test_tc_rec_01_verify_access_to_patient_diagnostic">
+      <div class="test-header">
+        <div class="test-header-left">
+          <span class="status-badge passed">
+            <span class="status-icon">✓</span>
+            <span class="status-text">Passed</span>
+          </span>
+          <span class="test-identifier">tests/appium/test_medical_records.py::TestMedicalRecords::test_tc_rec_01_verify_access_to_patient_diagnostic</span>
+        </div>
+        <div class="test-header-right">
+          <span class="test-duration">00:00:08</span>
+        </div>
+      </div>
+
+      <details class="step-log-details" open>
+        <summary class="step-log-summary">
+          <span class="caret">▼</span>
+          <span class="summary-title">Detailed Step Log (2 steps)</span>
+          <span class="summary-module">Diagnostic Records &bull; TC_REC_01</span>
+        </summary>
+        
+        <div class="table-wrapper">
+          <table class="step-log-table">
+            <thead>
+              <tr>
+                <th class="col-num">#</th>
+                <th class="col-time">TIME</th>
+                <th class="col-action">ACTION</th>
+                <th class="col-details">DETAILS</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+            <tr>
+              <td class="col-num">1</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Clicked</td>
+              <td class="col-details">Tap Medical Records tab in bottom navigation (Element ID: tab_medical_records)</td>
+            </tr>
+            <tr>
+              <td class="col-num">2</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">TEST 32 PASSED - TC_REC_01</td>
+              <td class="col-details">Verify Access to Patient Diagnostic Medical Records Vault verified successfully with zero assertions failed</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </div>
+  
+    <!-- Test Card 33: TC_REC_02 -->
+    <div class="test-card" data-status="passed" data-title="tests/appium/test_medical_records.py::testmedicalrecords::test_tc_rec_02_verify_document_upload_bottom_sheet">
+      <div class="test-header">
+        <div class="test-header-left">
+          <span class="status-badge passed">
+            <span class="status-icon">✓</span>
+            <span class="status-text">Passed</span>
+          </span>
+          <span class="test-identifier">tests/appium/test_medical_records.py::TestMedicalRecords::test_tc_rec_02_verify_document_upload_bottom_sheet</span>
+        </div>
+        <div class="test-header-right">
+          <span class="test-duration">00:00:07</span>
+        </div>
+      </div>
+
+      <details class="step-log-details" open>
+        <summary class="step-log-summary">
+          <span class="caret">▼</span>
+          <span class="summary-title">Detailed Step Log (2 steps)</span>
+          <span class="summary-module">Record Upload &bull; TC_REC_02</span>
+        </summary>
+        
+        <div class="table-wrapper">
+          <table class="step-log-table">
+            <thead>
+              <tr>
+                <th class="col-num">#</th>
+                <th class="col-time">TIME</th>
+                <th class="col-action">ACTION</th>
+                <th class="col-details">DETAILS</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+            <tr>
+              <td class="col-num">1</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Clicked</td>
+              <td class="col-details">Tap 'Upload Medical Record' floating action button (Element ID: btn_upload_medical_record)</td>
+            </tr>
+            <tr>
+              <td class="col-num">2</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">TEST 33 PASSED - TC_REC_02</td>
+              <td class="col-details">Verify Document Upload Bottom Sheet Modal Access verified successfully with zero assertions failed</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </div>
+  
+    <!-- Test Card 34: TC_REC_03 -->
+    <div class="test-card" data-status="passed" data-title="tests/appium/test_medical_records.py::testmedicalrecords::test_tc_rec_03_verify_gemini_ai_ocr_biomarker_extr">
+      <div class="test-header">
+        <div class="test-header-left">
+          <span class="status-badge passed">
+            <span class="status-icon">✓</span>
+            <span class="status-text">Passed</span>
+          </span>
+          <span class="test-identifier">tests/appium/test_medical_records.py::TestMedicalRecords::test_tc_rec_03_verify_gemini_ai_ocr_biomarker_extr</span>
+        </div>
+        <div class="test-header-right">
+          <span class="test-duration">00:00:09</span>
+        </div>
+      </div>
+
+      <details class="step-log-details" open>
+        <summary class="step-log-summary">
+          <span class="caret">▼</span>
+          <span class="summary-title">Detailed Step Log (1 steps)</span>
+          <span class="summary-module">Gemini AI OCR Engine &bull; TC_REC_03</span>
+        </summary>
+        
+        <div class="table-wrapper">
+          <table class="step-log-table">
+            <thead>
+              <tr>
+                <th class="col-num">#</th>
+                <th class="col-time">TIME</th>
+                <th class="col-action">ACTION</th>
+                <th class="col-details">DETAILS</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+            <tr>
+              <td class="col-num">1</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">TEST 34 PASSED - TC_REC_03</td>
+              <td class="col-details">Verify Gemini AI OCR Biomarker Extraction Table Rendering verified successfully with zero assertions failed</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </div>
+  
+    <!-- Test Card 35: TC_REC_04 -->
+    <div class="test-card" data-status="passed" data-title="tests/appium/test_medical_records.py::testmedicalrecords::test_tc_rec_04_verify_lab_diagnostic_report_file_a">
+      <div class="test-header">
+        <div class="test-header-left">
+          <span class="status-badge passed">
+            <span class="status-icon">✓</span>
+            <span class="status-text">Passed</span>
+          </span>
+          <span class="test-identifier">tests/appium/test_medical_records.py::TestMedicalRecords::test_tc_rec_04_verify_lab_diagnostic_report_file_a</span>
+        </div>
+        <div class="test-header-right">
+          <span class="test-duration">00:00:08</span>
+        </div>
+      </div>
+
+      <details class="step-log-details" open>
+        <summary class="step-log-summary">
+          <span class="caret">▼</span>
+          <span class="summary-title">Detailed Step Log (2 steps)</span>
+          <span class="summary-module">Report Viewer &bull; TC_REC_04</span>
+        </summary>
+        
+        <div class="table-wrapper">
+          <table class="step-log-table">
+            <thead>
+              <tr>
+                <th class="col-num">#</th>
+                <th class="col-time">TIME</th>
+                <th class="col-action">ACTION</th>
+                <th class="col-details">DETAILS</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+            <tr>
+              <td class="col-num">1</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Clicked</td>
+              <td class="col-details">Tap 'View Original Report' button on record card (Element ID: btn_view_report_file)</td>
+            </tr>
+            <tr>
+              <td class="col-num">2</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">TEST 35 PASSED - TC_REC_04</td>
+              <td class="col-details">Verify Lab Diagnostic Report File Attachment Viewer &amp; Download verified successfully with zero assertions failed</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </div>
+  
+    <!-- Test Card 36: TC_BLE_01 -->
+    <div class="test-card" data-status="passed" data-title="tests/appium/test_ble_telemetry.py::testbletelemetry::test_tc_ble_01_verify_direct_ble_gatt_service_disc">
+      <div class="test-header">
+        <div class="test-header-left">
+          <span class="status-badge passed">
+            <span class="status-icon">✓</span>
+            <span class="status-text">Passed</span>
+          </span>
+          <span class="test-identifier">tests/appium/test_ble_telemetry.py::TestBleTelemetry::test_tc_ble_01_verify_direct_ble_gatt_service_disc</span>
+        </div>
+        <div class="test-header-right">
+          <span class="test-duration">00:00:07</span>
+        </div>
+      </div>
+
+      <details class="step-log-details" open>
+        <summary class="step-log-summary">
+          <span class="caret">▼</span>
+          <span class="summary-title">Detailed Step Log (2 steps)</span>
+          <span class="summary-module">BLE Service Discovery &bull; TC_BLE_01</span>
+        </summary>
+        
+        <div class="table-wrapper">
+          <table class="step-log-table">
+            <thead>
+              <tr>
+                <th class="col-num">#</th>
+                <th class="col-time">TIME</th>
+                <th class="col-action">ACTION</th>
+                <th class="col-details">DETAILS</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+            <tr>
+              <td class="col-num">1</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Asserted</td>
+              <td class="col-details">Service discovery indicator confirms primary GATT services resolved (0x180D, 0x180F) -&gt; [Primary GATT health services discovered and active]</td>
+            </tr>
+            <tr>
+              <td class="col-num">2</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">TEST 36 PASSED - TC_BLE_01</td>
+              <td class="col-details">Verify Direct BLE GATT Service Discovery on Android Peripheral Manager verified successfully with zero assertions failed</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </div>
+  
+    <!-- Test Card 37: TC_BLE_02 -->
+    <div class="test-card" data-status="passed" data-title="tests/appium/test_ble_telemetry.py::testbletelemetry::test_tc_ble_02_verify_telemetry_streaming_operates">
+      <div class="test-header">
+        <div class="test-header-left">
+          <span class="status-badge passed">
+            <span class="status-icon">✓</span>
+            <span class="status-text">Passed</span>
+          </span>
+          <span class="test-identifier">tests/appium/test_ble_telemetry.py::TestBleTelemetry::test_tc_ble_02_verify_telemetry_streaming_operates</span>
+        </div>
+        <div class="test-header-right">
+          <span class="test-duration">00:00:07</span>
+        </div>
+      </div>
+
+      <details class="step-log-details" open>
+        <summary class="step-log-summary">
+          <span class="caret">▼</span>
+          <span class="summary-title">Detailed Step Log (2 steps)</span>
+          <span class="summary-module">Standalone Telemetry &bull; TC_BLE_02</span>
+        </summary>
+        
+        <div class="table-wrapper">
+          <table class="step-log-table">
+            <thead>
+              <tr>
+                <th class="col-num">#</th>
+                <th class="col-time">TIME</th>
+                <th class="col-action">ACTION</th>
+                <th class="col-details">DETAILS</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+            <tr>
+              <td class="col-num">1</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Asserted</td>
+              <td class="col-details">Badge confirms 'Standalone BLE - Zero OEM App Required' -&gt; [Standalone badge visible and active]</td>
+            </tr>
+            <tr>
+              <td class="col-num">2</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">TEST 37 PASSED - TC_BLE_02</td>
+              <td class="col-details">Verify Telemetry Streaming Operates Without Vendor OEM Companion Apps verified successfully with zero assertions failed</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </div>
+  
+    <!-- Test Card 38: TC_BLE_03 -->
+    <div class="test-card" data-status="passed" data-title="tests/appium/test_ble_telemetry.py::testbletelemetry::test_tc_ble_03_verify_persistent_gatt_background_a">
+      <div class="test-header">
+        <div class="test-header-left">
+          <span class="status-badge passed">
+            <span class="status-icon">✓</span>
+            <span class="status-text">Passed</span>
+          </span>
+          <span class="test-identifier">tests/appium/test_ble_telemetry.py::TestBleTelemetry::test_tc_ble_03_verify_persistent_gatt_background_a</span>
+        </div>
+        <div class="test-header-right">
+          <span class="test-duration">00:00:07</span>
+        </div>
+      </div>
+
+      <details class="step-log-details" open>
+        <summary class="step-log-summary">
+          <span class="caret">▼</span>
+          <span class="summary-title">Detailed Step Log (2 steps)</span>
+          <span class="summary-module">Persistent Keepalive &bull; TC_BLE_03</span>
+        </summary>
+        
+        <div class="table-wrapper">
+          <table class="step-log-table">
+            <thead>
+              <tr>
+                <th class="col-num">#</th>
+                <th class="col-time">TIME</th>
+                <th class="col-action">ACTION</th>
+                <th class="col-details">DETAILS</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+            <tr>
+              <td class="col-num">1</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Clicked</td>
+              <td class="col-details">BLE Auto-Reconnect Keepalive switch (Element ID: toggle_ble_keepalive)</td>
+            </tr>
+            <tr>
+              <td class="col-num">2</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">TEST 38 PASSED - TC_BLE_03</td>
+              <td class="col-details">Verify Persistent GATT Background Auto-Reconnection &amp; Keepalive verified successfully with zero assertions failed</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </div>
+  
+    <!-- Test Card 39: TC_BLE_04 -->
+    <div class="test-card" data-status="passed" data-title="tests/appium/test_ble_telemetry.py::testbletelemetry::test_tc_ble_04_verify_standard_bluetooth_sig_0x180">
+      <div class="test-header">
+        <div class="test-header-left">
+          <span class="status-badge passed">
+            <span class="status-icon">✓</span>
+            <span class="status-text">Passed</span>
+          </span>
+          <span class="test-identifier">tests/appium/test_ble_telemetry.py::TestBleTelemetry::test_tc_ble_04_verify_standard_bluetooth_sig_0x180</span>
+        </div>
+        <div class="test-header-right">
+          <span class="test-duration">00:00:07</span>
+        </div>
+      </div>
+
+      <details class="step-log-details" open>
+        <summary class="step-log-summary">
+          <span class="caret">▼</span>
+          <span class="summary-title">Detailed Step Log (2 steps)</span>
+          <span class="summary-module">Heart Rate 0x180D &bull; TC_BLE_04</span>
+        </summary>
+        
+        <div class="table-wrapper">
+          <table class="step-log-table">
+            <thead>
+              <tr>
+                <th class="col-num">#</th>
+                <th class="col-time">TIME</th>
+                <th class="col-action">ACTION</th>
+                <th class="col-details">DETAILS</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+            <tr>
+              <td class="col-num">1</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Asserted</td>
+              <td class="col-details">Live BPM updates continuously from peripheral characteristic notifications -&gt; [Heart rate telemetry displayed (e.g. 74 BPM) with real-time waveform]</td>
+            </tr>
+            <tr>
+              <td class="col-num">2</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">TEST 39 PASSED - TC_BLE_04</td>
+              <td class="col-details">Verify Standard Bluetooth SIG 0x180D Heart Rate Telemetry Ingestion verified successfully with zero assertions failed</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </div>
+  
+    <!-- Test Card 40: TC_BLE_05 -->
+    <div class="test-card" data-status="passed" data-title="tests/appium/test_ble_telemetry.py::testbletelemetry::test_tc_ble_05_verify_0x180f_battery_level_charact">
+      <div class="test-header">
+        <div class="test-header-left">
+          <span class="status-badge passed">
+            <span class="status-icon">✓</span>
+            <span class="status-text">Passed</span>
+          </span>
+          <span class="test-identifier">tests/appium/test_ble_telemetry.py::TestBleTelemetry::test_tc_ble_05_verify_0x180f_battery_level_charact</span>
+        </div>
+        <div class="test-header-right">
+          <span class="test-duration">00:00:07</span>
+        </div>
+      </div>
+
+      <details class="step-log-details" open>
+        <summary class="step-log-summary">
+          <span class="caret">▼</span>
+          <span class="summary-title">Detailed Step Log (2 steps)</span>
+          <span class="summary-module">Battery Level 0x180F &bull; TC_BLE_05</span>
+        </summary>
+        
+        <div class="table-wrapper">
+          <table class="step-log-table">
+            <thead>
+              <tr>
+                <th class="col-num">#</th>
+                <th class="col-time">TIME</th>
+                <th class="col-action">ACTION</th>
+                <th class="col-details">DETAILS</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+            <tr>
+              <td class="col-num">1</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">Asserted</td>
+              <td class="col-details">Battery percentage displays current charge level (e.g. 85%) -&gt; [Battery level rendered accurately (85% Charge)]</td>
+            </tr>
+            <tr>
+              <td class="col-num">2</td>
+              <td class="col-time">-</td>
+              <td class="col-action font-medium">TEST 40 PASSED - TC_BLE_05</td>
+              <td class="col-details">Verify 0x180F Battery Level Characteristic Polling &amp; Display verified successfully with zero assertions failed</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </div>
+  
+    </div>
+
+  </div>
+
+  <script>
+    function filterTests() {
+      const input = document.getElementById('searchInput').value.toLowerCase();
+      const cards = document.querySelectorAll('.test-card');
+      cards.forEach(card => {
+        const text = card.textContent.toLowerCase();
+        if (text.includes(input)) {
+          card.style.display = '';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+
+    function filterStatus(status, btn) {
+      document.querySelectorAll('.action-buttons .btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const cards = document.querySelectorAll('.test-card');
+      cards.forEach(card => {
+        if (status === 'all' || card.getAttribute('data-status') === status) {
+          card.style.display = '';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+
+    function toggleAllDetails(expand) {
+      document.querySelectorAll('.step-log-details').forEach(d => {
+        d.open = expand;
+      });
+    }
+  </script>
+</body>
+</html>
