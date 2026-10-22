@@ -44,6 +44,9 @@ app.use(helmet({
 // Restrict CORS in production to trusted origins with fallback for mobile and dev clients
 const allowedOrigins = [
   process.env.CLIENT_URL,
+  'https://femsphere.me',
+  'https://www.femsphere.me',
+  'https://api.femsphere.me',
   'http://localhost:3000',
   'http://127.0.0.1:3000',
   'http://localhost:5173',
@@ -56,6 +59,7 @@ app.use(cors({
       !origin ||
       allowedOrigins.includes(origin) ||
       origin.endsWith('.vercel.app') ||
+      origin.endsWith('.femsphere.me') ||
       Boolean(process.env.VERCEL) ||
       process.env.NODE_ENV !== 'production'
     ) {

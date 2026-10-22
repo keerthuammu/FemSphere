@@ -15,9 +15,9 @@ export default defineConfig(() => {
       port: 3000,
       proxy: {
         '/api': {
-          target: 'http://localhost:5001',
+          target: process.env.VITE_BACKEND_URL || 'https://api.femsphere.me',
           changeOrigin: true,
-          secure: false,
+          secure: true,
         },
       },
       // HMR is disabled in AI Studio via DISABLE_HMR env var.

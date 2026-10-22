@@ -5,7 +5,11 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "/api"
+      "destination": "https://api.femsphere.me/api/$1"
+    },
+    {
+      "source": "/uploads/(.*)",
+      "destination": "https://api.femsphere.me/uploads/$1"
     },
     {
       "source": "/(.*)",

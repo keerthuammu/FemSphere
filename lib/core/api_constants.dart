@@ -7,34 +7,38 @@ class ApiConstants {
   static String? customHost;
 
   /// Dynamic Base URL Candidates
+  /// - api.femsphere.me: Production cloud backend (HTTPS)
   /// - 127.0.0.1:5001: Works via USB ADB reverse on physical Android devices
   /// - 10.0.2.2:5001: Works on Android Emulator
   /// - 192.168.0.180:5001: Works over Wi-Fi
   /// - localhost:5001: Web and desktop
   static const List<String> defaultCandidates = [
+    'api.femsphere.me',
     '127.0.0.1:5001',
     '10.0.2.2:5001',
     '192.168.0.180:5001',
     'localhost:5001',
   ];
 
-  static String _activeHost = '127.0.0.1:5001';
+  static String _activeHost = 'api.femsphere.me';
 
   static String get activeHost => customHost ?? _activeHost;
 
   static set activeHost(String host) {
-    _activeHost = host.trim().replaceAll('http://', '').replaceAll('/api', '').replaceAll('/', '');
+    _activeHost = host.trim().replaceAll('http://', '').replaceAll('https://', '').replaceAll('/api', '').replaceAll('/', '');
   }
 
   static String get baseUrl {
     if (customHost != null && customHost!.isNotEmpty) {
-      final clean = customHost!.trim().replaceAll('http://', '').replaceAll('/api', '').replaceAll('/', '');
-      return 'http://$clean/api';
+      final clean = customHost!.trim().replaceAll('http://', '').replaceAll('https://', '').replaceAll('/api', '').replaceAll('/', '');
+      final scheme = customHost!.startsWith('https://') || clean.contains('femsphere.me') ? 'https' : 'http';
+      return '$scheme://$clean/api';
     }
     if (kIsWeb) {
-      return 'http://localhost:5001/api';
+      return 'https://api.femsphere.me/api';
     }
-    return 'http://$_activeHost/api';
+    final scheme = _activeHost.contains('femsphere.me') ? 'https' : 'http';
+    return '$scheme://$_activeHost/api';
   }
 
   /// Automatically tests candidate hosts to locate the reachable FemSphere server
@@ -43,7 +47,7 @@ class ApiConstants {
       return customHost!;
     }
     if (kIsWeb) {
-      _activeHost = 'localhost:5001';
+      _activeHost = 'api.femsphere.me';
       return _activeHost;
     }
 
@@ -54,11 +58,12 @@ class ApiConstants {
 
     for (final host in candidates) {
       try {
-        final uri = Uri.parse('http://$host/api/articles');
+        final scheme = host.contains('femsphere.me') ? 'https' : 'http';
+        final uri = Uri.parse('$scheme://$host/api/articles');
         final res = await http.get(uri).timeout(timeout);
         if (res.statusCode == 200 || res.statusCode == 401 || res.statusCode == 404) {
           _activeHost = host;
-          debugPrint('🌸 FemSphere API successfully connected to: http://$host/api');
+          debugPrint('🌸 FemSphere API successfully connected to: $scheme://$host/api');
           return host;
         }
       } catch (_) {
