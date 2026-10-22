@@ -4,16 +4,16 @@ services:
     container_name: femsphere-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: femsphere_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ${DB_NAME:-femsphere_db}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d femsphere_db"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-femsphere_db}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -28,12 +28,13 @@ services:
       PORT: 5001
       DB_HOST: postgres
       DB_PORT: 5432
-      DB_NAME: femsphere_db
-      DB_USER: postgres
-      DB_PASSWORD: postgres
-      JWT_SECRET: femsphere_production_secret_key_2026
-      CLIENT_URL: http://localhost:3000
+      DB_NAME: ${DB_NAME:-femsphere_db}
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      JWT_SECRET: ${JWT_SECRET:-femsphere_production_secret_key_2026}
+      CLIENT_URL: ${CLIENT_URL:-*}
       NODE_ENV: production
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
     ports:
       - "5001:5001"
     depends_on:
