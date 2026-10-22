@@ -14,7 +14,7 @@
 | **Authentication Test Case** | |
 | **Test Case ID:** TC_AUTH_01 | **Test Designed By:** KEERTHANA M |
 | **Test Priority (Low/Medium/High):** High | **Test Designed Date:** 2026-10-16 |
-| **Module Name:** Patient Authentication | **Test Executed By:** KEERTHANA M |
+| **Module Name:** Patient Authentication | **Test Executed By:** Amal K Jose |
 | **Test Title:** Verify Valid Patient Login & Dashboard Redirection | **Test Execution Date:** 2026-10-16 |
 | **Description:** Verifies that a registered female patient can successfully authenticate with valid credentials and transition to the Patient Health Dashboard. | |
 
@@ -36,7 +36,7 @@
 | **Authentication Security Test Case** | |
 | **Test Case ID:** TC_AUTH_02 | **Test Designed By:** KEERTHANA M |
 | **Test Priority (Low/Medium/High):** High | **Test Designed Date:** 2026-10-16 |
-| **Module Name:** Patient Authentication | **Test Executed By:** KEERTHANA M |
+| **Module Name:** Patient Authentication | **Test Executed By:** Amal K Jose |
 | **Test Title:** Verify Invalid Credentials Rejection & Alert Notification | **Test Execution Date:** 2026-10-16 |
 | **Description:** Verifies that unauthorized access attempts with invalid email or incorrect password are immediately rejected with appropriate feedback and no token generation. | |
 
@@ -57,7 +57,7 @@
 | **Role-Based Access Test Case** | |
 | **Test Case ID:** TC_AUTH_03 | **Test Designed By:** KEERTHANA M |
 | **Test Priority (Low/Medium/High):** High | **Test Designed Date:** 2026-10-16 |
-| **Module Name:** Super Admin Portal | **Test Executed By:** KEERTHANA M |
+| **Module Name:** Super Admin Portal | **Test Executed By:** Amal K Jose |
 | **Test Title:** Verify Admin Superuser Portal Login & Route Authorization | **Test Execution Date:** 2026-10-16 |
 | **Description:** Verifies that an administrator superuser can authenticate and is routed specifically to the Super Admin management console with full administrative privileges. | |
 
@@ -78,7 +78,7 @@
 | **Clinical Role Access Test Case** | |
 | **Test Case ID:** TC_AUTH_04 | **Test Designed By:** KEERTHANA M |
 | **Test Priority (Low/Medium/High):** High | **Test Designed Date:** 2026-10-16 |
-| **Module Name:** Doctor Clinical Portal | **Test Executed By:** KEERTHANA M |
+| **Module Name:** Doctor Clinical Portal | **Test Executed By:** Amal K Jose |
 | **Test Title:** Verify Doctor Clinical Portal Login & Schedule Access | **Test Execution Date:** 2026-10-16 |
 | **Description:** Verifies that licensed clinicians and doctors can log in and land on the Clinical Telehealth Workspace with access to patient appointments. | |
 
@@ -98,7 +98,7 @@
 | **Caregiver Role Access Test Case** | |
 | **Test Case ID:** TC_AUTH_05 | **Test Designed By:** KEERTHANA M |
 | **Test Priority (Low/Medium/High):** High | **Test Designed Date:** 2026-10-16 |
-| **Module Name:** Caregiver Portal | **Test Executed By:** KEERTHANA M |
+| **Module Name:** Caregiver Portal | **Test Executed By:** Amal K Jose |
 | **Test Title:** Verify Caregiver Multi-Dependent Portal Authentication | **Test Execution Date:** 2026-10-16 |
 | **Description:** Verifies that a registered caregiver can log into the Caregiver portal and view linked dependents and connection requests. | |
 
@@ -118,7 +118,7 @@
 | **Infrastructure Connectivity Test Case** | |
 | **Test Case ID:** TC_AUTH_06 | **Test Designed By:** KEERTHANA M |
 | **Test Priority (Low/Medium/High):** High | **Test Designed Date:** 2026-10-16 |
-| **Module Name:** Backend API Bridge | **Test Executed By:** KEERTHANA M |
+| **Module Name:** Backend API Bridge | **Test Executed By:** Amal K Jose |
 | **Test Title:** Verify ADB Socket TCP Loopback Connectivity on Port 5001 | **Test Execution Date:** 2026-10-16 |
 | **Description:** Verifies low-level TCP loopback socket connectivity between Android test runner and local Express REST API server on port 5001. | |
 
@@ -138,7 +138,7 @@
 | **Session Management Test Case** | |
 | **Test Case ID:** TC_AUTH_07 | **Test Designed By:** KEERTHANA M |
 | **Test Priority (Low/Medium/High):** High | **Test Designed Date:** 2026-10-16 |
-| **Module Name:** Session Security | **Test Executed By:** KEERTHANA M |
+| **Module Name:** Session Security | **Test Executed By:** Amal K Jose |
 | **Test Title:** Verify Logout Session Invalidation & Token Clearance | **Test Execution Date:** 2026-10-16 |
 | **Description:** Verifies that clicking logout revokes local authentication tokens, clears encrypted session storage, and routes back to the Login screen. | |
 
@@ -158,7 +158,7 @@
 | **Telehealth Directory Test Case** | |
 | **Test Case ID:** TC_APP_01 | **Test Designed By:** KEERTHANA M |
 | **Test Priority (Low/Medium/High):** High | **Test Designed Date:** 2026-10-16 |
-| **Module Name:** Consultations Directory | **Test Executed By:** KEERTHANA M |
+| **Module Name:** Consultations Directory | **Test Executed By:** Amal K Jose |
 | **Test Title:** Verify Telehealth Consultations Directory Rendering | **Test Execution Date:** 2026-10-16 |
 | **Description:** Verifies that navigating to the Consultations tab loads the verified doctors directory with specializations, ratings, and booking triggers. | |
 
@@ -176,7 +176,7 @@
 | **Modal Interaction Test Case** | |
 | **Test Case ID:** TC_APP_02 | **Test Designed By:** KEERTHANA M |
 | **Test Priority (Low/Medium/High):** Medium | **Test Designed Date:** 2026-10-16 |
-| **Module Name:** Appointment Booking | **Test Executed By:** KEERTHANA M |
+| **Module Name:** Appointment Booking | **Test Executed By:** Amal K Jose |
 | **Test Title:** Verify Booking Bottom Sheet Modal Opens Smoothly | **Test Execution Date:** 2026-10-16 |
 | **Description:** Verifies that tapping 'Book Appointment' triggers the responsive bottom sheet modal with date, doctor, and slot selectors. | |
 
@@ -194,7 +194,7 @@
 | **UI Layout Integrity Test Case** | |
 | **Test Case ID:** TC_APP_03 | **Test Designed By:** KEERTHANA M |
 | **Test Priority (Low/Medium/High):** Medium | **Test Designed Date:** 2026-10-16 |
-| **Module Name:** Doctor Selection | **Test Executed By:** KEERTHANA M |
+| **Module Name:** Doctor Selection | **Test Executed By:** Amal K Jose |
 | **Test Title:** Verify Doctor Dropdown Selector Expands Without Layout Overflow | **Test Execution Date:** 2026-10-16 |
 | **Description:** Verifies that expanding the doctor selection dropdown renders all doctor options without text clipping or Flutter RenderFlex overflow errors. | |
 
@@ -212,7 +212,7 @@
 | **Mode Toggle Test Case** | |
 | **Test Case ID:** TC_APP_04 | **Test Designed By:** KEERTHANA M |
 | **Test Priority (Low/Medium/High):** Medium | **Test Designed Date:** 2026-10-16 |
-| **Module Name:** Consultation Type | **Test Executed By:** KEERTHANA M |
+| **Module Name:** Consultation Type | **Test Executed By:** Amal K Jose |
 | **Test Title:** Verify Consultation Type Toggle (Virtual Telehealth vs In-Clinic) | **Test Execution Date:** 2026-10-16 |
 | **Description:** Verifies switching between Video Consultation (WebRTC) and In-Clinic visit formats updates appointment requirements accordingly. | |
 
@@ -231,7 +231,7 @@
 | **Capacity & Slot Test Case** | |
 | **Test Case ID:** TC_APP_05 | **Test Designed By:** KEERTHANA M |
 | **Test Priority (Low/Medium/High):** High | **Test Designed Date:** 2026-10-16 |
-| **Module Name:** Time Slot Selection | **Test Executed By:** KEERTHANA M |
+| **Module Name:** Time Slot Selection | **Test Executed By:** Amal K Jose |
 | **Test Title:** Verify Available Time Slot Selection & Capacity Management | **Test Execution Date:** 2026-10-16 |
 | **Description:** Verifies that selecting an available appointment slot pill highlights the selection and checks real-time slot availability. | |
 
@@ -249,7 +249,7 @@
 | **Booking Submission Test Case** | |
 | **Test Case ID:** TC_APP_06 | **Test Designed By:** KEERTHANA M |
 | **Test Priority (Low/Medium/High):** High | **Test Designed Date:** 2026-10-16 |
-| **Module Name:** Appointment Confirmation | **Test Executed By:** KEERTHANA M |
+| **Module Name:** Appointment Confirmation | **Test Executed By:** Amal K Jose |
 | **Test Title:** Verify Appointment Reservation Submission to Backend API | **Test Execution Date:** 2026-10-16 |
 | **Description:** Verifies that confirming an appointment reservation submits booking details to the PostgreSQL database and returns confirmation. | |
 
@@ -267,7 +267,7 @@
 | **Wearable Navigation Test Case** | |
 | **Test Case ID:** TC_WEAR_01 | **Test Designed By:** KEERTHANA M |
 | **Test Priority (Low/Medium/High):** High | **Test Designed Date:** 2026-10-16 |
-| **Module Name:** Wearables Pairing Hub | **Test Executed By:** KEERTHANA M |
+| **Module Name:** Wearables Pairing Hub | **Test Executed By:** Amal K Jose |
 | **Test Title:** Verify Opening Universal Wearable Pairing Interface | **Test Execution Date:** 2026-10-16 |
 | **Description:** Verifies accessing the universal wearable pairing interface to discover Bluetooth and QR-based fitness watches. | |
 
@@ -284,7 +284,7 @@
 | **Camera & Vision Test Case** | |
 | **Test Case ID:** TC_WEAR_02 | **Test Designed By:** KEERTHANA M |
 | **Test Priority (Low/Medium/High):** High | **Test Designed Date:** 2026-10-16 |
-| **Module Name:** Live QR Scanner | **Test Executed By:** KEERTHANA M |
+| **Module Name:** Live QR Scanner | **Test Executed By:** Amal K Jose |
 | **Test Title:** Verify Live GPay-Style Camera Viewfinder Feed for QR Scanning | **Test Execution Date:** 2026-10-16 |
 | **Description:** Verifies camera viewfinder frame renders active video feed with target scanning reticle matching GPay-style design. | |
 
@@ -301,7 +301,7 @@
 | **Device Categorization Test Case** | |
 | **Test Case ID:** TC_WEAR_03 | **Test Designed By:** KEERTHANA M |
 | **Test Priority (Low/Medium/High):** Medium | **Test Designed Date:** 2026-10-16 |
-| **Module Name:** Wearable Filter Chips | **Test Executed By:** KEERTHANA M |
+| **Module Name:** Wearable Filter Chips | **Test Executed By:** Amal K Jose |
 | **Test Title:** Verify Smart Audio & Earbuds Noise Filtering Category Chip | **Test Execution Date:** 2026-10-16 |
 | **Description:** Verifies device filter chips allow isolating smart audio hearing health devices from smartwatch trackers. | |
 
@@ -318,7 +318,7 @@
 | **Bluetooth Discovery Test Case** | |
 | **Test Case ID:** TC_WEAR_04 | **Test Designed By:** KEERTHANA M |
 | **Test Priority (Low/Medium/High):** High | **Test Designed Date:** 2026-10-16 |
-| **Module Name:** BLE Scanner | **Test Executed By:** KEERTHANA M |
+| **Module Name:** BLE Scanner | **Test Executed By:** Amal K Jose |
 | **Test Title:** Verify Direct Bluetooth Low Energy (BLE) Scan Navigation | **Test Execution Date:** 2026-10-16 |
 | **Description:** Verifies starting active Bluetooth Low Energy peripheral scan for nearby health bands without needing proprietary apps. | |
 
@@ -335,7 +335,7 @@
 | **Quick Pairing Test Case** | |
 | **Test Case ID:** TC_WEAR_05 | **Test Designed By:** KEERTHANA M |
 | **Test Priority (Low/Medium/High):** Medium | **Test Designed Date:** 2026-10-16 |
-| **Module Name:** Device Profiles | **Test Executed By:** KEERTHANA M |
+| **Module Name:** Device Profiles | **Test Executed By:** Amal K Jose |
 | **Test Title:** Verify Quick Demo Pairing with boAt Wave Beat Telemetry Watch | **Test Execution Date:** 2026-10-16 |
 | **Description:** Verifies quick-pair profile establishment with boAt Wave Beat smart watch for heart rate and step ingestion. | |
 
@@ -352,7 +352,7 @@
 | **Quick Pairing Test Case** | |
 | **Test Case ID:** TC_WEAR_06 | **Test Designed By:** KEERTHANA M |
 | **Test Priority (Low/Medium/High):** Medium | **Test Designed Date:** 2026-10-16 |
-| **Module Name:** Device Profiles | **Test Executed By:** KEERTHANA M |
+| **Module Name:** Device Profiles | **Test Executed By:** Amal K Jose |
 | **Test Title:** Verify Quick Demo Pairing with Amazfit Bip U Pro Biometric Tracker | **Test Execution Date:** 2026-10-16 |
 | **Description:** Verifies quick-pair profile establishment with Amazfit Bip U Pro tracker for SpO2 and continuous vitals. | |
 
@@ -369,7 +369,7 @@
 | **Hardware Control Test Case** | |
 | **Test Case ID:** TC_WEAR_07 | **Test Designed By:** KEERTHANA M |
 | **Test Priority (Low/Medium/High):** Low | **Test Designed Date:** 2026-10-16 |
-| **Module Name:** Camera Torch | **Test Executed By:** KEERTHANA M |
+| **Module Name:** Camera Torch | **Test Executed By:** Amal K Jose |
 | **Test Title:** Verify Camera Flashlight/Torch Toggle Controller in Scanner | **Test Execution Date:** 2026-10-16 |
 | **Description:** Verifies camera torch illumination toggle for scanning wearable QR codes in low-ambient lighting environments. | |
 
@@ -387,7 +387,7 @@
 | **AI Health Twin Test Case** | |
 | **Test Case ID:** TC_TWIN_01 | **Test Designed By:** KEERTHANA M |
 | **Test Priority (Low/Medium/High):** High | **Test Designed Date:** 2026-10-16 |
-| **Module Name:** Health Twin Score | **Test Executed By:** KEERTHANA M |
+| **Module Name:** Health Twin Score | **Test Executed By:** Amal K Jose |
 | **Test Title:** Verify Aggregate Digital Health Twin Score Indicator Rendering | **Test Execution Date:** 2026-10-16 |
 | **Description:** Verifies multi-metric biometric scoring calculation synthesizing sleep, hydration, cycle rhythm, and pain into unified health score. | |
 
@@ -404,7 +404,7 @@
 | **Daily Logging Test Case** | |
 | **Test Case ID:** TC_TWIN_02 | **Test Designed By:** KEERTHANA M |
 | **Test Priority (Low/Medium/High):** Medium | **Test Designed Date:** 2026-10-16 |
-| **Module Name:** Hydration Tracker | **Test Executed By:** KEERTHANA M |
+| **Module Name:** Hydration Tracker | **Test Executed By:** Amal K Jose |
 | **Test Title:** Verify Daily Water Intake Counter Increment (+250ml) | **Test Execution Date:** 2026-10-16 |
 | **Description:** Verifies incrementing daily water intake counter increases logged milliliters and updates daily hydration progress bar. | |
 
@@ -421,7 +421,7 @@
 | **Numeric Input Test Case** | |
 | **Test Case ID:** TC_TWIN_03 | **Test Designed By:** KEERTHANA M |
 | **Test Priority (Low/Medium/High):** Medium | **Test Designed Date:** 2026-10-16 |
-| **Module Name:** Sleep Tracking | **Test Executed By:** KEERTHANA M |
+| **Module Name:** Sleep Tracking | **Test Executed By:** Amal K Jose |
 | **Test Title:** Verify Sleep Duration Numeric Input & Biometric Logging | **Test Execution Date:** 2026-10-16 |
 | **Description:** Verifies entering total nightly sleep hours in numeric format and calculating restorative sleep metrics. | |
 
@@ -438,7 +438,7 @@
 | **Symptom Logging Test Case** | |
 | **Test Case ID:** TC_TWIN_04 | **Test Designed By:** KEERTHANA M |
 | **Test Priority (Low/Medium/High):** Medium | **Test Designed Date:** 2026-10-16 |
-| **Module Name:** Mood & Energy | **Test Executed By:** KEERTHANA M |
+| **Module Name:** Mood & Energy | **Test Executed By:** Amal K Jose |
 | **Test Title:** Verify Psychosomatic Mood & Energy Level Selector | **Test Execution Date:** 2026-10-16 |
 | **Description:** Verifies selecting daily mood chips (Calm, Energetic, Fatigued, Irritable) updates emotional baseline for cycle correlation. | |
 
@@ -455,7 +455,7 @@
 | **Slider Control Test Case** | |
 | **Test Case ID:** TC_TWIN_05 | **Test Designed By:** KEERTHANA M |
 | **Test Priority (Low/Medium/High):** High | **Test Designed Date:** 2026-10-16 |
-| **Module Name:** Pain Scale | **Test Executed By:** KEERTHANA M |
+| **Module Name:** Pain Scale | **Test Executed By:** Amal K Jose |
 | **Test Title:** Verify VAS Pelvic & Cramping Pain Scale Slider Adjustment | **Test Execution Date:** 2026-10-16 |
 | **Description:** Verifies adjusting Visual Analog Scale (VAS) 0–10 pelvic pain slider records severity and suggests non-pharmacological relief tips. | |
 
@@ -472,7 +472,7 @@
 | **Clinical Cycle Intelligence Test Case** | |
 | **Test Case ID:** TC_TWIN_06 | **Test Designed By:** KEERTHANA M |
 | **Test Priority (Low/Medium/High):** High | **Test Designed Date:** 2026-10-16 |
-| **Module Name:** Cycle Phase Prediction | **Test Executed By:** KEERTHANA M |
+| **Module Name:** Cycle Phase Prediction | **Test Executed By:** Amal K Jose |
 | **Test Title:** Verify Menstrual Cycle Phase Prediction & 28-Day Baseline Calibration | **Test Execution Date:** 2026-10-16 |
 | **Description:** Verifies cycle prediction engine calculates current biological phase (Follicular/Ovulatory/Luteal) based on calibrated 28-day baseline without delay distortions. | |
 
@@ -489,7 +489,7 @@
 | **Database Sync Test Case** | |
 | **Test Case ID:** TC_TWIN_07 | **Test Designed By:** KEERTHANA M |
 | **Test Priority (Low/Medium/High):** High | **Test Designed Date:** 2026-10-16 |
-| **Module Name:** Vitals Synchronization | **Test Executed By:** KEERTHANA M |
+| **Module Name:** Vitals Synchronization | **Test Executed By:** Amal K Jose |
 | **Test Title:** Verify Saving Daily Health Vitals Log & Backend PostgreSQL Sync | **Test Execution Date:** 2026-10-16 |
 | **Description:** Verifies saving daily health log sends payload to /api/health-twin/log and persists into period_daily_logs table. | |
 
@@ -506,7 +506,7 @@
 | **Caregiver Dashboard Test Case** | |
 | **Test Case ID:** TC_CG_01 | **Test Designed By:** KEERTHANA M |
 | **Test Priority (Low/Medium/High):** High | **Test Designed Date:** 2026-10-16 |
-| **Module Name:** Caregiver Overview | **Test Executed By:** KEERTHANA M |
+| **Module Name:** Caregiver Overview | **Test Executed By:** Amal K Jose |
 | **Test Title:** Verify Caregiver Multi-Dependent Dashboard Overview Rendering | **Test Execution Date:** 2026-10-16 |
 | **Description:** Verifies that Caregiver Overview card displays summary statistics for linked dependents, upcoming appointments, and pending connection requests. | |
 
@@ -523,7 +523,7 @@
 | **Profile Switching Test Case** | |
 | **Test Case ID:** TC_CG_02 | **Test Designed By:** KEERTHANA M |
 | **Test Priority (Low/Medium/High):** High | **Test Designed Date:** 2026-10-16 |
-| **Module Name:** Dependent Switcher | **Test Executed By:** KEERTHANA M |
+| **Module Name:** Dependent Switcher | **Test Executed By:** Amal K Jose |
 | **Test Title:** Verify Switching Active Dependent Profile in Caregiver Vault | **Test Execution Date:** 2026-10-16 |
 | **Description:** Verifies selecting a different dependent from the dropdown switches the active health context, medical records, and medication schedules. | |
 
@@ -541,7 +541,7 @@
 | **Medication Reminder Test Case** | |
 | **Test Case ID:** TC_CG_03 | **Test Designed By:** KEERTHANA M |
 | **Test Priority (Low/Medium/High):** High | **Test Designed Date:** 2026-10-16 |
-| **Module Name:** Prescription Reminders | **Test Executed By:** KEERTHANA M |
+| **Module Name:** Prescription Reminders | **Test Executed By:** Amal K Jose |
 | **Test Title:** Verify Prescription Medication Dosage Reminder Creation | **Test Execution Date:** 2026-10-16 |
 | **Description:** Verifies adding a prescription dosage reminder with drug name, dosage, time, and frequency saves into the medication schedule. | |
 
@@ -559,7 +559,7 @@
 | **Immunization Test Case** | |
 | **Test Case ID:** TC_CG_04 | **Test Designed By:** KEERTHANA M |
 | **Test Priority (Low/Medium/High):** Medium | **Test Designed Date:** 2026-10-16 |
-| **Module Name:** Vaccination Tracker | **Test Executed By:** KEERTHANA M |
+| **Module Name:** Vaccination Tracker | **Test Executed By:** Amal K Jose |
 | **Test Title:** Verify Immunization & Vaccination Schedule Tracker Access | **Test Execution Date:** 2026-10-16 |
 | **Description:** Verifies accessing immunization timeline for dependent showing completed vaccines and upcoming booster due dates. | |
 
@@ -576,7 +576,7 @@
 | **Medical Vault Test Case** | |
 | **Test Case ID:** TC_REC_01 | **Test Designed By:** KEERTHANA M |
 | **Test Priority (Low/Medium/High):** High | **Test Designed Date:** 2026-10-16 |
-| **Module Name:** Diagnostic Records | **Test Executed By:** KEERTHANA M |
+| **Module Name:** Diagnostic Records | **Test Executed By:** Amal K Jose |
 | **Test Title:** Verify Access to Patient Diagnostic Medical Records Vault | **Test Execution Date:** 2026-10-16 |
 | **Description:** Verifies patient can open the encrypted diagnostic medical vault and view categorical lab reports and imaging files. | |
 
@@ -593,7 +593,7 @@
 | **Document Upload Test Case** | |
 | **Test Case ID:** TC_REC_02 | **Test Designed By:** KEERTHANA M |
 | **Test Priority (Low/Medium/High):** High | **Test Designed Date:** 2026-10-16 |
-| **Module Name:** Record Upload | **Test Executed By:** KEERTHANA M |
+| **Module Name:** Record Upload | **Test Executed By:** Amal K Jose |
 | **Test Title:** Verify Document Upload Bottom Sheet Modal Access | **Test Execution Date:** 2026-10-16 |
 | **Description:** Verifies tapping upload opens the document attachment bottom sheet with Camera capture and PDF file picker options. | |
 
@@ -610,7 +610,7 @@
 | **AI OCR Biomarker Test Case** | |
 | **Test Case ID:** TC_REC_03 | **Test Designed By:** KEERTHANA M |
 | **Test Priority (Low/Medium/High):** High | **Test Designed Date:** 2026-10-16 |
-| **Module Name:** Gemini AI OCR Engine | **Test Executed By:** KEERTHANA M |
+| **Module Name:** Gemini AI OCR Engine | **Test Executed By:** Amal K Jose |
 | **Test Title:** Verify Gemini AI OCR Biomarker Extraction Table Rendering | **Test Execution Date:** 2026-10-16 |
 | **Description:** Verifies that AI OCR parsing of uploaded lab reports extracts biomarker values (e.g. Hemoglobin, TSH, Estrogen) into a structured comparison table. | |
 
@@ -627,7 +627,7 @@
 | **File Viewer Test Case** | |
 | **Test Case ID:** TC_REC_04 | **Test Designed By:** KEERTHANA M |
 | **Test Priority (Low/Medium/High):** Medium | **Test Designed Date:** 2026-10-16 |
-| **Module Name:** Report Viewer | **Test Executed By:** KEERTHANA M |
+| **Module Name:** Report Viewer | **Test Executed By:** Amal K Jose |
 | **Test Title:** Verify Lab Diagnostic Report File Attachment Viewer & Download | **Test Execution Date:** 2026-10-16 |
 | **Description:** Verifies opening the high-resolution PDF/image viewer to inspect original diagnostic lab report documents. | |
 
@@ -644,7 +644,7 @@
 | **Hardware Protocol Test Case** | |
 | **Test Case ID:** TC_BLE_01 | **Test Designed By:** KEERTHANA M |
 | **Test Priority (Low/Medium/High):** High | **Test Designed Date:** 2026-10-16 |
-| **Module Name:** BLE Service Discovery | **Test Executed By:** KEERTHANA M |
+| **Module Name:** BLE Service Discovery | **Test Executed By:** Amal K Jose |
 | **Test Title:** Verify Direct BLE GATT Service Discovery on Android Peripheral Manager | **Test Execution Date:** 2026-10-16 |
 | **Description:** Verifies discovery of standard Bluetooth SIG health profiles directly on Android BluetoothAdapter without manufacturer middleware. | |
 
@@ -661,7 +661,7 @@
 | **Zero-Dependency Test Case** | |
 | **Test Case ID:** TC_BLE_02 | **Test Designed By:** KEERTHANA M |
 | **Test Priority (Low/Medium/High):** High | **Test Designed Date:** 2026-10-16 |
-| **Module Name:** Standalone Telemetry | **Test Executed By:** KEERTHANA M |
+| **Module Name:** Standalone Telemetry | **Test Executed By:** Amal K Jose |
 | **Test Title:** Verify Telemetry Streaming Operates Without Vendor OEM Companion Apps | **Test Execution Date:** 2026-10-16 |
 | **Description:** Verifies standalone architecture ingests continuous sensor packets without requiring Xiaomi, Noise, or boAt proprietary companion apps. | |
 
@@ -678,7 +678,7 @@
 | **Reliability Test Case** | |
 | **Test Case ID:** TC_BLE_03 | **Test Designed By:** KEERTHANA M |
 | **Test Priority (Low/Medium/High):** High | **Test Designed Date:** 2026-10-16 |
-| **Module Name:** Persistent Keepalive | **Test Executed By:** KEERTHANA M |
+| **Module Name:** Persistent Keepalive | **Test Executed By:** Amal K Jose |
 | **Test Title:** Verify Persistent GATT Background Auto-Reconnection & Keepalive | **Test Execution Date:** 2026-10-16 |
 | **Description:** Verifies background keepalive worker automatically re-establishes BLE GATT connection if wearable goes out of range and returns. | |
 
@@ -695,7 +695,7 @@
 | **Vitals Telemetry Test Case** | |
 | **Test Case ID:** TC_BLE_04 | **Test Designed By:** KEERTHANA M |
 | **Test Priority (Low/Medium/High):** High | **Test Designed Date:** 2026-10-16 |
-| **Module Name:** Heart Rate 0x180D | **Test Executed By:** KEERTHANA M |
+| **Module Name:** Heart Rate 0x180D | **Test Executed By:** Amal K Jose |
 | **Test Title:** Verify Standard Bluetooth SIG 0x180D Heart Rate Telemetry Ingestion | **Test Execution Date:** 2026-10-16 |
 | **Description:** Verifies parsing of standard 0x2A37 Heart Rate Measurement notifications and updating live BPM sparkline chart. | |
 
@@ -712,7 +712,7 @@
 | **Device Telemetry Test Case** | |
 | **Test Case ID:** TC_BLE_05 | **Test Designed By:** KEERTHANA M |
 | **Test Priority (Low/Medium/High):** Medium | **Test Designed Date:** 2026-10-16 |
-| **Module Name:** Battery Level 0x180F | **Test Executed By:** KEERTHANA M |
+| **Module Name:** Battery Level 0x180F | **Test Executed By:** Amal K Jose |
 | **Test Title:** Verify 0x180F Battery Level Characteristic Polling & Display | **Test Execution Date:** 2026-10-16 |
 | **Description:** Verifies reading 0x2A19 Battery Level percentage characteristic and rendering battery gauge icon in dashboard header. | |
 
