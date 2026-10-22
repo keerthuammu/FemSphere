@@ -675,4 +675,30 @@ CREATE TABLE IF NOT EXISTS patient_exercise_logs (
 
 CREATE INDEX IF NOT EXISTS idx_exercise_logs_user_date ON patient_exercise_logs(user_id, completed_date DESC);
 
+-- ==============================================================================
+-- DOMAIN 12: SYNCHRONIZE PRIMARY KEY SEQUENCES AFTER SEEDING
+-- ==============================================================================
+DO $$
+DECLARE
+    tbl text;
+    tbls text[] := ARRAY[
+        'users', 'user_profiles', 'caregivers', 'dependents', 'doctors',
+        'life_stages', 'user_life_stages', 'health_tracker', 'symptoms',
+        'medical_records', 'appointments', 'health_reports', 'consultation_notes',
+        'health_articles', 'vaccinations', 'medications', 'relationships',
+        'consents', 'permissions', 'health_events', 'ai_insights', 'audit_logs',
+        'period_settings', 'period_cycles', 'notifications', 'smartwatch_devices',
+        'smartwatch_health_data', 'partner_connections', 'partner_sharing_permissions',
+        'partner_tasks', 'shared_health_goals', 'patient_exercise_logs', 'telehealth_sessions'
+    ];
+BEGIN
+    FOREACH tbl IN ARRAY tbls LOOP
+        BEGIN
+            EXECUTE format('SELECT setval(pg_get_serial_sequence(%L, ''id''), COALESCE((SELECT MAX(id) FROM %I), 1))', tbl, tbl);
+        EXCEPTION WHEN OTHERS THEN
+            NULL;
+        END;
+    END LOOP;
+END $$;
+
 

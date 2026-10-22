@@ -121,11 +121,31 @@ app.use((err, req, res, next) => {
   res.status(500).json({ success: false, message: 'Internal Server Error: ' + err.message });
 });
 
+// Automatically synchronize primary key sequences on startup to prevent "duplicate key value violates unique constraint"
+async function syncSequences() {
+  const tables = [
+    'users', 'user_profiles', 'caregivers', 'dependents', 'doctors',
+    'life_stages', 'user_life_stages', 'health_tracker', 'symptoms',
+    'medical_records', 'appointments', 'health_reports', 'consultation_notes',
+    'health_articles', 'vaccinations', 'medications', 'relationships',
+    'consents', 'permissions', 'health_events', 'ai_insights', 'audit_logs',
+    'period_settings', 'period_cycles', 'notifications', 'smartwatch_devices',
+    'smartwatch_health_data', 'partner_connections', 'partner_sharing_permissions',
+    'partner_tasks', 'shared_health_goals', 'patient_exercise_logs', 'telehealth_sessions'
+  ];
+  for (const t of tables) {
+    try {
+      await pool.query(`SELECT setval(pg_get_serial_sequence($1, 'id'), COALESCE((SELECT MAX(id) FROM ${t}), 1))`, [t]);
+    } catch (_) {}
+  }
+}
+
 let server;
 const isTestEnv = process.env.NODE_ENV === 'test' || process.argv.some(arg => arg.includes('test'));
 const isVercel = process.env.VERCEL === '1' || Boolean(process.env.VERCEL);
 if (!isTestEnv && !isVercel) {
   server = app.listen(PORT, () => {
+    syncSequences().catch(() => {});
     console.log(`=======================================================`);
     console.log(`🌸 FemSphere Node.js + Express REST API Server Running`);
     console.log(`📡 URL: http://localhost:${PORT}`);
