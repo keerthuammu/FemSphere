@@ -398,6 +398,69 @@ export function calculatePredictions(lastPeriodStartStr, avgCycleLength, avgPeri
 }
 
 // ==============================================================================
+// SEQUENTIAL CYCLE CHAIN RECALIBRATOR (FIRST CYCLE = 0 VARIANCE, SUBSEQUENT COMPARE WITH PREVIOUS)
+// ==============================================================================
+export async function recalculateAndSyncUserCycles(userId, effectiveCycleLength = 28) {
+  try {
+    const res = await pool.query(
+      `SELECT * FROM period_cycles WHERE user_id = $1 ORDER BY start_date ASC`,
+      [userId]
+    );
+    if (res.rows.length === 0) return [];
+
+    const updatedCycles = [];
+    for (let i = 0; i < res.rows.length; i++) {
+      const c = res.rows[i];
+      let status = 'On Time';
+      let variance = 0;
+      let gap = effectiveCycleLength;
+
+      if (i === 0) {
+        // First cycle entered: status starts from 0 variance, On Time baseline
+        status = 'On Time';
+        variance = 0;
+        gap = effectiveCycleLength;
+      } else {
+        // Subsequent cycles compare directly with the immediately preceding cycle
+        const prev = res.rows[i - 1];
+        const prevStart = new Date(prev.start_date.toISOString().split('T')[0] + 'T00:00:00');
+        const currStart = new Date(c.start_date.toISOString().split('T')[0] + 'T00:00:00');
+        const actualGap = Math.round((currStart.getTime() - prevStart.getTime()) / (1000 * 60 * 60 * 24));
+        gap = actualGap;
+        const diff = actualGap - effectiveCycleLength;
+        variance = diff;
+        if (diff === 0) {
+          status = 'On Time';
+        } else if (diff < 0) {
+          status = `${Math.abs(diff)} Days Early`;
+        } else {
+          status = `${diff} Days Delayed`;
+        }
+      }
+
+      if (c.status !== status || c.variance_days !== variance || c.cycle_length_days !== gap) {
+        await pool.query(
+          `UPDATE period_cycles SET status = $1, variance_days = $2, cycle_length_days = $3 WHERE id = $4`,
+          [status, variance, gap, c.id]
+        ).catch(() => {});
+      }
+
+      updatedCycles.push({
+        ...c,
+        status,
+        variance_days: variance,
+        cycle_length_days: gap
+      });
+    }
+
+    return updatedCycles;
+  } catch (err) {
+    console.error('Error recalculating cycle chain:', err);
+    return [];
+  }
+}
+
+// ==============================================================================
 // 1. GET PERIOD SETTINGS & LIVE PHASE METRICS
 // ==============================================================================
 export const getPeriodSettings = async (req, res) => {
@@ -484,14 +547,9 @@ export const getPeriodSettings = async (req, res) => {
       historicalStats.cycleVariabilityDays
     );
 
-    // Fetch cycle history (descending for UI list)
-    const historyRes = await pool.query(
-      `SELECT * FROM period_cycles 
-       WHERE user_id = $1 
-       ORDER BY start_date DESC 
-       LIMIT 24`,
-      [userId]
-    );
+    // Recalculate and synchronize chained cycle statuses and gaps sequentially
+    const syncedCycles = await recalculateAndSyncUserCycles(userId, effectiveCycleLength);
+    const displayCycles = [...syncedCycles].reverse().slice(0, 24);
 
     // Fetch today's daily symptom log if logged
     const todayLogRes = await pool.query(
@@ -555,7 +613,7 @@ export const getPeriodSettings = async (req, res) => {
       predictions,
       historicalStats,
       todayLog,
-      cycleHistory: historyRes.rows.map(c => ({
+      cycleHistory: displayCycles.map(c => ({
         id: c.id,
         startDate: c.start_date.toISOString().split('T')[0],
         endDate: c.end_date ? c.end_date.toISOString().split('T')[0] : null,
@@ -662,30 +720,45 @@ export const logPeriodCycle = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Please select a period start date.' });
     }
 
-    // Get current settings to compare variance
+    // Get current settings to determine baseline cycle length
     const settingsRes = await pool.query(
       `SELECT * FROM period_settings WHERE user_id = $1`,
       [userId]
     );
 
-    let varianceDays = 0;
-    let cycleStatus = 'On Time';
     let prevCycleLength = 28;
     let defaultDuration = 5;
 
     if (settingsRes.rows.length > 0) {
       const prev = settingsRes.rows[0];
-      prevCycleLength = prev.cycle_length;
-      defaultDuration = prev.period_duration;
+      prevCycleLength = prev.cycle_length || 28;
+      defaultDuration = prev.period_duration || 5;
+    }
 
-      const prevStart = new Date(prev.last_period_start.toISOString().split('T')[0] + 'T00:00:00');
-      const actualStart = new Date(startDate + 'T00:00:00');
+    // Check existing cycles before this new cycle start date
+    const actualStart = new Date(startDate + 'T00:00:00');
+    const priorCyclesRes = await pool.query(
+      `SELECT * FROM period_cycles WHERE user_id = $1 AND start_date < $2 ORDER BY start_date DESC LIMIT 1`,
+      [userId, startDate]
+    );
 
-      // Expected start date
-      const expectedStart = new Date(prevStart);
-      expectedStart.setDate(expectedStart.getDate() + prevCycleLength);
+    let varianceDays = 0;
+    let cycleStatus = 'On Time';
+    let recordedCycleGap = prevCycleLength;
 
-      const diffFromExpected = Math.round((actualStart.getTime() - expectedStart.getTime()) / (1000 * 60 * 60 * 24));
+    if (priorCyclesRes.rows.length === 0) {
+      // First cycle entered: status starts from 0 variance, On Time baseline
+      varianceDays = 0;
+      cycleStatus = 'On Time';
+      recordedCycleGap = prevCycleLength;
+    } else {
+      // Compare directly with the immediately preceding cycle
+      const prevCycle = priorCyclesRes.rows[0];
+      const prevStart = new Date(prevCycle.start_date.toISOString().split('T')[0] + 'T00:00:00');
+      const actualGap = Math.round((actualStart.getTime() - prevStart.getTime()) / (1000 * 60 * 60 * 24));
+      
+      const expectedGap = prevCycleLength;
+      const diffFromExpected = actualGap - expectedGap;
       varianceDays = diffFromExpected;
 
       if (diffFromExpected === 0) {
@@ -695,6 +768,7 @@ export const logPeriodCycle = async (req, res) => {
       } else {
         cycleStatus = `${diffFromExpected} Days Delayed`;
       }
+      recordedCycleGap = actualGap;
     }
 
     const calculatedDuration = Number(durationDays) || (endDate 
@@ -718,7 +792,7 @@ export const logPeriodCycle = async (req, res) => {
         startDate,
         finalEndDate,
         calculatedDuration,
-        prevCycleLength,
+        recordedCycleGap,
         cycleStatus,
         varianceDays,
         flowIntensity,
@@ -727,6 +801,9 @@ export const logPeriodCycle = async (req, res) => {
         notes
       ]
     );
+
+    // Recalibrate full cycle sequence
+    await recalculateAndSyncUserCycles(userId, prevCycleLength);
 
     // Dynamically update period_settings: sets last_period_start to the new period
     await pool.query(
@@ -936,6 +1013,9 @@ export const updatePeriodCycle = async (req, res) => {
       );
     }
 
+    // Recalculate and synchronize all cycles after update
+    await recalculateAndSyncUserCycles(userId);
+
     res.json({
       success: true,
       message: 'Period cycle record updated successfully.',
@@ -979,6 +1059,9 @@ export const deletePeriodCycle = async (req, res) => {
         [latestCycleRes.rows[0].start_date, latestCycleRes.rows[0].duration_days, userId]
       );
     }
+
+    // Recalibrate and synchronize remaining cycles
+    await recalculateAndSyncUserCycles(userId);
 
     res.json({
       success: true,
