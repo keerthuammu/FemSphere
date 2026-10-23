@@ -216,13 +216,13 @@ export default function UserOverview() {
                 </div>
               </div>
 
-              {/* Minimal Healthy Female Illustration */}
-              <div className="shrink-0 relative w-36 h-36 md:w-44 md:h-44 flex items-center justify-center">
-                <div className="absolute w-32 h-32 md:w-40 md:h-40 rounded-full bg-[#FB7185]/10 blur-xl pointer-events-none" />
+              {/* Minimal Transparent Healthy Female Art */}
+              <div className="shrink-0 relative w-40 h-40 md:w-48 md:h-48 flex items-center justify-center">
+                <div className="absolute w-36 h-36 md:w-44 md:h-44 rounded-full bg-[#FB7185]/15 blur-2xl pointer-events-none" />
                 <img
-                  src="/healthy_female_hero.png"
-                  alt="Mindful Healthy Female"
-                  className="relative z-10 w-full h-full object-contain rounded-2xl filter drop-shadow-[0_8px_20px_rgba(0,0,0,0.35)] hover:scale-105 transition-transform duration-300"
+                  src="/minimal_female_hero.png"
+                  alt="Healthy Female Silhouette"
+                  className="relative z-10 w-full h-full object-contain filter drop-shadow-[0_4px_16px_rgba(251,113,133,0.3)] hover:scale-105 transition-transform duration-300"
                 />
               </div>
             </div>
