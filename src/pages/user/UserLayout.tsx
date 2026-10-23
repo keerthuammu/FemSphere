@@ -118,6 +118,7 @@ export default function UserLayout() {
 
   const navItems: NavItem[] = [
     { name: 'Dashboard', path: '/dashboard', icon: Activity, end: true },
+    { name: 'Smartwatch Vitals', path: '/dashboard/devices', icon: Watch, iconColor: 'text-[#936DA2]' },
     { name: 'Medical Records', path: '/dashboard/records', icon: FileText },
     { name: 'Health Tracker', path: '/dashboard/tracker', icon: Heart, iconColor: 'text-[#F472B6]' },
     ...(isReproductiveAgeUser ? [
