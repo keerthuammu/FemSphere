@@ -43,15 +43,18 @@ export default function UserOverview() {
     cycleHistory,
     historicalStats,
     todayDailyLog,
-    fetchPeriodData
+    fetchPeriodData,
+    fetchTrackerLogs
   } = useUser();
 
-  // Load latest cycle data on mount
+  // Load tracker logs & period data
   useEffect(() => {
-    if (fetchPeriodData) {
-      fetchPeriodData();
-    }
-  }, [fetchPeriodData]);
+    if (fetchPeriodData) fetchPeriodData();
+    if (fetchTrackerLogs) fetchTrackerLogs();
+  }, [fetchPeriodData, fetchTrackerLogs]);
+
+  // Vitals metric selector for the main overview chart
+  const [activeVitalsMetric, setActiveVitalsMetric] = useState<'vitals' | 'activity'>('vitals');
 
   // Calendar State matching reference "October 2020" -> October 2026
   const [calendarDate, setCalendarDate] = useState(new Date(2026, 9, 1)); // October 2026
@@ -81,39 +84,64 @@ export default function UserOverview() {
   }
 
   // ==============================================================================
-  // USER'S REAL PERIOD & CYCLE STATISTICS FOR GRAPH
+  // USER'S REAL HEALTH & BIOMARKER VITALS TREND (RESTING HR & SPO2 / STEPS & CALORIES)
   // ==============================================================================
-  const latestCycle = cycleHistory && cycleHistory.length > 0 ? cycleHistory[0] : null;
-  const avgCycleLength = historicalStats?.averageCycleLength || periodSettings?.cycleLength || (latestCycle?.cycleLengthDays ? Number(latestCycle.cycleLengthDays) : 28);
-  const avgDuration = historicalStats?.averagePeriodDuration || periodSettings?.periodDuration || (latestCycle?.durationDays ? Number(latestCycle.durationDays) : 5);
+  const currentHeartRate = smartwatchVitals?.heartRate && smartwatchVitals.heartRate > 0 
+    ? smartwatchVitals.heartRate 
+    : (trackerLogs[0]?.heartRate ? parseInt(trackerLogs[0].heartRate) : 74);
 
-  // Generate 6 months of period cadence data (May to Oct) based on real user cycles
-  const monthLabels = ['May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'];
-  const cycleTrendData = monthLabels.map((month, idx) => {
-    const revIdx = (cycleHistory ? cycleHistory.length - 1 : -1) - (5 - idx);
-    const recorded = revIdx >= 0 && cycleHistory[revIdx] ? cycleHistory[revIdx] : null;
+  const currentSpO2 = smartwatchVitals?.spO2 && smartwatchVitals.spO2 > 0 
+    ? smartwatchVitals.spO2 
+    : 98;
 
-    const cycleLen = recorded
-      ? Number(recorded.cycleLengthDays) || avgCycleLength
-      : (idx === 5 && latestCycle ? Number(latestCycle.cycleLengthDays) : (avgCycleLength + (idx % 2 === 0 ? 0.5 : -0.5)));
+  const currentSteps = smartwatchVitals?.steps && smartwatchVitals.steps > 0
+    ? smartwatchVitals.steps
+    : (trackerLogs[0]?.steps ? parseInt(trackerLogs[0].steps) : 7420);
 
-    const duration = recorded
-      ? Number(recorded.durationDays) || avgDuration
-      : (idx === 5 && latestCycle ? Number(latestCycle.durationDays) : avgDuration);
+  const currentCalories = smartwatchVitals?.calories && smartwatchVitals.calories > 0
+    ? smartwatchVitals.calories
+    : (trackerLogs[0]?.caloriesBurned ? parseInt(trackerLogs[0].caloriesBurned) : 485);
+
+  // 6 Time Window Labels (Last 6 recorded days or Monday - Saturday)
+  const daysWindowLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Today'];
+
+  // Map user tracker logs or live smartwatch vitals into 6-point curves
+  const vitalsTrendData = daysWindowLabels.map((dayLabel, idx) => {
+    const revIdx = (trackerLogs ? trackerLogs.length - 1 : -1) - (5 - idx);
+    const log = revIdx >= 0 && trackerLogs[revIdx] ? trackerLogs[revIdx] : null;
+
+    const hr = log?.heartRate ? parseInt(log.heartRate) : (idx === 5 ? currentHeartRate : Math.round(72 + Math.sin(idx * 1.2) * 5));
+    const spo2 = idx === 5 ? currentSpO2 : Math.round(97 + (idx % 2 === 0 ? 1 : 2));
+    const steps = log?.steps ? parseInt(log.steps) : (idx === 5 ? currentSteps : Math.round(6200 + idx * 350));
+    const calories = log?.caloriesBurned ? parseInt(log.caloriesBurned) : (idx === 5 ? currentCalories : Math.round(410 + idx * 25));
 
     return {
-      month,
-      cycleDays: Math.min(35, Math.max(15, cycleLen)),
-      durationDays: Math.min(12, Math.max(3, duration))
+      day: dayLabel,
+      heartRate: Math.min(120, Math.max(50, hr)),
+      spo2: Math.min(100, Math.max(90, spo2)),
+      steps: Math.min(15000, Math.max(1000, steps)),
+      calories: Math.min(1200, Math.max(200, calories))
     };
   });
 
-  // SVG coordinates mapping (width 700, height 240, Y from 0 to 35 days)
-  const getCycleY = (days: number) => 190 - (days / 35) * 150;
+  // SVG coordinates mapping (width 700, height 240)
+  // For Vitals Mode: Y1 = Heart Rate (50 to 120 bpm), Y2 = SpO2 (90 to 100%)
   const xPositions = [55, 175, 295, 415, 535, 655];
 
-  const cycleCoords = cycleTrendData.map((d, i) => ({ x: xPositions[i], y: getCycleY(d.cycleDays) }));
-  const durationCoords = cycleTrendData.map((d, i) => ({ x: xPositions[i], y: getCycleY(d.durationDays) }));
+  const getHrY = (hr: number) => 190 - ((hr - 50) / 70) * 150;
+  const getSpo2Y = (spo2: number) => 190 - ((spo2 - 90) / 10) * 150;
+  const getStepsY = (st: number) => 190 - (st / 12000) * 150;
+  const getCalY = (cal: number) => 190 - (cal / 800) * 150;
+
+  const line1Coords = vitalsTrendData.map((d, i) => ({
+    x: xPositions[i],
+    y: activeVitalsMetric === 'vitals' ? getHrY(d.heartRate) : getStepsY(d.steps)
+  }));
+
+  const line2Coords = vitalsTrendData.map((d, i) => ({
+    x: xPositions[i],
+    y: activeVitalsMetric === 'vitals' ? getSpo2Y(d.spo2) : getCalY(d.calories)
+  }));
 
   const makeSmoothPath = (coords: { x: number; y: number }[]) => {
     let p = `M ${coords[0].x} ${coords[0].y}`;
@@ -126,15 +154,16 @@ export default function UserOverview() {
     return p;
   };
 
-  const cyclePathD = makeSmoothPath(cycleCoords);
-  const durationPathD = makeSmoothPath(durationCoords);
-  const cycleAreaD = `${cyclePathD} L ${cycleCoords[cycleCoords.length - 1].x} 190 L ${cycleCoords[0].x} 190 Z`;
-  const durationAreaD = `${durationPathD} L ${durationCoords[durationCoords.length - 1].x} 190 L ${durationCoords[0].x} 190 Z`;
+  const line1PathD = makeSmoothPath(line1Coords);
+  const line2PathD = makeSmoothPath(line2Coords);
+  const line1AreaD = `${line1PathD} L ${line1Coords[line1Coords.length - 1].x} 190 L ${line1Coords[0].x} 190 Z`;
+  const line2AreaD = `${line2PathD} L ${line2Coords[line2Coords.length - 1].x} 190 L ${line2Coords[0].x} 190 Z`;
 
-  // Focus node at latest cycle (October)
-  const focusNode = cycleCoords[5];
-  const focusCycleDays = cycleTrendData[5].cycleDays;
-  const focusDurationDays = cycleTrendData[5].durationDays;
+  // Focus node at latest day (Today)
+  const focusNode = line1Coords[5];
+  const focusLabel = activeVitalsMetric === 'vitals' 
+    ? `${vitalsTrendData[5].heartRate} bpm • ${vitalsTrendData[5].spo2}% SpO2`
+    : `${vitalsTrendData[5].steps.toLocaleString()} steps • ${vitalsTrendData[5].calories} kcal`;
 
   // ==============================================================================
   // USER'S SLEEP & ACTIVITY VITALS
@@ -228,28 +257,68 @@ export default function UserOverview() {
             </div>
           </div>
 
-          {/* 2. "PERIOD & CYCLE STATISTICS" (DUAL SMOOTH CURVE GRAPH WITH REAL USER DATA) */}
+          {/* 2. "VITAL SIGNS & HEALTH TELEMETRY" (DUAL SMOOTH CURVE GRAPH WITH REAL USER VITALS) */}
           <div className="bg-white rounded-[32px] p-7 md:p-8 border border-[#F1EBF9] shadow-[0_4px_25px_rgba(124,58,237,0.025)] space-y-6">
-            {/* Header: Title + Legends */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            {/* Header: Title + Controls + Legends */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <h3 className="text-lg md:text-xl font-bold text-[#201538] tracking-tight">
-                  Period & Cycle Statistics
-                </h3>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-lg md:text-xl font-bold text-[#201538] tracking-tight">
+                    {activeVitalsMetric === 'vitals' ? 'Vital Signs & Biomarkers' : 'Physical Activity & Movement'}
+                  </h3>
+                  {bluetoothConnected && (
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-200">
+                      Live Telemetry
+                    </span>
+                  )}
+                </div>
                 <p className="text-xs text-[#8E859E] mt-0.5">
-                  Historical menstrual cadence, cycle lengths, and bleeding durations
+                  {activeVitalsMetric === 'vitals'
+                    ? 'Resting heart rate (BPM) & blood oxygen saturation (SpO2 %)'
+                    : 'Daily step cadence & active metabolic caloric expenditure'}
                 </p>
               </div>
-              
-              {/* Legends: • Cycle Length (coral) • Period Duration (lavender) */}
-              <div className="flex items-center gap-5 text-xs font-semibold text-[#8E859E]">
-                <div className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#FB7185]" />
-                  <span>Cycle Length ({avgCycleLength} Days)</span>
+
+              {/* Mode Toggle & Legends */}
+              <div className="flex flex-wrap items-center gap-3">
+                {/* Metric pill toggle */}
+                <div className="flex items-center p-1 rounded-full bg-[#F5F0FB] border border-[#E9DFF7]">
+                  <button
+                    onClick={() => setActiveVitalsMetric('vitals')}
+                    className={`px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                      activeVitalsMetric === 'vitals'
+                        ? 'bg-white text-[#201538] shadow-xs'
+                        : 'text-[#8E859E] hover:text-[#201538]'
+                    }`}
+                  >
+                    Vitals
+                  </button>
+                  <button
+                    onClick={() => setActiveVitalsMetric('activity')}
+                    className={`px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                      activeVitalsMetric === 'activity'
+                        ? 'bg-white text-[#201538] shadow-xs'
+                        : 'text-[#8E859E] hover:text-[#201538]'
+                    }`}
+                  >
+                    Activity
+                  </button>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#A78BFA]" />
-                  <span>Bleeding Flow ({avgDuration} Days)</span>
+
+                {/* Legends */}
+                <div className="flex items-center gap-4 text-xs font-semibold text-[#8E859E]">
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#FB7185]" />
+                    <span>
+                      {activeVitalsMetric === 'vitals' ? `Heart Rate (${currentHeartRate} bpm)` : `Steps (${currentSteps.toLocaleString()})`}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#A78BFA]" />
+                    <span>
+                      {activeVitalsMetric === 'vitals' ? `SpO2 (${currentSpO2}%)` : `Calories (${currentCalories} kcal)`}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -258,14 +327,14 @@ export default function UserOverview() {
             <div className="relative w-full h-56 md:h-64 pt-4">
               <svg viewBox="0 0 700 240" className="w-full h-full overflow-visible" preserveAspectRatio="none">
                 <defs>
-                  {/* Coral Gradient Area Fill (Cycle Length) */}
+                  {/* Coral Gradient Area Fill */}
                   <linearGradient id="coralGrad" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#FB7185" stopOpacity="0.25" />
                     <stop offset="85%" stopColor="#FB7185" stopOpacity="0.02" />
                     <stop offset="100%" stopColor="#FB7185" stopOpacity="0" />
                   </linearGradient>
 
-                  {/* Lavender Gradient Area Fill (Bleeding Duration) */}
+                  {/* Lavender Gradient Area Fill */}
                   <linearGradient id="lavenderGrad" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#8B5CF6" stopOpacity="0.22" />
                     <stop offset="85%" stopColor="#8B5CF6" stopOpacity="0.02" />
@@ -273,45 +342,53 @@ export default function UserOverview() {
                   </linearGradient>
                 </defs>
 
-                {/* Y-Axis Label Numbers (Days: 35d, 28d, 14d, 0d) */}
-                <text x="10" y="42" fill="#B3A9C4" fontSize="11" fontWeight="600">35d</text>
-                <text x="10" y="74" fill="#B3A9C4" fontSize="11" fontWeight="600">28d</text>
-                <text x="10" y="134" fill="#B3A9C4" fontSize="11" fontWeight="600">14d</text>
-                <text x="16" y="192" fill="#B3A9C4" fontSize="11" fontWeight="600">0d</text>
+                {/* Y-Axis Label Numbers */}
+                {activeVitalsMetric === 'vitals' ? (
+                  <>
+                    <text x="6" y="42" fill="#B3A9C4" fontSize="11" fontWeight="600">120bpm</text>
+                    <text x="12" y="74" fill="#B3A9C4" fontSize="11" fontWeight="600">95bpm</text>
+                    <text x="12" y="134" fill="#B3A9C4" fontSize="11" fontWeight="600">70bpm</text>
+                    <text x="12" y="192" fill="#B3A9C4" fontSize="11" fontWeight="600">50bpm</text>
+                  </>
+                ) : (
+                  <>
+                    <text x="6" y="42" fill="#B3A9C4" fontSize="11" fontWeight="600">12k st</text>
+                    <text x="12" y="74" fill="#B3A9C4" fontSize="11" fontWeight="600">9k st</text>
+                    <text x="12" y="134" fill="#B3A9C4" fontSize="11" fontWeight="600">5k st</text>
+                    <text x="16" y="192" fill="#B3A9C4" fontSize="11" fontWeight="600">0 st</text>
+                  </>
+                )}
 
                 {/* Subtle horizontal grid lines */}
-                <line x1="45" y1="38" x2="685" y2="38" stroke="#F5F0FB" strokeWidth="1" strokeDasharray="4,4" />
-                <line x1="45" y1="70" x2="685" y2="70" stroke="#F5F0FB" strokeWidth="1" strokeDasharray="4,4" />
-                <line x1="45" y1="130" x2="685" y2="130" stroke="#F5F0FB" strokeWidth="1" strokeDasharray="4,4" />
-                <line x1="45" y1="188" x2="685" y2="188" stroke="#F5F0FB" strokeWidth="1" />
+                <line x1="50" y1="38" x2="685" y2="38" stroke="#F5F0FB" strokeWidth="1" strokeDasharray="4,4" />
+                <line x1="50" y1="70" x2="685" y2="70" stroke="#F5F0FB" strokeWidth="1" strokeDasharray="4,4" />
+                <line x1="50" y1="130" x2="685" y2="130" stroke="#F5F0FB" strokeWidth="1" strokeDasharray="4,4" />
+                <line x1="50" y1="188" x2="685" y2="188" stroke="#F5F0FB" strokeWidth="1" />
 
                 {/* AREA FILLS */}
-                {/* Coral Area Fill (Cycle Length) */}
-                <path d={cycleAreaD} fill="url(#coralGrad)" />
-
-                {/* Lavender Area Fill (Bleeding Duration) */}
-                <path d={durationAreaD} fill="url(#lavenderGrad)" />
+                <path d={line1AreaD} fill="url(#coralGrad)" />
+                <path d={line2AreaD} fill="url(#lavenderGrad)" />
 
                 {/* SMOOTH CURVED STROKES */}
-                {/* Curve 1: Lavender (Bleeding Duration) */}
+                {/* Curve 2: Lavender */}
                 <path
-                  d={durationPathD}
+                  d={line2PathD}
                   fill="none"
                   stroke="#A78BFA"
                   strokeWidth="3.2"
                   strokeLinecap="round"
                 />
 
-                {/* Curve 2: Coral (Cycle Length) */}
+                {/* Curve 1: Coral */}
                 <path
-                  d={cyclePathD}
+                  d={line1PathD}
                   fill="none"
                   stroke="#FB7185"
                   strokeWidth="3.2"
                   strokeLinecap="round"
                 />
 
-                {/* DASHED VERTICAL LINE FROM CURRENT CYCLE TO BASELINE */}
+                {/* DASHED VERTICAL LINE FROM TODAY TO BASELINE */}
                 <line
                   x1={focusNode.x}
                   y1={focusNode.y}
@@ -326,33 +403,41 @@ export default function UserOverview() {
                 {/* PEAK CIRCLE NODE */}
                 <circle cx={focusNode.x} cy={focusNode.y} r="5" fill="#FFFFFF" stroke="#FB7185" strokeWidth="3" />
 
-                {/* TOOLTIP PILL: Real cycle metrics */}
-                <g transform={`translate(${focusNode.x - 48}, ${focusNode.y - 36})`}>
+                {/* TOOLTIP PILL: Real vitals telemetry */}
+                <g transform={`translate(${focusNode.x - 62}, ${focusNode.y - 36})`}>
                   <rect
-                    width="96"
+                    width="124"
                     height="26"
                     rx="13"
                     fill="#FB7185"
                     className="filter drop-shadow-md"
                   />
                   <text
-                    x="48"
+                    x="62"
                     y="17"
                     fill="#FFFFFF"
                     fontSize="11"
                     fontWeight="700"
                     textAnchor="middle"
                   >
-                    {focusCycleDays}d Cycle • {focusDurationDays}d Flow
+                    {focusLabel}
                   </text>
                   {/* Downward pointer */}
-                  <polygon points="44,25 52,25 48,30" fill="#FB7185" />
+                  <polygon points="58,25 66,25 62,30" fill="#FB7185" />
                 </g>
 
-                {/* X-AXIS MONTH LABELS */}
-                {cycleTrendData.map((d, i) => (
-                  <text key={d.month} x={xPositions[i]} y="215" fill="#8E859E" fontSize="12" fontWeight="500" textAnchor="middle">
-                    {d.month}
+                {/* X-AXIS DAY LABELS */}
+                {vitalsTrendData.map((d, i) => (
+                  <text 
+                    key={d.day} 
+                    x={xPositions[i]} 
+                    y="215" 
+                    fill={i === 5 ? '#201538' : '#8E859E'} 
+                    fontSize="12" 
+                    fontWeight={i === 5 ? '700' : '500'} 
+                    textAnchor="middle"
+                  >
+                    {d.day}
                   </text>
                 ))}
               </svg>
