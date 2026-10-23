@@ -314,8 +314,8 @@ export default function ConnectDeviceModal({ isOpen, onClose }: ConnectDeviceMod
           </div>
         )}
 
-        {/* Integration Method Tabs */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-1 p-1 bg-[#FCF4F5] rounded-2xl border border-[#F4DDE2] text-xs font-bold">
+        {/* Integration Method Tabs - Minimal & Clean */}
+        <div className="grid grid-cols-3 gap-1.5 p-1 bg-[#FCF4F5] rounded-2xl border border-[#F4DDE2] text-xs font-bold">
           <button
             type="button"
             onClick={() => { setActiveTab('devices'); setStatusMessage(null); }}
@@ -326,19 +326,7 @@ export default function ConnectDeviceModal({ isOpen, onClose }: ConnectDeviceMod
             }`}
           >
             <Watch className="w-3.5 h-3.5" />
-            <span>Active ({wearableDevices.length})</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => { setActiveTab('ble'); setStatusMessage(null); }}
-            className={`py-2 px-2 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-              activeTab === 'ble'
-                ? 'bg-white text-[#936DA2] shadow-2xs'
-                : 'text-[#7a6f75] hover:text-[#201538]'
-            }`}
-          >
-            <Bluetooth className="w-3.5 h-3.5" />
-            <span>Web BLE</span>
+            <span>My Devices ({wearableDevices.length})</span>
           </button>
           <button
             type="button"
@@ -350,19 +338,19 @@ export default function ConnectDeviceModal({ isOpen, onClose }: ConnectDeviceMod
             }`}
           >
             <Smartphone className="w-3.5 h-3.5" />
-            <span>Companion</span>
+            <span>Mobile App Sync</span>
           </button>
           <button
             type="button"
-            onClick={() => { setActiveTab('manual'); setStatusMessage(null); }}
+            onClick={() => { setActiveTab('ble'); setStatusMessage(null); }}
             className={`py-2 px-2 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-              activeTab === 'manual'
+              activeTab === 'ble'
                 ? 'bg-white text-[#936DA2] shadow-2xs'
                 : 'text-[#7a6f75] hover:text-[#201538]'
             }`}
           >
-            <Plus className="w-3.5 h-3.5" />
-            <span>Sync Daily</span>
+            <Bluetooth className="w-3.5 h-3.5" />
+            <span>Direct Bluetooth</span>
           </button>
         </div>
 

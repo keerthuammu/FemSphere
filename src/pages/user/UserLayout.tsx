@@ -5,7 +5,8 @@ import {
   LogOut, Bell, Watch, Bluetooth, Wifi, RefreshCw, 
   Battery, CheckCircle2, Clock, Printer, Camera, 
   X, FileCheck, Scan, User, Sliders, Video, VideoOff, Mic, MicOff, PhoneCall, PhoneOff,
-  MapPin, Search, Stethoscope, AlertCircle, AlertTriangle, ShieldCheck, Users, ChevronRight, Droplet, Upload
+  MapPin, Search, Stethoscope, AlertCircle, AlertTriangle, ShieldCheck, Users, ChevronRight, Droplet, Upload,
+  Smartphone
 } from 'lucide-react';
 import { useUser } from '../../context/UserContext';
 import LifeStageSelector from '../../components/LifeStageSelector';
@@ -195,43 +196,27 @@ export default function UserLayout() {
 
         {/* Bottom Section: Upgrade Promotion Card + User Identity */}
         <div className="pt-4 space-y-4">
-          {/* Upgrade Card matching reference UI */}
-          <div className="bg-white p-4 rounded-3xl border border-[#EDE8F5] shadow-[0_4px_20px_rgba(124,58,237,0.03)] relative overflow-hidden group">
-            <div className="pr-2">
-              <h5 className="font-extrabold text-xs text-[#201538] leading-tight">
-                Let's upgrade to premium feature
-              </h5>
-              <p className="text-[10px] text-[#8E859E] mt-1 leading-snug">
-                Upgrade to premium and get continuous biomarker analytics
-              </p>
-            </div>
-            
-            <div className="mt-4 flex items-end justify-between">
-              {/* Minimal celebration / wellness outline illustration */}
-              <div className="relative w-12 h-12 flex items-center justify-center">
-                <svg viewBox="0 0 48 48" className="w-12 h-12 text-[#8B5CF6]" fill="none">
-                  <circle cx="24" cy="20" r="10" stroke="#201538" strokeWidth="2" fill="#F9E8EC" />
-                  <path d="M19 19C19 19 21 21 24 21C27 21 29 19 29 19" stroke="#201538" strokeWidth="1.5" strokeLinecap="round" />
-                  <circle cx="21" cy="17" r="1.5" fill="#201538" />
-                  <circle cx="27" cy="17" r="1.5" fill="#201538" />
-                  <path d="M14 38C14 32 18 30 24 30C30 30 34 32 34 38" stroke="#201538" strokeWidth="2" strokeLinecap="round" />
-                  {/* Confetti / Sparkles */}
-                  <circle cx="10" cy="12" r="1.5" fill="#FB7185" />
-                  <path d="M37 12L39 14M39 12L37 14" stroke="#8B5CF6" strokeWidth="1.5" strokeLinecap="round" />
-                  <path d="M8 26L10 28" stroke="#FB7185" strokeWidth="1.5" strokeLinecap="round" />
-                  <circle cx="40" cy="24" r="1.5" fill="#936DA2" />
-                </svg>
+          {/* FemSphere Mobile Watch Cloud Sync Status Card */}
+          <div className="bg-white p-4 rounded-3xl border border-[#EDE8F5] shadow-[0_4px_20px_rgba(124,58,237,0.03)] space-y-2.5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-[10px] uppercase font-bold tracking-wider text-emerald-700">Watch Cloud Sync</span>
               </div>
-
-              {/* Circular dark arrow button */}
-              <button
-                onClick={() => navigate('/dashboard/reports')}
-                className="w-8 h-8 rounded-full bg-[#201538] hover:bg-[#936DA2] text-white flex items-center justify-center shadow-xs transition-all hover:scale-105 cursor-pointer"
-                title="Upgrade to Premium"
-              >
-                <ChevronRight className="w-4 h-4" />
-              </button>
+              <Smartphone className="w-3.5 h-3.5 text-[#936DA2]" />
             </div>
+
+            <p className="text-[11px] text-[#4A4158] leading-tight font-medium">
+              HealthKit & Health Connect continuously push your watch vitals to this dashboard.
+            </p>
+
+            <button
+              onClick={() => setShowConnectDeviceModal(true)}
+              className="w-full py-1.5 px-3 bg-[#FCF4F5] hover:bg-[#F9E8EC] border border-[#F0EAF8] rounded-xl text-[11px] font-bold text-[#936DA2] flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+            >
+              <Watch className="w-3.5 h-3.5" />
+              <span>{wearableDevices.length > 0 ? `${wearableDevices.length} Connected` : 'Pair via Mobile App'}</span>
+            </button>
           </div>
 
           {/* User Profile Pill & Actions */}
