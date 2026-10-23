@@ -8,16 +8,8 @@ class ApiConstants {
 
   /// Dynamic Base URL Candidates
   /// - api.femsphere.me: Production cloud backend (HTTPS)
-  /// - 127.0.0.1:5001: Works via USB ADB reverse on physical Android devices
-  /// - 10.0.2.2:5001: Works on Android Emulator
-  /// - 192.168.0.180:5001: Works over Wi-Fi
-  /// - localhost:5001: Web and desktop
   static const List<String> defaultCandidates = [
     'api.femsphere.me',
-    '127.0.0.1:5001',
-    '10.0.2.2:5001',
-    '192.168.0.180:5001',
-    'localhost:5001',
   ];
 
   static String _activeHost = 'api.femsphere.me';
@@ -34,44 +26,28 @@ class ApiConstants {
       final scheme = customHost!.startsWith('https://') || clean.contains('femsphere.me') ? 'https' : 'http';
       return '$scheme://$clean/api';
     }
-    if (kIsWeb) {
-      return 'https://api.femsphere.me/api';
-    }
-    final scheme = _activeHost.contains('femsphere.me') ? 'https' : 'http';
-    return '$scheme://$_activeHost/api';
+    return 'https://api.femsphere.me/api';
   }
 
   /// Automatically tests candidate hosts to locate the reachable FemSphere server
-  static Future<String> autoDetectServer({Duration timeout = const Duration(milliseconds: 1500)}) async {
+  static Future<String> autoDetectServer({Duration timeout = const Duration(milliseconds: 2500)}) async {
     if (customHost != null && customHost!.isNotEmpty) {
       return customHost!;
     }
-    if (kIsWeb) {
-      _activeHost = 'api.femsphere.me';
-      return _activeHost;
-    }
+    _activeHost = 'api.femsphere.me';
 
-    final candidates = [
-      _activeHost,
-      ...defaultCandidates.where((h) => h != _activeHost),
-    ];
-
-    for (final host in candidates) {
-      try {
-        final scheme = host.contains('femsphere.me') ? 'https' : 'http';
-        final uri = Uri.parse('$scheme://$host/api/articles');
-        final res = await http.get(uri).timeout(timeout);
-        if (res.statusCode == 200 || res.statusCode == 401 || res.statusCode == 404) {
-          _activeHost = host;
-          debugPrint('🌸 FemSphere API successfully connected to: $scheme://$host/api');
-          return host;
-        }
-      } catch (_) {
-        // Try next candidate
+    try {
+      final uri = Uri.parse('https://api.femsphere.me/api/articles');
+      final res = await http.get(uri).timeout(timeout);
+      if (res.statusCode == 200 || res.statusCode == 401 || res.statusCode == 404) {
+        debugPrint('🌸 FemSphere API successfully connected to: https://api.femsphere.me/api');
+        return 'api.femsphere.me';
       }
+    } catch (e) {
+      debugPrint('FemSphere cloud ping note: $e');
     }
 
-    return _activeHost;
+    return 'api.femsphere.me';
   }
 
   /// Tests connectivity to a specific host and returns round-trip latency in ms or -1 if failed

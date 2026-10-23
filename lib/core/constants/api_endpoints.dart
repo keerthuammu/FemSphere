@@ -3,17 +3,8 @@ import 'package:flutter/foundation.dart';
 
 class ApiEndpoints {
   // Base URL resolution
-  // Android Emulator uses 10.0.2.2 to access host computer's localhost:5001
-  // iOS Simulator / macOS / Web uses localhost:5001
-  static String get defaultBaseUrl {
-    if (kIsWeb) {
-      return 'http://localhost:5001';
-    }
-    if (Platform.isAndroid) {
-      return 'http://10.0.2.2:5001';
-    }
-    return 'http://localhost:5001';
-  }
+  // Production cloud backend: https://api.femsphere.me
+  static String get defaultBaseUrl => 'https://api.femsphere.me';
 
   static String baseUrl = defaultBaseUrl;
 
