@@ -2830,6 +2830,39 @@ export default function UserPeriodTracker() {
         </div>
       )}
 
+      {/* 9. DELETE CYCLE CONFIRMATION MODAL */}
+      {deletingCycleId !== null && (
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 z-50 font-inter">
+          <div className="bg-white rounded-3xl p-6 max-w-sm w-full border border-rose-100 shadow-2xl space-y-4 animate-in zoom-in-95 duration-150">
+            <div className="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mx-auto text-xl font-bold">
+              <Trash2 className="w-6 h-6" />
+            </div>
+            <div className="text-center space-y-1">
+              <h3 className="font-bold text-base text-[#3a3135]">Delete Cycle Record?</h3>
+              <p className="text-xs text-gray-500 leading-relaxed">
+                This will permanently remove this cycle record from your database and recalibrate your cycle statistics.
+              </p>
+            </div>
+            <div className="flex items-center gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setDeletingCycleId(null)}
+                className="flex-1 py-2.5 px-4 rounded-xl border border-gray-200 font-bold text-xs text-gray-600 hover:bg-gray-50 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={onConfirmDeleteCycle}
+                className="flex-1 py-2.5 px-4 rounded-xl bg-rose-600 text-white font-bold text-xs hover:bg-rose-700 cursor-pointer shadow-sm transition-all"
+              >
+                Delete from Database
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
