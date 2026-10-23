@@ -1,0 +1,117 @@
+name: FemSphere Backend CD Deployment
+
+on:
+  workflow_run:
+    workflows: ["FemSphere Backend CI Pipeline"]
+    branches: [ main, master ]
+    types:
+      - completed
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish-image:
+    name: Build & Publish Container to GHCR
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔑 Log in to GitHub Container Registry (GHCR)
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🏷️ Extract Docker Metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}/backend
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=sha,format=short
+
+      - name: 🐳 Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: 🚀 Build and Push Image to GHCR
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile.backend
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy-ec2:
+    name: Deploy to Production AWS EC2
+    runs-on: ubuntu-latest
+    needs: publish-image
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔐 Setup SSH Key
+        if: env.EC2_HOST != ''
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$EC2_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "$EC2_HOST" >> ~/.ssh/known_hosts
+
+      - name: 🚀 Execute Remote Deployment on AWS EC2
+        if: env.EC2_HOST != ''
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_USER: ${{ secrets.EC2_USER || 'ubuntu' }}
+        run: |
+          ssh -i ~/.ssh/deploy_key "$EC2_USER@$EC2_HOST" << 'EOF'
+            set -e
+            echo "🌸 [Remote Deploy] Pulling latest code..."
+            cd /home/ubuntu/FemSphere || cd /home/ubuntu/remix-femsphere || cd ~/femsphere
+            git pull origin main
+
+            echo "🐳 [Remote Deploy] Rebuilding & restarting backend container..."
+            sudo docker compose build backend
+            sudo docker compose up -d backend
+
+            echo "⏳ [Remote Deploy] Waiting for backend to initialize..."
+            sleep 8
+
+            echo "🩺 [Remote Deploy] Verifying API Health Check..."
+            curl -f http://localhost:5001/api/health || curl -f https://api.femsphere.me/api/health
+
+            echo "✨ [Remote Deploy] Backend updated and running successfully!"
+          EOF
+
+      - name: 🩺 External API Health Probe
+        if: env.PRODUCTION_URL != ''
+        env:
+          PRODUCTION_URL: ${{ secrets.PRODUCTION_URL || 'https://api.femsphere.me' }}
+        run: |
+          echo "Pinging production health check at $PRODUCTION_URL/api/health..."
+          for i in {1..12}; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$PRODUCTION_URL/api/health" || true)
+            if [ "$STATUS" -eq 200 ]; then
+              echo "✅ Production API is UP and healthy!"
+              exit 0
+            fi
+            echo "Waiting for health check (attempt $i/12)... got HTTP $STATUS"
+            sleep 5
+          done
+          echo "⚠️ Health check timed out"
+          exit 1
