@@ -177,39 +177,38 @@ export default function UserOverview() {
         {/* ======================================================== */}
         <div className="lg:col-span-8 space-y-7">
           
-          {/* 1. HERO BANNER: FEMSPHERE THEME & LOGO */}
-          <div className="relative rounded-[32px] bg-gradient-to-r from-[#201538] via-[#2A1B4B] to-[#401F5E] p-7 md:p-8 text-white overflow-hidden shadow-sm">
-            {/* Ambient Background Wave & Petal Circles */}
-            <div className="absolute -right-12 -bottom-16 w-80 h-80 rounded-full bg-white/[0.04] pointer-events-none" />
-            <div className="absolute right-36 -top-20 w-64 h-64 rounded-full bg-[#FB7185]/20 blur-3xl pointer-events-none" />
-            <div className="absolute left-1/3 bottom-0 w-48 h-48 rounded-full bg-[#936DA2]/25 blur-2xl pointer-events-none" />
+          {/* 1. HERO BANNER: MINIMAL & ELEGANT HEALTHY FEMALE WELLNESS */}
+          <div className="relative rounded-[28px] bg-gradient-to-r from-[#201538] via-[#2A1B4B] to-[#3B1C56] px-6 py-6 md:px-8 md:py-7 text-white overflow-hidden shadow-sm">
+            {/* Subtle Minimal Ambient Glow */}
+            <div className="absolute right-0 top-0 w-72 h-72 rounded-full bg-[#FB7185]/15 blur-3xl pointer-events-none" />
+            <div className="absolute left-1/4 -bottom-10 w-48 h-48 rounded-full bg-[#936DA2]/20 blur-2xl pointer-events-none" />
 
             <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
               {/* Text side */}
               <div className="max-w-md space-y-2 text-center md:text-left">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-purple-200 text-[10px] font-bold uppercase tracking-wider mb-1">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/10 text-purple-200 text-[10px] font-semibold tracking-wide">
                   <Sparkles className="w-3 h-3 text-[#FB7185]" />
-                  <span>FemSphere AI Health Twin</span>
+                  <span>FemSphere Health Twin</span>
                 </div>
                 
-                <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-white leading-tight">
+                <h2 className="text-xl md:text-2xl font-bold tracking-tight text-white">
                   Welcome back, {firstName}!
                 </h2>
-                <p className="text-xs md:text-sm text-purple-100/80 leading-relaxed font-normal">
-                  Your biological rhythm is active. Track cycles, monitor multi-biomarker vitals, and view proactive clinical insights.
+                <p className="text-xs text-purple-100/75 leading-relaxed font-normal">
+                  Your biological rhythm is active. Track cycles, view vitals, and maintain whole-body balance.
                 </p>
                 
-                <div className="pt-3 flex flex-wrap items-center justify-center md:justify-start gap-2.5">
+                <div className="pt-2 flex flex-wrap items-center justify-center md:justify-start gap-2">
                   <button
                     onClick={() => navigate('/dashboard/period-tracker')}
-                    className="px-5 py-2.5 bg-gradient-to-r from-[#FB7185] to-[#F43F5E] hover:opacity-95 text-white text-xs font-bold rounded-full shadow-md hover:scale-[1.02] transition-all cursor-pointer inline-flex items-center gap-2"
+                    className="px-4 py-2 bg-[#FB7185] hover:bg-[#F43F5E] text-white text-xs font-semibold rounded-full shadow-xs hover:scale-[1.02] transition-all cursor-pointer inline-flex items-center gap-1.5"
                   >
-                    <span>Period & Cycle Tracker</span>
+                    <span>Period Tracker</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                   <button
                     onClick={() => navigate('/dashboard/tracker')}
-                    className="px-5 py-2.5 bg-white/15 hover:bg-white/25 border border-white/25 text-white text-xs font-bold rounded-full backdrop-blur-md transition-all cursor-pointer inline-flex items-center gap-2"
+                    className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white text-xs font-semibold rounded-full transition-all cursor-pointer inline-flex items-center gap-1.5"
                   >
                     <Activity className="w-3.5 h-3.5 text-[#FB7185]" />
                     <span>Daily Vitals</span>
@@ -217,28 +216,14 @@ export default function UserOverview() {
                 </div>
               </div>
 
-              {/* FemSphere Official Logo Illustration */}
-              <div className="shrink-0 relative w-44 h-40 flex items-center justify-center">
-                {/* Ambient Pulsing Rings */}
-                <div className="absolute w-36 h-36 rounded-full bg-[#FB7185]/20 animate-pulse blur-xl pointer-events-none" />
-                <div className="absolute w-28 h-28 rounded-full bg-[#936DA2]/30 blur-md pointer-events-none" />
-
-                {/* Floating Wellness Icons */}
-                <div className="absolute top-1 left-2 p-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/25 text-[#FB7185] shadow-xs">
-                  <Heart className="w-3.5 h-3.5 fill-current" />
-                </div>
-                <div className="absolute bottom-2 right-2 p-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/25 text-purple-200 shadow-xs">
-                  <Sparkles className="w-3.5 h-3.5" />
-                </div>
-
-                {/* Glassmorphic Logo Card */}
-                <div className="relative z-10 w-28 h-28 md:w-32 md:h-32 rounded-3xl bg-white/10 backdrop-blur-lg border border-white/25 shadow-2xl p-3.5 flex items-center justify-center group hover:scale-105 transition-all">
-                  <img
-                    src="/femsphere_logo.png"
-                    alt="FemSphere Logo"
-                    className="w-full h-full object-contain filter drop-shadow-md"
-                  />
-                </div>
+              {/* Minimal Healthy Female Illustration */}
+              <div className="shrink-0 relative w-36 h-36 md:w-44 md:h-44 flex items-center justify-center">
+                <div className="absolute w-32 h-32 md:w-40 md:h-40 rounded-full bg-[#FB7185]/10 blur-xl pointer-events-none" />
+                <img
+                  src="/healthy_female_hero.png"
+                  alt="Mindful Healthy Female"
+                  className="relative z-10 w-full h-full object-contain rounded-2xl filter drop-shadow-[0_8px_20px_rgba(0,0,0,0.35)] hover:scale-105 transition-transform duration-300"
+                />
               </div>
             </div>
           </div>
