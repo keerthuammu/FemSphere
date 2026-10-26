@@ -263,8 +263,6 @@ class _UserDashboardTabState extends State<UserDashboardTab> {
               actionLabel: 'Connect Devices',
               onAction: widget.onOpenConnectDevices,
             ),
-            const SizedBox(height: 10),
-            _buildHealthConnectSyncBar(),
             const SizedBox(height: 12),
             _buildDailyStatisticsGrid(),
 

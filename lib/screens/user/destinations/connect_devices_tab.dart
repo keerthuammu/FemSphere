@@ -168,89 +168,56 @@ class _ConnectDevicesTabState extends State<ConnectDevicesTab> {
   Future<void> _syncDevice(Map<String, dynamic> dev) async {
     setState(() => _isSyncing = true);
 
-    final brand = dev['brand']?.toString().toUpperCase() ?? '';
     final devId = dev['device_identifier']?.toString() ?? '';
-
-    // If Amazfit, Zepp, or Health Connect device: prioritize Health Connect!
-    if (brand == 'AMAZFIT' || devId.contains('ZEPP') || brand == 'HEALTH_CONNECT') {
-      try {
-        final snap = await _healthConnectService.syncHealthData(requestPermissionIfDenied: true);
-        await _loadDevicesAndTelemetry();
-        if (mounted) {
-          if (snap.status == HealthSyncStatus.notInstalled) {
-            _showHealthConnectInstallDialog();
-          } else if (snap.status == HealthSyncStatus.permissionRequired) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: const Text('Health Connect read permission required.'),
-                action: SnackBarAction(
-                  label: 'Grant',
-                  onPressed: () => _healthConnectService.requestPermissions(),
-                ),
-              ),
-            );
-          } else if (snap.status == HealthSyncStatus.zeppPending) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('ℹ️ Zepp has not synchronized records yet. Open Zepp app to sync your watch.'),
-                backgroundColor: Color(0xFFF59E0B),
-              ),
-            );
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('✓ ${dev['device_name'] ?? 'Amazfit'} biometrics synced via Health Connect!'),
-                backgroundColor: const Color(0xFF10B981),
-              ),
-            );
-          }
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Sync note: $e'), backgroundColor: const Color(0xFFEF4444)),
-          );
-        }
-      } finally {
-        if (mounted) setState(() => _isSyncing = false);
-      }
-      return;
-    }
+    final devName = dev['device_name']?.toString() ?? 'Smartwatch';
 
     try {
-      if (_manager.activeDevice == null && devId.isNotEmpty) {
-        await _manager.connectToDeviceById(
-          devId,
-          deviceName: dev['device_name']?.toString(),
-          brandStr: dev['brand']?.toString(),
-        );
+      // 1. Sync real-time biometrics from Android Health Connect (bridges Zepp, Google Fit, Samsung Health, etc.)
+      try {
+        await _healthConnectService.syncHealthData(requestPermissionIfDenied: true);
+      } catch (hcErr) {
+        debugPrint('Health Connect sync note: $hcErr');
       }
 
-      if (_manager.activeDevice != null) {
-        await _manager.activeDevice!.syncToBackend();
+      // 2. Also attempt direct BLE sync if active/bonded
+      try {
+        if (_manager.activeDevice == null && devId.isNotEmpty) {
+          await _manager.connectToDeviceById(
+            devId,
+            deviceName: devName,
+            brandStr: dev['brand']?.toString(),
+          );
+        }
+        if (_manager.activeDevice != null) {
+          await _manager.activeDevice!.syncToBackend();
+        }
+      } catch (bleErr) {
+        debugPrint('BLE sync note: $bleErr');
       }
+
+      // 3. Refresh telemetry and devices from backend
       await _loadDevicesAndTelemetry();
 
-      final steps = _todaySummary?['today_steps'] ?? _latestTelemetry?['steps'] ?? 0;
-      if (steps == 0) {
-        if (mounted) {
-          _showMatchWatchDialog(context, dev);
-        }
-      } else if (mounted) {
+      final hcSnap = _healthConnectService.snapshotNotifier.value;
+      final currentSteps = hcSnap.steps ?? _todaySummary?['today_steps'] ?? _latestTelemetry?['steps'] ?? 0;
+      final currentHr = hcSnap.heartRate ?? _latestTelemetry?['heart_rate'] ?? _todaySummary?['avg_heart_rate'];
+
+      if (mounted) {
+        final detail = currentSteps > 0
+            ? '$currentSteps steps${currentHr != null ? ', $currentHr bpm' : ''}'
+            : 'Biometrics synchronized';
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${dev['device_name'] ?? 'Device'} telemetry updated!'),
+            content: Text('✓ $devName: $detail'),
             backgroundColor: const Color(0xFF10B981),
+            duration: const Duration(seconds: 3),
           ),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Sync note: $e'),
-            backgroundColor: const Color(0xFFEF4444),
-          ),
+          SnackBar(content: Text('Sync note: $e'), backgroundColor: const Color(0xFFEF4444)),
         );
       }
     } finally {
@@ -1364,10 +1331,7 @@ class _ConnectDevicesTabState extends State<ConnectDevicesTab> {
                   ),
                 ],
               ),
-              const SizedBox(height: 20),
-
-              // Health Connect Integration Hub (Amazfit & Zepp)
-              _buildHealthConnectHubCard(),
+              const SizedBox(height: 10),
 
               // Connected Devices Section
               Row(
@@ -1830,53 +1794,25 @@ class _ConnectDevicesTabState extends State<ConnectDevicesTab> {
           const SizedBox(height: 12),
           const Divider(height: 1, color: Color(0xFFF5F0FB)),
           const SizedBox(height: 10),
-          Row(
-            children: [
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: () => _showMatchWatchDialog(context, dev),
-                  icon: const Icon(Icons.edit_note, size: 16),
-                  label: const Text('Match Watch'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.primaryPurple,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    textStyle: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.bold),
-                  ),
-                ),
+          SizedBox(
+            width: double.infinity,
+            height: 44,
+            child: ElevatedButton.icon(
+              onPressed: _isSyncing ? null : () => _syncDevice(dev),
+              icon: _isSyncing
+                  ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                  : const Icon(Icons.sync_rounded, size: 18),
+              label: Text(
+                _isSyncing ? 'Syncing Biometrics...' : 'Sync Data',
+                style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.bold),
               ),
-              const SizedBox(width: 8),
-              if (brand.toUpperCase().contains('AMAZFIT') || brand.toUpperCase().contains('ZEPP')) ...[
-                OutlinedButton.icon(
-                  onPressed: () => _showAuthKeyDialog(context, dev),
-                  icon: const Icon(Icons.sync_lock, size: 15),
-                  label: const Text('Pair like Zepp'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFF0D9488),
-                    side: const BorderSide(color: Color(0xFF99F6E4)),
-                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    textStyle: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                const SizedBox(width: 8),
-              ],
-              OutlinedButton.icon(
-                onPressed: _isSyncing ? null : () => _syncDevice(dev),
-                icon: _isSyncing
-                    ? const SizedBox(width: 12, height: 12, child: CircularProgressIndicator(strokeWidth: 2))
-                    : const Icon(Icons.sync, size: 16),
-                label: Text(_isSyncing ? '...' : 'Sync'),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: const Color(0xFF10B981),
-                  side: const BorderSide(color: Color(0xFFA7F3D0)),
-                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                  textStyle: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.bold),
-                ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.primaryPurple,
+                foregroundColor: Colors.white,
+                elevation: 0,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
-            ],
+            ),
           ),
         ],
       ),
@@ -1884,11 +1820,12 @@ class _ConnectDevicesTabState extends State<ConnectDevicesTab> {
   }
 
   Widget _buildLiveTelemetryCard() {
-    final steps = _todaySummary?['today_steps'] ?? _latestTelemetry?['steps'];
-    final hr = _latestTelemetry?['heart_rate'] ?? _todaySummary?['avg_heart_rate'];
-    final cal = _todaySummary?['today_calories'] ?? _latestTelemetry?['calories'];
-    final sleepMins = _todaySummary?['today_sleep_minutes'] ?? _latestTelemetry?['sleep_duration_minutes'];
-    final spo2 = _todaySummary?['latest_spo2'] ?? _latestTelemetry?['spo2'];
+    final hcSnap = _healthConnectService.snapshotNotifier.value;
+    final steps = hcSnap.steps ?? _todaySummary?['today_steps'] ?? _latestTelemetry?['steps'];
+    final hr = hcSnap.heartRate ?? _latestTelemetry?['heart_rate'] ?? _todaySummary?['avg_heart_rate'];
+    final cal = hcSnap.calories ?? _todaySummary?['today_calories'] ?? _latestTelemetry?['calories'];
+    final sleepMins = hcSnap.sleepMinutes ?? _todaySummary?['today_sleep_minutes'] ?? _latestTelemetry?['sleep_duration_minutes'];
+    final spo2 = hcSnap.spo2 ?? _todaySummary?['latest_spo2'] ?? _latestTelemetry?['spo2'];
 
     final hasAnyData = steps != null || hr != null || cal != null || sleepMins != null || spo2 != null;
 
