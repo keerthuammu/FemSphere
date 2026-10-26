@@ -140,6 +140,20 @@ async function syncSequences() {
   }
 }
 
+// Automatically verify and apply essential database constraints on server boot
+async function runStartupMigrations() {
+  try {
+    await pool.query(`
+      ALTER TABLE user_profiles DROP CONSTRAINT IF EXISTS user_profiles_gender_check;
+      ALTER TABLE user_profiles ADD CONSTRAINT user_profiles_gender_check 
+        CHECK (gender IS NULL OR gender IN ('Female', 'Male', 'Non-Binary', 'Other'));
+    `);
+    console.log('✓ Database constraints verified and updated (user_profiles_gender_check).');
+  } catch (err) {
+    console.log('Startup migration note:', err.message);
+  }
+}
+
 let server;
 const isDirectRun = Boolean(
   process.argv[1] &&
@@ -151,7 +165,7 @@ const shouldStart = (isDirectRun || isExplicitStart || process.env.NODE_ENV !== 
 
 if (shouldStart) {
   server = app.listen(PORT, '0.0.0.0', () => {
-    syncSequences().catch(() => {});
+    runStartupMigrations().then(() => syncSequences()).catch(() => {});
     console.log(`=======================================================`);
     console.log(`🌸 FemSphere Node.js + Express REST API Server Running`);
     console.log(`📡 URL: http://localhost:${PORT}`);

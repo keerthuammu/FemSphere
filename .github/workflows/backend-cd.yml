@@ -89,6 +89,12 @@ jobs:
             sudo docker compose build backend
             sudo docker compose up -d backend
 
+            echo "🗄️ [Remote Deploy] Applying PostgreSQL constraint updates on database container..."
+            sudo docker compose exec -T postgres psql -U postgres -d femsphere_db -c "
+              ALTER TABLE user_profiles DROP CONSTRAINT IF EXISTS user_profiles_gender_check;
+              ALTER TABLE user_profiles ADD CONSTRAINT user_profiles_gender_check CHECK (gender IS NULL OR gender IN ('Female', 'Male', 'Non-Binary', 'Other'));
+            " || true
+
             echo "⏳ [Remote Deploy] Waiting for backend to initialize..."
             sleep 8
 

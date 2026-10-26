@@ -497,7 +497,7 @@ class HealthConnectService {
 
     if (rawRecords.isEmpty && (todaySteps == null || todaySteps == 0)) {
       status = HealthSyncStatus.zeppPending;
-      statusMsg = 'No records in Health Connect yet. Please open Google Fit or Zepp to sync your watch.';
+      statusMsg = 'No records in Health Connect yet. Please open Zepp to sync your watch.';
     }
 
     // Build consolidated snapshot
@@ -516,7 +516,7 @@ class HealthConnectService {
       status: status,
       statusMessage: statusMsg,
       isBackendSynced: false,
-      sourceName: detectedSource ?? 'Health Connect / Google Fit',
+      sourceName: detectedSource ?? 'Health Connect (Zepp / Amazfit)',
     );
 
     // 4. Synchronize with FemSphere backend if records or steps exist
