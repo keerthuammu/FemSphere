@@ -95,8 +95,8 @@ jobs:
 
       - name: 🚀 Start FemSphere API Server in Background
         run: |
-          node server.js &
-          npx wait-on http://localhost:5001/api/health -t 30000
+          START_SERVER=true node server.js &
+          npx --yes wait-on http://127.0.0.1:5001/api/health -t 30000 --interval 500
 
       - name: 🧪 Execute Complete Automated Test Suite
         run: npm test

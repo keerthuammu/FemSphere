@@ -141,15 +141,21 @@ async function syncSequences() {
 }
 
 let server;
-const isTestEnv = process.env.NODE_ENV === 'test' || process.argv.some(arg => arg.includes('test'));
+const isDirectRun = Boolean(
+  process.argv[1] &&
+  (process.argv[1].endsWith('server.js') || process.argv[1].endsWith('server') || process.argv[1].includes('server.js'))
+);
+const isExplicitStart = process.env.START_SERVER === 'true';
 const isVercel = process.env.VERCEL === '1' || Boolean(process.env.VERCEL);
-if (!isTestEnv && !isVercel) {
-  server = app.listen(PORT, () => {
+const shouldStart = (isDirectRun || isExplicitStart || process.env.NODE_ENV !== 'test') && !isVercel;
+
+if (shouldStart) {
+  server = app.listen(PORT, '0.0.0.0', () => {
     syncSequences().catch(() => {});
     console.log(`=======================================================`);
     console.log(`🌸 FemSphere Node.js + Express REST API Server Running`);
     console.log(`📡 URL: http://localhost:${PORT}`);
-    console.log(`🗄️ Database: PostgreSQL (femsphere_db)`);
+    console.log(`🗄️ Database: PostgreSQL (${process.env.DB_NAME || 'femsphere_db'})`);
     console.log(`=======================================================`);
   });
 }
