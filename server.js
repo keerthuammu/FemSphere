@@ -130,7 +130,7 @@ async function syncSequences() {
     'health_articles', 'vaccinations', 'medications', 'relationships',
     'consents', 'permissions', 'health_events', 'ai_insights', 'audit_logs',
     'period_settings', 'period_cycles', 'notifications', 'smartwatch_devices',
-    'smartwatch_health_data', 'partner_connections', 'partner_sharing_permissions',
+    'smartwatch_health_data', 'wearable_sync_history', 'partner_connections', 'partner_sharing_permissions',
     'partner_tasks', 'shared_health_goals', 'patient_exercise_logs', 'telehealth_sessions'
   ];
   for (const t of tables) {

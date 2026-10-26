@@ -1,3 +1,5 @@
+import { execFile } from 'child_process';
+import path from 'path';
 import pool from '../config/db.js';
 
 /**
@@ -663,4 +665,358 @@ export const updateDeviceStatus = async (req, res) => {
     return res.status(500).json({ success: false, message: 'Server error updating device status.' });
   }
 };
+
+/**
+ * Transactional, Idempotent Batch Sync of Wearable Telemetry
+ * POST /api/wearables/sync/batch or POST /api/smartwatch/sync/batch
+ */
+export const batchSync = async (req, res) => {
+  const client = await pool.connect();
+  const startTime = new Date();
+  let historyId = null;
+  try {
+    const userId = req.user.id;
+    const {
+      provider = 'HEALTH_CONNECT',
+      device_identifier,
+      device_name = 'Smartwatch',
+      device_model = 'Unknown Model',
+      brand = 'AMAZFIT',
+      device_type = 'SMARTWATCH',
+      capabilities = {},
+      battery_level = null,
+      records = []
+    } = req.body;
+
+    if (!Array.isArray(records) || records.length === 0) {
+      return res.status(400).json({ success: false, message: 'records array is required and must not be empty.' });
+    }
+
+    const deviceBrand = (brand || 'AMAZFIT').toUpperCase();
+    const targetIdentifier = device_identifier || `${deviceBrand}_${userId}_DEFAULT`;
+
+    await client.query('BEGIN');
+
+    // 1. Insert initial sync history record
+    const histInit = await client.query(`
+      INSERT INTO wearable_sync_history 
+        (user_id, provider, sync_status, records_discovered, records_uploaded, records_failed, started_at)
+      VALUES ($1, $2, 'IN_PROGRESS', $3, 0, 0, $4)
+      RETURNING id
+    `, [userId, provider.toUpperCase(), records.length, startTime]);
+    historyId = histInit.rows[0].id;
+
+    // 2. Upsert Device & mark as SYNCED
+    const devQuery = `
+      INSERT INTO smartwatch_devices
+        (user_id, device_name, device_model, device_identifier, brand, device_type, capabilities, connection_status, battery_level, last_connected_at, last_synced_at, updated_at)
+      VALUES
+        ($1, $2, $3, $4, $5, $6, $7, 'SYNCED', $8, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+      ON CONFLICT (user_id, device_identifier)
+      DO UPDATE SET
+        device_name = EXCLUDED.device_name,
+        device_model = EXCLUDED.device_model,
+        brand = COALESCE(EXCLUDED.brand, smartwatch_devices.brand),
+        device_type = COALESCE(EXCLUDED.device_type, smartwatch_devices.device_type),
+        capabilities = COALESCE(EXCLUDED.capabilities, smartwatch_devices.capabilities),
+        connection_status = 'SYNCED',
+        battery_level = COALESCE(EXCLUDED.battery_level, smartwatch_devices.battery_level),
+        last_connected_at = CURRENT_TIMESTAMP,
+        last_synced_at = CURRENT_TIMESTAMP,
+        updated_at = CURRENT_TIMESTAMP
+      RETURNING id, device_name, device_identifier, brand;
+    `;
+    const devRes = await client.query(devQuery, [
+      userId,
+      device_name,
+      device_model,
+      targetIdentifier.trim(),
+      deviceBrand,
+      (device_type || 'SMARTWATCH').toUpperCase(),
+      JSON.stringify(capabilities || {}),
+      battery_level
+    ]);
+    const deviceId = devRes.rows[0].id;
+
+    // Link device_id to sync history
+    await client.query('UPDATE wearable_sync_history SET device_id = $1 WHERE id = $2', [deviceId, historyId]);
+
+    let uploadedCount = 0;
+    let failedCount = 0;
+    const affectedDates = new Set();
+
+    // 3. Process each record with upsert idempotency
+    for (const rec of records) {
+      try {
+        const recordedAt = rec.recorded_at ? new Date(rec.recorded_at) : new Date();
+        const dateStr = recordedAt.toISOString().split('T')[0];
+        affectedDates.add(dateStr);
+
+        // Derive deterministic sync_key if not provided
+        const syncKey = rec.sync_key || `${deviceId}_${recordedAt.toISOString().substring(0, 19)}`;
+
+        const distM = rec.distance_meters !== undefined && rec.distance_meters !== null && rec.distance_meters >= 0 ? parseFloat(rec.distance_meters) : null;
+        const distKm = distM !== null ? parseFloat((distM / 1000.0).toFixed(2)) : (rec.distance_km ? parseFloat(rec.distance_km) : null);
+        const sleepM = rec.sleep_duration_minutes !== undefined && rec.sleep_duration_minutes !== null && rec.sleep_duration_minutes >= 0 ? parseInt(rec.sleep_duration_minutes, 10) : null;
+
+        const hr = rec.heart_rate !== undefined && rec.heart_rate !== null && rec.heart_rate > 30 ? parseInt(rec.heart_rate, 10) : null;
+        const restingHr = rec.resting_heart_rate !== undefined && rec.resting_heart_rate !== null && rec.resting_heart_rate > 30 ? parseInt(rec.resting_heart_rate, 10) : null;
+        const steps = rec.steps !== undefined && rec.steps !== null && rec.steps >= 0 ? parseInt(rec.steps, 10) : null;
+        const calories = rec.calories !== undefined && rec.calories !== null && rec.calories >= 0 ? Math.round(parseFloat(rec.calories)) : null;
+        const spo2 = rec.spo2 !== undefined && rec.spo2 !== null && rec.spo2 >= 50 && rec.spo2 <= 100 ? parseInt(rec.spo2, 10) : null;
+        const hrv = rec.hrv_rmssd !== undefined && rec.hrv_rmssd !== null && rec.hrv_rmssd >= 0 ? parseInt(rec.hrv_rmssd, 10) : null;
+        const stress = rec.stress_score !== undefined && rec.stress_score !== null && rec.stress_score >= 0 ? parseInt(rec.stress_score, 10) : null;
+        const bodyTemp = rec.body_temperature !== undefined && rec.body_temperature !== null && rec.body_temperature >= 30.0 ? parseFloat(rec.body_temperature) : null;
+        const bpSys = rec.blood_pressure_systolic !== undefined && rec.blood_pressure_systolic !== null ? parseInt(rec.blood_pressure_systolic, 10) : null;
+        const bpDia = rec.blood_pressure_diastolic !== undefined && rec.blood_pressure_diastolic !== null ? parseInt(rec.blood_pressure_diastolic, 10) : null;
+        const respRate = rec.respiratory_rate !== undefined && rec.respiratory_rate !== null ? parseFloat(rec.respiratory_rate) : null;
+
+        const recSource = rec.source || `${provider.toUpperCase()}_${deviceBrand}`;
+
+        const upsertQuery = `
+          INSERT INTO smartwatch_health_data
+            (user_id, device_id, recorded_at, heart_rate, resting_heart_rate, steps, calories, distance, distance_meters, sleep_duration, sleep_duration_minutes, spo2, hrv_rmssd, stress_score, body_temperature, blood_pressure_systolic, blood_pressure_diastolic, respiratory_rate, activity_type, source, raw_payload, sync_key)
+          VALUES
+            ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22)
+          ON CONFLICT (user_id, sync_key) WHERE sync_key IS NOT NULL
+          DO UPDATE SET
+            recorded_at = EXCLUDED.recorded_at,
+            heart_rate = COALESCE(EXCLUDED.heart_rate, smartwatch_health_data.heart_rate),
+            resting_heart_rate = COALESCE(EXCLUDED.resting_heart_rate, smartwatch_health_data.resting_heart_rate),
+            steps = COALESCE(EXCLUDED.steps, smartwatch_health_data.steps),
+            calories = COALESCE(EXCLUDED.calories, smartwatch_health_data.calories),
+            distance = COALESCE(EXCLUDED.distance, smartwatch_health_data.distance),
+            distance_meters = COALESCE(EXCLUDED.distance_meters, smartwatch_health_data.distance_meters),
+            sleep_duration_minutes = COALESCE(EXCLUDED.sleep_duration_minutes, smartwatch_health_data.sleep_duration_minutes),
+            spo2 = COALESCE(EXCLUDED.spo2, smartwatch_health_data.spo2),
+            hrv_rmssd = COALESCE(EXCLUDED.hrv_rmssd, smartwatch_health_data.hrv_rmssd),
+            stress_score = COALESCE(EXCLUDED.stress_score, smartwatch_health_data.stress_score),
+            body_temperature = COALESCE(EXCLUDED.body_temperature, smartwatch_health_data.body_temperature),
+            blood_pressure_systolic = COALESCE(EXCLUDED.blood_pressure_systolic, smartwatch_health_data.blood_pressure_systolic),
+            blood_pressure_diastolic = COALESCE(EXCLUDED.blood_pressure_diastolic, smartwatch_health_data.blood_pressure_diastolic),
+            respiratory_rate = COALESCE(EXCLUDED.respiratory_rate, smartwatch_health_data.respiratory_rate),
+            activity_type = COALESCE(EXCLUDED.activity_type, smartwatch_health_data.activity_type),
+            source = COALESCE(EXCLUDED.source, smartwatch_health_data.source),
+            raw_payload = COALESCE(EXCLUDED.raw_payload, smartwatch_health_data.raw_payload);
+        `;
+
+        await client.query(upsertQuery, [
+          userId,
+          deviceId,
+          recordedAt,
+          hr,
+          restingHr,
+          steps,
+          calories,
+          distKm,
+          distM,
+          sleepM,
+          sleepM,
+          spo2,
+          hrv,
+          stress,
+          bodyTemp,
+          bpSys,
+          bpDia,
+          respRate,
+          rec.activity_type || 'General',
+          recSource,
+          JSON.stringify(rec.raw_payload || {}),
+          syncKey
+        ]);
+
+        uploadedCount++;
+      } catch (itemErr) {
+        console.error('Failed to insert record item in batchSync:', itemErr.message);
+        failedCount++;
+      }
+    }
+
+    // 4. Update health_tracker daily summary for each affected date
+    for (const d of affectedDates) {
+      await client.query(`
+        INSERT INTO health_tracker (user_id, log_date, steps, calories_burned, distance_km, heart_rate, sleep_hours)
+        SELECT 
+          $1,
+          $2::date,
+          COALESCE(MAX(steps), 0),
+          COALESCE(MAX(calories), 0),
+          COALESCE(ROUND(MAX(distance_meters) / 1000.0, 2), 0),
+          COALESCE(ROUND(AVG(heart_rate)), 0),
+          COALESCE(ROUND(MAX(sleep_duration_minutes) / 60.0, 2), 0)
+        FROM smartwatch_health_data
+        WHERE user_id = $1 AND DATE(recorded_at) = $2::date
+        ON CONFLICT (user_id, log_date)
+        DO UPDATE SET
+          steps = GREATEST(health_tracker.steps, EXCLUDED.steps),
+          calories_burned = GREATEST(health_tracker.calories_burned, EXCLUDED.calories_burned),
+          distance_km = GREATEST(health_tracker.distance_km, EXCLUDED.distance_km),
+          heart_rate = CASE WHEN EXCLUDED.heart_rate > 0 THEN EXCLUDED.heart_rate ELSE health_tracker.heart_rate END,
+          sleep_hours = CASE WHEN EXCLUDED.sleep_hours > 0 THEN EXCLUDED.sleep_hours ELSE health_tracker.sleep_hours END;
+      `, [userId, d]);
+    }
+
+    // 5. Complete sync history log
+    const syncStatus = failedCount === 0 ? 'SUCCESS' : (uploadedCount > 0 ? 'PARTIAL' : 'FAILED');
+    await client.query(`
+      UPDATE wearable_sync_history
+      SET sync_status = $1,
+          records_uploaded = $2,
+          records_failed = $3,
+          completed_at = CURRENT_TIMESTAMP
+      WHERE id = $4
+    `, [syncStatus, uploadedCount, failedCount, historyId]);
+
+    await client.query('COMMIT');
+
+    return res.status(200).json({
+      success: true,
+      message: `Batch sync completed with status ${syncStatus}.`,
+      sync_id: historyId,
+      status: syncStatus,
+      records_discovered: records.length,
+      records_uploaded: uploadedCount,
+      records_failed: failedCount
+    });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('Error in batchSync:', err);
+    if (historyId) {
+      try {
+        await pool.query(`
+          UPDATE wearable_sync_history
+          SET sync_status = 'FAILED',
+              error_message = $1,
+              completed_at = CURRENT_TIMESTAMP
+          WHERE id = $2
+        `, [err.message, historyId]);
+      } catch (_) {}
+    }
+    return res.status(500).json({ success: false, message: 'Server error in batchSync: ' + err.message });
+  } finally {
+    client.release();
+  }
+};
+
+/**
+ * Retrieve wearable synchronization audit history
+ * GET /api/wearables/sync-history or GET /api/smartwatch/sync-history
+ */
+export const getSyncHistory = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const limit = parseInt(req.query.limit || '20', 10);
+    const result = await pool.query(`
+      SELECT wsh.*, sd.device_name, sd.brand, sd.device_model
+      FROM wearable_sync_history wsh
+      LEFT JOIN smartwatch_devices sd ON sd.id = wsh.device_id
+      WHERE wsh.user_id = $1
+      ORDER BY wsh.started_at DESC
+      LIMIT $2
+    `, [userId, limit]);
+
+    return res.json({
+      success: true,
+      count: result.rows.length,
+      history: result.rows
+    });
+  } catch (err) {
+    console.error('Error in getSyncHistory:', err);
+    return res.status(500).json({ success: false, message: 'Server error retrieving sync history.' });
+  }
+};
+
+/**
+ * Returns supported wearable providers and their device capabilities
+ * GET /api/wearables/providers or GET /api/smartwatch/providers
+ */
+export const getProviders = async (req, res) => {
+  return res.json({
+    success: true,
+    providers: [
+      {
+        id: 'HEALTH_CONNECT',
+        name: 'Android Health Connect',
+        recommended: true,
+        platform: 'android',
+        description: 'Synchronizes biometrics exported to Health Connect by the Zepp app (Amazfit Bip U Pro, GTR, GTS), Samsung Health, Google Fit, Garmin Connect, and Fitbit.',
+        supported_brands: ['Amazfit (via Zepp)', 'Samsung Galaxy Watch', 'Google Pixel Watch', 'Garmin', 'Fitbit', 'Whoop', 'Xiaomi'],
+        metrics_supported: ['Steps', 'Heart Rate', 'Sleep Duration', 'Blood Oxygen (SpO2)', 'Active Calories', 'Resting Heart Rate']
+      },
+      {
+        id: 'APPLE_HEALTH',
+        name: 'Apple Health (HealthKit)',
+        recommended: true,
+        platform: 'ios',
+        description: 'Synchronizes biometrics exported to Apple Health by Apple Watch, the Zepp app (Amazfit), Garmin Connect, and Withings.',
+        supported_brands: ['Apple Watch', 'Amazfit (via Zepp)', 'Garmin', 'Fitbit', 'Withings', 'Oura Ring'],
+        metrics_supported: ['Steps', 'Heart Rate', 'Sleep Analysis', 'SpO2', 'Active Energy', 'HRV']
+      },
+      {
+        id: 'STANDARD_BLE',
+        name: 'Standard Bluetooth LE (GATT)',
+        recommended: false,
+        platform: 'all',
+        description: 'Direct wireless connection for standalone, unbonded Bluetooth LE peripherals broadcasting open standard GATT Heart Rate (0x180D) or Pulse Oximeter (0x1822) services.',
+        supported_brands: ['Polar H10/OH1', 'Garmin HRM Chest Straps', 'Bluetooth Fingertip Oximeters', 'Generic BLE Monitors'],
+        metrics_supported: ['Live Heart Rate', 'Live SpO2 (if supported by GATT)']
+      }
+    ]
+  });
+};
+
+/**
+ * Automatically fetch Zepp / Amazfit Bluetooth Auth Keys using Zepp credentials
+ * POST /api/wearables/zepp/link-account
+ */
+export const linkZeppAccount = async (req, res) => {
+  const { email, password, mac_address } = req.body;
+  if (!email || !password) {
+    return res.status(400).json({ success: false, message: 'Zepp email and password are required.' });
+  }
+
+  const scriptPath = path.join(process.cwd(), 'scripts', 'fetch_zepp_devices.py');
+
+  execFile('python', [scriptPath, email, password], (error, stdout, stderr) => {
+    if (error && !stdout) {
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to communicate with Zepp account servers.',
+        error: stderr || error.message
+      });
+    }
+
+    try {
+      const data = JSON.parse(stdout);
+      if (!data.success) {
+        return res.status(401).json({
+          success: false,
+          message: data.error || 'Authentication with Zepp failed. Check your email & password.'
+        });
+      }
+
+      // If MAC address was provided, find matching device
+      let matchedDevice = null;
+      if (mac_address && data.devices) {
+        const cleanMac = mac_address.replace(/[: -]/g, '').toLowerCase();
+        matchedDevice = data.devices.find(d => (d.mac || '').replace(/[: -]/g, '').toLowerCase() === cleanMac);
+      }
+
+      if (!matchedDevice && data.devices && data.devices.length > 0) {
+        matchedDevice = data.devices[0];
+      }
+
+      return res.json({
+        success: true,
+        message: 'Successfully retrieved Zepp pairing keys!',
+        device: matchedDevice,
+        all_devices: data.devices
+      });
+    } catch (parseErr) {
+      return res.status(500).json({ success: false, message: 'Invalid response from Zepp token service.', raw: stdout });
+    }
+  });
+};
+
+
 

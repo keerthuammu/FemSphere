@@ -1,3 +1,5 @@
+import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -5,6 +7,7 @@ import 'package:fl_chart/fl_chart.dart';
 import '../../../core/app_theme.dart';
 import '../../../models/user_model.dart';
 import '../../../services/api_service.dart';
+import '../../../services/health_connect_service.dart';
 import '../../../features/wearables/services/wearable_sync_service.dart';
 
 class UserDashboardTab extends StatefulWidget {
@@ -27,8 +30,10 @@ class UserDashboardTab extends StatefulWidget {
 
 class _UserDashboardTabState extends State<UserDashboardTab> {
   final WearableSyncService _wearableSyncService = WearableSyncService();
+  final HealthConnectService _healthConnectService = HealthConnectService();
 
   bool _isLoading = true;
+  bool _isSyncingHealthConnect = false;
   String? _errorMessage;
 
   // Real backend metrics
@@ -44,7 +49,107 @@ class _UserDashboardTabState extends State<UserDashboardTab> {
   @override
   void initState() {
     super.initState();
+    _healthConnectService.snapshotNotifier.addListener(_onSnapshotUpdated);
     _fetchDashboardData();
+  }
+
+  @override
+  void dispose() {
+    _healthConnectService.snapshotNotifier.removeListener(_onSnapshotUpdated);
+    super.dispose();
+  }
+
+  void _onSnapshotUpdated() {
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _handleHealthConnectSync() async {
+    if (_isSyncingHealthConnect) return;
+    setState(() => _isSyncingHealthConnect = true);
+
+    try {
+      final snap = await _healthConnectService.syncHealthData(requestPermissionIfDenied: true);
+
+      if (!mounted) return;
+
+      if (snap.status == HealthSyncStatus.notInstalled) {
+        _showHealthConnectInstallDialog();
+      } else if (snap.status == HealthSyncStatus.permissionRequired) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Health Connect read permissions needed for Amazfit biometrics.'),
+            action: SnackBarAction(
+              label: 'Grant',
+              onPressed: () => _healthConnectService.requestPermissions(),
+            ),
+          ),
+        );
+      } else if (snap.status == HealthSyncStatus.zeppPending) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('ℹ️ Zepp has not exported records to Health Connect yet. Please open Zepp app to sync your watch.'),
+            backgroundColor: Color(0xFFF59E0B),
+            duration: Duration(seconds: 4),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(snap.isBackendSynced
+                ? '✓ Amazfit biometrics synced with FemSphere cloud!'
+                : '✓ Biometrics updated locally from Health Connect.'),
+            backgroundColor: const Color(0xFF10B981),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+
+      await _fetchDashboardData();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Sync error: $e'), backgroundColor: const Color(0xFFEF4444)),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSyncingHealthConnect = false);
+    }
+  }
+
+  void _showHealthConnectInstallDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Row(
+          children: [
+            const Icon(Icons.health_and_safety, color: AppTheme.primaryPurple),
+            const SizedBox(width: 8),
+            const Text('Health Connect Required'),
+          ],
+        ),
+        content: const Text(
+          'Android Health Connect is required to read health data exported by Zepp from your Amazfit watch.\n\n'
+          'Would you like to open Google Play to install or update Health Connect?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.primaryPurple,
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () {
+              Navigator.pop(ctx);
+              _healthConnectService.promptInstallOrUpdate();
+            },
+            child: const Text('Install / Update'),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _fetchDashboardData() async {
@@ -159,6 +264,8 @@ class _UserDashboardTabState extends State<UserDashboardTab> {
               onAction: widget.onOpenConnectDevices,
             ),
             const SizedBox(height: 10),
+            _buildHealthConnectSyncBar(),
+            const SizedBox(height: 12),
             _buildDailyStatisticsGrid(),
 
             const SizedBox(height: 22),
@@ -326,14 +433,201 @@ class _UserDashboardTabState extends State<UserDashboardTab> {
   }
 
   // ===========================================================================
-  // 2. DAILY STATISTICS GRID (Compact cards with REAL backend data only)
+  // 2. HEALTH CONNECT SYNC BAR & DAILY STATISTICS GRID
   // ===========================================================================
+  Widget _buildHealthConnectSyncBar() {
+    final hcSnap = _healthConnectService.snapshotNotifier.value;
+
+    Color badgeBg;
+    Color badgeText;
+    String badgeLabel;
+    IconData badgeIcon;
+
+    if (hcSnap.status == HealthSyncStatus.synced) {
+      badgeBg = const Color(0xFFECFDF5);
+      badgeText = const Color(0xFF059669);
+      badgeLabel = hcSnap.isBackendSynced ? 'Cloud Synced' : 'Local Only';
+      badgeIcon = Icons.cloud_done_rounded;
+    } else if (hcSnap.status == HealthSyncStatus.offlinePending) {
+      badgeBg = const Color(0xFFFEF3C7);
+      badgeText = const Color(0xFFD97706);
+      badgeLabel = 'Saved Locally (Offline)';
+      badgeIcon = Icons.cloud_off_rounded;
+    } else if (hcSnap.status == HealthSyncStatus.zeppPending) {
+      badgeBg = const Color(0xFFFFFBEB);
+      badgeText = const Color(0xFFB45309);
+      badgeLabel = 'Zepp Data Pending';
+      badgeIcon = Icons.watch_later_outlined;
+    } else if (hcSnap.status == HealthSyncStatus.permissionRequired) {
+      badgeBg = const Color(0xFFFEF2F2);
+      badgeText = const Color(0xFFDC2626);
+      badgeLabel = 'Permission Needed';
+      badgeIcon = Icons.lock_outline_rounded;
+    } else if (hcSnap.status == HealthSyncStatus.notInstalled) {
+      badgeBg = const Color(0xFFEFF6FF);
+      badgeText = const Color(0xFF2563EB);
+      badgeLabel = 'Setup Required';
+      badgeIcon = Icons.download_rounded;
+    } else {
+      badgeBg = const Color(0xFFF3E8FF);
+      badgeText = AppTheme.primaryPurple;
+      badgeLabel = kIsWeb ? 'Web Cloud Mode' : 'Health Connect Ready';
+      badgeIcon = Icons.sync_rounded;
+    }
+
+    String syncTimeStr = 'Not synced today';
+    if (hcSnap.lastSyncTime != null) {
+      syncTimeStr = 'Synced ${DateFormat('h:mm a').format(hcSnap.lastSyncTime!)}';
+    }
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFEFE8F7), width: 1.2),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF201538).withValues(alpha: 0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: AppTheme.primaryPurpleLight,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(Icons.watch_rounded, color: AppTheme.primaryPurple, size: 20),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            hcSnap.sourceName ?? 'Amazfit (via Zepp & Health Connect)',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                              color: const Color(0xFF201538),
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: badgeBg,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(badgeIcon, size: 10, color: badgeText),
+                              const SizedBox(width: 3),
+                              Text(
+                                badgeLabel,
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 9.5,
+                                  fontWeight: FontWeight.w700,
+                                  color: badgeText,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '$syncTimeStr • via Android Health Connect',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 11,
+                        color: const Color(0xFF7A6F75),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              ElevatedButton.icon(
+                onPressed: _isSyncingHealthConnect ? null : _handleHealthConnectSync,
+                icon: _isSyncingHealthConnect
+                    ? const SizedBox(
+                        width: 12,
+                        height: 12,
+                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                      )
+                    : const Icon(Icons.sync_rounded, size: 14),
+                label: Text(
+                  _isSyncingHealthConnect
+                      ? 'Syncing'
+                      : (hcSnap.status == HealthSyncStatus.permissionRequired
+                          ? 'Grant'
+                          : 'Sync Health Data'),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.primaryPurple,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                  visualDensity: VisualDensity.compact,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  textStyle: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+          if (hcSnap.status == HealthSyncStatus.zeppPending) ...[
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFFBEB),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: const Color(0xFFFDE68A)),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.info_outline, size: 14, color: Color(0xFFD97706)),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      'Zepp data not yet exported to Health Connect. Open Zepp on your phone to sync your watch, then tap Sync Health Data.',
+                      style: GoogleFonts.plusJakartaSans(fontSize: 10.5, color: const Color(0xFF92400E)),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
   Widget _buildDailyStatisticsGrid() {
-    // Read actual values from wearable summary or latest vitals
-    final steps = _wearableSummary?['today_steps'] as num? ??
+    final hcSnap = _healthConnectService.snapshotNotifier.value;
+
+    final steps = hcSnap.steps ??
+        (_wearableSummary?['today_steps'] as num?) ??
         (_latestVitals?['steps'] as num?);
 
-    final sleepMinutes = _wearableSummary?['today_sleep_minutes'] as num? ??
+    final sleepMinutes = hcSnap.sleepMinutes ??
+        (_wearableSummary?['today_sleep_minutes'] as num?) ??
         (_latestVitals?['sleep_hours'] != null
             ? ((_latestVitals!['sleep_hours'] as num) * 60).round()
             : null);
@@ -343,9 +637,32 @@ class _UserDashboardTabState extends State<UserDashboardTab> {
             ? (_latestVitals!['water_intake_ml'] as num) / 1000.0
             : null);
 
-    final heartRate = _wearableSummary?['avg_heart_rate'] as num? ??
+    final heartRate = hcSnap.heartRate ??
+        (_wearableSummary?['avg_heart_rate'] as num?) ??
         (_wearableTelemetry?['heart_rate'] as num?) ??
         (_latestVitals?['heart_rate'] as num?);
+
+    final calories = hcSnap.calories ??
+        (_wearableSummary?['today_calories'] as num?);
+
+    final distanceMeters = hcSnap.distanceMeters ??
+        (_wearableSummary?['today_distance_meters'] as num?)?.toDouble();
+
+    final workoutSummary = hcSnap.workoutSummary;
+
+    final hrTimestampStr = hcSnap.latestReadingTime != null
+        ? (hcSnap.isHistorical
+            ? 'Recorded ${DateFormat('h:mm a').format(hcSnap.latestReadingTime!)}'
+            : 'Recent (${DateFormat('h:mm a').format(hcSnap.latestReadingTime!)})')
+        : (heartRate != null ? 'Recorded reading' : null);
+
+    final stepsSubtext = distanceMeters != null && distanceMeters > 0
+        ? '${(distanceMeters / 1000.0).toStringAsFixed(2)} km walked'
+        : null;
+
+    final hrSubtext = hcSnap.restingHeartRate != null && hcSnap.restingHeartRate! > 0
+        ? 'Resting: ${hcSnap.restingHeartRate} bpm'
+        : hrTimestampStr;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -365,6 +682,7 @@ class _UserDashboardTabState extends State<UserDashboardTab> {
                   ? NumberFormat('#,###').format(steps)
                   : null,
               unit: steps != null && steps > 0 ? 'steps' : null,
+              subtext: stepsSubtext,
               emptyText: 'No steps recorded today',
               onTap: widget.onOpenConnectDevices,
             ),
@@ -380,11 +698,44 @@ class _UserDashboardTabState extends State<UserDashboardTab> {
                   ? '${(sleepMinutes ~/ 60)}h ${sleepMinutes % 60}m'
                   : null,
               unit: sleepMinutes != null && sleepMinutes > 0 ? 'logged' : null,
+              subtext: sleepMinutes != null && sleepMinutes > 0 ? 'Zepp sleep session' : null,
               emptyText: 'No sleep recorded today',
               onTap: widget.onOpenConnectDevices,
             ),
 
-            // CARD 3: Water Intake
+            // CARD 3: Heart Rate
+            _buildStatCard(
+              width: cardWidth,
+              icon: Icons.favorite_rounded,
+              iconBgColor: const Color(0xFFFEF2F2),
+              iconColor: const Color(0xFFEF4444),
+              label: 'Heart Rate',
+              value: heartRate != null && heartRate > 0
+                  ? heartRate.round().toString()
+                  : null,
+              unit: heartRate != null && heartRate > 0 ? 'bpm' : null,
+              subtext: hrSubtext,
+              emptyText: 'No active HR data',
+              onTap: widget.onOpenConnectDevices,
+            ),
+
+            // CARD 4: Calories Burned
+            _buildStatCard(
+              width: cardWidth,
+              icon: Icons.local_fire_department_rounded,
+              iconBgColor: const Color(0xFFFFF7ED),
+              iconColor: const Color(0xFFF97316),
+              label: 'Calories Burned',
+              value: calories != null && calories > 0
+                  ? NumberFormat('#,###').format(calories)
+                  : null,
+              unit: calories != null && calories > 0 ? 'kcal' : null,
+              subtext: workoutSummary != null ? 'Activity: $workoutSummary' : null,
+              emptyText: '0 kcal recorded today',
+              onTap: widget.onOpenConnectDevices,
+            ),
+
+            // CARD 5: Water Intake
             _buildStatCard(
               width: cardWidth,
               icon: Icons.water_drop_rounded,
@@ -401,18 +752,19 @@ class _UserDashboardTabState extends State<UserDashboardTab> {
               onTap: widget.onOpenConnectDevices,
             ),
 
-            // CARD 4: Heart Rate
+            // CARD 6: Blood Oxygen (SpO2)
             _buildStatCard(
               width: cardWidth,
-              icon: Icons.favorite_rounded,
-              iconBgColor: const Color(0xFFFEF2F2),
-              iconColor: const Color(0xFFEF4444),
-              label: 'Heart Rate',
-              value: heartRate != null && heartRate > 0
-                  ? heartRate.round().toString()
+              icon: Icons.bloodtype_rounded,
+              iconBgColor: const Color(0xFFEFF6FF),
+              iconColor: const Color(0xFF3B82F6),
+              label: 'Blood Oxygen (SpO2)',
+              value: hcSnap.spo2 != null && hcSnap.spo2! > 0
+                  ? '${hcSnap.spo2}'
                   : null,
-              unit: heartRate != null && heartRate > 0 ? 'bpm' : null,
-              emptyText: 'No active HR data',
+              unit: hcSnap.spo2 != null && hcSnap.spo2! > 0 ? '%' : null,
+              subtext: hcSnap.spo2 != null ? 'Normal range (95-100%)' : null,
+              emptyText: 'No SpO2 recorded today',
               onTap: widget.onOpenConnectDevices,
             ),
           ],
@@ -429,6 +781,7 @@ class _UserDashboardTabState extends State<UserDashboardTab> {
     required String label,
     required String? value,
     required String? unit,
+    String? subtext,
     required String emptyText,
     required VoidCallback onTap,
   }) {
@@ -495,7 +848,7 @@ class _UserDashboardTabState extends State<UserDashboardTab> {
             ),
           ),
           const SizedBox(height: 4),
-          if (hasData)
+          if (hasData) ...[
             Row(
               crossAxisAlignment: CrossAxisAlignment.baseline,
               textBaseline: TextBaseline.alphabetic,
@@ -520,8 +873,19 @@ class _UserDashboardTabState extends State<UserDashboardTab> {
                   ),
                 ],
               ],
-            )
-          else
+            ),
+            if (subtext != null) ...[
+              const SizedBox(height: 2),
+              Text(
+                subtext,
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w500,
+                  color: const Color(0xFF9E92AB),
+                ),
+              ),
+            ],
+          ] else
             Text(
               emptyText,
               style: GoogleFonts.plusJakartaSans(

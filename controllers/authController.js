@@ -97,6 +97,21 @@ export const register = async (req, res) => {
 
     const finalBloodGroup = normalizeBloodGroup(bloodGroup);
 
+    // Helper to normalize gender ('Female', 'Male', 'Non-Binary', 'Other')
+    const normalizeGender = (g) => {
+      if (!g || typeof g !== 'string') return 'Female';
+      const clean = g.trim().toLowerCase();
+      if (clean === 'male' || clean === 'm') return 'Male';
+      if (clean === 'female' || clean === 'f') return 'Female';
+      if (clean === 'non-binary' || clean === 'nonbinary' || clean === 'nb') return 'Non-Binary';
+      if (clean === 'other') return 'Other';
+      const capitalized = g.trim().charAt(0).toUpperCase() + g.trim().slice(1).toLowerCase();
+      const valid = ['Female', 'Male', 'Non-Binary', 'Other'];
+      return valid.includes(capitalized) ? capitalized : 'Female';
+    };
+
+    const finalGender = normalizeGender(gender);
+
     // Compute automatic life stage from DOB if not explicitly specified
     let finalLifeStage = lifeStage;
     if (!finalLifeStage || finalLifeStage.trim() === '') {
@@ -129,7 +144,7 @@ export const register = async (req, res) => {
         newUser.id,
         fullName || username,
         dob || '1995-01-01',
-        gender || 'Female',
+        finalGender,
         finalBloodGroup,
         heightCm ? parseFloat(heightCm) : 165,
         weightKg ? parseFloat(weightKg) : 60,

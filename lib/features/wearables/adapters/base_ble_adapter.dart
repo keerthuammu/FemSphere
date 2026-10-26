@@ -153,8 +153,10 @@ abstract class BaseBleAdapter implements WearableDevice {
       if (bluetoothDevice.isConnected) {
         await bluetoothDevice.disconnect();
       }
+      _servicesConfigured = false;
       _state = DeviceConnectionState.disconnected;
     } catch (_) {
+      _servicesConfigured = false;
       _state = DeviceConnectionState.disconnected;
     }
   }
@@ -247,8 +249,20 @@ abstract class BaseBleAdapter implements WearableDevice {
     }
   }
 
+  bool _servicesConfigured = false;
+
   /// Setup all standard and common proprietary GATT health characteristics
   Future<void> setupStandardServices(List<BluetoothService> services) async {
+    if (_servicesConfigured) return;
+    _servicesConfigured = true;
+
+    debugPrint('🔍 Discovered ${services.length} GATT Services on ${bluetoothDevice.platformName}:');
+    for (final s in services) {
+      final sShort = s.uuid.str128.length >= 8 ? s.uuid.str128.substring(4, 8) : s.uuid.str128;
+      final cShorts = s.characteristics.map((c) => c.uuid.str128.length >= 8 ? c.uuid.str128.substring(4, 8) : c.uuid.str128).join(', ');
+      debugPrint('   • [Service 0x$sShort (${s.uuid})] Chars: $cShorts');
+    }
+
     for (final s in services) {
       final sUuid = s.uuid.toString().toLowerCase();
 
@@ -264,6 +278,7 @@ abstract class BaseBleAdapter implements WearableDevice {
                 if (bytes.isNotEmpty) _processHeartRateBytes(bytes);
               });
               await c.setNotifyValue(true);
+              debugPrint('💓 Subscribed to live Heart Rate notifications on 0x2A37');
               if (c.properties.read) {
                 final bytes = await c.read();
                 if (bytes.isNotEmpty) _processHeartRateBytes(bytes);
@@ -379,6 +394,42 @@ abstract class BaseBleAdapter implements WearableDevice {
           }
         }
       }
+
+      // 7. WeChat / Tencent Sports Service (0xFEE7) commonly used by smartwatches for steps
+      if (sUuid.contains('fee7')) {
+        for (final c in s.characteristics) {
+          final cUuid = c.uuid.toString().toLowerCase();
+          if (cUuid.contains('fea1') || cUuid.contains('fea2')) {
+            try {
+              if (c.properties.notify) {
+                c.onValueReceived.listen((bytes) {
+                  if (bytes.length >= 4) {
+                    final st = bytes[0] | (bytes[1] << 8) | (bytes[2] << 16) | (bytes[3] << 24);
+                    if (st > 0 && st < 100000) {
+                      _lastSteps = st;
+                      _lastCalories = (st * 0.042).round();
+                      _lastDistanceMeters = st * 0.76;
+                      syncToBackend();
+                    }
+                  }
+                });
+                await c.setNotifyValue(true);
+              }
+              if (c.properties.read) {
+                final bytes = await c.read();
+                if (bytes.length >= 4) {
+                  final st = bytes[0] | (bytes[1] << 8) | (bytes[2] << 16) | (bytes[3] << 24);
+                  if (st > 0 && st < 100000) {
+                    _lastSteps = st;
+                    _lastCalories = (st * 0.042).round();
+                    _lastDistanceMeters = st * 0.76;
+                  }
+                }
+              }
+            } catch (_) {}
+          }
+        }
+      }
     }
   }
 
@@ -393,10 +444,12 @@ abstract class BaseBleAdapter implements WearableDevice {
 
   @override
   Future<WearableHealthData> readCurrentData() async {
-    // If telemetry not yet populated from passive notify, actively probe readable GATT chars
-    if (bluetoothDevice.isConnected) {
+    // If telemetry not yet populated from passive notify, actively probe readable GATT chars once
+    if (bluetoothDevice.isConnected && !_servicesConfigured) {
       try {
-        final services = await bluetoothDevice.discoverServices();
+        final services = bluetoothDevice.servicesList.isNotEmpty
+            ? bluetoothDevice.servicesList
+            : await bluetoothDevice.discoverServices();
         await setupStandardServices(services);
       } catch (e) {
         debugPrint('readCurrentData service probe note: $e');

@@ -11,6 +11,7 @@ import '../adapters/pixel_watch_adapter.dart';
 import '../adapters/samsung_galaxy_adapter.dart';
 import '../adapters/standard_ble_adapter.dart';
 import '../adapters/xiaomi_adapter.dart';
+import '../services/huami_auth_service.dart';
 import '../services/wearable_sync_service.dart';
 import 'device_brand.dart';
 import 'wearable_device.dart';
@@ -372,6 +373,11 @@ class WearableManager {
       // 3. Connect to the target device if found
       if (targetDevice != null) {
         final brand = targetBrand ?? detectBrand(targetDevice.platformName, []);
+        // Amazfit smartwatches are paired with Zepp; their telemetry is routed through Android Health Connect
+        if (brand == DeviceBrand.amazfit) {
+          debugPrint('Amazfit device detected (${targetDevice.platformName}). Utilizing Android Health Connect integration.');
+          return null;
+        }
         final adapter = createBleAdapter(targetDevice, forceBrand: brand);
 
         try {
@@ -397,6 +403,71 @@ class WearableManager {
       }
     } catch (e) {
       debugPrint('autoConnectIfBluetoothConnected exception: $e');
+    }
+    return null;
+  }
+
+  /// Connects to a specific peripheral by its Bluetooth MAC or ID
+  Future<WearableDevice?> connectToDeviceById(
+    String deviceId, {
+    String? deviceName,
+    String? brandStr,
+  }) async {
+    try {
+      final isSupported = await FlutterBluePlus.isSupported;
+      if (!isSupported) return null;
+
+      final cleanTargetId = deviceId.replaceAll(':', '').replaceAll('-', '').toUpperCase();
+
+      // 1. Check system devices
+      List<BluetoothDevice> devs = [];
+      try {
+        devs = await FlutterBluePlus.systemDevices([]);
+      } catch (_) {}
+
+      // 2. Check bonded devices
+      try {
+        final bonded = await FlutterBluePlus.bondedDevices;
+        for (final b in bonded) {
+          if (!devs.any((d) => d.remoteId.str == b.remoteId.str)) {
+            devs.add(b);
+          }
+        }
+      } catch (_) {}
+
+      BluetoothDevice? targetDevice;
+      for (final d in devs) {
+        final dId = d.remoteId.str.replaceAll(':', '').replaceAll('-', '').toUpperCase();
+        if (dId == cleanTargetId) {
+          targetDevice = d;
+          break;
+        }
+      }
+
+      targetDevice ??= BluetoothDevice.fromId(deviceId);
+
+      final brand = detectBrand(brandStr ?? targetDevice.platformName, []);
+
+      final adapter = createBleAdapter(targetDevice, forceBrand: brand);
+      final connected = await adapter.connect();
+      if (connected) {
+        setActiveDevice(adapter);
+
+        if (adapter is AmazfitAdapter) {
+          final savedKey = await HuamiAuthService.getSavedAuthKey(targetDevice.remoteId.str);
+          if (savedKey != null && savedKey.length == 32) {
+            await adapter.authenticateWithKey(savedKey);
+          }
+        }
+
+        try {
+          await adapter.syncToBackend();
+        } catch (_) {}
+
+        return adapter;
+      }
+    } catch (e) {
+      debugPrint('connectToDeviceById note: $e');
     }
     return null;
   }
@@ -429,3 +500,4 @@ class WearableManager {
     }
   }
 }
+

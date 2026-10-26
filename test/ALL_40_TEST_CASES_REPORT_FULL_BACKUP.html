@@ -1,0 +1,3301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FemSphere - All 40 Automated &amp; Manual Test Cases Verification Report</title>
+  <style>
+    body {
+      font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+      margin: 20px 30px;
+      color: #000;
+      background: #fff;
+    }
+    .report-container {
+      max-width: 980px;
+      margin: 0 auto;
+    }
+    .header-block {
+      margin-bottom: 25px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #000;
+    }
+    .header-title {
+      font-size: 22px;
+      font-weight: bold;
+      margin-bottom: 5px;
+      color: #111;
+    }
+    .header-sub {
+      font-size: 13px;
+      color: #333;
+      margin-bottom: 3px;
+    }
+    .test-case-wrapper {
+      margin-bottom: 40px;
+      page-break-inside: avoid;
+    }
+    .test-case-heading {
+      font-size: 15px;
+      font-weight: bold;
+      margin-bottom: 6px;
+      color: #111;
+    }
+    .test-case-box {
+      border: 1.5px solid #000;
+      background: #fff;
+    }
+    .project-name-row {
+      font-weight: bold;
+      padding: 7px 10px;
+      font-size: 13px;
+      border-bottom: 1.5px solid #000;
+      background: #fff;
+    }
+    .banner-title {
+      font-weight: bold;
+      text-align: center;
+      padding: 8px 10px;
+      font-size: 13.5px;
+      border-bottom: 1.5px solid #000;
+      background: #fbfbfb;
+      letter-spacing: 0.3px;
+    }
+    .meta-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .meta-table td {
+      border-bottom: 1px solid #000;
+      border-right: 1px solid #000;
+      padding: 6px 10px;
+      font-size: 12px;
+      vertical-align: top;
+    }
+    .meta-table tr td:last-child {
+      border-right: none;
+    }
+    .desc-cell {
+      padding: 7px 10px;
+      font-size: 12px;
+      line-height: 1.4;
+      border-bottom: 1px solid #000;
+    }
+    .precond-cell {
+      padding: 7px 10px;
+      font-size: 12px;
+      line-height: 1.4;
+      border-bottom: 1.5px solid #000;
+      background: #fafafa;
+    }
+    .steps-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .steps-table th {
+      border-right: 1px solid #000;
+      border-bottom: 1px solid #000;
+      padding: 7px 6px;
+      font-size: 11.5px;
+      font-weight: bold;
+      text-align: left;
+      background-color: #f2f2f2;
+    }
+    .steps-table th:last-child {
+      border-right: none;
+    }
+    .steps-table td {
+      border-right: 1px solid #000;
+      border-bottom: 1px solid #000;
+      padding: 6px 8px;
+      font-size: 11.5px;
+      vertical-align: top;
+      line-height: 1.35;
+    }
+    .steps-table td:last-child {
+      border-right: none;
+    }
+    .steps-table tr:last-child td {
+      border-bottom: none;
+    }
+    .step-num {
+      text-align: center;
+      font-weight: bold;
+    }
+    .status-pass {
+      font-weight: bold;
+      text-align: center;
+      color: #0b7a28;
+    }
+    .postcond-cell {
+      padding: 7px 10px;
+      font-size: 12px;
+      line-height: 1.4;
+      border-top: 1.5px solid #000;
+      background: #fafafa;
+    }
+    @media print {
+      body { margin: 8mm; }
+      .test-case-wrapper { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="report-container">
+  <div class="header-block">
+    <div class="header-title">FemSphere – Comprehensive Automated &amp; Manual Test Execution Report (All 40 Test Cases)</div>
+    <div class="header-sub"><strong>Project Name:</strong> FemSphere – Lifetime AI Health Twin Companion Platform</div>
+    <div class="header-sub"><strong>Test Designed By:</strong> KEERTHANA M (Lead Automation QA) &bull; <strong>Test Executed By:</strong> Amal K Jose</div>
+    <div class="header-sub"><strong>Total Executed Test Cases:</strong> 40 &bull; <strong>Passed:</strong> 40 (100.0%) &bull; <strong>Failed:</strong> 0 &bull; <strong>Execution Date:</strong> October 16, 2026</div>
+  </div>
+
+
+  <!-- TC_TC_AUTH_01 -->
+  <div class="test-case-wrapper">
+    <div class="test-case-heading">Test Case 1</div>
+    <div class="test-case-box">
+      <div class="project-name-row">Project Name: FemSphere – Lifetime AI Health Twin Companion</div>
+      <div class="banner-title">Patient Authentication Test Case</div>
+      <table class="meta-table">
+        <tr>
+          <td style="width: 50%;"><strong>Test Case ID:</strong> TC_AUTH_01</td>
+          <td style="width: 50%;"><strong>Test Designed By:</strong> KEERTHANA M</td>
+        </tr>
+        <tr>
+          <td><strong>Test Priority(Low/Medium/High):</strong> High</td>
+          <td><strong>Test Designed Date:</strong> 2026-10-16</td>
+        </tr>
+        <tr>
+          <td><strong>Module Name:</strong> Patient Authentication</td>
+          <td><strong>Test Executed By :</strong> Amal K Jose</td>
+        </tr>
+        <tr>
+          <td><strong>Test Title :</strong> Verify Valid Patient Login &amp; Dashboard Redirection</td>
+          <td><strong>Test Execution Date:</strong> 2026-10-16</td>
+        </tr>
+      </table>
+      <div class="desc-cell">
+        <strong>Description:</strong> Verifies that a registered female patient can successfully authenticate with valid credentials, receive a secure JWT token, and transition to the Patient Health Dashboard.
+      </div>
+      <div class="precond-cell">
+        <strong>Pre-Condition :</strong>User account is registered in PostgreSQL database and device has internet/ADB network connectivity.
+      </div>
+
+      <table class="steps-table">
+        <thead>
+          <tr>
+            <th style="width: 45px; text-align: center;">Step</th>
+            <th style="width: 220px;">Test Step</th>
+            <th style="width: 170px;">Test Data</th>
+            <th style="width: 210px;">Expected Result</th>
+            <th style="width: 210px;">Actual Result</th>
+            <th style="width: 85px; text-align: center;">Status<br>(Pass/Fail)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="step-num">1</td>
+            <td>Launch mobile application and navigate to Login screen</td>
+            <td>Package: com.example.femsphere</td>
+            <td>App launches successfully and displays the Sign In screen with input fields</td>
+            <td>App opened cleanly on Android 14; Sign In screen displayed</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">2</td>
+            <td>Verify Email input field accessibility and placeholder</td>
+            <td>Field ID: login_email_input</td>
+            <td>Email field is visible, focused, and accepts alphanumeric input</td>
+            <td>Field located and ready for input</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">3</td>
+            <td>Enter valid registered patient email address</td>
+            <td>Email: elena.rostova@femsphere.health</td>
+            <td>Email address is typed accurately into the text field</td>
+            <td>Email entered successfully</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">4</td>
+            <td>Enter valid patient password</td>
+            <td>Password: Password123!</td>
+            <td>Password text is masked securely and accepted</td>
+            <td>Password characters masked and entered</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">5</td>
+            <td>Click on the Login submit button</td>
+            <td>Element ID: login_submit_button</td>
+            <td>Authentication request sent to backend API (POST /api/auth/login)</td>
+            <td>HTTP 200 OK received with valid JWT Bearer token</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">6</td>
+            <td>Verify transition to Patient Dashboard</td>
+            <td>View: Patient Dashboard</td>
+            <td>User lands on Home Dashboard showing daily summary and health score</td>
+            <td>Dashboard rendered with patient greeting and metrics</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="postcond-cell">
+        <strong>Post-Condition:</strong> User session is established with authenticated JWT token stored in secure storage.
+      </div>
+    </div>
+  </div>
+
+  <!-- TC_TC_AUTH_02 -->
+  <div class="test-case-wrapper">
+    <div class="test-case-heading">Test Case 2</div>
+    <div class="test-case-box">
+      <div class="project-name-row">Project Name: FemSphere – Lifetime AI Health Twin Companion</div>
+      <div class="banner-title">Patient Authentication Test Case</div>
+      <table class="meta-table">
+        <tr>
+          <td style="width: 50%;"><strong>Test Case ID:</strong> TC_AUTH_02</td>
+          <td style="width: 50%;"><strong>Test Designed By:</strong> KEERTHANA M</td>
+        </tr>
+        <tr>
+          <td><strong>Test Priority(Low/Medium/High):</strong> High</td>
+          <td><strong>Test Designed Date:</strong> 2026-10-16</td>
+        </tr>
+        <tr>
+          <td><strong>Module Name:</strong> Patient Authentication</td>
+          <td><strong>Test Executed By :</strong> Amal K Jose</td>
+        </tr>
+        <tr>
+          <td><strong>Test Title :</strong> Verify Invalid Credentials Rejected with Secure Alert</td>
+          <td><strong>Test Execution Date:</strong> 2026-10-16</td>
+        </tr>
+      </table>
+      <div class="desc-cell">
+        <strong>Description:</strong> Verifies that submitting unregistered email or wrong password rejects authentication with HTTP 401 and displays an accessible security warning snackbar.
+      </div>
+      <div class="precond-cell">
+        <strong>Pre-Condition :</strong>Application is running on the Login screen with network connectivity.
+      </div>
+
+      <table class="steps-table">
+        <thead>
+          <tr>
+            <th style="width: 45px; text-align: center;">Step</th>
+            <th style="width: 220px;">Test Step</th>
+            <th style="width: 170px;">Test Data</th>
+            <th style="width: 210px;">Expected Result</th>
+            <th style="width: 210px;">Actual Result</th>
+            <th style="width: 85px; text-align: center;">Status<br>(Pass/Fail)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="step-num">1</td>
+            <td>Locate Email and Password input fields on Sign In screen</td>
+            <td>IDs: login_email_input, login_password_input</td>
+            <td>Both input fields are visible and cleared of previous input</td>
+            <td>Inputs ready for testing</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">2</td>
+            <td>Enter incorrect user email address</td>
+            <td>Email: invalid_user@femsphere.health</td>
+            <td>Text entered into email input field</td>
+            <td>Invalid email string typed</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">3</td>
+            <td>Enter non-matching password string</td>
+            <td>Password: WrongPassword2026#</td>
+            <td>Password masked and accepted by text controller</td>
+            <td>Masked characters entered</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">4</td>
+            <td>Click Login button to initiate request</td>
+            <td>Element ID: login_submit_button</td>
+            <td>Request payload sent to POST /api/auth/login</td>
+            <td>HTTP 401 Unauthorized returned by Express backend</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">5</td>
+            <td>Verify visual error feedback snackbar</td>
+            <td>Message: 'Invalid email or password'</td>
+            <td>Red/Amber warning banner displayed; user remains on Login view</td>
+            <td>Error banner shown; no unauthorized session initialized</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="postcond-cell">
+        <strong>Post-Condition:</strong> No authorization token is issued or stored in persistent storage.
+      </div>
+    </div>
+  </div>
+
+  <!-- TC_TC_AUTH_03 -->
+  <div class="test-case-wrapper">
+    <div class="test-case-heading">Test Case 3</div>
+    <div class="test-case-box">
+      <div class="project-name-row">Project Name: FemSphere – Lifetime AI Health Twin Companion</div>
+      <div class="banner-title">Superuser Authentication Test Case</div>
+      <table class="meta-table">
+        <tr>
+          <td style="width: 50%;"><strong>Test Case ID:</strong> TC_AUTH_03</td>
+          <td style="width: 50%;"><strong>Test Designed By:</strong> KEERTHANA M</td>
+        </tr>
+        <tr>
+          <td><strong>Test Priority(Low/Medium/High):</strong> Medium</td>
+          <td><strong>Test Designed Date:</strong> 2026-10-16</td>
+        </tr>
+        <tr>
+          <td><strong>Module Name:</strong> Multi-Role Portal Access</td>
+          <td><strong>Test Executed By :</strong> Amal K Jose</td>
+        </tr>
+        <tr>
+          <td><strong>Test Title :</strong> Verify Administrator Superuser Portal Authentication</td>
+          <td><strong>Test Execution Date:</strong> 2026-10-16</td>
+        </tr>
+      </table>
+      <div class="desc-cell">
+        <strong>Description:</strong> Verifies that an administrative user authenticating with admin credentials routes directly to the FemSphere Admin Management Console.
+      </div>
+      <div class="precond-cell">
+        <strong>Pre-Condition :</strong>Admin user credentials exist in users table with role='admin'.
+      </div>
+
+      <table class="steps-table">
+        <thead>
+          <tr>
+            <th style="width: 45px; text-align: center;">Step</th>
+            <th style="width: 220px;">Test Step</th>
+            <th style="width: 170px;">Test Data</th>
+            <th style="width: 210px;">Expected Result</th>
+            <th style="width: 210px;">Actual Result</th>
+            <th style="width: 85px; text-align: center;">Status<br>(Pass/Fail)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="step-num">1</td>
+            <td>Enter admin superuser email address</td>
+            <td>Email: admin@femsphere.health</td>
+            <td>Admin email formatted and accepted</td>
+            <td>Email field populated</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">2</td>
+            <td>Enter admin secret credentials</td>
+            <td>Password: AdminSecure2026!</td>
+            <td>Credentials entered securely</td>
+            <td>Password entered into masked field</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">3</td>
+            <td>Tap Login button</td>
+            <td>Element ID: login_submit_button</td>
+            <td>Backend validates role='admin' in JWT claim</td>
+            <td>HTTP 200 OK with admin role payload</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">4</td>
+            <td>Verify routing to Admin Console</td>
+            <td>Route: /admin/dashboard</td>
+            <td>System loads Admin Portal showing user directories and audit stats</td>
+            <td>Admin dashboard loaded with administrative metrics</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="postcond-cell">
+        <strong>Post-Condition:</strong> Admin privileges granted with full system monitoring capability.
+      </div>
+    </div>
+  </div>
+
+  <!-- TC_TC_AUTH_04 -->
+  <div class="test-case-wrapper">
+    <div class="test-case-heading">Test Case 4</div>
+    <div class="test-case-box">
+      <div class="project-name-row">Project Name: FemSphere – Lifetime AI Health Twin Companion</div>
+      <div class="banner-title">Doctor Clinical Authentication Test Case</div>
+      <table class="meta-table">
+        <tr>
+          <td style="width: 50%;"><strong>Test Case ID:</strong> TC_AUTH_04</td>
+          <td style="width: 50%;"><strong>Test Designed By:</strong> KEERTHANA M</td>
+        </tr>
+        <tr>
+          <td><strong>Test Priority(Low/Medium/High):</strong> High</td>
+          <td><strong>Test Designed Date:</strong> 2026-10-16</td>
+        </tr>
+        <tr>
+          <td><strong>Module Name:</strong> Clinical Access Portal</td>
+          <td><strong>Test Executed By :</strong> Amal K Jose</td>
+        </tr>
+        <tr>
+          <td><strong>Test Title :</strong> Verify Doctor Clinical Portal Login &amp; Schedule Access</td>
+          <td><strong>Test Execution Date:</strong> 2026-10-16</td>
+        </tr>
+      </table>
+      <div class="desc-cell">
+        <strong>Description:</strong> Verifies that a licensed doctor authenticates into the Clinical Practice view and views assigned patient consultation schedules.
+      </div>
+      <div class="precond-cell">
+        <strong>Pre-Condition :</strong>Doctor record active with role='doctor' and specialty='Obstetrics/Gynecology'.
+      </div>
+
+      <table class="steps-table">
+        <thead>
+          <tr>
+            <th style="width: 45px; text-align: center;">Step</th>
+            <th style="width: 220px;">Test Step</th>
+            <th style="width: 170px;">Test Data</th>
+            <th style="width: 210px;">Expected Result</th>
+            <th style="width: 210px;">Actual Result</th>
+            <th style="width: 85px; text-align: center;">Status<br>(Pass/Fail)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="step-num">1</td>
+            <td>Enter clinician email on login screen</td>
+            <td>Email: dr.jenkins@femsphere.health</td>
+            <td>Doctor email populated accurately</td>
+            <td>Doctor email typed</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">2</td>
+            <td>Enter clinical staff password</td>
+            <td>Password: ClinicalPassword2026#</td>
+            <td>Password masked and accepted</td>
+            <td>Password entered</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">3</td>
+            <td>Tap Login submit button</td>
+            <td>Element ID: login_submit_button</td>
+            <td>API validates doctor role and responds with clinical token</td>
+            <td>HTTP 200 OK received with clinical credentials</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">4</td>
+            <td>Verify Doctor Dashboard consultation roster</td>
+            <td>Component: DoctorScheduleCard</td>
+            <td>Clinical dashboard renders patient queue and today's appointments</td>
+            <td>Doctor view rendered showing 4 scheduled teleconsultations</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="postcond-cell">
+        <strong>Post-Condition:</strong> Doctor session initialized with HIPAA-compliant clinical record access.
+      </div>
+    </div>
+  </div>
+
+  <!-- TC_TC_AUTH_05 -->
+  <div class="test-case-wrapper">
+    <div class="test-case-heading">Test Case 5</div>
+    <div class="test-case-box">
+      <div class="project-name-row">Project Name: FemSphere – Lifetime AI Health Twin Companion</div>
+      <div class="banner-title">Caregiver Authentication Test Case</div>
+      <table class="meta-table">
+        <tr>
+          <td style="width: 50%;"><strong>Test Case ID:</strong> TC_AUTH_05</td>
+          <td style="width: 50%;"><strong>Test Designed By:</strong> KEERTHANA M</td>
+        </tr>
+        <tr>
+          <td><strong>Test Priority(Low/Medium/High):</strong> High</td>
+          <td><strong>Test Designed Date:</strong> 2026-10-16</td>
+        </tr>
+        <tr>
+          <td><strong>Module Name:</strong> Caregiver Portal Access</td>
+          <td><strong>Test Executed By :</strong> Amal K Jose</td>
+        </tr>
+        <tr>
+          <td><strong>Test Title :</strong> Verify Caregiver Multi-Dependent Portal Authentication</td>
+          <td><strong>Test Execution Date:</strong> 2026-10-16</td>
+        </tr>
+      </table>
+      <div class="desc-cell">
+        <strong>Description:</strong> Verifies that an authorized caregiver logs in and accesses dependent profiles (elderly mother and newborn infant).
+      </div>
+      <div class="precond-cell">
+        <strong>Pre-Condition :</strong>Caregiver account active with role='caregiver' and dependent relationships linked.
+      </div>
+
+      <table class="steps-table">
+        <thead>
+          <tr>
+            <th style="width: 45px; text-align: center;">Step</th>
+            <th style="width: 220px;">Test Step</th>
+            <th style="width: 170px;">Test Data</th>
+            <th style="width: 210px;">Expected Result</th>
+            <th style="width: 210px;">Actual Result</th>
+            <th style="width: 85px; text-align: center;">Status<br>(Pass/Fail)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="step-num">1</td>
+            <td>Enter caregiver email address</td>
+            <td>Email: caregiver@femsphere.health</td>
+            <td>Caregiver email entered into login form</td>
+            <td>Email populated</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">2</td>
+            <td>Enter secure caregiver password</td>
+            <td>Password: CaregiverPass123!</td>
+            <td>Password entered in masked format</td>
+            <td>Password entered</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">3</td>
+            <td>Submit login form</td>
+            <td>Element ID: login_submit_button</td>
+            <td>Server returns caregiver token and dependent association IDs</td>
+            <td>HTTP 200 OK returned with 2 linked dependent profiles</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">4</td>
+            <td>Verify Caregiver Dashboard displays dependents selector</td>
+            <td>Dropdown: switch_dependent_dropdown</td>
+            <td>Dashboard opens displaying dependent switcher and vitals tracker</td>
+            <td>Caregiver vault loaded with dependent management widgets</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="postcond-cell">
+        <strong>Post-Condition:</strong> Caregiver access authorized for proxy health monitoring.
+      </div>
+    </div>
+  </div>
+
+  <!-- TC_TC_AUTH_06 -->
+  <div class="test-case-wrapper">
+    <div class="test-case-heading">Test Case 6</div>
+    <div class="test-case-box">
+      <div class="project-name-row">Project Name: FemSphere – Lifetime AI Health Twin Companion</div>
+      <div class="banner-title">Network &amp; Loopback Connectivity Test Case</div>
+      <table class="meta-table">
+        <tr>
+          <td style="width: 50%;"><strong>Test Case ID:</strong> TC_AUTH_06</td>
+          <td style="width: 50%;"><strong>Test Designed By:</strong> KEERTHANA M</td>
+        </tr>
+        <tr>
+          <td><strong>Test Priority(Low/Medium/High):</strong> Medium</td>
+          <td><strong>Test Designed Date:</strong> 2026-10-16</td>
+        </tr>
+        <tr>
+          <td><strong>Module Name:</strong> Network Infrastructure</td>
+          <td><strong>Test Executed By :</strong> Amal K Jose</td>
+        </tr>
+        <tr>
+          <td><strong>Test Title :</strong> Verify ADB Reverse Socket Connectivity on Port 5001</td>
+          <td><strong>Test Execution Date:</strong> 2026-10-16</td>
+        </tr>
+      </table>
+      <div class="desc-cell">
+        <strong>Description:</strong> Verifies that ADB reverse socket bridge connects local emulator or Android device to the FemSphere backend on 127.0.0.1:5001.
+      </div>
+      <div class="precond-cell">
+        <strong>Pre-Condition :</strong>ADB daemon is running and reverse proxy rule 'adb reverse tcp:5001 tcp:5001' is applied.
+      </div>
+
+      <table class="steps-table">
+        <thead>
+          <tr>
+            <th style="width: 45px; text-align: center;">Step</th>
+            <th style="width: 220px;">Test Step</th>
+            <th style="width: 170px;">Test Data</th>
+            <th style="width: 210px;">Expected Result</th>
+            <th style="width: 210px;">Actual Result</th>
+            <th style="width: 85px; text-align: center;">Status<br>(Pass/Fail)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="step-num">1</td>
+            <td>Initialize TCP socket connection to loopback address</td>
+            <td>Host: 127.0.0.1, Port: 5001</td>
+            <td>TCP socket initiates handshake without immediate connection refusal</td>
+            <td>Socket opened cleanly</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">2</td>
+            <td>Set socket timeout limit</td>
+            <td>Timeout: 2000ms</td>
+            <td>Timeout configured for network safety</td>
+            <td>Timeout applied</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">3</td>
+            <td>Execute connect_ex probe on port 5001</td>
+            <td>Command: sock.connect_ex(('127.0.0.1', 5001))</td>
+            <td>Returns 0 (active listener) or recognized socket code</td>
+            <td>Result code 0 received; port 5001 actively responding</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">4</td>
+            <td>Close test socket</td>
+            <td>sock.close()</td>
+            <td>Socket released without resource leaks</td>
+            <td>Socket closed gracefully</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="postcond-cell">
+        <strong>Post-Condition:</strong> Device-to-host ADB reverse network pathway verified operational.
+      </div>
+    </div>
+  </div>
+
+  <!-- TC_TC_AUTH_07 -->
+  <div class="test-case-wrapper">
+    <div class="test-case-heading">Test Case 7</div>
+    <div class="test-case-box">
+      <div class="project-name-row">Project Name: FemSphere – Lifetime AI Health Twin Companion</div>
+      <div class="banner-title">Logout &amp; Session Security Test Case</div>
+      <table class="meta-table">
+        <tr>
+          <td style="width: 50%;"><strong>Test Case ID:</strong> TC_AUTH_07</td>
+          <td style="width: 50%;"><strong>Test Designed By:</strong> KEERTHANA M</td>
+        </tr>
+        <tr>
+          <td><strong>Test Priority(Low/Medium/High):</strong> High</td>
+          <td><strong>Test Designed Date:</strong> 2026-10-16</td>
+        </tr>
+        <tr>
+          <td><strong>Module Name:</strong> Session Security</td>
+          <td><strong>Test Executed By :</strong> Amal K Jose</td>
+        </tr>
+        <tr>
+          <td><strong>Test Title :</strong> Verify Logout Token Clearance &amp; Session Invalidation</td>
+          <td><strong>Test Execution Date:</strong> 2026-10-16</td>
+        </tr>
+      </table>
+      <div class="desc-cell">
+        <strong>Description:</strong> Verifies that tapping Sign Out clears secure storage tokens, invalidates session state, and redirects user to Login screen.
+      </div>
+      <div class="precond-cell">
+        <strong>Pre-Condition :</strong>User is currently authenticated in an active session.
+      </div>
+
+      <table class="steps-table">
+        <thead>
+          <tr>
+            <th style="width: 45px; text-align: center;">Step</th>
+            <th style="width: 220px;">Test Step</th>
+            <th style="width: 170px;">Test Data</th>
+            <th style="width: 210px;">Expected Result</th>
+            <th style="width: 210px;">Actual Result</th>
+            <th style="width: 85px; text-align: center;">Status<br>(Pass/Fail)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="step-num">1</td>
+            <td>Navigate to User Profile / Settings tab</td>
+            <td>Bottom Nav: Profile Tab</td>
+            <td>Profile view opens with account preferences and signout button</td>
+            <td>Profile settings loaded</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">2</td>
+            <td>Locate and click 'Sign Out' button</td>
+            <td>Element ID: profile_logout_button</td>
+            <td>Confirmation prompt appears or logout routine initiates immediately</td>
+            <td>Sign out action triggered</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">3</td>
+            <td>Verify local secure storage token purging</td>
+            <td>Storage Keys: jwt_token, user_session</td>
+            <td>Auth token evicted from FlutterSecureStorage and memory cache</td>
+            <td>Tokens purged completely from storage</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">4</td>
+            <td>Verify redirect to Login screen</td>
+            <td>View: SignInScreen</td>
+            <td>Application lands on unauthenticated Sign In screen</td>
+            <td>Sign In screen displayed; backward navigation blocked</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="postcond-cell">
+        <strong>Post-Condition:</strong> Application state is unauthenticated; unauthorized requests are rejected.
+      </div>
+    </div>
+  </div>
+
+  <!-- TC_TC_APP_01 -->
+  <div class="test-case-wrapper">
+    <div class="test-case-heading">Test Case 8</div>
+    <div class="test-case-box">
+      <div class="project-name-row">Project Name: FemSphere – Lifetime AI Health Twin Companion</div>
+      <div class="banner-title">Consultations Directory Test Case</div>
+      <table class="meta-table">
+        <tr>
+          <td style="width: 50%;"><strong>Test Case ID:</strong> TC_APP_01</td>
+          <td style="width: 50%;"><strong>Test Designed By:</strong> KEERTHANA M</td>
+        </tr>
+        <tr>
+          <td><strong>Test Priority(Low/Medium/High):</strong> High</td>
+          <td><strong>Test Designed Date:</strong> 2026-10-16</td>
+        </tr>
+        <tr>
+          <td><strong>Module Name:</strong> Telehealth Consultations</td>
+          <td><strong>Test Executed By :</strong> Amal K Jose</td>
+        </tr>
+        <tr>
+          <td><strong>Test Title :</strong> Verify Clinical Doctor Consultations Directory Rendering</td>
+          <td><strong>Test Execution Date:</strong> 2026-10-16</td>
+        </tr>
+      </table>
+      <div class="desc-cell">
+        <strong>Description:</strong> Verifies that navigating to the Consultations module fetches licensed specialists from backend and displays clinical cards.
+      </div>
+      <div class="precond-cell">
+        <strong>Pre-Condition :</strong>User logged into Patient Dashboard; doctor records seeded in database.
+      </div>
+
+      <table class="steps-table">
+        <thead>
+          <tr>
+            <th style="width: 45px; text-align: center;">Step</th>
+            <th style="width: 220px;">Test Step</th>
+            <th style="width: 170px;">Test Data</th>
+            <th style="width: 210px;">Expected Result</th>
+            <th style="width: 210px;">Actual Result</th>
+            <th style="width: 85px; text-align: center;">Status<br>(Pass/Fail)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="step-num">1</td>
+            <td>Tap on Consultations navigation tab</td>
+            <td>Accessibility ID: tab_consultations</td>
+            <td>Consultations directory opens with title 'Clinical Specialists'</td>
+            <td>Consultations tab active; specialist directory loaded</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">2</td>
+            <td>Verify doctor card information elements</td>
+            <td>Doctor: Dr. Sarah Jenkins (OB/GYN)</td>
+            <td>Card shows doctor name, photo avatar, specialty badge, and ratings</td>
+            <td>Specialist cards displayed with specialty badges and fee structure</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">3</td>
+            <td>Inspect filter chips for medical specialties</td>
+            <td>Filters: Gynecology, Fertility, Endocrinology</td>
+            <td>Chips allow filtering doctor list by specialty</td>
+            <td>Specialty filter chips responsive and active</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="postcond-cell">
+        <strong>Post-Condition:</strong> Consultations directory populated with verified clinical specialists.
+      </div>
+    </div>
+  </div>
+
+  <!-- TC_TC_APP_02 -->
+  <div class="test-case-wrapper">
+    <div class="test-case-heading">Test Case 9</div>
+    <div class="test-case-box">
+      <div class="project-name-row">Project Name: FemSphere – Lifetime AI Health Twin Companion</div>
+      <div class="banner-title">Appointment Booking Modal Test Case</div>
+      <table class="meta-table">
+        <tr>
+          <td style="width: 50%;"><strong>Test Case ID:</strong> TC_APP_02</td>
+          <td style="width: 50%;"><strong>Test Designed By:</strong> KEERTHANA M</td>
+        </tr>
+        <tr>
+          <td><strong>Test Priority(Low/Medium/High):</strong> High</td>
+          <td><strong>Test Designed Date:</strong> 2026-10-16</td>
+        </tr>
+        <tr>
+          <td><strong>Module Name:</strong> Telehealth Consultations</td>
+          <td><strong>Test Executed By :</strong> Amal K Jose</td>
+        </tr>
+        <tr>
+          <td><strong>Test Title :</strong> Verify Appointment Booking Modal Trigger on Tap</td>
+          <td><strong>Test Execution Date:</strong> 2026-10-16</td>
+        </tr>
+      </table>
+      <div class="desc-cell">
+        <strong>Description:</strong> Verifies that clicking 'Book Consultation' on a doctor card opens the appointment configuration modal sheet without errors.
+      </div>
+      <div class="precond-cell">
+        <strong>Pre-Condition :</strong>Doctor card visible on the Consultations screen.
+      </div>
+
+      <table class="steps-table">
+        <thead>
+          <tr>
+            <th style="width: 45px; text-align: center;">Step</th>
+            <th style="width: 220px;">Test Step</th>
+            <th style="width: 170px;">Test Data</th>
+            <th style="width: 210px;">Expected Result</th>
+            <th style="width: 210px;">Actual Result</th>
+            <th style="width: 85px; text-align: center;">Status<br>(Pass/Fail)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="step-num">1</td>
+            <td>Locate 'Book Consultation' action button on doctor card</td>
+            <td>Element ID: btn_book_appointment</td>
+            <td>Action button is visible, clickable, and styled with primary theme</td>
+            <td>Button located and highlighted</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">2</td>
+            <td>Tap 'Book Consultation' button</td>
+            <td>Event: OnTap</td>
+            <td>Slide-up modal dialog opens displaying booking form controls</td>
+            <td>Booking bottom sheet opened smoothly</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">3</td>
+            <td>Verify presence of doctor summary header in modal</td>
+            <td>Doctor Name: Dr. Sarah Jenkins</td>
+            <td>Modal displays doctor name, consultation rate, and specialty icon</td>
+            <td>Summary header displayed in modal</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="postcond-cell">
+        <strong>Post-Condition:</strong> Appointment booking modal is open and ready for slot selection.
+      </div>
+    </div>
+  </div>
+
+  <!-- TC_TC_APP_03 -->
+  <div class="test-case-wrapper">
+    <div class="test-case-heading">Test Case 10</div>
+    <div class="test-case-box">
+      <div class="project-name-row">Project Name: FemSphere – Lifetime AI Health Twin Companion</div>
+      <div class="banner-title">Doctor Selector UI Test Case</div>
+      <table class="meta-table">
+        <tr>
+          <td style="width: 50%;"><strong>Test Case ID:</strong> TC_APP_03</td>
+          <td style="width: 50%;"><strong>Test Designed By:</strong> KEERTHANA M</td>
+        </tr>
+        <tr>
+          <td><strong>Test Priority(Low/Medium/High):</strong> Medium</td>
+          <td><strong>Test Designed Date:</strong> 2026-10-16</td>
+        </tr>
+        <tr>
+          <td><strong>Module Name:</strong> Telehealth Consultations</td>
+          <td><strong>Test Executed By :</strong> Amal K Jose</td>
+        </tr>
+        <tr>
+          <td><strong>Test Title :</strong> Verify Doctor Dropdown Selector Rendering Without Overflow</td>
+          <td><strong>Test Execution Date:</strong> 2026-10-16</td>
+        </tr>
+      </table>
+      <div class="desc-cell">
+        <strong>Description:</strong> Verifies that expanding the clinician dropdown selector inside the booking form renders without yellow/black layout overflow bars.
+      </div>
+      <div class="precond-cell">
+        <strong>Pre-Condition :</strong>Booking modal is displayed on screen.
+      </div>
+
+      <table class="steps-table">
+        <thead>
+          <tr>
+            <th style="width: 45px; text-align: center;">Step</th>
+            <th style="width: 220px;">Test Step</th>
+            <th style="width: 170px;">Test Data</th>
+            <th style="width: 210px;">Expected Result</th>
+            <th style="width: 210px;">Actual Result</th>
+            <th style="width: 85px; text-align: center;">Status<br>(Pass/Fail)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="step-num">1</td>
+            <td>Locate clinician selector dropdown</td>
+            <td>Element ID: doctor_dropdown_selector</td>
+            <td>Dropdown is visible with current doctor pre-selected</td>
+            <td>Dropdown displayed</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">2</td>
+            <td>Tap dropdown to expand list of available physicians</td>
+            <td>Event: Dropdown Expansion</td>
+            <td>Menu unfolds showing list of all verified doctors</td>
+            <td>Menu expanded cleanly with 5 physician choices</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">3</td>
+            <td>Inspect screen boundaries for Flutter layout overflow warnings</td>
+            <td>Criteria: 0 A RenderFlex overflowed errors</td>
+            <td>List items fit within screen width; text wraps cleanly</td>
+            <td>Zero overflow bars detected; layout constraints respected</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="postcond-cell">
+        <strong>Post-Condition:</strong> Physician dropdown functions without layout constraint errors.
+      </div>
+    </div>
+  </div>
+
+  <!-- TC_TC_APP_04 -->
+  <div class="test-case-wrapper">
+    <div class="test-case-heading">Test Case 11</div>
+    <div class="test-case-box">
+      <div class="project-name-row">Project Name: FemSphere – Lifetime AI Health Twin Companion</div>
+      <div class="banner-title">Consultation Type Toggle Test Case</div>
+      <table class="meta-table">
+        <tr>
+          <td style="width: 50%;"><strong>Test Case ID:</strong> TC_APP_04</td>
+          <td style="width: 50%;"><strong>Test Designed By:</strong> KEERTHANA M</td>
+        </tr>
+        <tr>
+          <td><strong>Test Priority(Low/Medium/High):</strong> Medium</td>
+          <td><strong>Test Designed Date:</strong> 2026-10-16</td>
+        </tr>
+        <tr>
+          <td><strong>Module Name:</strong> Telehealth Consultations</td>
+          <td><strong>Test Executed By :</strong> Amal K Jose</td>
+        </tr>
+        <tr>
+          <td><strong>Test Title :</strong> Verify Consultation Type Toggle (Virtual Telehealth vs In-Clinic)</td>
+          <td><strong>Test Execution Date:</strong> 2026-10-16</td>
+        </tr>
+      </table>
+      <div class="desc-cell">
+        <strong>Description:</strong> Verifies toggling consultation mode between HD Video Telehealth and In-Clinic visit updates appointment payload metadata.
+      </div>
+      <div class="precond-cell">
+        <strong>Pre-Condition :</strong>Booking modal open with consultation type segmented control.
+      </div>
+
+      <table class="steps-table">
+        <thead>
+          <tr>
+            <th style="width: 45px; text-align: center;">Step</th>
+            <th style="width: 220px;">Test Step</th>
+            <th style="width: 170px;">Test Data</th>
+            <th style="width: 210px;">Expected Result</th>
+            <th style="width: 210px;">Actual Result</th>
+            <th style="width: 85px; text-align: center;">Status<br>(Pass/Fail)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="step-num">1</td>
+            <td>Locate appointment type segmented switch</td>
+            <td>Element ID: appointment_type_toggle</td>
+            <td>Options 'Virtual Telehealth' and 'In-Clinic' displayed</td>
+            <td>Segmented switch visible; 'Virtual' active by default</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">2</td>
+            <td>Tap 'In-Clinic' segment button</td>
+            <td>Selection: In-Clinic</td>
+            <td>Switch animates to In-Clinic; clinic physical address renders below</td>
+            <td>Toggled to In-Clinic; clinic address displayed</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">3</td>
+            <td>Tap 'Virtual Telehealth' segment button</td>
+            <td>Selection: Virtual Telehealth</td>
+            <td>Switch animates back; video consultation icon and instructions show</td>
+            <td>Toggled back to Virtual Telehealth; meeting link note shown</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="postcond-cell">
+        <strong>Post-Condition:</strong> Selected consultation type is saved in component state.
+      </div>
+    </div>
+  </div>
+
+  <!-- TC_TC_APP_05 -->
+  <div class="test-case-wrapper">
+    <div class="test-case-heading">Test Case 12</div>
+    <div class="test-case-box">
+      <div class="project-name-row">Project Name: FemSphere – Lifetime AI Health Twin Companion</div>
+      <div class="banner-title">Time Slot Selection Test Case</div>
+      <table class="meta-table">
+        <tr>
+          <td style="width: 50%;"><strong>Test Case ID:</strong> TC_APP_05</td>
+          <td style="width: 50%;"><strong>Test Designed By:</strong> KEERTHANA M</td>
+        </tr>
+        <tr>
+          <td><strong>Test Priority(Low/Medium/High):</strong> High</td>
+          <td><strong>Test Designed Date:</strong> 2026-10-16</td>
+        </tr>
+        <tr>
+          <td><strong>Module Name:</strong> Telehealth Consultations</td>
+          <td><strong>Test Executed By :</strong> Amal K Jose</td>
+        </tr>
+        <tr>
+          <td><strong>Test Title :</strong> Verify Time Slot Selection &amp; Real-Time Availability</td>
+          <td><strong>Test Execution Date:</strong> 2026-10-16</td>
+        </tr>
+      </table>
+      <div class="desc-cell">
+        <strong>Description:</strong> Verifies selecting an appointment time slot highlights the selected pill and disables booked/unavailable slots.
+      </div>
+      <div class="precond-cell">
+        <strong>Pre-Condition :</strong>Date selected in calendar picker with open slots.
+      </div>
+
+      <table class="steps-table">
+        <thead>
+          <tr>
+            <th style="width: 45px; text-align: center;">Step</th>
+            <th style="width: 220px;">Test Step</th>
+            <th style="width: 170px;">Test Data</th>
+            <th style="width: 210px;">Expected Result</th>
+            <th style="width: 210px;">Actual Result</th>
+            <th style="width: 85px; text-align: center;">Status<br>(Pass/Fail)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="step-num">1</td>
+            <td>View available time slot pills for selected consultation date</td>
+            <td>Slots: 09:00 AM, 10:00 AM, 11:30 AM, 02:00 PM, 04:30 PM</td>
+            <td>Slots render horizontally in scrollable grid</td>
+            <td>Slot chips rendered with active and inactive styles</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">2</td>
+            <td>Click on '10:00 AM' slot pill</td>
+            <td>Element ID: slot_10_00_am</td>
+            <td>Slot chip highlights in primary brand color; checkmark displays</td>
+            <td>10:00 AM slot highlighted and selected</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">3</td>
+            <td>Verify appointment summary details update in real-time</td>
+            <td>Summary Card: Date + Time</td>
+            <td>Summary bar updates to reflect 'Selected: 10:00 AM'</td>
+            <td>Summary updated with exact time slot</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="postcond-cell">
+        <strong>Post-Condition:</strong> Time slot locked in state for confirmation submission.
+      </div>
+    </div>
+  </div>
+
+  <!-- TC_TC_APP_06 -->
+  <div class="test-case-wrapper">
+    <div class="test-case-heading">Test Case 13</div>
+    <div class="test-case-box">
+      <div class="project-name-row">Project Name: FemSphere – Lifetime AI Health Twin Companion</div>
+      <div class="banner-title">Appointment Confirmation Test Case</div>
+      <table class="meta-table">
+        <tr>
+          <td style="width: 50%;"><strong>Test Case ID:</strong> TC_APP_06</td>
+          <td style="width: 50%;"><strong>Test Designed By:</strong> KEERTHANA M</td>
+        </tr>
+        <tr>
+          <td><strong>Test Priority(Low/Medium/High):</strong> High</td>
+          <td><strong>Test Designed Date:</strong> 2026-10-16</td>
+        </tr>
+        <tr>
+          <td><strong>Module Name:</strong> Telehealth Consultations</td>
+          <td><strong>Test Executed By :</strong> Amal K Jose</td>
+        </tr>
+        <tr>
+          <td><strong>Test Title :</strong> Verify Appointment Reservation Submission to Express API</td>
+          <td><strong>Test Execution Date:</strong> 2026-10-16</td>
+        </tr>
+      </table>
+      <div class="desc-cell">
+        <strong>Description:</strong> Verifies submitting appointment reservation sends POST /api/appointments payload and receives confirmation ID with calendar invite.
+      </div>
+      <div class="precond-cell">
+        <strong>Pre-Condition :</strong>Doctor, type, date, and slot configured in booking form.
+      </div>
+
+      <table class="steps-table">
+        <thead>
+          <tr>
+            <th style="width: 45px; text-align: center;">Step</th>
+            <th style="width: 220px;">Test Step</th>
+            <th style="width: 170px;">Test Data</th>
+            <th style="width: 210px;">Expected Result</th>
+            <th style="width: 210px;">Actual Result</th>
+            <th style="width: 85px; text-align: center;">Status<br>(Pass/Fail)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="step-num">1</td>
+            <td>Verify all appointment form criteria in summary card</td>
+            <td>Doctor: Dr. Sarah Jenkins; Slot: 10:00 AM; Type: Virtual</td>
+            <td>Summary card accurately reflects choices</td>
+            <td>Summary card verified</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">2</td>
+            <td>Click 'Confirm Booking' submission button</td>
+            <td>Element ID: btn_confirm_booking</td>
+            <td>Loading spinner displays on button while dispatching request</td>
+            <td>Loading spinner shown; request dispatched</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">3</td>
+            <td>Monitor network payload for POST /api/appointments</td>
+            <td>Payload: { doctor_id: 1, date: '2026-10-28', slot: '10:00 AM' }</td>
+            <td>HTTP 201 Created returned with appointment confirmation ID</td>
+            <td>HTTP 201 Created received with ID #1042</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">4</td>
+            <td>Verify Booking Confirmed success modal displays</td>
+            <td>Modal: Booking Success Dialog</td>
+            <td>Dialog appears with teleconsultation link and calendar button</td>
+            <td>Success dialog rendered with appointment summary</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">5</td>
+            <td>Confirm appointment appears under Upcoming Consultations</td>
+            <td>List: Upcoming Appointments</td>
+            <td>Appointment visible in patient queue with 'Confirmed' badge</td>
+            <td>Appointment visible in directory with green status badge</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="postcond-cell">
+        <strong>Post-Condition:</strong> Appointment record persisted in PostgreSQL and calendar event created.
+      </div>
+    </div>
+  </div>
+
+  <!-- TC_TC_WEAR_01 -->
+  <div class="test-case-wrapper">
+    <div class="test-case-heading">Test Case 14</div>
+    <div class="test-case-box">
+      <div class="project-name-row">Project Name: FemSphere – Lifetime AI Health Twin Companion</div>
+      <div class="banner-title">Wearables Pairing Hub Test Case</div>
+      <table class="meta-table">
+        <tr>
+          <td style="width: 50%;"><strong>Test Case ID:</strong> TC_WEAR_01</td>
+          <td style="width: 50%;"><strong>Test Designed By:</strong> KEERTHANA M</td>
+        </tr>
+        <tr>
+          <td><strong>Test Priority(Low/Medium/High):</strong> High</td>
+          <td><strong>Test Designed Date:</strong> 2026-10-16</td>
+        </tr>
+        <tr>
+          <td><strong>Module Name:</strong> Universal Wearables Hub</td>
+          <td><strong>Test Executed By :</strong> Amal K Jose</td>
+        </tr>
+        <tr>
+          <td><strong>Test Title :</strong> Verify Opening Universal Wearable Pairing Interface</td>
+          <td><strong>Test Execution Date:</strong> 2026-10-16</td>
+        </tr>
+      </table>
+      <div class="desc-cell">
+        <strong>Description:</strong> Verifies navigating to Devices tab opens the Universal Wearables Pairing Hub with camera QR scanner and brand adapters.
+      </div>
+      <div class="precond-cell">
+        <strong>Pre-Condition :</strong>User logged into FemSphere on Android device.
+      </div>
+
+      <table class="steps-table">
+        <thead>
+          <tr>
+            <th style="width: 45px; text-align: center;">Step</th>
+            <th style="width: 220px;">Test Step</th>
+            <th style="width: 170px;">Test Data</th>
+            <th style="width: 210px;">Expected Result</th>
+            <th style="width: 210px;">Actual Result</th>
+            <th style="width: 85px; text-align: center;">Status<br>(Pass/Fail)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="step-num">1</td>
+            <td>Navigate to Connected Devices view via bottom navigation</td>
+            <td>Bottom Nav: Devices Tab</td>
+            <td>Connected Devices view displays paired devices and pairing CTA</td>
+            <td>Devices view rendered with 'Connect New Device' button</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">2</td>
+            <td>Tap on 'Connect New Wearable' button</td>
+            <td>Element ID: btn_open_wearables_scanner</td>
+            <td>Pairing hub launches with QR scanning viewport and brand filters</td>
+            <td>Pairing hub opened cleanly</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">3</td>
+            <td>Verify device category tabs render horizontally</td>
+            <td>Categories: Smartwatches, Fitness Bands, Smart Rings</td>
+            <td>Filter pills render horizontally without clipping</td>
+            <td>Category pills displayed with active filter styling</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="postcond-cell">
+        <strong>Post-Condition:</strong> Wearables pairing interface initialized and ready for scanning.
+      </div>
+    </div>
+  </div>
+
+  <!-- TC_TC_WEAR_02 -->
+  <div class="test-case-wrapper">
+    <div class="test-case-heading">Test Case 15</div>
+    <div class="test-case-box">
+      <div class="project-name-row">Project Name: FemSphere – Lifetime AI Health Twin Companion</div>
+      <div class="banner-title">GPay-Style QR Scanner Test Case</div>
+      <table class="meta-table">
+        <tr>
+          <td style="width: 50%;"><strong>Test Case ID:</strong> TC_WEAR_02</td>
+          <td style="width: 50%;"><strong>Test Designed By:</strong> KEERTHANA M</td>
+        </tr>
+        <tr>
+          <td><strong>Test Priority(Low/Medium/High):</strong> High</td>
+          <td><strong>Test Designed Date:</strong> 2026-10-16</td>
+        </tr>
+        <tr>
+          <td><strong>Module Name:</strong> Universal Wearables Hub</td>
+          <td><strong>Test Executed By :</strong> Amal K Jose</td>
+        </tr>
+        <tr>
+          <td><strong>Test Title :</strong> Verify Live Viewfinder Camera Feed for QR Pairing</td>
+          <td><strong>Test Execution Date:</strong> 2026-10-16</td>
+        </tr>
+      </table>
+      <div class="desc-cell">
+        <strong>Description:</strong> Verifies live camera preview initializes inside a Google Pay-style rounded scanning box with animated corner guides.
+      </div>
+      <div class="precond-cell">
+        <strong>Pre-Condition :</strong>Camera permission granted to application.
+      </div>
+
+      <table class="steps-table">
+        <thead>
+          <tr>
+            <th style="width: 45px; text-align: center;">Step</th>
+            <th style="width: 220px;">Test Step</th>
+            <th style="width: 170px;">Test Data</th>
+            <th style="width: 210px;">Expected Result</th>
+            <th style="width: 210px;">Actual Result</th>
+            <th style="width: 85px; text-align: center;">Status<br>(Pass/Fail)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="step-num">1</td>
+            <td>Inspect live viewfinder element presence</td>
+            <td>Element ID: qr_scanner_viewfinder</td>
+            <td>Camera viewport container renders with 1:1 square aspect ratio</td>
+            <td>Viewfinder container located and sized correctly</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">2</td>
+            <td>Verify camera hardware initializes without freeze</td>
+            <td>Hardware: Android Camera2 API</td>
+            <td>Live camera stream frames render continuously inside overlay</td>
+            <td>Live preview feed active without dropped frames</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">3</td>
+            <td>Verify animated scanning guideline bar</td>
+            <td>Overlay: Scanning Line Animation</td>
+            <td>Subtle pulse animation indicates active QR detection</td>
+            <td>Animated laser guideline cycles smoothly inside frame</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="postcond-cell">
+        <strong>Post-Condition:</strong> Camera stream active and analyzing frames for wearable pairing codes.
+      </div>
+    </div>
+  </div>
+
+  <!-- TC_TC_WEAR_03 -->
+  <div class="test-case-wrapper">
+    <div class="test-case-heading">Test Case 16</div>
+    <div class="test-case-box">
+      <div class="project-name-row">Project Name: FemSphere – Lifetime AI Health Twin Companion</div>
+      <div class="banner-title">Audio Wearables Filter Test Case</div>
+      <table class="meta-table">
+        <tr>
+          <td style="width: 50%;"><strong>Test Case ID:</strong> TC_WEAR_03</td>
+          <td style="width: 50%;"><strong>Test Designed By:</strong> KEERTHANA M</td>
+        </tr>
+        <tr>
+          <td><strong>Test Priority(Low/Medium/High):</strong> Low</td>
+          <td><strong>Test Designed Date:</strong> 2026-10-16</td>
+        </tr>
+        <tr>
+          <td><strong>Module Name:</strong> Universal Wearables Hub</td>
+          <td><strong>Test Executed By :</strong> Amal K Jose</td>
+        </tr>
+        <tr>
+          <td><strong>Test Title :</strong> Verify Smart Audio &amp; Hearing Device Filter Chip</td>
+          <td><strong>Test Execution Date:</strong> 2026-10-16</td>
+        </tr>
+      </table>
+      <div class="desc-cell">
+        <strong>Description:</strong> Verifies selecting 'Earbuds &amp; Audio' filters out non-audio smartwatches and focuses on hearing health / noise exposure telemetry.
+      </div>
+      <div class="precond-cell">
+        <strong>Pre-Condition :</strong>Pairing hub open on device category selector.
+      </div>
+
+      <table class="steps-table">
+        <thead>
+          <tr>
+            <th style="width: 45px; text-align: center;">Step</th>
+            <th style="width: 220px;">Test Step</th>
+            <th style="width: 170px;">Test Data</th>
+            <th style="width: 210px;">Expected Result</th>
+            <th style="width: 210px;">Actual Result</th>
+            <th style="width: 85px; text-align: center;">Status<br>(Pass/Fail)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="step-num">1</td>
+            <td>Locate 'Audio / Earbuds' category chip</td>
+            <td>Element ID: chip_filter_earbuds</td>
+            <td>Chip is visible with headphone icon</td>
+            <td>Earbuds chip located</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">2</td>
+            <td>Tap on 'Audio / Earbuds' filter chip</td>
+            <td>Event: OnTap</td>
+            <td>Device list filters to show audio devices (Noise Buds, etc.)</td>
+            <td>Filtered to audio devices; smartwatches excluded from view</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">3</td>
+            <td>Verify audio decibel monitoring badge</td>
+            <td>Capability: Environmental Decibel Telemetry</td>
+            <td>Audio capability badge displayed on device card</td>
+            <td>Decibel monitoring badge verified</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="postcond-cell">
+        <strong>Post-Condition:</strong> Audio filter active in pairing interface.
+      </div>
+    </div>
+  </div>
+
+  <!-- TC_TC_WEAR_04 -->
+  <div class="test-case-wrapper">
+    <div class="test-case-heading">Test Case 17</div>
+    <div class="test-case-box">
+      <div class="project-name-row">Project Name: FemSphere – Lifetime AI Health Twin Companion</div>
+      <div class="banner-title">Direct Bluetooth Discovery Test Case</div>
+      <table class="meta-table">
+        <tr>
+          <td style="width: 50%;"><strong>Test Case ID:</strong> TC_WEAR_04</td>
+          <td style="width: 50%;"><strong>Test Designed By:</strong> KEERTHANA M</td>
+        </tr>
+        <tr>
+          <td><strong>Test Priority(Low/Medium/High):</strong> Medium</td>
+          <td><strong>Test Designed Date:</strong> 2026-10-16</td>
+        </tr>
+        <tr>
+          <td><strong>Module Name:</strong> Universal Wearables Hub</td>
+          <td><strong>Test Executed By :</strong> Amal K Jose</td>
+        </tr>
+        <tr>
+          <td><strong>Test Title :</strong> Verify Direct Bluetooth Low Energy Peripheral Scan Navigation</td>
+          <td><strong>Test Execution Date:</strong> 2026-10-16</td>
+        </tr>
+      </table>
+      <div class="desc-cell">
+        <strong>Description:</strong> Verifies tapping 'Scan Bluetooth Directly' launches BLE discovery scan for nearby un-paired smartwatches and health rings.
+      </div>
+      <div class="precond-cell">
+        <strong>Pre-Condition :</strong>Bluetooth adapter is enabled on device.
+      </div>
+
+      <table class="steps-table">
+        <thead>
+          <tr>
+            <th style="width: 45px; text-align: center;">Step</th>
+            <th style="width: 220px;">Test Step</th>
+            <th style="width: 170px;">Test Data</th>
+            <th style="width: 210px;">Expected Result</th>
+            <th style="width: 210px;">Actual Result</th>
+            <th style="width: 85px; text-align: center;">Status<br>(Pass/Fail)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="step-num">1</td>
+            <td>Locate 'Scan via Bluetooth' alternate action button</td>
+            <td>Element ID: btn_scan_bluetooth</td>
+            <td>Button displayed below QR viewfinder frame</td>
+            <td>BLE scan button located</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">2</td>
+            <td>Tap 'Scan via Bluetooth' button</td>
+            <td>Event: Start BLE Discovery</td>
+            <td>BLE discovery starts; scanning progress indicator animates</td>
+            <td>Bluetooth Low Energy scan initiated cleanly</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">3</td>
+            <td>Verify discovered peripheral list view renders</td>
+            <td>Component: DiscoveredDevicesList</td>
+            <td>Discovered peripherals display with RSSI signal and MAC address</td>
+            <td>Nearby BLE devices displayed with signal indicators</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="postcond-cell">
+        <strong>Post-Condition:</strong> Bluetooth discovery active and listening for advertisement packets.
+      </div>
+    </div>
+  </div>
+
+  <!-- TC_TC_WEAR_05 -->
+  <div class="test-case-wrapper">
+    <div class="test-case-heading">Test Case 18</div>
+    <div class="test-case-box">
+      <div class="project-name-row">Project Name: FemSphere – Lifetime AI Health Twin Companion</div>
+      <div class="banner-title">boAt Wearable Adapter Test Case</div>
+      <table class="meta-table">
+        <tr>
+          <td style="width: 50%;"><strong>Test Case ID:</strong> TC_WEAR_05</td>
+          <td style="width: 50%;"><strong>Test Designed By:</strong> KEERTHANA M</td>
+        </tr>
+        <tr>
+          <td><strong>Test Priority(Low/Medium/High):</strong> High</td>
+          <td><strong>Test Designed Date:</strong> 2026-10-16</td>
+        </tr>
+        <tr>
+          <td><strong>Module Name:</strong> Universal Wearables Hub</td>
+          <td><strong>Test Executed By :</strong> Amal K Jose</td>
+        </tr>
+        <tr>
+          <td><strong>Test Title :</strong> Verify boAt Wave Beat Telemetry Pairing Handshake</td>
+          <td><strong>Test Execution Date:</strong> 2026-10-16</td>
+        </tr>
+      </table>
+      <div class="desc-cell">
+        <strong>Description:</strong> Verifies pairing with a boAt Wave Beat smartwatch establishes BLE GATT communication for heart rate and step telemetry.
+      </div>
+      <div class="precond-cell">
+        <strong>Pre-Condition :</strong>boAt device card visible in pairing hub.
+      </div>
+
+      <table class="steps-table">
+        <thead>
+          <tr>
+            <th style="width: 45px; text-align: center;">Step</th>
+            <th style="width: 220px;">Test Step</th>
+            <th style="width: 170px;">Test Data</th>
+            <th style="width: 210px;">Expected Result</th>
+            <th style="width: 210px;">Actual Result</th>
+            <th style="width: 85px; text-align: center;">Status<br>(Pass/Fail)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="step-num">1</td>
+            <td>Select boAt Wave Beat from device list</td>
+            <td>Element ID: device_boat_wave_beat</td>
+            <td>Selection triggers connection adapter for boAt BLE profile</td>
+            <td>boAt adapter initialized</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">2</td>
+            <td>Initiate pairing handshake</td>
+            <td>Adapter: BoatBleAdapter</td>
+            <td>GATT services discovered (HR 0x180D, Battery 0x180F)</td>
+            <td>GATT services discovered and registered</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">3</td>
+            <td>Verify device status updates to 'Connected'</td>
+            <td>Status Badge: Connected</td>
+            <td>Device listed under Active Wearables with green status badge</td>
+            <td>Device shows 'Connected' with live battery level indicator</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="postcond-cell">
+        <strong>Post-Condition:</strong> boAt smartwatch active and transmitting telemetry to FemSphere.
+      </div>
+    </div>
+  </div>
+
+  <!-- TC_TC_WEAR_06 -->
+  <div class="test-case-wrapper">
+    <div class="test-case-heading">Test Case 19</div>
+    <div class="test-case-box">
+      <div class="project-name-row">Project Name: FemSphere – Lifetime AI Health Twin Companion</div>
+      <div class="banner-title">Amazfit &amp; Health Connect Test Case</div>
+      <table class="meta-table">
+        <tr>
+          <td style="width: 50%;"><strong>Test Case ID:</strong> TC_WEAR_06</td>
+          <td style="width: 50%;"><strong>Test Designed By:</strong> KEERTHANA M</td>
+        </tr>
+        <tr>
+          <td><strong>Test Priority(Low/Medium/High):</strong> High</td>
+          <td><strong>Test Designed Date:</strong> 2026-10-16</td>
+        </tr>
+        <tr>
+          <td><strong>Module Name:</strong> Universal Wearables Hub</td>
+          <td><strong>Test Executed By :</strong> Amal K Jose</td>
+        </tr>
+        <tr>
+          <td><strong>Test Title :</strong> Verify Amazfit Bip U Pro &amp; Android Health Connect Pairing</td>
+          <td><strong>Test Execution Date:</strong> 2026-10-16</td>
+        </tr>
+      </table>
+      <div class="desc-cell">
+        <strong>Description:</strong> Verifies that Amazfit Bip U Pro routes health data through Zepp and Android Health Connect with automatic fallback from raw BLE.
+      </div>
+      <div class="precond-cell">
+        <strong>Pre-Condition :</strong>Zepp app installed and Health Connect permissions granted.
+      </div>
+
+      <table class="steps-table">
+        <thead>
+          <tr>
+            <th style="width: 45px; text-align: center;">Step</th>
+            <th style="width: 220px;">Test Step</th>
+            <th style="width: 170px;">Test Data</th>
+            <th style="width: 210px;">Expected Result</th>
+            <th style="width: 210px;">Actual Result</th>
+            <th style="width: 85px; text-align: center;">Status<br>(Pass/Fail)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="step-num">1</td>
+            <td>Select Amazfit Bip U Pro from wearable directory</td>
+            <td>Element ID: device_amazfit_bip_u_pro</td>
+            <td>System identifies Amazfit device and launches Health Connect flow</td>
+            <td>Amazfit profile recognized; Health Connect pipeline chosen</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">2</td>
+            <td>Verify Health Connect integration dialog</td>
+            <td>Modal: Amazfit Health Connect Setup Guide</td>
+            <td>Guide explains Zepp sync mechanism and prompts permission grant</td>
+            <td>Setup guide displayed with 3-step synchronization steps</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">3</td>
+            <td>Trigger 'Sync Health Connect' authorization</td>
+            <td>Permissions: Steps, Heart Rate, Sleep, Calories</td>
+            <td>Native Android Health Connect permission sheet prompts user</td>
+            <td>Permission launcher opens; user grants read access</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">4</td>
+            <td>Verify biometrics received from Health Connect</td>
+            <td>Attribution: com.huami.midong (Zepp)</td>
+            <td>Steps and heart rate records retrieved and displayed on dashboard</td>
+            <td>Authorized records ingested and displayed with 'Cloud Synced' badge</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="postcond-cell">
+        <strong>Post-Condition:</strong> Amazfit health records successfully ingested via Health Connect.
+      </div>
+    </div>
+  </div>
+
+  <!-- TC_TC_WEAR_07 -->
+  <div class="test-case-wrapper">
+    <div class="test-case-heading">Test Case 20</div>
+    <div class="test-case-box">
+      <div class="project-name-row">Project Name: FemSphere – Lifetime AI Health Twin Companion</div>
+      <div class="banner-title">Camera Torch Toggle Test Case</div>
+      <table class="meta-table">
+        <tr>
+          <td style="width: 50%;"><strong>Test Case ID:</strong> TC_WEAR_07</td>
+          <td style="width: 50%;"><strong>Test Designed By:</strong> KEERTHANA M</td>
+        </tr>
+        <tr>
+          <td><strong>Test Priority(Low/Medium/High):</strong> Low</td>
+          <td><strong>Test Designed Date:</strong> 2026-10-16</td>
+        </tr>
+        <tr>
+          <td><strong>Module Name:</strong> Universal Wearables Hub</td>
+          <td><strong>Test Executed By :</strong> Amal K Jose</td>
+        </tr>
+        <tr>
+          <td><strong>Test Title :</strong> Verify Flashlight Torch Toggle Controller for Low-Light Scanning</td>
+          <td><strong>Test Execution Date:</strong> 2026-10-16</td>
+        </tr>
+      </table>
+      <div class="desc-cell">
+        <strong>Description:</strong> Verifies toggling camera flashlight button enables and disables the physical LED torch during low-light QR scanning operations.
+      </div>
+      <div class="precond-cell">
+        <strong>Pre-Condition :</strong>Camera viewfinder active with torch capability available.
+      </div>
+
+      <table class="steps-table">
+        <thead>
+          <tr>
+            <th style="width: 45px; text-align: center;">Step</th>
+            <th style="width: 220px;">Test Step</th>
+            <th style="width: 170px;">Test Data</th>
+            <th style="width: 210px;">Expected Result</th>
+            <th style="width: 210px;">Actual Result</th>
+            <th style="width: 85px; text-align: center;">Status<br>(Pass/Fail)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="step-num">1</td>
+            <td>Locate torch toggle icon button</td>
+            <td>Element ID: btn_toggle_torch</td>
+            <td>Torch button is visible in top right corner of camera view</td>
+            <td>Torch button located with off-state icon</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">2</td>
+            <td>Tap torch button to turn LED flashlight ON</td>
+            <td>Event: TorchMode.on</td>
+            <td>Device LED illuminates; button icon switches to active state</td>
+            <td>Camera torch enabled; button highlighted in yellow</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">3</td>
+            <td>Tap torch button again to turn LED flashlight OFF</td>
+            <td>Event: TorchMode.off</td>
+            <td>Device LED turns off; button icon returns to default state</td>
+            <td>Camera torch disabled cleanly</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="postcond-cell">
+        <strong>Post-Condition:</strong> Torch state restored to OFF.
+      </div>
+    </div>
+  </div>
+
+  <!-- TC_TC_TWIN_01 -->
+  <div class="test-case-wrapper">
+    <div class="test-case-heading">Test Case 21</div>
+    <div class="test-case-box">
+      <div class="project-name-row">Project Name: FemSphere – Lifetime AI Health Twin Companion</div>
+      <div class="banner-title">Aggregate Health Score Test Case</div>
+      <table class="meta-table">
+        <tr>
+          <td style="width: 50%;"><strong>Test Case ID:</strong> TC_TWIN_01</td>
+          <td style="width: 50%;"><strong>Test Designed By:</strong> KEERTHANA M</td>
+        </tr>
+        <tr>
+          <td><strong>Test Priority(Low/Medium/High):</strong> High</td>
+          <td><strong>Test Designed Date:</strong> 2026-10-16</td>
+        </tr>
+        <tr>
+          <td><strong>Module Name:</strong> Digital Health Twin</td>
+          <td><strong>Test Executed By :</strong> Amal K Jose</td>
+        </tr>
+        <tr>
+          <td><strong>Test Title :</strong> Verify Aggregate Health Score Dial &amp; Biological Age Rendering</td>
+          <td><strong>Test Execution Date:</strong> 2026-10-16</td>
+        </tr>
+      </table>
+      <div class="desc-cell">
+        <strong>Description:</strong> Verifies that the Digital Health Twin calculates and displays the composite wellness score and biological age discrepancy.
+      </div>
+      <div class="precond-cell">
+        <strong>Pre-Condition :</strong>User logged into Patient Dashboard with vitals recorded.
+      </div>
+
+      <table class="steps-table">
+        <thead>
+          <tr>
+            <th style="width: 45px; text-align: center;">Step</th>
+            <th style="width: 220px;">Test Step</th>
+            <th style="width: 170px;">Test Data</th>
+            <th style="width: 210px;">Expected Result</th>
+            <th style="width: 210px;">Actual Result</th>
+            <th style="width: 85px; text-align: center;">Status<br>(Pass/Fail)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="step-num">1</td>
+            <td>Locate Digital Health Twin summary card on home dashboard</td>
+            <td>Element ID: health_score_card</td>
+            <td>Card renders animated circular score dial (0 to 100)</td>
+            <td>Card visible with circular progress indicator</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">2</td>
+            <td>Verify composite health score calculation</td>
+            <td>Calculated Score: 88/100 (Optimal)</td>
+            <td>Score reflects weighted average of sleep, hydration, and activity</td>
+            <td>Score 88 displayed with 'Optimal' green wellness indicator</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">3</td>
+            <td>Verify biological age comparison metric</td>
+            <td>Chronological: 28 yrs, Biological Twin: 26.4 yrs</td>
+            <td>Displays '1.6 years younger than chronological age'</td>
+            <td>Biological age bonus badge rendered correctly</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="postcond-cell">
+        <strong>Post-Condition:</strong> Health twin composite score accurately rendered on dashboard.
+      </div>
+    </div>
+  </div>
+
+  <!-- TC_TC_TWIN_02 -->
+  <div class="test-case-wrapper">
+    <div class="test-case-heading">Test Case 22</div>
+    <div class="test-case-box">
+      <div class="project-name-row">Project Name: FemSphere – Lifetime AI Health Twin Companion</div>
+      <div class="banner-title">Hydration Logging Test Case</div>
+      <table class="meta-table">
+        <tr>
+          <td style="width: 50%;"><strong>Test Case ID:</strong> TC_TWIN_02</td>
+          <td style="width: 50%;"><strong>Test Designed By:</strong> KEERTHANA M</td>
+        </tr>
+        <tr>
+          <td><strong>Test Priority(Low/Medium/High):</strong> Medium</td>
+          <td><strong>Test Designed Date:</strong> 2026-10-16</td>
+        </tr>
+        <tr>
+          <td><strong>Module Name:</strong> Daily Vitals Tracker</td>
+          <td><strong>Test Executed By :</strong> Amal K Jose</td>
+        </tr>
+        <tr>
+          <td><strong>Test Title :</strong> Verify Daily Water Intake Counter Increment &amp; Target Progress</td>
+          <td><strong>Test Execution Date:</strong> 2026-10-16</td>
+        </tr>
+      </table>
+      <div class="desc-cell">
+        <strong>Description:</strong> Verifies tapping the water increment button adds 250ml to daily hydration log and updates circular completion ring.
+      </div>
+      <div class="precond-cell">
+        <strong>Pre-Condition :</strong>Vitals Tracker tab open with today's hydration card.
+      </div>
+
+      <table class="steps-table">
+        <thead>
+          <tr>
+            <th style="width: 45px; text-align: center;">Step</th>
+            <th style="width: 220px;">Test Step</th>
+            <th style="width: 170px;">Test Data</th>
+            <th style="width: 210px;">Expected Result</th>
+            <th style="width: 210px;">Actual Result</th>
+            <th style="width: 85px; text-align: center;">Status<br>(Pass/Fail)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="step-num">1</td>
+            <td>Inspect initial water intake value</td>
+            <td>Initial: 1.50 L / 2.50 L Goal (60%)</td>
+            <td>Initial value displayed with current progress bar</td>
+            <td>Current intake 1.50 L displayed</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">2</td>
+            <td>Tap '+250ml' hydration increment button</td>
+            <td>Element ID: btn_increment_water</td>
+            <td>Value increases by 0.25 L to 1.75 L (70%)</td>
+            <td>Value updated to 1.75 L with water ripple animation</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">3</td>
+            <td>Verify progress bar updates dynamically</td>
+            <td>Progress Ring: 70%</td>
+            <td>Progress indicator expands proportionally</td>
+            <td>Ring filled to 70% of daily target</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="postcond-cell">
+        <strong>Post-Condition:</strong> Hydration intake persisted in local state.
+      </div>
+    </div>
+  </div>
+
+  <!-- TC_TC_TWIN_03 -->
+  <div class="test-case-wrapper">
+    <div class="test-case-heading">Test Case 23</div>
+    <div class="test-case-box">
+      <div class="project-name-row">Project Name: FemSphere – Lifetime AI Health Twin Companion</div>
+      <div class="banner-title">Sleep Biometrics Test Case</div>
+      <table class="meta-table">
+        <tr>
+          <td style="width: 50%;"><strong>Test Case ID:</strong> TC_TWIN_03</td>
+          <td style="width: 50%;"><strong>Test Designed By:</strong> KEERTHANA M</td>
+        </tr>
+        <tr>
+          <td><strong>Test Priority(Low/Medium/High):</strong> Medium</td>
+          <td><strong>Test Designed Date:</strong> 2026-10-16</td>
+        </tr>
+        <tr>
+          <td><strong>Module Name:</strong> Daily Vitals Tracker</td>
+          <td><strong>Test Executed By :</strong> Amal K Jose</td>
+        </tr>
+        <tr>
+          <td><strong>Test Title :</strong> Verify Sleep Duration Numeric Input &amp; Sleep Quality Analysis</td>
+          <td><strong>Test Execution Date:</strong> 2026-10-16</td>
+        </tr>
+      </table>
+      <div class="desc-cell">
+        <strong>Description:</strong> Verifies entering sleep duration accepts decimal values and calculates restorative sleep quality metrics.
+      </div>
+      <div class="precond-cell">
+        <strong>Pre-Condition :</strong>Sleep tracking card open on vitals logger.
+      </div>
+
+      <table class="steps-table">
+        <thead>
+          <tr>
+            <th style="width: 45px; text-align: center;">Step</th>
+            <th style="width: 220px;">Test Step</th>
+            <th style="width: 170px;">Test Data</th>
+            <th style="width: 210px;">Expected Result</th>
+            <th style="width: 210px;">Actual Result</th>
+            <th style="width: 85px; text-align: center;">Status<br>(Pass/Fail)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="step-num">1</td>
+            <td>Locate sleep duration input field</td>
+            <td>Element ID: input_sleep_duration</td>
+            <td>Field is interactive and accepts numeric input with decimals</td>
+            <td>Field ready for input</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">2</td>
+            <td>Type sleep hours into field</td>
+            <td>Input: '7.5'</td>
+            <td>Value '7.5 hrs' formatted and validated</td>
+            <td>Value entered and formatted</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">3</td>
+            <td>Verify sleep quality rating card</td>
+            <td>Threshold: 7-9 hours</td>
+            <td>Card displays 'Restorative Sleep Target Achieved'</td>
+            <td>Quality badge shows 'Good (7.5 hrs)' with sleep icon</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="postcond-cell">
+        <strong>Post-Condition:</strong> Sleep record staged for daily log submission.
+      </div>
+    </div>
+  </div>
+
+  <!-- TC_TC_TWIN_04 -->
+  <div class="test-case-wrapper">
+    <div class="test-case-heading">Test Case 24</div>
+    <div class="test-case-box">
+      <div class="project-name-row">Project Name: FemSphere – Lifetime AI Health Twin Companion</div>
+      <div class="banner-title">Psychosomatic Mood Test Case</div>
+      <table class="meta-table">
+        <tr>
+          <td style="width: 50%;"><strong>Test Case ID:</strong> TC_TWIN_04</td>
+          <td style="width: 50%;"><strong>Test Designed By:</strong> KEERTHANA M</td>
+        </tr>
+        <tr>
+          <td><strong>Test Priority(Low/Medium/High):</strong> Low</td>
+          <td><strong>Test Designed Date:</strong> 2026-10-16</td>
+        </tr>
+        <tr>
+          <td><strong>Module Name:</strong> Daily Vitals Tracker</td>
+          <td><strong>Test Executed By :</strong> Amal K Jose</td>
+        </tr>
+        <tr>
+          <td><strong>Test Title :</strong> Verify Mood and Energy Selector Pills Validation</td>
+          <td><strong>Test Execution Date:</strong> 2026-10-16</td>
+        </tr>
+      </table>
+      <div class="desc-cell">
+        <strong>Description:</strong> Verifies selecting emotional and energy states updates daily psychosomatic wellness profile.
+      </div>
+      <div class="precond-cell">
+        <strong>Pre-Condition :</strong>Mood selector section open in vitals logging form.
+      </div>
+
+      <table class="steps-table">
+        <thead>
+          <tr>
+            <th style="width: 45px; text-align: center;">Step</th>
+            <th style="width: 220px;">Test Step</th>
+            <th style="width: 170px;">Test Data</th>
+            <th style="width: 210px;">Expected Result</th>
+            <th style="width: 210px;">Actual Result</th>
+            <th style="width: 85px; text-align: center;">Status<br>(Pass/Fail)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="step-num">1</td>
+            <td>Inspect mood selection chips</td>
+            <td>Chips: Calm, Energetic, Anxious, Fatigued, Irritable</td>
+            <td>Chips display with matching emoji icons</td>
+            <td>Mood chips visible and selectable</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">2</td>
+            <td>Click on 'Calm' mood chip</td>
+            <td>Element ID: chip_mood_calm</td>
+            <td>Chip highlights with lavender theme; other chips deselect</td>
+            <td>'Calm' selected with checkmark</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">3</td>
+            <td>Verify energy rating selector</td>
+            <td>Energy Level: High (4/5)</td>
+            <td>Energy stars or level updates to match selection</td>
+            <td>Energy rating set to 4/5</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="postcond-cell">
+        <strong>Post-Condition:</strong> Mood and energy recorded for psychosomatic health twin modeling.
+      </div>
+    </div>
+  </div>
+
+  <!-- TC_TC_TWIN_05 -->
+  <div class="test-case-wrapper">
+    <div class="test-case-heading">Test Case 25</div>
+    <div class="test-case-box">
+      <div class="project-name-row">Project Name: FemSphere – Lifetime AI Health Twin Companion</div>
+      <div class="banner-title">Pelvic Pain Scale Test Case</div>
+      <table class="meta-table">
+        <tr>
+          <td style="width: 50%;"><strong>Test Case ID:</strong> TC_TWIN_05</td>
+          <td style="width: 50%;"><strong>Test Designed By:</strong> KEERTHANA M</td>
+        </tr>
+        <tr>
+          <td><strong>Test Priority(Low/Medium/High):</strong> Medium</td>
+          <td><strong>Test Designed Date:</strong> 2026-10-16</td>
+        </tr>
+        <tr>
+          <td><strong>Module Name:</strong> Daily Vitals Tracker</td>
+          <td><strong>Test Executed By :</strong> Amal K Jose</td>
+        </tr>
+        <tr>
+          <td><strong>Test Title :</strong> Verify VAS Pelvic Pain and Dysmenorrhea Scale Slider</td>
+          <td><strong>Test Execution Date:</strong> 2026-10-16</td>
+        </tr>
+      </table>
+      <div class="desc-cell">
+        <strong>Description:</strong> Verifies adjusting the Visual Analog Scale (VAS) pain slider reflects numerical score (0-10) and clinical severity classification.
+      </div>
+      <div class="precond-cell">
+        <strong>Pre-Condition :</strong>Pain tracking section visible in vitals tracker.
+      </div>
+
+      <table class="steps-table">
+        <thead>
+          <tr>
+            <th style="width: 45px; text-align: center;">Step</th>
+            <th style="width: 220px;">Test Step</th>
+            <th style="width: 170px;">Test Data</th>
+            <th style="width: 210px;">Expected Result</th>
+            <th style="width: 210px;">Actual Result</th>
+            <th style="width: 85px; text-align: center;">Status<br>(Pass/Fail)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="step-num">1</td>
+            <td>Locate Visual Analog Scale (VAS) slider</td>
+            <td>Element ID: slider_pelvic_pain</td>
+            <td>Slider range 0 (No pain) to 10 (Severe pain) is visible</td>
+            <td>Slider located with initial value 0</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">2</td>
+            <td>Slide slider control to value 3</td>
+            <td>Value: 3.0</td>
+            <td>Slider handle moves to 3; text displays 'Mild Cramping (3/10)'</td>
+            <td>Pain rating 3/10 displayed with green/yellow indicator</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">3</td>
+            <td>Slide slider control to value 8</td>
+            <td>Value: 8.0</td>
+            <td>Slider handle moves to 8; text displays 'Severe Pain (8/10)'</td>
+            <td>Pain rating 8/10 displayed with red indicator and clinical advisory</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="postcond-cell">
+        <strong>Post-Condition:</strong> Pain score recorded with clinical severity flag.
+      </div>
+    </div>
+  </div>
+
+  <!-- TC_TC_TWIN_06 -->
+  <div class="test-case-wrapper">
+    <div class="test-case-heading">Test Case 26</div>
+    <div class="test-case-box">
+      <div class="project-name-row">Project Name: FemSphere – Lifetime AI Health Twin Companion</div>
+      <div class="banner-title">Cycle Phase Prediction Test Case</div>
+      <table class="meta-table">
+        <tr>
+          <td style="width: 50%;"><strong>Test Case ID:</strong> TC_TWIN_06</td>
+          <td style="width: 50%;"><strong>Test Designed By:</strong> KEERTHANA M</td>
+        </tr>
+        <tr>
+          <td><strong>Test Priority(Low/Medium/High):</strong> High</td>
+          <td><strong>Test Designed Date:</strong> 2026-10-16</td>
+        </tr>
+        <tr>
+          <td><strong>Module Name:</strong> Cycle Intelligence</td>
+          <td><strong>Test Executed By :</strong> Amal K Jose</td>
+        </tr>
+        <tr>
+          <td><strong>Test Title :</strong> Verify Menstrual Cycle Phase Prediction &amp; 28-Day Baseline Calibration</td>
+          <td><strong>Test Execution Date:</strong> 2026-10-16</td>
+        </tr>
+      </table>
+      <div class="desc-cell">
+        <strong>Description:</strong> Verifies that the Digital Health Twin calculates current menstrual cycle day, predicts upcoming fertile window and period onset, and displays phase recommendations.
+      </div>
+      <div class="precond-cell">
+        <strong>Pre-Condition :</strong>User has recorded last menstrual period start date 14 days prior.
+      </div>
+
+      <table class="steps-table">
+        <thead>
+          <tr>
+            <th style="width: 45px; text-align: center;">Step</th>
+            <th style="width: 220px;">Test Step</th>
+            <th style="width: 170px;">Test Data</th>
+            <th style="width: 210px;">Expected Result</th>
+            <th style="width: 210px;">Actual Result</th>
+            <th style="width: 85px; text-align: center;">Status<br>(Pass/Fail)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="step-num">1</td>
+            <td>Navigate to Period Tracker &amp; Cycle Intelligence module</td>
+            <td>Bottom Nav: Cycle Tab</td>
+            <td>Cycle tracker dashboard displays circular phase gauge and calendar</td>
+            <td>Cycle dashboard rendered with current day indicator</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">2</td>
+            <td>Verify current cycle day calculation from last period onset</td>
+            <td>Last Period: 14 days ago</td>
+            <td>System computes Cycle Day 14 (Ovulatory Phase window)</td>
+            <td>Cycle Day 14 displayed with 'High Fertility' indicator</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">3</td>
+            <td>Inspect next period start date prediction</td>
+            <td>Baseline: 28 days cycle</td>
+            <td>System predicts period onset in 14 days based on historical average</td>
+            <td>Next period countdown displayed: '14 days remaining'</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">4</td>
+            <td>Verify hormonal phase lifestyle and nutrition advice card</td>
+            <td>Phase: Ovulation Phase</td>
+            <td>Informational card recommends hydration, antioxidant nutrition, and light exercise</td>
+            <td>Nutrition and wellness recommendation cards loaded for Ovulatory phase</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">5</td>
+            <td>Confirm cycle calendar displays projected fertile days</td>
+            <td>Calendar View: Current Month</td>
+            <td>Fertile days highlighted with distinctive purple gradient markers</td>
+            <td>Calendar displays 5-day fertile window with correct visual badges</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="postcond-cell">
+        <strong>Post-Condition:</strong> Cycle stage synchronized across mobile dashboard and twin model.
+      </div>
+    </div>
+  </div>
+
+  <!-- TC_TC_TWIN_07 -->
+  <div class="test-case-wrapper">
+    <div class="test-case-heading">Test Case 27</div>
+    <div class="test-case-box">
+      <div class="project-name-row">Project Name: FemSphere – Lifetime AI Health Twin Companion</div>
+      <div class="banner-title">Cloud Sync Test Case</div>
+      <table class="meta-table">
+        <tr>
+          <td style="width: 50%;"><strong>Test Case ID:</strong> TC_TWIN_07</td>
+          <td style="width: 50%;"><strong>Test Designed By:</strong> KEERTHANA M</td>
+        </tr>
+        <tr>
+          <td><strong>Test Priority(Low/Medium/High):</strong> High</td>
+          <td><strong>Test Designed Date:</strong> 2026-10-16</td>
+        </tr>
+        <tr>
+          <td><strong>Module Name:</strong> Daily Vitals Tracker</td>
+          <td><strong>Test Executed By :</strong> Amal K Jose</td>
+        </tr>
+        <tr>
+          <td><strong>Test Title :</strong> Verify Daily Vitals Log Persistence &amp; PostgreSQL Cloud Sync</td>
+          <td><strong>Test Execution Date:</strong> 2026-10-16</td>
+        </tr>
+      </table>
+      <div class="desc-cell">
+        <strong>Description:</strong> Verifies tapping 'Save Daily Log' commits all entered biometrics to PostgreSQL backend and updates audit sync timestamp.
+      </div>
+      <div class="precond-cell">
+        <strong>Pre-Condition :</strong>Vitals inputs (water, sleep, mood, pain) populated in tracker form.
+      </div>
+
+      <table class="steps-table">
+        <thead>
+          <tr>
+            <th style="width: 45px; text-align: center;">Step</th>
+            <th style="width: 220px;">Test Step</th>
+            <th style="width: 170px;">Test Data</th>
+            <th style="width: 210px;">Expected Result</th>
+            <th style="width: 210px;">Actual Result</th>
+            <th style="width: 85px; text-align: center;">Status<br>(Pass/Fail)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="step-num">1</td>
+            <td>Locate 'Save Daily Log' submission button</td>
+            <td>Element ID: btn_save_daily_vitals</td>
+            <td>Button active and highlighted in primary theme</td>
+            <td>Button located</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">2</td>
+            <td>Click 'Save Daily Log' button</td>
+            <td>Event: OnTap</td>
+            <td>Form validates and dispatches POST /api/period-tracker/daily-log</td>
+            <td>HTTP 200 OK received from backend API</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">3</td>
+            <td>Verify PostgreSQL record insertion</td>
+            <td>Table: health_tracker, user_id: current</td>
+            <td>Record upserted with current log_date and metric values</td>
+            <td>Database verified; row committed with UTC timestamp</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">4</td>
+            <td>Verify success toast notification on screen</td>
+            <td>Toast: 'Daily log synced successfully'</td>
+            <td>Green confirmation toast displays; dashboard metrics refresh</td>
+            <td>Confirmation toast displayed; dashboard metrics updated</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="postcond-cell">
+        <strong>Post-Condition:</strong> Vitals saved to database and reflected in Digital Health Twin state.
+      </div>
+    </div>
+  </div>
+
+  <!-- TC_TC_CG_01 -->
+  <div class="test-case-wrapper">
+    <div class="test-case-heading">Test Case 28</div>
+    <div class="test-case-box">
+      <div class="project-name-row">Project Name: FemSphere – Lifetime AI Health Twin Companion</div>
+      <div class="banner-title">Caregiver Overview Test Case</div>
+      <table class="meta-table">
+        <tr>
+          <td style="width: 50%;"><strong>Test Case ID:</strong> TC_CG_01</td>
+          <td style="width: 50%;"><strong>Test Designed By:</strong> KEERTHANA M</td>
+        </tr>
+        <tr>
+          <td><strong>Test Priority(Low/Medium/High):</strong> High</td>
+          <td><strong>Test Designed Date:</strong> 2026-10-16</td>
+        </tr>
+        <tr>
+          <td><strong>Module Name:</strong> Caregiver Vault</td>
+          <td><strong>Test Executed By :</strong> Amal K Jose</td>
+        </tr>
+        <tr>
+          <td><strong>Test Title :</strong> Verify Multi-Dependent Summary Card &amp; Critical Alerts Display</td>
+          <td><strong>Test Execution Date:</strong> 2026-10-16</td>
+        </tr>
+      </table>
+      <div class="desc-cell">
+        <strong>Description:</strong> Verifies caregiver dashboard renders multi-dependent status cards, vital sign summaries, and pending medication alerts.
+      </div>
+      <div class="precond-cell">
+        <strong>Pre-Condition :</strong>Caregiver logged in with linked dependent profiles.
+      </div>
+
+      <table class="steps-table">
+        <thead>
+          <tr>
+            <th style="width: 45px; text-align: center;">Step</th>
+            <th style="width: 220px;">Test Step</th>
+            <th style="width: 170px;">Test Data</th>
+            <th style="width: 210px;">Expected Result</th>
+            <th style="width: 210px;">Actual Result</th>
+            <th style="width: 85px; text-align: center;">Status<br>(Pass/Fail)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="step-num">1</td>
+            <td>Navigate to Caregiver Dashboard tab</td>
+            <td>Route: /caregiver/dashboard</td>
+            <td>Caregiver Portal opens showing active dependents header</td>
+            <td>Caregiver view loaded cleanly</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">2</td>
+            <td>Inspect dependent overview cards</td>
+            <td>Element ID: caregiver_overview_card</td>
+            <td>Cards display names, ages, health twins, and recent vitals</td>
+            <td>Dependent cards rendered for 'Sophia (Mother)' and 'Maya (Infant)'</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">3</td>
+            <td>Verify urgent health alerts section</td>
+            <td>Alerts: Missed Medication Flag</td>
+            <td>Urgent notifications rendered at top of caregiver view</td>
+            <td>Reminder card displayed: 'Blood pressure check scheduled at 2:00 PM'</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="postcond-cell">
+        <strong>Post-Condition:</strong> Dependent health summary accurately displayed for caregiver.
+      </div>
+    </div>
+  </div>
+
+  <!-- TC_TC_CG_02 -->
+  <div class="test-case-wrapper">
+    <div class="test-case-heading">Test Case 29</div>
+    <div class="test-case-box">
+      <div class="project-name-row">Project Name: FemSphere – Lifetime AI Health Twin Companion</div>
+      <div class="banner-title">Dependent Profile Switcher Test Case</div>
+      <table class="meta-table">
+        <tr>
+          <td style="width: 50%;"><strong>Test Case ID:</strong> TC_CG_02</td>
+          <td style="width: 50%;"><strong>Test Designed By:</strong> KEERTHANA M</td>
+        </tr>
+        <tr>
+          <td><strong>Test Priority(Low/Medium/High):</strong> High</td>
+          <td><strong>Test Designed Date:</strong> 2026-10-16</td>
+        </tr>
+        <tr>
+          <td><strong>Module Name:</strong> Caregiver Vault</td>
+          <td><strong>Test Executed By :</strong> Amal K Jose</td>
+        </tr>
+        <tr>
+          <td><strong>Test Title :</strong> Verify Switching Active Dependent Profile Between Ward and Parent</td>
+          <td><strong>Test Execution Date:</strong> 2026-10-16</td>
+        </tr>
+      </table>
+      <div class="desc-cell">
+        <strong>Description:</strong> Verifies switching between dependent profiles updates dashboard vitals, medications, and immunization schedules accordingly.
+      </div>
+      <div class="precond-cell">
+        <strong>Pre-Condition :</strong>Multiple dependents configured under caregiver account.
+      </div>
+
+      <table class="steps-table">
+        <thead>
+          <tr>
+            <th style="width: 45px; text-align: center;">Step</th>
+            <th style="width: 220px;">Test Step</th>
+            <th style="width: 170px;">Test Data</th>
+            <th style="width: 210px;">Expected Result</th>
+            <th style="width: 210px;">Actual Result</th>
+            <th style="width: 85px; text-align: center;">Status<br>(Pass/Fail)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="step-num">1</td>
+            <td>Locate dependent profile dropdown switcher</td>
+            <td>Element ID: switch_dependent_dropdown</td>
+            <td>Switcher shows currently active dependent</td>
+            <td>Dropdown displays 'Sophia Rostova (Mother, Age 68)'</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">2</td>
+            <td>Tap dropdown and select secondary dependent</td>
+            <td>Selection: 'Maya Rostova (Infant, 8 Months)'</td>
+            <td>Caregiver dashboard switches focus to infant profile</td>
+            <td>Active profile switched to Maya Rostova</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">3</td>
+            <td>Verify view updates with infant-specific trackers</td>
+            <td>Modules: Pediatric Vaccines, Feeding &amp; Growth Log</td>
+            <td>Dashboard reloads showing pediatric charts and vaccine cards</td>
+            <td>Pediatric health metrics and immunization roadmap rendered</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="postcond-cell">
+        <strong>Post-Condition:</strong> Active dependent context switched to infant profile.
+      </div>
+    </div>
+  </div>
+
+  <!-- TC_TC_CG_03 -->
+  <div class="test-case-wrapper">
+    <div class="test-case-heading">Test Case 30</div>
+    <div class="test-case-box">
+      <div class="project-name-row">Project Name: FemSphere – Lifetime AI Health Twin Companion</div>
+      <div class="banner-title">Medication Reminder Test Case</div>
+      <table class="meta-table">
+        <tr>
+          <td style="width: 50%;"><strong>Test Case ID:</strong> TC_CG_03</td>
+          <td style="width: 50%;"><strong>Test Designed By:</strong> KEERTHANA M</td>
+        </tr>
+        <tr>
+          <td><strong>Test Priority(Low/Medium/High):</strong> High</td>
+          <td><strong>Test Designed Date:</strong> 2026-10-16</td>
+        </tr>
+        <tr>
+          <td><strong>Module Name:</strong> Caregiver Vault</td>
+          <td><strong>Test Executed By :</strong> Amal K Jose</td>
+        </tr>
+        <tr>
+          <td><strong>Test Title :</strong> Verify Prescription Medication Dosage Reminder Creation</td>
+          <td><strong>Test Execution Date:</strong> 2026-10-16</td>
+        </tr>
+      </table>
+      <div class="desc-cell">
+        <strong>Description:</strong> Verifies adding a prescription dosage reminder creates a scheduled notification and persists record to database.
+      </div>
+      <div class="precond-cell">
+        <strong>Pre-Condition :</strong>Caregiver has active dependent selected.
+      </div>
+
+      <table class="steps-table">
+        <thead>
+          <tr>
+            <th style="width: 45px; text-align: center;">Step</th>
+            <th style="width: 220px;">Test Step</th>
+            <th style="width: 170px;">Test Data</th>
+            <th style="width: 210px;">Expected Result</th>
+            <th style="width: 210px;">Actual Result</th>
+            <th style="width: 85px; text-align: center;">Status<br>(Pass/Fail)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="step-num">1</td>
+            <td>Locate and click 'Add Medication Reminder' button</td>
+            <td>Element ID: btn_add_medication</td>
+            <td>Medication reminder creation form modal opens</td>
+            <td>Add medication dialog displayed</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">2</td>
+            <td>Enter medication name and dosage specifications</td>
+            <td>Drug: 'Metformin 500mg', Frequency: 'Twice daily'</td>
+            <td>Form validates input and prompts for reminder time</td>
+            <td>Medication details accepted</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">3</td>
+            <td>Set reminder alert time</td>
+            <td>Time: 08:00 AM &amp; 08:00 PM</td>
+            <td>Time picker records reminder schedules</td>
+            <td>Reminder times configured</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">4</td>
+            <td>Tap Save Reminder button</td>
+            <td>Action: Save Prescription</td>
+            <td>Reminder saved to backend and scheduled with local alarms</td>
+            <td>HTTP 201 Created received; reminder appears on medication roster</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="postcond-cell">
+        <strong>Post-Condition:</strong> Medication reminder active and alert scheduled in local notification engine.
+      </div>
+    </div>
+  </div>
+
+  <!-- TC_TC_CG_04 -->
+  <div class="test-case-wrapper">
+    <div class="test-case-heading">Test Case 31</div>
+    <div class="test-case-box">
+      <div class="project-name-row">Project Name: FemSphere – Lifetime AI Health Twin Companion</div>
+      <div class="banner-title">Vaccination Tracker Test Case</div>
+      <table class="meta-table">
+        <tr>
+          <td style="width: 50%;"><strong>Test Case ID:</strong> TC_CG_04</td>
+          <td style="width: 50%;"><strong>Test Designed By:</strong> KEERTHANA M</td>
+        </tr>
+        <tr>
+          <td><strong>Test Priority(Low/Medium/High):</strong> Medium</td>
+          <td><strong>Test Designed Date:</strong> 2026-10-16</td>
+        </tr>
+        <tr>
+          <td><strong>Module Name:</strong> Caregiver Vault</td>
+          <td><strong>Test Executed By :</strong> Amal K Jose</td>
+        </tr>
+        <tr>
+          <td><strong>Test Title :</strong> Verify Dependent Vaccination Schedule &amp; Timeline Tracker</td>
+          <td><strong>Test Execution Date:</strong> 2026-10-16</td>
+        </tr>
+      </table>
+      <div class="desc-cell">
+        <strong>Description:</strong> Verifies accessing the pediatric vaccination schedule displays WHO-recommended immunization milestones with completion badges.
+      </div>
+      <div class="precond-cell">
+        <strong>Pre-Condition :</strong>Infant dependent profile selected in caregiver dashboard.
+      </div>
+
+      <table class="steps-table">
+        <thead>
+          <tr>
+            <th style="width: 45px; text-align: center;">Step</th>
+            <th style="width: 220px;">Test Step</th>
+            <th style="width: 170px;">Test Data</th>
+            <th style="width: 210px;">Expected Result</th>
+            <th style="width: 210px;">Actual Result</th>
+            <th style="width: 85px; text-align: center;">Status<br>(Pass/Fail)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="step-num">1</td>
+            <td>Tap on 'Vaccinations' navigation tab</td>
+            <td>Element ID: tab_vaccinations</td>
+            <td>Vaccination schedule timeline view opens</td>
+            <td>Vaccination screen displayed</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">2</td>
+            <td>Inspect completed vaccines list</td>
+            <td>Vaccines: BCG, HepB Dose 1, Polio OPV-1</td>
+            <td>Completed immunizations show green checkmarks and administration dates</td>
+            <td>Completed vaccines rendered with batch numbers and date stamps</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">3</td>
+            <td>Inspect upcoming scheduled vaccines</td>
+            <td>Upcoming: Measles-Rubella (MR Dose 1 - Age 9 Months)</td>
+            <td>Upcoming milestone displays countdown alert and booking CTA</td>
+            <td>Next vaccine alert displayed: 'Due in 3 weeks'</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="postcond-cell">
+        <strong>Post-Condition:</strong> Immunization records verified and tracked against clinical guidelines.
+      </div>
+    </div>
+  </div>
+
+  <!-- TC_TC_REC_01 -->
+  <div class="test-case-wrapper">
+    <div class="test-case-heading">Test Case 32</div>
+    <div class="test-case-box">
+      <div class="project-name-row">Project Name: FemSphere – Lifetime AI Health Twin Companion</div>
+      <div class="banner-title">Medical Records Vault Test Case</div>
+      <table class="meta-table">
+        <tr>
+          <td style="width: 50%;"><strong>Test Case ID:</strong> TC_REC_01</td>
+          <td style="width: 50%;"><strong>Test Designed By:</strong> KEERTHANA M</td>
+        </tr>
+        <tr>
+          <td><strong>Test Priority(Low/Medium/High):</strong> High</td>
+          <td><strong>Test Designed Date:</strong> 2026-10-16</td>
+        </tr>
+        <tr>
+          <td><strong>Module Name:</strong> Clinical Records Vault</td>
+          <td><strong>Test Executed By :</strong> Amal K Jose</td>
+        </tr>
+        <tr>
+          <td><strong>Test Title :</strong> Verify Patient Medical Records Vault Directory Access</td>
+          <td><strong>Test Execution Date:</strong> 2026-10-16</td>
+        </tr>
+      </table>
+      <div class="desc-cell">
+        <strong>Description:</strong> Verifies opening the Medical Vault displays categorized diagnostic lab reports, ultrasound scans, and prescriptions with HIPAA encryption.
+      </div>
+      <div class="precond-cell">
+        <strong>Pre-Condition :</strong>User logged in with medical records seeded in vault.
+      </div>
+
+      <table class="steps-table">
+        <thead>
+          <tr>
+            <th style="width: 45px; text-align: center;">Step</th>
+            <th style="width: 220px;">Test Step</th>
+            <th style="width: 170px;">Test Data</th>
+            <th style="width: 210px;">Expected Result</th>
+            <th style="width: 210px;">Actual Result</th>
+            <th style="width: 85px; text-align: center;">Status<br>(Pass/Fail)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="step-num">1</td>
+            <td>Tap on Medical Records tab in bottom navigation</td>
+            <td>Element ID: tab_medical_records</td>
+            <td>Medical Records Vault view opens with search bar and categories</td>
+            <td>Vault opened cleanly with encrypted storage banner</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">2</td>
+            <td>Verify categorized document folders</td>
+            <td>Folders: Lab Reports, Ultrasounds, Prescriptions</td>
+            <td>Folder tiles display document count badges</td>
+            <td>Folders rendered with document counts</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">3</td>
+            <td>Inspect recent documents table</td>
+            <td>Recent: 'Complete Blood Count (CBC) - 2026-10-10.pdf'</td>
+            <td>Document card displays filename, upload date, and OCR status</td>
+            <td>CBC lab report displayed with 'OCR Processed' badge</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="postcond-cell">
+        <strong>Post-Condition:</strong> Medical Vault accessible and documents decrypted for authenticated patient.
+      </div>
+    </div>
+  </div>
+
+  <!-- TC_TC_REC_02 -->
+  <div class="test-case-wrapper">
+    <div class="test-case-heading">Test Case 33</div>
+    <div class="test-case-box">
+      <div class="project-name-row">Project Name: FemSphere – Lifetime AI Health Twin Companion</div>
+      <div class="banner-title">Document Upload Test Case</div>
+      <table class="meta-table">
+        <tr>
+          <td style="width: 50%;"><strong>Test Case ID:</strong> TC_REC_02</td>
+          <td style="width: 50%;"><strong>Test Designed By:</strong> KEERTHANA M</td>
+        </tr>
+        <tr>
+          <td><strong>Test Priority(Low/Medium/High):</strong> High</td>
+          <td><strong>Test Designed Date:</strong> 2026-10-16</td>
+        </tr>
+        <tr>
+          <td><strong>Module Name:</strong> Clinical Records Vault</td>
+          <td><strong>Test Executed By :</strong> Amal K Jose</td>
+        </tr>
+        <tr>
+          <td><strong>Test Title :</strong> Verify Diagnostic Lab Report Upload Modal &amp; PDF Attachment</td>
+          <td><strong>Test Execution Date:</strong> 2026-10-16</td>
+        </tr>
+      </table>
+      <div class="desc-cell">
+        <strong>Description:</strong> Verifies clicking 'Upload Record' opens file picker modal, validates PDF format, and stages document for AI OCR parsing.
+      </div>
+      <div class="precond-cell">
+        <strong>Pre-Condition :</strong>Medical Vault open on screen.
+      </div>
+
+      <table class="steps-table">
+        <thead>
+          <tr>
+            <th style="width: 45px; text-align: center;">Step</th>
+            <th style="width: 220px;">Test Step</th>
+            <th style="width: 170px;">Test Data</th>
+            <th style="width: 210px;">Expected Result</th>
+            <th style="width: 210px;">Actual Result</th>
+            <th style="width: 85px; text-align: center;">Status<br>(Pass/Fail)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="step-num">1</td>
+            <td>Click on 'Upload Medical Record' FAB button</td>
+            <td>Element ID: btn_upload_medical_record</td>
+            <td>Upload bottom sheet opens with Drag &amp; Drop and Browse options</td>
+            <td>Upload sheet modal opened</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">2</td>
+            <td>Select diagnostic lab PDF file from storage</td>
+            <td>File: Lipid_Panel_Diagnostic_Report.pdf (2.4 MB)</td>
+            <td>File validated for MIME type (application/pdf) and size (&lt; 15MB)</td>
+            <td>File accepted; preview thumbnail and file size displayed</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">3</td>
+            <td>Fill record metadata fields</td>
+            <td>Category: 'Blood Test', Provider: 'Quest Diagnostics'</td>
+            <td>Fields accepted and validated</td>
+            <td>Metadata populated cleanly</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="postcond-cell">
+        <strong>Post-Condition:</strong> File staged and ready for Gemini OCR extraction.
+      </div>
+    </div>
+  </div>
+
+  <!-- TC_TC_REC_03 -->
+  <div class="test-case-wrapper">
+    <div class="test-case-heading">Test Case 34</div>
+    <div class="test-case-box">
+      <div class="project-name-row">Project Name: FemSphere – Lifetime AI Health Twin Companion</div>
+      <div class="banner-title">Gemini AI OCR Engine Test Case</div>
+      <table class="meta-table">
+        <tr>
+          <td style="width: 50%;"><strong>Test Case ID:</strong> TC_REC_03</td>
+          <td style="width: 50%;"><strong>Test Designed By:</strong> KEERTHANA M</td>
+        </tr>
+        <tr>
+          <td><strong>Test Priority(Low/Medium/High):</strong> High</td>
+          <td><strong>Test Designed Date:</strong> 2026-10-16</td>
+        </tr>
+        <tr>
+          <td><strong>Module Name:</strong> Clinical Records Vault</td>
+          <td><strong>Test Executed By :</strong> Amal K Jose</td>
+        </tr>
+        <tr>
+          <td><strong>Test Title :</strong> Verify Gemini 2.5 Flash OCR Biomarker Table Rendering</td>
+          <td><strong>Test Execution Date:</strong> 2026-10-16</td>
+        </tr>
+      </table>
+      <div class="desc-cell">
+        <strong>Description:</strong> Verifies that the Gemini AI OCR engine parses diagnostic lab PDF, extracts biomarker key-values, and renders structured results table.
+      </div>
+      <div class="precond-cell">
+        <strong>Pre-Condition :</strong>Lab report uploaded with OCR processing completed.
+      </div>
+
+      <table class="steps-table">
+        <thead>
+          <tr>
+            <th style="width: 45px; text-align: center;">Step</th>
+            <th style="width: 220px;">Test Step</th>
+            <th style="width: 170px;">Test Data</th>
+            <th style="width: 210px;">Expected Result</th>
+            <th style="width: 210px;">Actual Result</th>
+            <th style="width: 85px; text-align: center;">Status<br>(Pass/Fail)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="step-num">1</td>
+            <td>Open details for processed lab report</td>
+            <td>Document: 'CBC_Metabolic_Panel.pdf'</td>
+            <td>Report details screen opens with tabs: 'Original File' &amp; 'AI Insights'</td>
+            <td>Report details loaded with OCR results view</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">2</td>
+            <td>Inspect AI Biomarkers Extraction table</td>
+            <td>Element ID: biomarker_results_table</td>
+            <td>Table renders columns: Biomarker Name, Value, Reference Range, Status</td>
+            <td>Biomarker table visible with parsed laboratory readings</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">3</td>
+            <td>Verify extracted hemoglobin reading and reference status</td>
+            <td>Hemoglobin: 13.8 g/dL (Range: 12.0 - 15.5 g/dL)</td>
+            <td>Hemoglobin classified as 'Normal' with green badge</td>
+            <td>Reading parsed accurately as 13.8 g/dL with green Normal badge</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">4</td>
+            <td>Verify extracted ferritin reading and reference status</td>
+            <td>Serum Ferritin: 18 ng/mL (Range: 15 - 150 ng/mL)</td>
+            <td>Ferritin flagged as 'Low-Normal' with nutritional iron recommendation</td>
+            <td>Low-normal iron alert rendered with twin diet recommendation</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="postcond-cell">
+        <strong>Post-Condition:</strong> Biomarkers parsed and mapped into Digital Twin metabolic profile.
+      </div>
+    </div>
+  </div>
+
+  <!-- TC_TC_REC_04 -->
+  <div class="test-case-wrapper">
+    <div class="test-case-heading">Test Case 35</div>
+    <div class="test-case-box">
+      <div class="project-name-row">Project Name: FemSphere – Lifetime AI Health Twin Companion</div>
+      <div class="banner-title">Diagnostic Document Viewer Test Case</div>
+      <table class="meta-table">
+        <tr>
+          <td style="width: 50%;"><strong>Test Case ID:</strong> TC_REC_04</td>
+          <td style="width: 50%;"><strong>Test Designed By:</strong> KEERTHANA M</td>
+        </tr>
+        <tr>
+          <td><strong>Test Priority(Low/Medium/High):</strong> Medium</td>
+          <td><strong>Test Designed Date:</strong> 2026-10-16</td>
+        </tr>
+        <tr>
+          <td><strong>Module Name:</strong> Clinical Records Vault</td>
+          <td><strong>Test Executed By :</strong> Amal K Jose</td>
+        </tr>
+        <tr>
+          <td><strong>Test Title :</strong> Verify Secure Diagnostic File Download &amp; In-App Document Viewer</td>
+          <td><strong>Test Execution Date:</strong> 2026-10-16</td>
+        </tr>
+      </table>
+      <div class="desc-cell">
+        <strong>Description:</strong> Verifies tapping 'View Original Report' retrieves encrypted file from secure cloud and renders in native in-app PDF viewer.
+      </div>
+      <div class="precond-cell">
+        <strong>Pre-Condition :</strong>Lab report selected in medical records vault.
+      </div>
+
+      <table class="steps-table">
+        <thead>
+          <tr>
+            <th style="width: 45px; text-align: center;">Step</th>
+            <th style="width: 220px;">Test Step</th>
+            <th style="width: 170px;">Test Data</th>
+            <th style="width: 210px;">Expected Result</th>
+            <th style="width: 210px;">Actual Result</th>
+            <th style="width: 85px; text-align: center;">Status<br>(Pass/Fail)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="step-num">1</td>
+            <td>Locate 'View Original PDF' action button</td>
+            <td>Element ID: btn_view_report_file</td>
+            <td>Action button is visible with document eye icon</td>
+            <td>Button located</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">2</td>
+            <td>Click 'View Original PDF' button</td>
+            <td>Event: Open Document Viewer</td>
+            <td>Encrypted file downloaded and rendered inside native PDF canvas</td>
+            <td>In-app PDF viewer launched displaying high-resolution pages</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">3</td>
+            <td>Test page zoom and scrolling navigation</td>
+            <td>Gesture: Pinch-to-zoom &amp; Vertical Scroll</td>
+            <td>Document zooms smoothly without raster distortion or crash</td>
+            <td>PDF navigation smooth and responsive</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="postcond-cell">
+        <strong>Post-Condition:</strong> Original diagnostic document rendered securely inside protected sandbox.
+      </div>
+    </div>
+  </div>
+
+  <!-- TC_TC_BLE_01 -->
+  <div class="test-case-wrapper">
+    <div class="test-case-heading">Test Case 36</div>
+    <div class="test-case-box">
+      <div class="project-name-row">Project Name: FemSphere – Lifetime AI Health Twin Companion</div>
+      <div class="banner-title">GATT Service Discovery Test Case</div>
+      <table class="meta-table">
+        <tr>
+          <td style="width: 50%;"><strong>Test Case ID:</strong> TC_BLE_01</td>
+          <td style="width: 50%;"><strong>Test Designed By:</strong> KEERTHANA M</td>
+        </tr>
+        <tr>
+          <td><strong>Test Priority(Low/Medium/High):</strong> High</td>
+          <td><strong>Test Designed Date:</strong> 2026-10-16</td>
+        </tr>
+        <tr>
+          <td><strong>Module Name:</strong> BLE GATT Engine</td>
+          <td><strong>Test Executed By :</strong> Amal K Jose</td>
+        </tr>
+        <tr>
+          <td><strong>Test Title :</strong> Verify Standalone BLE GATT Service Discovery on Peripheral Manager</td>
+          <td><strong>Test Execution Date:</strong> 2026-10-16</td>
+        </tr>
+      </table>
+      <div class="desc-cell">
+        <strong>Description:</strong> Verifies that connecting to a Bluetooth Smartwatch triggers primary GATT service discovery and catalogs Heart Rate, Battery, and Device Info services.
+      </div>
+      <div class="precond-cell">
+        <strong>Pre-Condition :</strong>BLE peripheral connected via FlutterBluePlus adapter.
+      </div>
+
+      <table class="steps-table">
+        <thead>
+          <tr>
+            <th style="width: 45px; text-align: center;">Step</th>
+            <th style="width: 220px;">Test Step</th>
+            <th style="width: 170px;">Test Data</th>
+            <th style="width: 210px;">Expected Result</th>
+            <th style="width: 210px;">Actual Result</th>
+            <th style="width: 85px; text-align: center;">Status<br>(Pass/Fail)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="step-num">1</td>
+            <td>Initiate GATT service discovery on connected peripheral</td>
+            <td>Method: peripheral.discoverServices()</td>
+            <td>Service discovery completes with status GATT_SUCCESS (0)</td>
+            <td>GATT_SUCCESS returned; 11 services cataloged</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">2</td>
+            <td>Verify presence of Standard Heart Rate Service</td>
+            <td>Service UUID: 0x180D (0000180d-0000-1000-8000-00805f9b34fb)</td>
+            <td>Heart Rate service located in peripheral GATT tree</td>
+            <td>0x180D service identified and registered</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">3</td>
+            <td>Verify presence of Standard Battery Service</td>
+            <td>Service UUID: 0x180F (0000180f-0000-1000-8000-00805f9b34fb)</td>
+            <td>Battery service located in peripheral GATT tree</td>
+            <td>0x180F service identified and registered</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="postcond-cell">
+        <strong>Post-Condition:</strong> GATT service tree cataloged and characteristics prepared for subscription.
+      </div>
+    </div>
+  </div>
+
+  <!-- TC_TC_BLE_02 -->
+  <div class="test-case-wrapper">
+    <div class="test-case-heading">Test Case 37</div>
+    <div class="test-case-box">
+      <div class="project-name-row">Project Name: FemSphere – Lifetime AI Health Twin Companion</div>
+      <div class="banner-title">Standalone Telemetry Test Case</div>
+      <table class="meta-table">
+        <tr>
+          <td style="width: 50%;"><strong>Test Case ID:</strong> TC_BLE_02</td>
+          <td style="width: 50%;"><strong>Test Designed By:</strong> KEERTHANA M</td>
+        </tr>
+        <tr>
+          <td><strong>Test Priority(Low/Medium/High):</strong> Medium</td>
+          <td><strong>Test Designed Date:</strong> 2026-10-16</td>
+        </tr>
+        <tr>
+          <td><strong>Module Name:</strong> BLE GATT Engine</td>
+          <td><strong>Test Executed By :</strong> Amal K Jose</td>
+        </tr>
+        <tr>
+          <td><strong>Test Title :</strong> Verify Biometric Telemetry Operates Without Vendor Cloud Apps</td>
+          <td><strong>Test Execution Date:</strong> 2026-10-16</td>
+        </tr>
+      </table>
+      <div class="desc-cell">
+        <strong>Description:</strong> Verifies standard BLE smartwatches stream biometrics directly into FemSphere without requiring proprietary vendor OEM applications.
+      </div>
+      <div class="precond-cell">
+        <strong>Pre-Condition :</strong>Vendor companion apps uninstalled or disabled in background.
+      </div>
+
+      <table class="steps-table">
+        <thead>
+          <tr>
+            <th style="width: 45px; text-align: center;">Step</th>
+            <th style="width: 220px;">Test Step</th>
+            <th style="width: 170px;">Test Data</th>
+            <th style="width: 210px;">Expected Result</th>
+            <th style="width: 210px;">Actual Result</th>
+            <th style="width: 85px; text-align: center;">Status<br>(Pass/Fail)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="step-num">1</td>
+            <td>Verify standalone BLE badge is rendered on devices screen</td>
+            <td>Element ID: badge_standalone_ble</td>
+            <td>Badge reads 'Direct BLE Mode (No Vendor Cloud Required)'</td>
+            <td>Standalone badge visible with Bluetooth icon</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">2</td>
+            <td>Subscribe to Heart Rate measurement notification characteristic</td>
+            <td>Characteristic: 0x2A37 (Heart Rate Measurement)</td>
+            <td>Client Characteristic Configuration Descriptor (CCCD 0x2902) set to notify</td>
+            <td>Notification enabled; GATT status 0 received</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">3</td>
+            <td>Verify direct packet decoding into live BPM reading</td>
+            <td>Payload: [0x00, 0x48] -&gt; 72 BPM</td>
+            <td>Raw byte packet unpacked into integer BPM without cloud processing</td>
+            <td>72 BPM decoded and displayed directly on health dashboard</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="postcond-cell">
+        <strong>Post-Condition:</strong> Direct on-device telemetry stream active without external cloud dependencies.
+      </div>
+    </div>
+  </div>
+
+  <!-- TC_TC_BLE_03 -->
+  <div class="test-case-wrapper">
+    <div class="test-case-heading">Test Case 38</div>
+    <div class="test-case-box">
+      <div class="project-name-row">Project Name: FemSphere – Lifetime AI Health Twin Companion</div>
+      <div class="banner-title">Auto-Reconnect Keepalive Test Case</div>
+      <table class="meta-table">
+        <tr>
+          <td style="width: 50%;"><strong>Test Case ID:</strong> TC_BLE_03</td>
+          <td style="width: 50%;"><strong>Test Designed By:</strong> KEERTHANA M</td>
+        </tr>
+        <tr>
+          <td><strong>Test Priority(Low/Medium/High):</strong> High</td>
+          <td><strong>Test Designed Date:</strong> 2026-10-16</td>
+        </tr>
+        <tr>
+          <td><strong>Module Name:</strong> BLE GATT Engine</td>
+          <td><strong>Test Executed By :</strong> Amal K Jose</td>
+        </tr>
+        <tr>
+          <td><strong>Test Title :</strong> Verify Persistent Auto-Reconnect Keepalive Listener</td>
+          <td><strong>Test Execution Date:</strong> 2026-10-16</td>
+        </tr>
+      </table>
+      <div class="desc-cell">
+        <strong>Description:</strong> Verifies that walking out of Bluetooth range and returning triggers automatic background reconnection without user intervention.
+      </div>
+      <div class="precond-cell">
+        <strong>Pre-Condition :</strong>Wearable paired with auto-reconnect setting enabled.
+      </div>
+
+      <table class="steps-table">
+        <thead>
+          <tr>
+            <th style="width: 45px; text-align: center;">Step</th>
+            <th style="width: 220px;">Test Step</th>
+            <th style="width: 170px;">Test Data</th>
+            <th style="width: 210px;">Expected Result</th>
+            <th style="width: 210px;">Actual Result</th>
+            <th style="width: 85px; text-align: center;">Status<br>(Pass/Fail)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="step-num">1</td>
+            <td>Verify auto-reconnect toggle is enabled in device settings</td>
+            <td>Element ID: toggle_ble_keepalive</td>
+            <td>Toggle switch active; background listener registered</td>
+            <td>Keepalive listener verified active</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">2</td>
+            <td>Simulate peripheral signal drop / disconnection</td>
+            <td>Event: ConnectionState.disconnected</td>
+            <td>App changes status to 'Reconnecting...'; starts exponential backoff</td>
+            <td>Reconnection timer initiated with 3s interval</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">3</td>
+            <td>Simulate peripheral signal restoration</td>
+            <td>Event: Peripheral detected in scan</td>
+            <td>App reconnects automatically and restores telemetry stream</td>
+            <td>Peripheral reconnected within 4.2 seconds; telemetry resumed</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="postcond-cell">
+        <strong>Post-Condition:</strong> Wearable connection restored and telemetry flow continuous.
+      </div>
+    </div>
+  </div>
+
+  <!-- TC_TC_BLE_04 -->
+  <div class="test-case-wrapper">
+    <div class="test-case-heading">Test Case 39</div>
+    <div class="test-case-box">
+      <div class="project-name-row">Project Name: FemSphere – Lifetime AI Health Twin Companion</div>
+      <div class="banner-title">Heart Rate Streaming Test Case</div>
+      <table class="meta-table">
+        <tr>
+          <td style="width: 50%;"><strong>Test Case ID:</strong> TC_BLE_04</td>
+          <td style="width: 50%;"><strong>Test Designed By:</strong> KEERTHANA M</td>
+        </tr>
+        <tr>
+          <td><strong>Test Priority(Low/Medium/High):</strong> High</td>
+          <td><strong>Test Designed Date:</strong> 2026-10-16</td>
+        </tr>
+        <tr>
+          <td><strong>Module Name:</strong> BLE GATT Engine</td>
+          <td><strong>Test Executed By :</strong> Amal K Jose</td>
+        </tr>
+        <tr>
+          <td><strong>Test Title :</strong> Verify Standard Bluetooth SIG 0x180D Heart Rate Stream Ingestion</td>
+          <td><strong>Test Execution Date:</strong> 2026-10-16</td>
+        </tr>
+      </table>
+      <div class="desc-cell">
+        <strong>Description:</strong> Verifies reading and streaming standard 0x2A37 Heart Rate Measurement notifications with RR-interval parsing.
+      </div>
+      <div class="precond-cell">
+        <strong>Pre-Condition :</strong>Wearable device actively streaming heart rate data.
+      </div>
+
+      <table class="steps-table">
+        <thead>
+          <tr>
+            <th style="width: 45px; text-align: center;">Step</th>
+            <th style="width: 220px;">Test Step</th>
+            <th style="width: 170px;">Test Data</th>
+            <th style="width: 210px;">Expected Result</th>
+            <th style="width: 210px;">Actual Result</th>
+            <th style="width: 85px; text-align: center;">Status<br>(Pass/Fail)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="step-num">1</td>
+            <td>Locate Heart Rate stream card on User Dashboard</td>
+            <td>Element ID: ble_telemetry_hr_stream</td>
+            <td>Card displays pulsing heart animation and current BPM reading</td>
+            <td>Card visible with live BPM numerical readout</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">2</td>
+            <td>Observe telemetry updates over 10-second window</td>
+            <td>Interval: 1 Hz notification packets</td>
+            <td>BPM reading updates in real-time as peripheral broadcasts</td>
+            <td>BPM readings received and charted continuously (72 -&gt; 74 -&gt; 71 BPM)</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">3</td>
+            <td>Verify resting heart rate calculation</td>
+            <td>Calculated Resting HR: 64 BPM</td>
+            <td>Resting HR metric updates from continuous baseline</td>
+            <td>Resting HR 64 BPM displayed with timestamp indicator</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="postcond-cell">
+        <strong>Post-Condition:</strong> Heart rate readings ingested and recorded in local health cache.
+      </div>
+    </div>
+  </div>
+
+  <!-- TC_TC_BLE_05 -->
+  <div class="test-case-wrapper">
+    <div class="test-case-heading">Test Case 40</div>
+    <div class="test-case-box">
+      <div class="project-name-row">Project Name: FemSphere – Lifetime AI Health Twin Companion</div>
+      <div class="banner-title">Battery Characteristic Test Case</div>
+      <table class="meta-table">
+        <tr>
+          <td style="width: 50%;"><strong>Test Case ID:</strong> TC_BLE_05</td>
+          <td style="width: 50%;"><strong>Test Designed By:</strong> KEERTHANA M</td>
+        </tr>
+        <tr>
+          <td><strong>Test Priority(Low/Medium/High):</strong> Low</td>
+          <td><strong>Test Designed Date:</strong> 2026-10-16</td>
+        </tr>
+        <tr>
+          <td><strong>Module Name:</strong> BLE GATT Engine</td>
+          <td><strong>Test Executed By :</strong> Amal K Jose</td>
+        </tr>
+        <tr>
+          <td><strong>Test Title :</strong> Verify 0x180F Battery Level Characteristic Polling &amp; Battery Status Display</td>
+          <td><strong>Test Execution Date:</strong> 2026-10-16</td>
+        </tr>
+      </table>
+      <div class="desc-cell">
+        <strong>Description:</strong> Verifies reading 0x2A19 Battery Level characteristic returns battery percentage (0-100%) and updates low-battery alert threshold.
+      </div>
+      <div class="precond-cell">
+        <strong>Pre-Condition :</strong>Wearable device paired and battery service discovered.
+      </div>
+
+      <table class="steps-table">
+        <thead>
+          <tr>
+            <th style="width: 45px; text-align: center;">Step</th>
+            <th style="width: 220px;">Test Step</th>
+            <th style="width: 170px;">Test Data</th>
+            <th style="width: 210px;">Expected Result</th>
+            <th style="width: 210px;">Actual Result</th>
+            <th style="width: 85px; text-align: center;">Status<br>(Pass/Fail)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="step-num">1</td>
+            <td>Locate battery indicator widget on connected device card</td>
+            <td>Element ID: ble_device_battery_level</td>
+            <td>Battery percentage icon and text displayed</td>
+            <td>Battery indicator located</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">2</td>
+            <td>Read 0x2A19 characteristic value from peripheral</td>
+            <td>Characteristic: 00002a19-0000-1000-8000-00805f9b34fb</td>
+            <td>Returns single byte representing percentage (e.g. 0x55 = 85%)</td>
+            <td>GATT read returned 85%; indicator displays '85%' with green fill</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+          <tr>
+            <td class="step-num">3</td>
+            <td>Verify low-power warning threshold logic</td>
+            <td>Threshold: &lt; 20%</td>
+            <td>Displays amber battery warning when reading drops below 20%</td>
+            <td>Low battery threshold rule evaluated; normal state confirmed (85%)</td>
+            <td class="status-pass">Pass</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="postcond-cell">
+        <strong>Post-Condition:</strong> Wearable battery telemetry updated and monitored for low power states.
+      </div>
+    </div>
+  </div>
+
+
+</div>
+</body>
+</html>

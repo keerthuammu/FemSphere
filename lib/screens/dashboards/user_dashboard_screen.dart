@@ -434,11 +434,10 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
   }) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-      decoration: BoxDecoration(
+      child: Material(
         color: isSelected ? color.withValues(alpha: 0.12) : Colors.transparent,
         borderRadius: BorderRadius.circular(12),
-      ),
-      child: ListTile(
+        child: ListTile(
         dense: true,
         leading: Icon(icon, color: isSelected ? color : const Color(0xFF64748B), size: 20),
         title: Text(
@@ -461,6 +460,7 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
             : null,
         onTap: onTap,
       ),
-    );
-  }
+    ),
+  );
+}
 }

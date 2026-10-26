@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS user_profiles (
     user_id INT UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     full_name VARCHAR(150) NOT NULL,
     dob DATE NOT NULL,
-    gender VARCHAR(30) DEFAULT 'Female' CHECK (gender IN ('Female', 'Non-Binary', 'Other')),
+    gender VARCHAR(30) DEFAULT 'Female' CHECK (gender IN ('Female', 'Male', 'Non-Binary', 'Other')),
     blood_group VARCHAR(20) CHECK (blood_group IN ('A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'Unknown')),
     height_cm NUMERIC(5,2) CHECK (height_cm IS NULL OR (height_cm > 30.0 AND height_cm < 280.0)),
     weight_kg NUMERIC(5,2) CHECK (weight_kg IS NULL OR (weight_kg > 2.0 AND weight_kg < 450.0)),
@@ -455,6 +455,25 @@ CREATE TABLE IF NOT EXISTS smartwatch_health_data (
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS uq_smartwatch_data_sync_key ON smartwatch_health_data (user_id, sync_key) WHERE sync_key IS NOT NULL;
+
+-- 25b. WEARABLE_SYNC_HISTORY TABLE (Batch Audit & Health Hub Sync Logs)
+CREATE TABLE IF NOT EXISTS wearable_sync_history (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    device_id INT REFERENCES smartwatch_devices(id) ON DELETE SET NULL,
+    provider VARCHAR(50) NOT NULL,
+    sync_status VARCHAR(50) NOT NULL,
+    records_discovered INT DEFAULT 0,
+    records_uploaded INT DEFAULT 0,
+    records_failed INT DEFAULT 0,
+    error_message TEXT,
+    started_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    completed_at TIMESTAMP WITH TIME ZONE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_wearable_sync_history_user ON wearable_sync_history(user_id);
+CREATE INDEX IF NOT EXISTS idx_wearable_sync_history_started ON wearable_sync_history(started_at DESC);
 
 -- Wearable Views for Universal Compatibility
 CREATE OR REPLACE VIEW wearable_devices AS SELECT * FROM smartwatch_devices;

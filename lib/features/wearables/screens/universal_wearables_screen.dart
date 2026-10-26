@@ -9,8 +9,10 @@ import '../services/wearable_sync_service.dart';
 import '../widgets/brand_badge.dart';
 import '../widgets/capabilities_strip.dart';
 import '../widgets/universal_metric_card.dart';
+import 'amazfit_setup_guide_screen.dart';
 import 'device_qr_scanner_screen.dart';
 import 'universal_scan_screen.dart';
+import 'wearable_sync_history_screen.dart';
 
 class UniversalWearablesScreen extends StatefulWidget {
   const UniversalWearablesScreen({super.key});
@@ -227,6 +229,28 @@ class _UniversalWearablesScreenState extends State<UniversalWearablesScreen> wit
               if (res == true) {
                 _loadDevicesAndTelemetry();
               }
+            },
+          ),
+          IconButton(
+            tooltip: 'Amazfit & Zepp Guide',
+            icon: const Icon(Icons.watch_later_outlined, color: AppTheme.primaryPurple),
+            onPressed: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const AmazfitSetupGuideScreen()),
+              );
+              _loadDevicesAndTelemetry();
+            },
+          ),
+          IconButton(
+            tooltip: 'Sync History',
+            icon: const Icon(Icons.history_toggle_off, color: Colors.blueGrey),
+            onPressed: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const WearableSyncHistoryScreen()),
+              );
+              _loadDevicesAndTelemetry();
             },
           ),
           IconButton(
@@ -834,18 +858,19 @@ class _UniversalWearablesScreenState extends State<UniversalWearablesScreen> wit
                     ),
                   );
 
-                  Navigator.pop(ctx);
+                  final messenger = ScaffoldMessenger.of(context);
+                  if (ctx.mounted) {
+                    Navigator.pop(ctx);
+                  }
                   await _loadDevicesAndTelemetry();
 
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('✓ Telemetry calibrated to match $devName!'),
-                        backgroundColor: const Color(0xFF10B981),
-                        behavior: SnackBarBehavior.floating,
-                      ),
-                    );
-                  }
+                  messenger.showSnackBar(
+                    SnackBar(
+                      content: Text('✓ Telemetry calibrated to match $devName!'),
+                      backgroundColor: const Color(0xFF10B981),
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
                 },
               ),
             ),

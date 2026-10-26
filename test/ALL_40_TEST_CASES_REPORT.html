@@ -2,469 +2,583 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>FemSphere - Vital Automated & Manual Test Cases Verification Report</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FemSphere - Test Execution Report (5 Vital Test Cases)</title>
   <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
     body {
       font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
-      margin: 20px 30px;
-      color: #000;
-      background: #fff;
+      color: #000000;
+      background: #ffffff;
+      padding: 24px 32px;
+      line-height: 1.4;
+      font-size: 13px;
     }
     .report-container {
-      max-width: 950px;
+      max-width: 980px;
       margin: 0 auto;
     }
-    .header-block {
+    .header-summary {
       margin-bottom: 25px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #000000;
     }
-    .header-title {
+    .header-summary h1 {
       font-size: 20px;
       font-weight: bold;
-      margin-bottom: 5px;
+      color: #000000;
+      margin-bottom: 4px;
     }
-    .header-sub {
-      font-size: 13px;
-      color: #333;
-      margin-bottom: 2px;
+    .header-summary p {
+      font-size: 12.5px;
+      color: #333333;
     }
+
+    /* Test Case Block */
     .test-case-wrapper {
-      margin-bottom: 45px;
+      margin-bottom: 38px;
       page-break-inside: avoid;
     }
-    .test-case-heading {
-      font-size: 16px;
+    .test-case-title {
+      font-size: 14.5px;
       font-weight: bold;
-      margin-bottom: 8px;
+      color: #000000;
+      margin-bottom: 6px;
+      font-family: Arial, sans-serif;
     }
-    .test-case-box {
-      border: 1.5px solid #000;
-      background: #fff;
+    .test-case-card {
+      border: 2px solid #000000;
+      background: #ffffff;
     }
+
+    /* Project Name */
     .project-name-row {
-      font-weight: bold;
-      padding: 7px 10px;
-      font-size: 14px;
-      border-bottom: 1px solid #000;
+      padding: 6px 10px;
+      font-size: 13px;
+      border-bottom: 1.5px solid #000000;
     }
-    .banner-title {
-      font-weight: bold;
+
+    /* Banner / Test Case Title */
+    .banner-title-row {
       text-align: center;
-      padding: 8px 10px;
+      font-weight: bold;
       font-size: 14px;
-      border-bottom: 1px solid #000;
+      padding: 7px 10px;
+      border-bottom: 1.5px solid #000000;
+      background: #ffffff;
     }
-    .meta-table {
+
+    /* 2-Column Meta Grid */
+    .meta-grid {
       width: 100%;
       border-collapse: collapse;
     }
-    .meta-table td {
-      border-bottom: 1px solid #000;
-      border-right: 1px solid #000;
-      padding: 6px 10px;
-      font-size: 12.5px;
+    .meta-grid td {
+      border-bottom: 1px solid #000000;
+      padding: 5px 10px;
+      font-size: 12px;
+      vertical-align: top;
+      line-height: 1.4;
+    }
+    .col-left {
+      width: 50%;
+      border-right: 1.5px solid #000000;
+    }
+    .col-right {
+      width: 50%;
+    }
+    .desc-label {
       vertical-align: top;
     }
-    .meta-table tr td:last-child {
-      border-right: none;
+    .desc-content {
+      vertical-align: top;
     }
-    .desc-cell {
-      padding: 8px 10px;
+
+    .dropdown-box {
+      display: inline-block;
+      border: 1px solid #777777;
+      background: #e2e2e2;
+      padding: 0 4px;
+      font-size: 8px;
+      line-height: 12px;
+      margin: 0 3px;
+      vertical-align: middle;
+      border-radius: 2px;
+      cursor: default;
+    }
+
+    /* Pre-Condition */
+    .precondition-row {
+      padding: 6px 10px;
       font-size: 12px;
-      line-height: 1.45;
-      border-bottom: 1px solid #000;
+      border-bottom: 1.5px solid #000000;
+      line-height: 1.4;
+      background: #ffffff;
     }
-    .steps-table {
+
+    /* Steps Table */
+    .steps-grid {
       width: 100%;
       border-collapse: collapse;
     }
-    .steps-table th {
-      border-right: 1px solid #000;
-      border-bottom: 1px solid #000;
-      padding: 7px 6px;
-      font-size: 12px;
+    .steps-grid th {
+      border-right: 1px solid #000000;
+      border-bottom: 1.5px solid #000000;
+      padding: 6px 8px;
+      font-size: 11.5px;
       font-weight: bold;
       text-align: left;
-      background-color: #f7f7f7;
+      background-color: #ffffff;
+      line-height: 1.25;
     }
-    .steps-table th:last-child {
+    .steps-grid th:last-child {
       border-right: none;
     }
-    .steps-table td {
-      border-right: 1px solid #000;
-      border-bottom: 1px solid #000;
-      padding: 6px 8px;
+    .steps-grid td {
+      border-right: 1px solid #000000;
+      border-bottom: 1px solid #000000;
+      padding: 5px 8px;
       font-size: 11.5px;
       vertical-align: top;
       line-height: 1.35;
     }
-    .steps-table td:last-child {
+    .steps-grid td:last-child {
       border-right: none;
     }
-    .steps-table tr:last-child td {
+    .steps-grid tr:last-child td {
       border-bottom: none;
     }
-    .step-num {
+    .step-col {
       text-align: center;
-      width: 40px;
+      font-weight: 500;
     }
-    .status-pass {
+    .status-col {
+      text-align: center;
       font-weight: bold;
-      text-align: center;
     }
+
+    /* Post-Condition */
+    .postcondition-row {
+      padding: 6px 10px;
+      font-size: 12px;
+      border-top: 1.5px solid #000000;
+      line-height: 1.4;
+      background: #ffffff;
+    }
+
     @media print {
-      body { margin: 10mm; }
-      .test-case-wrapper { page-break-inside: avoid; }
+      body {
+        padding: 8mm 6mm;
+      }
+      .test-case-wrapper {
+        page-break-inside: avoid;
+        margin-bottom: 25px;
+      }
     }
   </style>
 </head>
 <body>
 
 <div class="report-container">
-  <div class="header-block">
-    <div class="header-title">FemSphere - Vital Test Execution Report</div>
-    <div class="header-sub"><strong>Project:</strong> FemSphere - Lifetime AI Health Twin Companion Platform</div>
-    <div class="header-sub"><strong>Test Executed By:</strong> Amal K Jose</div>
-    <div class="header-sub"><strong>Total Executed Test Cases:</strong> 5 &bull; <strong>Passed:</strong> 5 (100%) &bull; <strong>Failed:</strong> 0</div>
+  <div class="header-summary">
+    <h1>FemSphere – Comprehensive Test Execution Verification Report</h1>
+    <p><strong>Project Name:</strong> FemSphere – Lifetime AI Health Twin Companion Platform &bull; <strong>Lead QA:</strong> KEERTHANA M &bull; <strong>Executed By:</strong> Amal K Jose</p>
+    <p><strong>Total Executed Test Cases:</strong> 5 &bull; <strong>Passed:</strong> 5 (100%) &bull; <strong>Failed:</strong> 0 &bull; <strong>Execution Date:</strong> October 16, 2026</p>
   </div>
 
-  <!-- TC_AUTH_01 -->
   <div class="test-case-wrapper">
-    <div class="test-case-heading">Test Case 1</div>
-    <div class="test-case-box">
-      <div class="project-name-row">Project Name: FemSphere</div>
-      <div class="banner-title">Authentication Test Case</div>
-      <table class="meta-table">
-        <tr>
-          <td style="width: 50%;"><strong>Test Case ID:</strong> TC_AUTH_01</td>
-          <td style="width: 50%;"><strong>Test Designed By:</strong> KEERTHANA M</td>
-        </tr>
-        <tr>
-          <td><strong>Test Priority (Low/Medium/High):</strong> High</td>
-          <td><strong>Test Designed Date:</strong> 2026-10-16</td>
-        </tr>
-        <tr>
-          <td><strong>Module Name:</strong> Patient Authentication</td>
-          <td><strong>Test Executed By:</strong> Amal K Jose</td>
-        </tr>
-        <tr>
-          <td rowspan="2" style="border-bottom: none;">
-            <strong>Test Title:</strong> Verify Valid Patient Login &amp; Dashboard Redirection
-          </td>
-          <td><strong>Test Execution Date:</strong> 2026-10-16</td>
-        </tr>
-        <tr>
-          <td style="border-bottom: none;">&nbsp;</td>
-        </tr>
-      </table>
-      <div class="desc-cell">
-        <strong>Description:</strong> Verifies that a registered female patient can successfully authenticate with valid credentials and transition to the Patient Health Dashboard.
+    <div class="test-case-title">Test Case 1</div>
+    <div class="test-case-card">
+      <div class="project-name-row">
+        <strong>Project Name:</strong> FemSphere – Lifetime AI Health Twin Companion
+      </div>
+      <div class="banner-title-row">
+        Patient Authentication Test Case
       </div>
 
-      <table class="steps-table">
+      <table class="meta-grid">
+        <tr>
+          <td class="col-left"><strong>Test Case ID:</strong> TC_AUTH_01</td>
+          <td class="col-right"><strong>Test Designed By:</strong> KEERTHANA M</td>
+        </tr>
+        <tr>
+          <td class="col-left"><strong>Test Priority(Low/Medium/High):</strong> High</td>
+          <td class="col-right"><strong>Test Designed Date:</strong> 2026-10-16</td>
+        </tr>
+        <tr>
+          <td class="col-left">
+            <strong>Module Name:</strong>Patient Authentication
+          </td>
+          <td class="col-right"><strong>Test Executed By :</strong> Amal K Jose</td>
+        </tr>
+        <tr>
+          <td class="col-left"><strong>Test Title :</strong> Verify Valid Patient Login & Dashboard Redirection</td>
+          <td class="col-right"><strong>Test Execution Date:</strong> 2026-10-16</td>
+        </tr>
+        <tr>
+          <td class="col-left desc-label"><strong>Description:</strong></td>
+          <td class="col-right desc-content">Verifies that a registered female patient can successfully authenticate with valid credentials, receive a secure JWT token, and transition to the Patient Health Dashboard.</td>
+        </tr>
+      </table>
+
+      <div class="precondition-row">
+        <strong>Pre-Condition :</strong>User account is registered in PostgreSQL database and device has internet/ADB network connectivity.
+      </div>
+
+      <table class="steps-grid">
         <thead>
           <tr>
-            <th style="width: 35px; text-align: center;">Step</th>
-            <th style="width: 170px;">Test Step</th>
-            <th style="width: 150px;">Test Data</th>
-            <th style="width: 180px;">Expected Result</th>
-            <th style="width: 180px;">Actual Result</th>
-            <th style="width: 65px; text-align: center;">Status<br>(Pass/Fail)</th>
+            <th style="width: 45px; text-align: center;">Step</th>
+            <th style="width: 220px;">Test Step</th>
+            <th style="width: 175px;">Test Data</th>
+            <th style="width: 220px;">Expected Result</th>
+            <th style="width: 220px;">Actual Result</th>
+            <th style="width: 80px; text-align: center;">Status(Pass/<br>Fail)</th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td class="step-num">1</td>
-            <td>Launch mobile application and navigate to Login screen</td>
-            <td>Package: com.example.femsphere</td>
-            <td>App launches successfully and displays the Sign In screen with input fields</td>
-            <td>App opened cleanly on Android 14; Sign In screen displayed</td>
-            <td class="status-pass">Pass</td>
-          </tr>
-          <tr>
-            <td class="step-num">2</td>
-            <td>Verify Email input field accessibility and placeholder</td>
-            <td>Field ID: login_email_input</td>
-            <td>Email field is visible, focused, and accepts alphanumeric input</td>
-            <td>Field located and ready for input</td>
-            <td class="status-pass">Pass</td>
-          </tr>
-          <tr>
-            <td class="step-num">3</td>
-            <td>Enter valid registered patient email address</td>
-            <td>Email: elena.rostova@femsphere.health</td>
-            <td>Email address is typed accurately into the text field</td>
-            <td>Email entered successfully</td>
-            <td class="status-pass">Pass</td>
-          </tr>
-          <tr>
-            <td class="step-num">4</td>
-            <td>Enter valid patient password</td>
-            <td>Password: Password123!</td>
-            <td>Password text is masked securely and accepted</td>
-            <td>Password characters masked and entered</td>
-            <td class="status-pass">Pass</td>
-          </tr>
-          <tr>
-            <td class="step-num">5</td>
-            <td>Click on the Login submit button</td>
-            <td>Element ID: login_submit_button</td>
-            <td>Authentication request sent to backend API (POST /api/auth/login)</td>
-            <td>HTTP 200 OK received with valid JWT Bearer token</td>
-            <td class="status-pass">Pass</td>
-          </tr>
-          <tr>
-            <td class="step-num">6</td>
-            <td>Verify transition to Patient Dashboard</td>
-            <td>View: Patient Dashboard</td>
-            <td>User lands on Home Dashboard showing daily summary and health score</td>
-            <td>Dashboard rendered with patient greeting and metrics</td>
-            <td class="status-pass">Pass</td>
-          </tr>
+        <tr>
+          <td class="step-col">1</td>
+          <td>Launch mobile application and navigate to Login screen</td>
+          <td>Package: com.example.femsphere</td>
+          <td>App launches successfully and displays the Sign In screen with input fields</td>
+          <td>App opened cleanly on Android 14; Sign In screen displayed</td>
+          <td class="status-col">Pass</td>
+        </tr>
+        <tr>
+          <td class="step-col">2</td>
+          <td>Verify Email input field accessibility and placeholder</td>
+          <td>Field ID: login_email_input</td>
+          <td>Email field is visible, focused, and accepts alphanumeric input</td>
+          <td>Field located and ready for input</td>
+          <td class="status-col">Pass</td>
+        </tr>
+        <tr>
+          <td class="step-col">3</td>
+          <td>Enter valid registered patient email address</td>
+          <td>Email: elena.rostova@femsphere.health</td>
+          <td>Email address is typed accurately into the text field</td>
+          <td>Email entered successfully</td>
+          <td class="status-col">Pass</td>
+        </tr>
+        <tr>
+          <td class="step-col">4</td>
+          <td>Enter valid patient password</td>
+          <td>Password: Password123!</td>
+          <td>Password text is masked securely and accepted</td>
+          <td>Password characters masked and entered</td>
+          <td class="status-col">Pass</td>
+        </tr>
+        <tr>
+          <td class="step-col">5</td>
+          <td>Click on the Login submit button</td>
+          <td>Element ID: login_submit_button</td>
+          <td>Authentication request sent to backend API (POST /api/auth/login)</td>
+          <td>HTTP 200 OK received with valid JWT Bearer token</td>
+          <td class="status-col">Pass</td>
+        </tr>
+        <tr>
+          <td class="step-col">6</td>
+          <td>Verify transition to Patient Dashboard</td>
+          <td>View: Patient Dashboard</td>
+          <td>User lands on Home Dashboard showing daily summary and health score</td>
+          <td>Dashboard rendered with patient greeting and metrics</td>
+          <td class="status-col">Pass</td>
+        </tr>
         </tbody>
       </table>
+
+      <div class="postcondition-row">
+        <strong>Post-Condition:</strong> User session is established with authenticated JWT token stored in secure storage.
+      </div>
     </div>
   </div>
 
-  <!-- TC_APP_06 -->
   <div class="test-case-wrapper">
-    <div class="test-case-heading">Test Case 2</div>
-    <div class="test-case-box">
-      <div class="project-name-row">Project Name: FemSphere</div>
-      <div class="banner-title">Booking Submission Test Case</div>
-      <table class="meta-table">
-        <tr>
-          <td style="width: 50%;"><strong>Test Case ID:</strong> TC_APP_06</td>
-          <td style="width: 50%;"><strong>Test Designed By:</strong> KEERTHANA M</td>
-        </tr>
-        <tr>
-          <td><strong>Test Priority (Low/Medium/High):</strong> High</td>
-          <td><strong>Test Designed Date:</strong> 2026-10-16</td>
-        </tr>
-        <tr>
-          <td><strong>Module Name:</strong> Appointment Confirmation</td>
-          <td><strong>Test Executed By:</strong> Amal K Jose</td>
-        </tr>
-        <tr>
-          <td rowspan="2" style="border-bottom: none;">
-            <strong>Test Title:</strong> Verify Appointment Reservation Submission to Backend API
-          </td>
-          <td><strong>Test Execution Date:</strong> 2026-10-16</td>
-        </tr>
-        <tr>
-          <td style="border-bottom: none;">&nbsp;</td>
-        </tr>
-      </table>
-      <div class="desc-cell">
-        <strong>Description:</strong> Verifies that confirming an appointment reservation submits booking details to the PostgreSQL database and returns confirmation.
+    <div class="test-case-title">Test Case 2</div>
+    <div class="test-case-card">
+      <div class="project-name-row">
+        <strong>Project Name:</strong> FemSphere – Lifetime AI Health Twin Companion
+      </div>
+      <div class="banner-title-row">
+        Appointment Confirmation Test Case
       </div>
 
-      <table class="steps-table">
+      <table class="meta-grid">
+        <tr>
+          <td class="col-left"><strong>Test Case ID:</strong> TC_APP_06</td>
+          <td class="col-right"><strong>Test Designed By:</strong> KEERTHANA M</td>
+        </tr>
+        <tr>
+          <td class="col-left"><strong>Test Priority(Low/Medium/High):</strong> High</td>
+          <td class="col-right"><strong>Test Designed Date:</strong> 2026-10-16</td>
+        </tr>
+        <tr>
+          <td class="col-left">
+            <strong>Module Name:</strong>  Appointment Confirmation
+          </td>
+          <td class="col-right"><strong>Test Executed By :</strong> Amal K Jose</td>
+        </tr>
+        <tr>
+          <td class="col-left"><strong>Test Title :</strong> Verify Appointment Reservation Submission to Backend API</td>
+          <td class="col-right"><strong>Test Execution Date:</strong> 2026-10-16</td>
+        </tr>
+        <tr>
+          <td class="col-left desc-label"><strong>Description:</strong></td>
+          <td class="col-right desc-content">Verifies that submitting appointment reservation dispatches a POST request to the backend API and confirms the booking with an appointment ID added to the calendar.</td>
+        </tr>
+      </table>
+
+      <div class="precondition-row">
+        <strong>Pre-Condition :</strong>Doctor, type, date, and slot configured in telehealth booking form.
+      </div>
+
+      <table class="steps-grid">
         <thead>
           <tr>
-            <th style="width: 35px; text-align: center;">Step</th>
-            <th style="width: 170px;">Test Step</th>
-            <th style="width: 150px;">Test Data</th>
-            <th style="width: 180px;">Expected Result</th>
-            <th style="width: 180px;">Actual Result</th>
-            <th style="width: 65px; text-align: center;">Status<br>(Pass/Fail)</th>
+            <th style="width: 45px; text-align: center;">Step</th>
+            <th style="width: 220px;">Test Step</th>
+            <th style="width: 175px;">Test Data</th>
+            <th style="width: 220px;">Expected Result</th>
+            <th style="width: 220px;">Actual Result</th>
+            <th style="width: 80px; text-align: center;">Status(Pass/<br>Fail)</th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td class="step-num">1</td>
-            <td>Review booking details and click 'Confirm Booking'</td>
-            <td>Element ID: btn_confirm_booking</td>
-            <td>POST request sent to /api/appointments/book</td>
-            <td>Booking request dispatched</td>
-            <td class="status-pass">Pass</td>
-          </tr>
-          <tr>
-            <td class="step-num">2</td>
-            <td>Verify booking confirmation response</td>
-            <td>API Response: 201 Created</td>
-            <td>Confirmation modal appears showing appointment ID and date</td>
-            <td>Appointment confirmed with ID and added to calendar</td>
-            <td class="status-pass">Pass</td>
-          </tr>
+        <tr>
+          <td class="step-col">1</td>
+          <td>Review booking details and click 'Confirm Booking'</td>
+          <td>Element ID: btn_confirm_booking</td>
+          <td>POST request sent to /api/appointments/book</td>
+          <td>Booking request dispatched</td>
+          <td class="status-col">Pass</td>
+        </tr>
+        <tr>
+          <td class="step-col">2</td>
+          <td>Verify booking confirmation response</td>
+          <td>API Response: 201 Created</td>
+          <td>Confirmation modal appears showing appointment ID and date</td>
+          <td>Appointment confirmed with ID and added to calendar</td>
+          <td class="status-col">Pass</td>
+        </tr>
         </tbody>
       </table>
+
+      <div class="postcondition-row">
+        <strong>Post-Condition:</strong> Appointment record is persisted in backend database and synced to user schedule.
+      </div>
     </div>
   </div>
 
-  <!-- TC_WEAR_01 -->
   <div class="test-case-wrapper">
-    <div class="test-case-heading">Test Case 3</div>
-    <div class="test-case-box">
-      <div class="project-name-row">Project Name: FemSphere</div>
-      <div class="banner-title">Wearable Navigation Test Case</div>
-      <table class="meta-table">
-        <tr>
-          <td style="width: 50%;"><strong>Test Case ID:</strong> TC_WEAR_01</td>
-          <td style="width: 50%;"><strong>Test Designed By:</strong> KEERTHANA M</td>
-        </tr>
-        <tr>
-          <td><strong>Test Priority (Low/Medium/High):</strong> High</td>
-          <td><strong>Test Designed Date:</strong> 2026-10-16</td>
-        </tr>
-        <tr>
-          <td><strong>Module Name:</strong> Wearables Pairing Hub</td>
-          <td><strong>Test Executed By:</strong> Amal K Jose</td>
-        </tr>
-        <tr>
-          <td rowspan="2" style="border-bottom: none;">
-            <strong>Test Title:</strong> Verify Opening Universal Wearable Pairing Interface
-          </td>
-          <td><strong>Test Execution Date:</strong> 2026-10-16</td>
-        </tr>
-        <tr>
-          <td style="border-bottom: none;">&nbsp;</td>
-        </tr>
-      </table>
-      <div class="desc-cell">
-        <strong>Description:</strong> Verifies accessing the universal wearable pairing interface to discover Bluetooth and QR-based fitness watches.
+    <div class="test-case-title">Test Case 3</div>
+    <div class="test-case-card">
+      <div class="project-name-row">
+        <strong>Project Name:</strong> FemSphere – Lifetime AI Health Twin Companion
+      </div>
+      <div class="banner-title-row">
+        Wearables Pairing Hub Test Case
       </div>
 
-      <table class="steps-table">
+      <table class="meta-grid">
+        <tr>
+          <td class="col-left"><strong>Test Case ID:</strong> TC_WEAR_01</td>
+          <td class="col-right"><strong>Test Designed By:</strong> KEERTHANA M</td>
+        </tr>
+        <tr>
+          <td class="col-left"><strong>Test Priority(Low/Medium/High):</strong> High</td>
+          <td class="col-right"><strong>Test Designed Date:</strong> 2026-10-16</td>
+        </tr>
+        <tr>
+          <td class="col-left">
+            <strong>Module Name:</strong>Wearables Pairing Hub
+          </td>
+          <td class="col-right"><strong>Test Executed By :</strong> Amal K Jose</td>
+        </tr>
+        <tr>
+          <td class="col-left"><strong>Test Title :</strong> Verify Opening Universal Wearable Pairing Interface</td>
+          <td class="col-right"><strong>Test Execution Date:</strong> 2026-10-16</td>
+        </tr>
+        <tr>
+          <td class="col-left desc-label"><strong>Description:</strong></td>
+          <td class="col-right desc-content">Verifies that tapping the Pair New Device button launches the Universal Wearables Pairing Hub with active scanning options and category filters.</td>
+        </tr>
+      </table>
+
+      <div class="precondition-row">
+        <strong>Pre-Condition :</strong>FemSphere mobile companion app is running with Bluetooth permissions granted.
+      </div>
+
+      <table class="steps-grid">
         <thead>
           <tr>
-            <th style="width: 35px; text-align: center;">Step</th>
-            <th style="width: 170px;">Test Step</th>
-            <th style="width: 150px;">Test Data</th>
-            <th style="width: 180px;">Expected Result</th>
-            <th style="width: 180px;">Actual Result</th>
-            <th style="width: 65px; text-align: center;">Status<br>(Pass/Fail)</th>
+            <th style="width: 45px; text-align: center;">Step</th>
+            <th style="width: 220px;">Test Step</th>
+            <th style="width: 175px;">Test Data</th>
+            <th style="width: 220px;">Expected Result</th>
+            <th style="width: 220px;">Actual Result</th>
+            <th style="width: 80px; text-align: center;">Status(Pass/<br>Fail)</th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td class="step-num">1</td>
-            <td>Tap 'Pair New Device' button in Wearables tab</td>
-            <td>Element ID: btn_open_wearables_scanner</td>
-            <td>Universal pairing interface opens with scanner and scan options</td>
-            <td>Pairing hub interface opened cleanly</td>
-            <td class="status-pass">Pass</td>
-          </tr>
+        <tr>
+          <td class="step-col">1</td>
+          <td>Tap 'Pair New Device' button in Wearables tab</td>
+          <td>Element ID: btn_open_wearables_scanner</td>
+          <td>Universal pairing interface opens with scanner and scan options</td>
+          <td>Pairing hub interface opened cleanly</td>
+          <td class="status-col">Pass</td>
+        </tr>
         </tbody>
       </table>
+
+      <div class="postcondition-row">
+        <strong>Post-Condition:</strong> Wearables pairing interface is displayed and ready for peripheral detection.
+      </div>
     </div>
   </div>
 
-  <!-- TC_TWIN_06 -->
   <div class="test-case-wrapper">
-    <div class="test-case-heading">Test Case 4</div>
-    <div class="test-case-box">
-      <div class="project-name-row">Project Name: FemSphere</div>
-      <div class="banner-title">Clinical Cycle Intelligence Test Case</div>
-      <table class="meta-table">
-        <tr>
-          <td style="width: 50%;"><strong>Test Case ID:</strong> TC_TWIN_06</td>
-          <td style="width: 50%;"><strong>Test Designed By:</strong> KEERTHANA M</td>
-        </tr>
-        <tr>
-          <td><strong>Test Priority (Low/Medium/High):</strong> High</td>
-          <td><strong>Test Designed Date:</strong> 2026-10-16</td>
-        </tr>
-        <tr>
-          <td><strong>Module Name:</strong> Cycle Phase Prediction</td>
-          <td><strong>Test Executed By:</strong> Amal K Jose</td>
-        </tr>
-        <tr>
-          <td rowspan="2" style="border-bottom: none;">
-            <strong>Test Title:</strong> Verify Menstrual Cycle Phase Prediction &amp; 28-Day Baseline Calibration
-          </td>
-          <td><strong>Test Execution Date:</strong> 2026-10-16</td>
-        </tr>
-        <tr>
-          <td style="border-bottom: none;">&nbsp;</td>
-        </tr>
-      </table>
-      <div class="desc-cell">
-        <strong>Description:</strong> Verifies cycle prediction engine calculates current biological phase (Follicular/Ovulatory/Luteal) based on calibrated 28-day baseline without delay distortions.
+    <div class="test-case-title">Test Case 4</div>
+    <div class="test-case-card">
+      <div class="project-name-row">
+        <strong>Project Name:</strong> FemSphere – Lifetime AI Health Twin Companion
+      </div>
+      <div class="banner-title-row">
+        Cycle Phase Prediction Test Case
       </div>
 
-      <table class="steps-table">
+      <table class="meta-grid">
+        <tr>
+          <td class="col-left"><strong>Test Case ID:</strong> TC_TWIN_06</td>
+          <td class="col-right"><strong>Test Designed By:</strong> KEERTHANA M</td>
+        </tr>
+        <tr>
+          <td class="col-left"><strong>Test Priority(Low/Medium/High):</strong> High</td>
+          <td class="col-right"><strong>Test Designed Date:</strong> 2026-10-16</td>
+        </tr>
+        <tr>
+          <td class="col-left">
+            <strong>Module Name:</strong>Cycle Phase Prediction
+          </td>
+          <td class="col-right"><strong>Test Executed By :</strong> Amal K Jose</td>
+        </tr>
+        <tr>
+          <td class="col-left"><strong>Test Title :</strong> Verify Menstrual Cycle Phase Prediction & 28-Day Baseline Calibration</td>
+          <td class="col-right"><strong>Test Execution Date:</strong> 2026-10-16</td>
+        </tr>
+        <tr>
+          <td class="col-left desc-label"><strong>Description:</strong></td>
+          <td class="col-right desc-content">Verifies that the Digital Health Twin accurately predicts current biological phase and computes countdown days to the next expected menses.</td>
+        </tr>
+      </table>
+
+      <div class="precondition-row">
+        <strong>Pre-Condition :</strong>User menstrual cycle start date and baseline cadence are recorded.
+      </div>
+
+      <table class="steps-grid">
         <thead>
           <tr>
-            <th style="width: 35px; text-align: center;">Step</th>
-            <th style="width: 170px;">Test Step</th>
-            <th style="width: 150px;">Test Data</th>
-            <th style="width: 180px;">Expected Result</th>
-            <th style="width: 180px;">Actual Result</th>
-            <th style="width: 65px; text-align: center;">Status<br>(Pass/Fail)</th>
+            <th style="width: 45px; text-align: center;">Step</th>
+            <th style="width: 220px;">Test Step</th>
+            <th style="width: 175px;">Test Data</th>
+            <th style="width: 220px;">Expected Result</th>
+            <th style="width: 220px;">Actual Result</th>
+            <th style="width: 80px; text-align: center;">Status(Pass/<br>Fail)</th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td class="step-num">1</td>
-            <td>View cycle phase prediction card</td>
-            <td>Element ID: cycle_phase_prediction_card</td>
-            <td>Displays current biological phase and countdown to next expected menses</td>
-            <td>Displays Follicular Phase; 18 days countdown rendered</td>
-            <td class="status-pass">Pass</td>
-          </tr>
+        <tr>
+          <td class="step-col">1</td>
+          <td>View cycle phase prediction card</td>
+          <td>Element ID: cycle_phase_prediction_card</td>
+          <td>Displays current biological phase and countdown to next expected menses</td>
+          <td>Displays Follicular Phase; 18 days countdown rendered</td>
+          <td class="status-col">Pass</td>
+        </tr>
         </tbody>
       </table>
+
+      <div class="postcondition-row">
+        <strong>Post-Condition:</strong> Biological phase and timeline predictions are rendered on user dashboard.
+      </div>
     </div>
   </div>
 
-  <!-- TC_REC_03 -->
   <div class="test-case-wrapper">
-    <div class="test-case-heading">Test Case 5</div>
-    <div class="test-case-box">
-      <div class="project-name-row">Project Name: FemSphere</div>
-      <div class="banner-title">AI OCR Biomarker Test Case</div>
-      <table class="meta-table">
-        <tr>
-          <td style="width: 50%;"><strong>Test Case ID:</strong> TC_REC_03</td>
-          <td style="width: 50%;"><strong>Test Designed By:</strong> KEERTHANA M</td>
-        </tr>
-        <tr>
-          <td><strong>Test Priority (Low/Medium/High):</strong> High</td>
-          <td><strong>Test Designed Date:</strong> 2026-10-16</td>
-        </tr>
-        <tr>
-          <td><strong>Module Name:</strong> Gemini AI OCR Engine</td>
-          <td><strong>Test Executed By:</strong> Amal K Jose</td>
-        </tr>
-        <tr>
-          <td rowspan="2" style="border-bottom: none;">
-            <strong>Test Title:</strong> Verify Gemini AI OCR Biomarker Extraction Table Rendering
-          </td>
-          <td><strong>Test Execution Date:</strong> 2026-10-16</td>
-        </tr>
-        <tr>
-          <td style="border-bottom: none;">&nbsp;</td>
-        </tr>
-      </table>
-      <div class="desc-cell">
-        <strong>Description:</strong> Verifies that AI OCR parsing of uploaded lab reports extracts biomarker values (e.g. Hemoglobin, TSH, Estrogen) into a structured comparison table.
+    <div class="test-case-title">Test Case 5</div>
+    <div class="test-case-card">
+      <div class="project-name-row">
+        <strong>Project Name:</strong> FemSphere – Lifetime AI Health Twin Companion
+      </div>
+      <div class="banner-title-row">
+        Gemini AI OCR Engine Test Case
       </div>
 
-      <table class="steps-table">
+      <table class="meta-grid">
+        <tr>
+          <td class="col-left"><strong>Test Case ID:</strong> TC_REC_03</td>
+          <td class="col-right"><strong>Test Designed By:</strong> KEERTHANA M</td>
+        </tr>
+        <tr>
+          <td class="col-left"><strong>Test Priority(Low/Medium/High):</strong> High</td>
+          <td class="col-right"><strong>Test Designed Date:</strong> 2026-10-16</td>
+        </tr>
+        <tr>
+          <td class="col-left">
+            <strong>Module Name:</strong>Gemini AI OCR Engine
+          </td>
+          <td class="col-right"><strong>Test Executed By :</strong> Amal K Jose</td>
+        </tr>
+        <tr>
+          <td class="col-left"><strong>Test Title :</strong> Verify Gemini AI OCR Biomarker Extraction Table Rendering</td>
+          <td class="col-right"><strong>Test Execution Date:</strong> 2026-10-16</td>
+        </tr>
+        <tr>
+          <td class="col-left desc-label"><strong>Description:</strong></td>
+          <td class="col-right desc-content">Verifies that the Gemini AI OCR engine extracts diagnostic lab biomarkers and renders structured tables with patient values and normal clinical reference ranges.</td>
+        </tr>
+      </table>
+
+      <div class="precondition-row">
+        <strong>Pre-Condition :</strong>Diagnostic medical report PDF has been processed by Gemini OCR service.
+      </div>
+
+      <table class="steps-grid">
         <thead>
           <tr>
-            <th style="width: 35px; text-align: center;">Step</th>
-            <th style="width: 170px;">Test Step</th>
-            <th style="width: 150px;">Test Data</th>
-            <th style="width: 180px;">Expected Result</th>
-            <th style="width: 180px;">Actual Result</th>
-            <th style="width: 65px; text-align: center;">Status<br>(Pass/Fail)</th>
+            <th style="width: 45px; text-align: center;">Step</th>
+            <th style="width: 220px;">Test Step</th>
+            <th style="width: 175px;">Test Data</th>
+            <th style="width: 220px;">Expected Result</th>
+            <th style="width: 220px;">Actual Result</th>
+            <th style="width: 80px; text-align: center;">Status(Pass/<br>Fail)</th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td class="step-num">1</td>
-            <td>View scanned record details and AI biomarker analysis</td>
-            <td>Element ID: biomarker_results_table</td>
-            <td>Structured table displays extracted biomarker names, patient values, and normal clinical reference ranges</td>
-            <td>Biomarker table rendered with clinical reference ranges</td>
-            <td class="status-pass">Pass</td>
-          </tr>
+        <tr>
+          <td class="step-col">1</td>
+          <td>View scanned record details and AI biomarker analysis</td>
+          <td>Element ID: biomarker_results_table</td>
+          <td>Structured table displays extracted biomarker names, patient values, and normal clinical reference ranges</td>
+          <td>Biomarker table rendered with clinical reference ranges</td>
+          <td class="status-col">Pass</td>
+        </tr>
         </tbody>
       </table>
+
+      <div class="postcondition-row">
+        <strong>Post-Condition:</strong> Clinical biomarkers are parsed, displayed, and synced with Digital Health Twin.
+      </div>
     </div>
   </div>
 
 </div>
+
 </body>
 </html>

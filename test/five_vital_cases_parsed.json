@@ -1,0 +1,266 @@
+[
+  {
+    "tcId": "TC_AUTH_01",
+    "banner": "Patient Authentication Test Case",
+    "designedBy": "KEERTHANA M",
+    "designedDate": "2026-10-16",
+    "priority": "High",
+    "moduleName": "Patient Authentication",
+    "executedBy": "Amal K Jose",
+    "title": "Verify Valid Patient Login &amp; Dashboard Redirection",
+    "execDate": "2026-10-16",
+    "desc": "Verifies that a registered female patient can successfully authenticate with valid credentials, receive a secure JWT token, and transition to the Patient Health Dashboard.",
+    "precond": "User account is registered in PostgreSQL database and device has internet/ADB network connectivity.",
+    "postcond": "User session is established with authenticated JWT token stored in secure storage.",
+    "steps": [
+      {
+        "num": "1",
+        "step": "Launch mobile application and navigate to Login screen",
+        "data": "Package: com.example.femsphere",
+        "expected": "App launches successfully and displays the Sign In screen with input fields",
+        "actual": "App opened cleanly on Android 14; Sign In screen displayed",
+        "status": "Pass"
+      },
+      {
+        "num": "2",
+        "step": "Verify Email input field accessibility and placeholder",
+        "data": "Field ID: login_email_input",
+        "expected": "Email field is visible, focused, and accepts alphanumeric input",
+        "actual": "Field located and ready for input",
+        "status": "Pass"
+      },
+      {
+        "num": "3",
+        "step": "Enter valid registered patient email address",
+        "data": "Email: elena.rostova@femsphere.health",
+        "expected": "Email address is typed accurately into the text field",
+        "actual": "Email entered successfully",
+        "status": "Pass"
+      },
+      {
+        "num": "4",
+        "step": "Enter valid patient password",
+        "data": "Password: Password123!",
+        "expected": "Password text is masked securely and accepted",
+        "actual": "Password characters masked and entered",
+        "status": "Pass"
+      },
+      {
+        "num": "5",
+        "step": "Click on the Login submit button",
+        "data": "Element ID: login_submit_button",
+        "expected": "Authentication request sent to backend API (POST /api/auth/login)",
+        "actual": "HTTP 200 OK received with valid JWT Bearer token",
+        "status": "Pass"
+      },
+      {
+        "num": "6",
+        "step": "Verify transition to Patient Dashboard",
+        "data": "View: Patient Dashboard",
+        "expected": "User lands on Home Dashboard showing daily summary and health score",
+        "actual": "Dashboard rendered with patient greeting and metrics",
+        "status": "Pass"
+      }
+    ]
+  },
+  {
+    "tcId": "TC_APP_06",
+    "banner": "Appointment Confirmation Test Case",
+    "designedBy": "KEERTHANA M",
+    "designedDate": "2026-10-16",
+    "priority": "High",
+    "moduleName": "Telehealth Consultations",
+    "executedBy": "Amal K Jose",
+    "title": "Verify Appointment Reservation Submission to Express API",
+    "execDate": "2026-10-16",
+    "desc": "Verifies submitting appointment reservation sends POST /api/appointments payload and receives confirmation ID with calendar invite.",
+    "precond": "Doctor, type, date, and slot configured in booking form.",
+    "postcond": "Appointment record persisted in PostgreSQL and calendar event created.",
+    "steps": [
+      {
+        "num": "1",
+        "step": "Verify all appointment form criteria in summary card",
+        "data": "Doctor: Dr. Sarah Jenkins; Slot: 10:00 AM; Type: Virtual",
+        "expected": "Summary card accurately reflects choices",
+        "actual": "Summary card verified",
+        "status": "Pass"
+      },
+      {
+        "num": "2",
+        "step": "Click 'Confirm Booking' submission button",
+        "data": "Element ID: btn_confirm_booking",
+        "expected": "Loading spinner displays on button while dispatching request",
+        "actual": "Loading spinner shown; request dispatched",
+        "status": "Pass"
+      },
+      {
+        "num": "3",
+        "step": "Monitor network payload for POST /api/appointments",
+        "data": "Payload: { doctor_id: 1, date: '2026-10-28', slot: '10:00 AM' }",
+        "expected": "HTTP 201 Created returned with appointment confirmation ID",
+        "actual": "HTTP 201 Created received with ID #1042",
+        "status": "Pass"
+      },
+      {
+        "num": "4",
+        "step": "Verify Booking Confirmed success modal displays",
+        "data": "Modal: Booking Success Dialog",
+        "expected": "Dialog appears with teleconsultation link and calendar button",
+        "actual": "Success dialog rendered with appointment summary",
+        "status": "Pass"
+      },
+      {
+        "num": "5",
+        "step": "Confirm appointment appears under Upcoming Consultations",
+        "data": "List: Upcoming Appointments",
+        "expected": "Appointment visible in patient queue with 'Confirmed' badge",
+        "actual": "Appointment visible in directory with green status badge",
+        "status": "Pass"
+      }
+    ]
+  },
+  {
+    "tcId": "TC_WEAR_01",
+    "banner": "Wearables Pairing Hub Test Case",
+    "designedBy": "KEERTHANA M",
+    "designedDate": "2026-10-16",
+    "priority": "High",
+    "moduleName": "Universal Wearables Hub",
+    "executedBy": "Amal K Jose",
+    "title": "Verify Opening Universal Wearable Pairing Interface",
+    "execDate": "2026-10-16",
+    "desc": "Verifies navigating to Devices tab opens the Universal Wearables Pairing Hub with camera QR scanner and brand adapters.",
+    "precond": "User logged into FemSphere on Android device.",
+    "postcond": "Wearables pairing interface initialized and ready for scanning.",
+    "steps": [
+      {
+        "num": "1",
+        "step": "Navigate to Connected Devices view via bottom navigation",
+        "data": "Bottom Nav: Devices Tab",
+        "expected": "Connected Devices view displays paired devices and pairing CTA",
+        "actual": "Devices view rendered with 'Connect New Device' button",
+        "status": "Pass"
+      },
+      {
+        "num": "2",
+        "step": "Tap on 'Connect New Wearable' button",
+        "data": "Element ID: btn_open_wearables_scanner",
+        "expected": "Pairing hub launches with QR scanning viewport and brand filters",
+        "actual": "Pairing hub opened cleanly",
+        "status": "Pass"
+      },
+      {
+        "num": "3",
+        "step": "Verify device category tabs render horizontally",
+        "data": "Categories: Smartwatches, Fitness Bands, Smart Rings",
+        "expected": "Filter pills render horizontally without clipping",
+        "actual": "Category pills displayed with active filter styling",
+        "status": "Pass"
+      }
+    ]
+  },
+  {
+    "tcId": "TC_TWIN_06",
+    "banner": "Cycle Phase Prediction Test Case",
+    "designedBy": "KEERTHANA M",
+    "designedDate": "2026-10-16",
+    "priority": "High",
+    "moduleName": "Cycle Intelligence",
+    "executedBy": "Amal K Jose",
+    "title": "Verify Menstrual Cycle Phase Prediction &amp; 28-Day Baseline Calibration",
+    "execDate": "2026-10-16",
+    "desc": "Verifies that the Digital Health Twin calculates current menstrual cycle day, predicts upcoming fertile window and period onset, and displays phase recommendations.",
+    "precond": "User has recorded last menstrual period start date 14 days prior.",
+    "postcond": "Cycle stage synchronized across mobile dashboard and twin model.",
+    "steps": [
+      {
+        "num": "1",
+        "step": "Navigate to Period Tracker &amp; Cycle Intelligence module",
+        "data": "Bottom Nav: Cycle Tab",
+        "expected": "Cycle tracker dashboard displays circular phase gauge and calendar",
+        "actual": "Cycle dashboard rendered with current day indicator",
+        "status": "Pass"
+      },
+      {
+        "num": "2",
+        "step": "Verify current cycle day calculation from last period onset",
+        "data": "Last Period: 14 days ago",
+        "expected": "System computes Cycle Day 14 (Ovulatory Phase window)",
+        "actual": "Cycle Day 14 displayed with 'High Fertility' indicator",
+        "status": "Pass"
+      },
+      {
+        "num": "3",
+        "step": "Inspect next period start date prediction",
+        "data": "Baseline: 28 days cycle",
+        "expected": "System predicts period onset in 14 days based on historical average",
+        "actual": "Next period countdown displayed: '14 days remaining'",
+        "status": "Pass"
+      },
+      {
+        "num": "4",
+        "step": "Verify hormonal phase lifestyle and nutrition advice card",
+        "data": "Phase: Ovulation Phase",
+        "expected": "Informational card recommends hydration, antioxidant nutrition, and light exercise",
+        "actual": "Nutrition and wellness recommendation cards loaded for Ovulatory phase",
+        "status": "Pass"
+      },
+      {
+        "num": "5",
+        "step": "Confirm cycle calendar displays projected fertile days",
+        "data": "Calendar View: Current Month",
+        "expected": "Fertile days highlighted with distinctive purple gradient markers",
+        "actual": "Calendar displays 5-day fertile window with correct visual badges",
+        "status": "Pass"
+      }
+    ]
+  },
+  {
+    "tcId": "TC_REC_03",
+    "banner": "Gemini AI OCR Engine Test Case",
+    "designedBy": "KEERTHANA M",
+    "designedDate": "2026-10-16",
+    "priority": "High",
+    "moduleName": "Clinical Records Vault",
+    "executedBy": "Amal K Jose",
+    "title": "Verify Gemini 2.5 Flash OCR Biomarker Table Rendering",
+    "execDate": "2026-10-16",
+    "desc": "Verifies that the Gemini AI OCR engine parses diagnostic lab PDF, extracts biomarker key-values, and renders structured results table.",
+    "precond": "Lab report uploaded with OCR processing completed.",
+    "postcond": "Biomarkers parsed and mapped into Digital Twin metabolic profile.",
+    "steps": [
+      {
+        "num": "1",
+        "step": "Open details for processed lab report",
+        "data": "Document: 'CBC_Metabolic_Panel.pdf'",
+        "expected": "Report details screen opens with tabs: 'Original File' &amp; 'AI Insights'",
+        "actual": "Report details loaded with OCR results view",
+        "status": "Pass"
+      },
+      {
+        "num": "2",
+        "step": "Inspect AI Biomarkers Extraction table",
+        "data": "Element ID: biomarker_results_table",
+        "expected": "Table renders columns: Biomarker Name, Value, Reference Range, Status",
+        "actual": "Biomarker table visible with parsed laboratory readings",
+        "status": "Pass"
+      },
+      {
+        "num": "3",
+        "step": "Verify extracted hemoglobin reading and reference status",
+        "data": "Hemoglobin: 13.8 g/dL (Range: 12.0 - 15.5 g/dL)",
+        "expected": "Hemoglobin classified as 'Normal' with green badge",
+        "actual": "Reading parsed accurately as 13.8 g/dL with green Normal badge",
+        "status": "Pass"
+      },
+      {
+        "num": "4",
+        "step": "Verify extracted ferritin reading and reference status",
+        "data": "Serum Ferritin: 18 ng/mL (Range: 15 - 150 ng/mL)",
+        "expected": "Ferritin flagged as 'Low-Normal' with nutritional iron recommendation",
+        "actual": "Low-normal iron alert rendered with twin diet recommendation",
+        "status": "Pass"
+      }
+    ]
+  }
+]

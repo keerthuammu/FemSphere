@@ -135,9 +135,13 @@ class ApiConstants {
   static String get wearablesDevices => '$baseUrl/wearables/devices';
   static String get wearablesStatus => '$baseUrl/wearables/status';
   static String get wearablesSync => '$baseUrl/wearables/sync';
+  static String get wearablesBatchSync => '$baseUrl/wearables/sync/batch';
+  static String get wearablesSyncHistory => '$baseUrl/wearables/sync-history';
+  static String get wearablesProviders => '$baseUrl/wearables/providers';
   static String get wearablesData => '$baseUrl/wearables/data';
   static String get wearablesDataLatest => '$baseUrl/wearables/data/latest';
   static String get wearablesDataHistory => '$baseUrl/wearables/data/history';
+  static String get wearablesZeppLink => '$baseUrl/wearables/zepp/link-account';
   static String wearableDeviceDelete(dynamic id) => '$baseUrl/wearables/devices/$id';
 
   // Companion & Caregiver Connections

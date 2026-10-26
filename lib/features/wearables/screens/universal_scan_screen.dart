@@ -246,12 +246,12 @@ class _UniversalScanScreenState extends State<UniversalScanScreen> {
             tooltip: 'Scan QR Code',
             icon: const Icon(Icons.qr_code_scanner, color: AppTheme.primaryPurple),
             onPressed: () async {
-              final result = await Navigator.push(
-                context,
+              final nav = Navigator.of(context);
+              final result = await nav.push(
                 MaterialPageRoute(builder: (_) => const DeviceQrScannerScreen(initialTarget: ScannerTarget.smartwatch)),
               );
-              if (result == true && mounted) {
-                Navigator.pop(context);
+              if (result == true) {
+                nav.pop();
               }
             },
           ),
@@ -295,16 +295,16 @@ class _UniversalScanScreenState extends State<UniversalScanScreen> {
               child: InkWell(
                 borderRadius: BorderRadius.circular(16),
                 onTap: () async {
-                  final result = await Navigator.push(
-                    context,
+                  final nav = Navigator.of(context);
+                  final result = await nav.push(
                     MaterialPageRoute(
                       builder: (_) => const DeviceQrScannerScreen(
                         initialTarget: ScannerTarget.smartwatch,
                       ),
                     ),
                   );
-                  if (result == true && mounted) {
-                    Navigator.pop(context);
+                  if (result == true) {
+                    nav.pop();
                   }
                 },
                 child: Padding(
@@ -312,14 +312,14 @@ class _UniversalScanScreenState extends State<UniversalScanScreen> {
                   child: Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: const BoxDecoration(
+                        padding: EdgeInsets.all(8),
+                        decoration: BoxDecoration(
                           color: Colors.white24,
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.qr_code_scanner, color: Colors.white, size: 22),
+                        child: Icon(Icons.qr_code_scanner, color: Colors.white, size: 22),
                       ),
-                      const SizedBox(width: 12),
+                      SizedBox(width: 12),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -433,13 +433,17 @@ class _UniversalScanScreenState extends State<UniversalScanScreen> {
                     children: [
                       // Section A: Devices already connected in Phone Bluetooth
                       if (phoneDevices.isNotEmpty) ...[
-                        Row(
+                        const Row(
                           children: [
-                            const Icon(Icons.phonelink_ring, size: 16, color: Color(0xFF10B981)),
-                            const SizedBox(width: 6),
-                            const Text(
-                              'Paired in Phone Bluetooth (Ready to Connect)',
-                              style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold, color: Colors.black87),
+                            Icon(Icons.phonelink_ring, size: 16, color: Color(0xFF10B981)),
+                            SizedBox(width: 6),
+                            Expanded(
+                              child: Text(
+                                'Paired in Phone Bluetooth (Ready to Connect)',
+                                style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold, color: Colors.black87),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
                           ],
                         ),
@@ -474,12 +478,16 @@ class _UniversalScanScreenState extends State<UniversalScanScreen> {
                                       Text(
                                         d.platformName.isNotEmpty ? d.platformName : 'Phone Connected Watch',
                                         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
                                       ),
-                                      const SizedBox(height: 3),
-                                      Row(
+                                      const SizedBox(height: 4),
+                                      Wrap(
+                                        spacing: 6,
+                                        runSpacing: 4,
+                                        crossAxisAlignment: WrapCrossAlignment.center,
                                         children: [
                                           BrandBadge(brand: detectedBrand, compact: true),
-                                          const SizedBox(width: 6),
                                           Container(
                                             padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
                                             decoration: BoxDecoration(
@@ -521,13 +529,17 @@ class _UniversalScanScreenState extends State<UniversalScanScreen> {
 
                       // Section B: Nearby Discovered BLE Advertising Devices
                       if (scanDevices.isNotEmpty) ...[
-                        Row(
+                        const Row(
                           children: [
-                            const Icon(Icons.sensors, size: 16, color: AppTheme.primaryPurple),
-                            const SizedBox(width: 6),
-                            const Text(
-                              'Nearby BLE Wearables Detected',
-                              style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold, color: Colors.black87),
+                            Icon(Icons.sensors, size: 16, color: AppTheme.primaryPurple),
+                            SizedBox(width: 6),
+                            Expanded(
+                              child: Text(
+                                'Nearby BLE Wearables Detected',
+                                style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold, color: Colors.black87),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
                           ],
                         ),
@@ -565,12 +577,16 @@ class _UniversalScanScreenState extends State<UniversalScanScreen> {
                                       Text(
                                         r.device.platformName,
                                         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
                                       ),
-                                      const SizedBox(height: 3),
-                                      Row(
+                                      const SizedBox(height: 4),
+                                      Wrap(
+                                        spacing: 6,
+                                        runSpacing: 4,
+                                        crossAxisAlignment: WrapCrossAlignment.center,
                                         children: [
                                           BrandBadge(brand: detectedBrand, compact: true),
-                                          const SizedBox(width: 6),
                                           Text(
                                             'RSSI: ${r.rssi} dBm',
                                             style: TextStyle(fontSize: 10, color: Colors.grey.shade500),

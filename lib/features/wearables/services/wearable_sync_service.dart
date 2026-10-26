@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import '../../../core/api_constants.dart';
 import '../../../services/api_service.dart';
@@ -67,7 +68,7 @@ class WearableSyncService {
         'device_type': 'MANUAL',
         'connection_status': 'SYNCED',
         'recorded_at': date,
-        'sync_key': 'manual_${date}',
+        'sync_key': 'manual_$date',
         'source': 'MANUAL_INPUT',
       };
       if (steps != null) payload['steps'] = steps;
@@ -192,4 +193,113 @@ class WearableSyncService {
       return false;
     }
   }
+
+  /// Batch synchronize health telemetry records (Idempotent & Transactional)
+  Future<Map<String, dynamic>?> syncBatchRecords({
+    required String provider,
+    required String brand,
+    required String deviceModel,
+    required String deviceName,
+    required String deviceIdentifier,
+    required List<Map<String, dynamic>> records,
+    int? batteryLevel,
+    Map<String, dynamic>? capabilities,
+  }) async {
+    try {
+      final payload = {
+        'provider': provider,
+        'brand': brand,
+        'device_model': deviceModel,
+        'device_name': deviceName,
+        'device_identifier': deviceIdentifier,
+        'battery_level': batteryLevel,
+        'capabilities': capabilities ?? {},
+        'records': records,
+      };
+
+      final res = await http.post(
+        Uri.parse(ApiConstants.wearablesBatchSync),
+        headers: _headers,
+        body: jsonEncode(payload),
+      );
+
+      if (res.statusCode == 200 || res.statusCode == 201) {
+        return jsonDecode(res.body);
+      }
+    } catch (_) {}
+    return null;
+  }
+
+  /// Get wearable synchronization audit history
+  Future<List<Map<String, dynamic>>> getSyncHistory({int limit = 20}) async {
+    try {
+      final res = await http.get(
+        Uri.parse('${ApiConstants.wearablesSyncHistory}?limit=$limit'),
+        headers: _headers,
+      );
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body);
+        if (data['history'] is List) {
+          return List<Map<String, dynamic>>.from(data['history']);
+        }
+      }
+    } catch (_) {}
+    return [];
+  }
+
+  /// Get list of supported wearable providers (Health Connect, Apple Health, Standard BLE)
+  Future<List<Map<String, dynamic>>> getProviders() async {
+    try {
+      final res = await http.get(
+        Uri.parse(ApiConstants.wearablesProviders),
+        headers: _headers,
+      );
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body);
+        if (data['providers'] is List) {
+          return List<Map<String, dynamic>>.from(data['providers']);
+        }
+      }
+    } catch (_) {}
+    return [];
+  }
+
+  /// Automatically retrieves device keys by authenticating with Zepp account
+  Future<Map<String, dynamic>?> linkZeppAccount({
+    required String email,
+    required String password,
+    String? macAddress,
+  }) async {
+    try {
+      final res = await http.post(
+        Uri.parse(ApiConstants.wearablesZeppLink),
+        headers: _headers,
+        body: jsonEncode({
+          'email': email,
+          'password': password,
+          if (macAddress != null) 'mac_address': macAddress,
+        }),
+      );
+      if (res.statusCode == 200) {
+        try {
+          return jsonDecode(res.body) as Map<String, dynamic>;
+        } catch (_) {
+          throw Exception('Zepp account linked, but response was invalid.');
+        }
+      } else {
+        String msg = 'Failed to link Zepp account (HTTP ${res.statusCode}).';
+        try {
+          final err = jsonDecode(res.body);
+          if (err is Map && err['message'] != null) {
+            msg = err['message'].toString();
+          }
+        } catch (_) {}
+        throw Exception(msg);
+      }
+    } catch (e) {
+      debugPrint('Zepp link error: $e');
+      rethrow;
+    }
+  }
 }
+

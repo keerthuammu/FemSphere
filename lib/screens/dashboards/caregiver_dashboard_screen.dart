@@ -699,22 +699,22 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
   }) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
-      decoration: BoxDecoration(
+      child: Material(
         color: isSelected ? color.withValues(alpha: 0.12) : Colors.transparent,
         borderRadius: BorderRadius.circular(12),
-      ),
-      child: ListTile(
-        dense: true,
-        leading: Icon(icon, color: color, size: 20),
-        title: Text(
-          title,
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-            color: isSelected ? color : AppTheme.textDark,
+        child: ListTile(
+          dense: true,
+          leading: Icon(icon, color: color, size: 20),
+          title: Text(
+            title,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+              color: isSelected ? color : AppTheme.textDark,
+            ),
           ),
+          onTap: onTap,
         ),
-        onTap: onTap,
       ),
     );
   }

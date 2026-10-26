@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FemSphere - Full System UML Collaboration Diagram (A4 Printable)</title>
+  <style>
+    @page {
+      size: A4 portrait;
+      margin: 8mm;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: #f1f5f9;
+      color: #0f172a;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    .toolbar {
+      width: 210mm;
+      max-width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding: 12px 20px;
+      background: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .toolbar h1 {
+      font-size: 16px;
+      font-weight: 700;
+      color: #6d28d9;
+    }
+    .btn-group {
+      display: flex;
+      gap: 10px;
+    }
+    .btn {
+      background: #7c3aed;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.2s;
+    }
+    .btn:hover {
+      background: #6d28d9;
+    }
+    .btn-secondary {
+      background: #e2e8f0;
+      color: #334155;
+    }
+    .btn-secondary:hover {
+      background: #cbd5e1;
+    }
+    .a4-page {
+      width: 210mm;
+      height: 297mm;
+      max-height: 297mm;
+      background: #ffffff;
+      padding: 10mm 12mm;
+      border-radius: 4px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+    }
+    .diagram-header {
+      border-bottom: 2px solid #7c3aed;
+      padding-bottom: 6px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+    .diagram-header h2 {
+      font-size: 17px;
+      font-weight: 800;
+      color: #1e1b4b;
+      letter-spacing: -0.4px;
+    }
+    .diagram-header span {
+      font-size: 11px;
+      color: #64748b;
+      font-weight: 500;
+    }
+    .badge {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 700;
+      font-size: 9px;
+      background: #ede9fe;
+      color: #6d28d9;
+    }
+    
+    /* SVG Canvas Styles */
+    .svg-wrapper {
+      flex: 1;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    svg.uml-diagram {
+      width: 100%;
+      height: 100%;
+      max-height: 188mm;
+    }
+    .uml-box {
+      fill: #ffffff;
+      stroke: #1e1b4b;
+      stroke-width: 1.8;
+      rx: 5;
+    }
+    .uml-box-actor {
+      fill: #faf5ff;
+      stroke: #7c3aed;
+      stroke-width: 2;
+      rx: 6;
+    }
+    .uml-box-core {
+      fill: #f5f3ff;
+      stroke: #6d28d9;
+      stroke-width: 2.2;
+      rx: 6;
+    }
+    .uml-box-db {
+      fill: #f8fafc;
+      stroke: #334155;
+      stroke-width: 1.8;
+      rx: 5;
+    }
+    .uml-box-ai {
+      fill: #fdf2f8;
+      stroke: #db2777;
+      stroke-width: 2;
+      rx: 6;
+    }
+    .uml-title {
+      font-size: 11.5px;
+      font-weight: 800;
+      text-anchor: middle;
+      dominant-baseline: central;
+      font-family: inherit;
+    }
+    .uml-subtitle {
+      font-size: 9px;
+      fill: #64748b;
+      text-anchor: middle;
+      font-family: inherit;
+    }
+    .link-line {
+      stroke: #475569;
+      stroke-width: 1.4;
+      fill: none;
+    }
+    .link-msg {
+      font-size: 8.5px;
+      font-weight: 600;
+      fill: #0f172a;
+      font-family: inherit;
+    }
+    .msg-num {
+      fill: #6d28d9;
+      font-weight: 800;
+    }
+
+    /* Footer Table */
+    .diagram-footer {
+      border-top: 1.5px solid #e2e8f0;
+      padding-top: 6px;
+      margin-top: 4px;
+    }
+    .sequence-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 9px;
+      line-height: 1.25;
+    }
+    .sequence-table th {
+      background: #f8fafc;
+      color: #334155;
+      font-weight: 700;
+      text-align: left;
+      padding: 3px 6px;
+      border: 1px solid #e2e8f0;
+    }
+    .sequence-table td {
+      padding: 2.5px 6px;
+      border: 1px solid #e2e8f0;
+      color: #334155;
+    }
+
+    @media print {
+      body {
+        background: none;
+        padding: 0;
+      }
+      .toolbar {
+        display: none;
+      }
+      .a4-page {
+        width: 210mm;
+        height: 297mm;
+        box-shadow: none;
+        border-radius: 0;
+        padding: 8mm 10mm;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="toolbar">
+    <div>
+      <h1>FemSphere – Full Project UML 2.5 Collaboration Diagram</h1>
+      <span style="font-size: 12px; color: #64748b;">Complete Architecture: Mobile App, AI Twin, Wearables, Doctor & Caregiver Portals, Cloud DB</span>
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-secondary" onclick="toggleView()">Switch to AI Rendered Image</button>
+      <button class="btn" onclick="window.print()">
+        <svg width="15" height="15" fill="currentColor" viewBox="0 0 16 16">
+          <path d="M2.5 8a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z"/>
+          <path d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2H5zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4V3zm1 5a2 2 0 0 0-2 2v1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-1a2 2 0 0 0-2-2H5zm7 2v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1z"/>
+        </svg>
+        Print / Save A4 PDF
+      </button>
+    </div>
+  </div>
+
+  <div class="a4-page">
+    <div class="diagram-header">
+      <div>
+        <h2>FemSphere: Full System UML 2.5 Collaboration Diagram</h2>
+        <span>Lifetime AI Health Twin, Mobile Client, Wearables, Clinical Portal, & Backend Engine</span>
+      </div>
+      <div>
+        <span class="badge">A4 Standard Format</span>
+        <span style="margin-left: 6px; font-size: 9.5px; color: #94a3b8;">UML Communication Standard</span>
+      </div>
+    </div>
+
+    <!-- Main Vector Diagram Canvas -->
+    <div class="svg-wrapper" id="vectorContainer">
+      <svg class="uml-diagram" viewBox="0 0 780 680">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#475569" />
+          </marker>
+          <marker id="arrow-purple" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#7c3aed" />
+          </marker>
+          <marker id="arrow-pink" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#db2777" />
+          </marker>
+        </defs>
+
+        <!-- ================= LINKS & LABELS ================= -->
+        <!-- Link: Patient <-> FemSphere Client -->
+        <path d="M 120 95 L 120 230" class="link-line" marker-end="url(#arrow)" marker-start="url(#arrow)" />
+        <text x="126" y="145" class="link-msg"><tspan class="msg-num">1.0: </tspan>Login / Load Profile &rarr;</text>
+        <text x="126" y="160" class="link-msg"><tspan class="msg-num">2.0: </tspan>Log Cycle & Symptoms &rarr;</text>
+        <text x="126" y="175" class="link-msg"><tspan class="msg-num">10.0: </tspan>&larr; Personalized Insights</text>
+
+        <!-- Link: Wearables <-> FemSphere Client -->
+        <path d="M 120 440 L 120 310" class="link-line" marker-end="url(#arrow)" />
+        <text x="126" y="375" class="link-msg"><tspan class="msg-num">3.0: </tspan>Stream BLE / Health Connect &uarr;</text>
+        <text x="126" y="390" class="link-msg" fill="#64748b" font-size="8">(HR, SpO2, Sleep, Steps)</text>
+
+        <!-- Link: FemSphere Client <-> API Gateway -->
+        <path d="M 215 270 L 375 270" class="link-line" marker-end="url(#arrow)" marker-start="url(#arrow)" />
+        <text x="235" y="254" class="link-msg"><tspan class="msg-num">1.1: </tspan>JWT Auth &amp; Telemetry Batch &rarr;</text>
+        <text x="235" y="286" class="link-msg"><tspan class="msg-num">4.0: </tspan>Upload Lab Reports &rarr;</text>
+        <text x="235" y="300" class="link-msg"><tspan class="msg-num">10.1: </tspan>&larr; Twin Model Payload</text>
+
+        <!-- Link: API Gateway <-> AI Twin Engine -->
+        <path d="M 545 270 L 635 270" class="link-line" marker-end="url(#arrow-pink)" marker-start="url(#arrow-pink)" />
+        <text x="552" y="254" class="link-msg"><tspan class="msg-num">5.0: </tspan>Gemini OCR Extraction &rarr;</text>
+        <text x="552" y="286" class="link-msg"><tspan class="msg-num">6.0: </tspan>Simulate Health Twin &rarr;</text>
+        <text x="552" y="300" class="link-msg"><tspan class="msg-num">6.1: </tspan>&larr; Risk Trajectory Scores</text>
+
+        <!-- Link: API Gateway <-> PostgreSQL DB -->
+        <path d="M 460 310 L 460 440" class="link-line" marker-end="url(#arrow)" marker-start="url(#arrow)" />
+        <text x="468" y="365" class="link-msg"><tspan class="msg-num">7.0: </tspan>Upsert Health Data &darr;</text>
+        <text x="468" y="380" class="link-msg"><tspan class="msg-num">7.1: </tspan>Store Cycles &amp; Twin &darr;</text>
+        <text x="468" y="395" class="link-msg"><tspan class="msg-num">7.2: </tspan>&uarr; Query History &amp; EHR</text>
+
+        <!-- Link: API Gateway <-> Encrypted Storage -->
+        <path d="M 525 310 L 655 440" class="link-line" marker-end="url(#arrow)" />
+        <text x="590" y="365" class="link-msg"><tspan class="msg-num">4.1: </tspan>Save Encrypted Files &searr;</text>
+        <text x="590" y="380" class="link-msg" fill="#64748b" font-size="8">(Prescriptions, PDF Lab Reports)</text>
+
+        <!-- Link: API Gateway <-> Doctor / Clinician -->
+        <path d="M 460 230 L 460 95" class="link-line" marker-end="url(#arrow)" marker-start="url(#arrow)" />
+        <text x="468" y="150" class="link-msg"><tspan class="msg-num">8.0: </tspan>&uarr; Doctor EHR Review</text>
+        <text x="468" y="165" class="link-msg"><tspan class="msg-num">8.1: </tspan>Issue Digital Rx &amp; Consult &darr;</text>
+
+        <!-- Link: API Gateway <-> Caregiver / Guardian -->
+        <path d="M 495 235 L 640 95" class="link-line" marker-end="url(#arrow)" />
+        <text x="560" y="155" class="link-msg"><tspan class="msg-num">9.1: </tspan>Family Health Summary &nearr;</text>
+        <text x="560" y="170" class="link-msg"><tspan class="msg-num">9.2: </tspan>Medication Reminders &nearr;</text>
+
+        <!-- Link: API Gateway <-> Emergency Dispatcher -->
+        <path d="M 405 310 L 295 440" class="link-line" marker-end="url(#arrow-purple)" />
+        <text x="270" y="365" class="link-msg"><tspan class="msg-num">9.0: </tspan>Trigger Emergency SOS &swarr;</text>
+        <text x="270" y="380" class="link-msg" fill="#64748b" font-size="8">(FCM Push / SMS Alerts)</text>
+
+        <!-- Link: Emergency Dispatcher -> Caregiver -->
+        <path d="M 290 495 Q 260 560 380 560 Q 730 560 710 110" class="link-line" stroke-dasharray="4,3" marker-end="url(#arrow)" />
+        <text x="460" y="552" class="link-msg" text-anchor="middle" fill="#dc2626"><tspan class="msg-num">9.3: </tspan>Instant SMS / Push Alert to Guardian & Doctors</text>
+
+        <!-- ================= UML OBJECT BOXES ================= -->
+        <!-- Object: Patient -->
+        <rect x="35" y="45" width="170" height="50" class="uml-box-actor" />
+        <text x="120" y="65" class="uml-title" fill="#6d28d9">:Patient / Female User</text>
+        <text x="120" y="82" class="uml-subtitle">Actor (Wearer / Mobile User)</text>
+
+        <!-- Object: Doctor -->
+        <rect x="375" y="45" width="170" height="50" class="uml-box-actor" />
+        <text x="460" y="65" class="uml-title" fill="#0369a1">:Doctor / Clinician</text>
+        <text x="460" y="82" class="uml-subtitle">Actor (Web Clinical Portal)</text>
+
+        <!-- Object: Caregiver -->
+        <rect x="600" y="45" width="160" height="50" class="uml-box-actor" />
+        <text x="680" y="65" class="uml-title" fill="#b45309">:Caregiver / Guardian</text>
+        <text x="680" y="82" class="uml-subtitle">Actor (Family Companion)</text>
+
+        <!-- Object: FemSphere Mobile Client -->
+        <rect x="25" y="230" width="190" height="80" class="uml-box-core" />
+        <text x="120" y="254" class="uml-title" fill="#4c1d95">:FemSphere App Client</text>
+        <text x="120" y="271" class="uml-subtitle">Flutter (Android / iOS / Web)</text>
+        <text x="120" y="287" class="uml-subtitle" font-size="8">Dashboards, Health Twin UI, SOS</text>
+        <text x="120" y="300" class="uml-subtitle" font-size="8">Cycle Tracking, Wearable Connect</text>
+
+        <!-- Object: Wearables IoT Layer -->
+        <rect x="30" y="440" width="180" height="60" class="uml-box" />
+        <text x="120" y="462" class="uml-title" fill="#0f172a">:Wearables &amp; Health Connect</text>
+        <text x="120" y="478" class="uml-subtitle">IoT / GATT Layer</text>
+        <text x="120" y="492" class="uml-subtitle" font-size="8">Amazfit, Bip U Pro, Zepp, BLE, OS API</text>
+
+        <!-- Object: API Gateway & Core Server -->
+        <rect x="375" y="230" width="170" height="80" class="uml-box-core" />
+        <text x="460" y="254" class="uml-title" fill="#4c1d95">:FemSphere API Gateway</text>
+        <text x="460" y="271" class="uml-subtitle">Node.js &amp; Express Engine</text>
+        <text x="460" y="287" class="uml-subtitle" font-size="8">JWT Auth, RBAC, Data Sync Router</text>
+        <text x="460" y="300" class="uml-subtitle" font-size="8">Health Data Ingestion &amp; Controllers</text>
+
+        <!-- Object: AI Twin & ML Engine -->
+        <rect x="635" y="230" width="135" height="80" class="uml-box-ai" />
+        <text x="702" y="252" class="uml-title" fill="#9d174d">:AI Health Twin</text>
+        <text x="702" y="267" class="uml-title" fill="#9d174d">&amp; Gemini OCR</text>
+        <text x="702" y="283" class="uml-subtitle">Multimodal Intelligence</text>
+        <text x="702" y="297" class="uml-subtitle" font-size="8">Biomarkers, Risk Engine</text>
+
+        <!-- Object: PostgreSQL Database -->
+        <rect x="365" y="440" width="190" height="60" class="uml-box-db" />
+        <text x="460" y="462" class="uml-title" fill="#0f172a">:PostgreSQL Database</text>
+        <text x="460" y="478" class="uml-subtitle">Relational Storage Tier</text>
+        <text x="460" y="492" class="uml-subtitle" font-size="8">users, cycle_logs, smartwatch_health_data</text>
+
+        <!-- Object: Emergency & Alert Dispatcher -->
+        <rect x="225" y="440" width="130" height="55" class="uml-box" />
+        <text x="290" y="460" class="uml-title" fill="#dc2626">:Emergency SOS</text>
+        <text x="290" y="475" class="uml-subtitle">Alert Dispatcher</text>
+        <text x="290" y="488" class="uml-subtitle" font-size="8">FCM Push, SMS Gateway</text>
+
+        <!-- Object: Encrypted Cloud Storage -->
+        <rect x="585" y="440" width="165" height="55" class="uml-box" />
+        <text x="667" y="460" class="uml-title" fill="#0f172a">:Encrypted Cloud Store</text>
+        <text x="667" y="475" class="uml-subtitle">Medical Record Vault</text>
+        <text x="667" y="488" class="uml-subtitle" font-size="8">Lab PDFs, OCR Scans, Rx Files</text>
+      </svg>
+    </div>
+
+    <!-- Fallback / Switchable Image Container -->
+    <div class="image-container" id="imageContainer" style="display: none; justify-content: center; align-items: center; height: 188mm;">
+      <img src="file:///C:/Users/mkeer/.gemini/antigravity-ide/brain/be84a898-3a18-4540-9f99-634151598e04/femsphere_full_collaboration_diagram_1792989091616.jpg" style="max-width: 100%; max-height: 180mm; object-fit: contain; border: 1px solid #e2e8f0; border-radius: 6px;">
+    </div>
+
+    <!-- Complete Sequence Legend Table -->
+    <div class="diagram-footer">
+      <table class="sequence-table">
+        <thead>
+          <tr>
+            <th style="width: 8%;">Msg #</th>
+            <th style="width: 27%;">Message Flow (Origin &rarr; Target)</th>
+            <th style="width: 40%;">Subsystem Function / Operation</th>
+            <th style="width: 25%;">Protocol / Mechanism</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge">1.0 - 1.1</span></td>
+            <td><code>:Patient</code> &rarr; <code>:FemSphere Client</code> &rarr; <code>:API Gateway</code></td>
+            <td>User authentication, profile initialization, role-based access control (RBAC).</td>
+            <td>HTTPS POST <code>/api/auth/login</code> (JWT)</td>
+          </tr>
+          <tr>
+            <td><span class="badge">2.0</span></td>
+            <td><code>:Patient</code> &rarr; <code>:FemSphere Client</code> &rarr; <code>:API Gateway</code></td>
+            <td>Menstrual cycle logging (period dates, symptoms, mood, ovulation, PCOS indicators).</td>
+            <td>REST API <code>/api/cycle</code> &rarr; PostgreSQL</td>
+          </tr>
+          <tr>
+            <td><span class="badge">3.0</span></td>
+            <td><code>:Wearables / IoT</code> &rarr; <code>:FemSphere Client</code></td>
+            <td>Live telemetry ingestion (Continuous Heart Rate, SpO2, sleep stages, step counts).</td>
+            <td>BLE GATT + Android Health Connect</td>
+          </tr>
+          <tr>
+            <td><span class="badge">4.0 - 4.1</span></td>
+            <td><code>:FemSphere Client</code> &rarr; <code>:API Gateway</code> &rarr; <code>:Encrypted Store</code></td>
+            <td>Medical diagnostic document upload (blood tests, ultrasounds, doctor prescriptions).</td>
+            <td>Multipart <code>/api/records/upload</code> & Encrypted FS</td>
+          </tr>
+          <tr>
+            <td><span class="badge">5.0</span></td>
+            <td><code>:API Gateway</code> &rarr; <code>:AI Twin & Gemini OCR</code></td>
+            <td>Document parsing, clinical entity extraction, and biomarker value identification.</td>
+            <td>Google Gemini Multimodal Vision API</td>
+          </tr>
+          <tr>
+            <td><span class="badge">6.0 - 6.1</span></td>
+            <td><code>:API Gateway</code> &rarr; <code>:AI Health Twin Engine</code></td>
+            <td>Digital Health Twin simulation: biological age calculation, hormonal phase prediction.</td>
+            <td>Predictive Biomarker ML Models</td>
+          </tr>
+          <tr>
+            <td><span class="badge">7.0 - 7.2</span></td>
+            <td><code>:API Gateway</code> &harr; <code>:PostgreSQL Database</code></td>
+            <td>Persistent storage of user profiles, time-series vitals, cycle history, and twin metrics.</td>
+            <td>Relational SQL queries (Pool / Neon)</td>
+          </tr>
+          <tr>
+            <td><span class="badge">8.0 - 8.1</span></td>
+            <td><code>:Doctor</code> &harr; <code>:API Gateway</code></td>
+            <td>Remote clinician teleconsultation, patient EHR chart review, and digital Rx generation.</td>
+            <td>Doctor Portal REST / WebSocket</td>
+          </tr>
+          <tr>
+            <td><span class="badge">9.0 - 9.3</span></td>
+            <td><code>:API Gateway</code> &rarr; <code>:Emergency SOS</code> &rarr; <code>:Caregiver</code></td>
+            <td>Critical anomaly detection (severe bradycardia/tachycardia) & one-tap emergency SOS broadcast.</td>
+            <td>FCM Push Notifications & Twilio SMS</td>
+          </tr>
+          <tr>
+            <td><span class="badge">10.0</span></td>
+            <td><code>:API Gateway</code> &rarr; <code>:FemSphere Client</code></td>
+            <td>Dynamic 3D Digital Twin visualization, tailored nutrition, lifestyle & fertility guidance.</td>
+            <td>Reactive JSON Twin State Payload</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    function toggleView() {
+      const v = document.getElementById('vectorContainer');
+      const img = document.getElementById('imageContainer');
+      const btn = event.target;
+      if (v.style.display !== 'none') {
+        v.style.display = 'none';
+        img.style.display = 'flex';
+        btn.innerText = 'Switch to Razor-Sharp Vector';
+      } else {
+        v.style.display = 'flex';
+        img.style.display = 'none';
+        btn.innerText = 'Switch to AI Rendered Image';
+      }
+    }
+  </script>
+
+</body>
+</html>
