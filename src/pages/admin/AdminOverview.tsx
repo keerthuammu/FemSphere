@@ -16,9 +16,17 @@ import {
 import { useAdmin } from '../../context/AdminContext';
 
 export default function AdminOverview() {
-  const { stats, doctors, approveDoctor, rejectDoctor, adminProfile, currentTime } = useAdmin();
+  const { stats, users, doctors, approveDoctor, rejectDoctor, adminProfile, currentTime } = useAdmin();
 
   const pendingDoctors = doctors.filter(d => d.status === 'Pending');
+
+  // Exact regular registered users count (excluding doctor/caregiver/admin accounts)
+  const regularUsersCount = users.filter(u => {
+    const roleLower = (u.role || '').toLowerCase();
+    return !roleLower.includes('admin') && !roleLower.includes('doctor') && !roleLower.includes('caregiver');
+  }).length;
+
+  const displayUsersCount = users.length > 0 ? regularUsersCount : stats.totalUsers;
 
   return (
     <div className="space-y-5 font-inter">
@@ -55,7 +63,7 @@ export default function AdminOverview() {
             <span className="text-[10px] uppercase font-bold tracking-wider text-purple-200 bg-white/10 px-2 py-0.5 rounded-full border border-white/20">
               Users
             </span>
-            <h3 className="text-2xl font-bold mt-1.5">{stats.totalUsers}</h3>
+            <h3 className="text-2xl font-bold mt-1.5">{displayUsersCount}</h3>
             <p className="text-[11px] text-purple-100 font-medium">Regular Accounts</p>
           </div>
           <Link 

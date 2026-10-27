@@ -4,7 +4,10 @@ import bcrypt from 'bcryptjs';
 // 1. System Statistics
 export const getSystemStats = async (req, res) => {
   try {
-    const usersCount = await pool.query('SELECT COUNT(*) FROM users');
+    const regularUsersCount = await pool.query(
+      "SELECT COUNT(*) FROM users WHERE role NOT ILIKE '%admin%' AND role NOT ILIKE '%doctor%' AND role NOT ILIKE '%caregiver%'"
+    );
+    const totalAllAccounts = await pool.query('SELECT COUNT(*) FROM users');
     const doctorsCount = await pool.query("SELECT COUNT(*) FROM doctors WHERE approval_status = 'Approved'");
     const caregiversCount = await pool.query('SELECT COUNT(*) FROM caregivers');
     const recordsCount = await pool.query('SELECT COUNT(*) FROM medical_records');
@@ -13,7 +16,8 @@ export const getSystemStats = async (req, res) => {
     res.json({
       success: true,
       stats: {
-        totalUsers: parseInt(usersCount.rows[0].count),
+        totalUsers: parseInt(regularUsersCount.rows[0].count),
+        totalAllAccounts: parseInt(totalAllAccounts.rows[0].count),
         totalDoctors: parseInt(doctorsCount.rows[0].count),
         totalCaregivers: parseInt(caregiversCount.rows[0].count),
         totalMedicalRecords: parseInt(recordsCount.rows[0].count),

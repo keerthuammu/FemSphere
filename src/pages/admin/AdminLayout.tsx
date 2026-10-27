@@ -15,6 +15,8 @@ export default function AdminLayout() {
     currentTime,
     handleLogout,
     stats,
+    users,
+    caregivers,
     // Add User Modal
     showAddUserModal,
     setShowAddUserModal,
@@ -44,6 +46,15 @@ export default function AdminLayout() {
   } = useAdmin();
 
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
+
+  // Exact regular registered users count (excluding doctor/caregiver/admin accounts)
+  const regularUsersCount = users.filter(u => {
+    const roleLower = (u.role || '').toLowerCase();
+    return !roleLower.includes('admin') && !roleLower.includes('doctor') && !roleLower.includes('caregiver');
+  }).length;
+
+  const displayUsersCount = users.length > 0 ? regularUsersCount : stats.totalUsers;
+  const displayCaregiversCount = caregivers.length > 0 ? caregivers.length : stats.totalCaregivers;
 
   return (
     <div className="min-h-screen bg-[#FAF7F4] flex font-sans text-[#2E2428]">
@@ -89,7 +100,7 @@ export default function AdminLayout() {
                 <span className="truncate">Users</span>
               </div>
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white text-[#936DA2] border border-[#E5CDBC]">
-                {stats.totalUsers}
+                {displayUsersCount}
               </span>
             </NavLink>
 
@@ -105,7 +116,7 @@ export default function AdminLayout() {
                 <span className="truncate">Caregivers</span>
               </div>
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white text-[#936DA2] border border-[#E5CDBC]">
-                {stats.totalCaregivers}
+                {displayCaregiversCount}
               </span>
             </NavLink>
 
